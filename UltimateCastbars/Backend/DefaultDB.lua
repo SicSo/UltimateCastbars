@@ -182,8 +182,8 @@ local Player = {
         textureNameBack = "Blizzard Dialog Background",
         textureBorder = "Interface\\TargetingFrame\\UI-StatusBar",
         textureNameBorder = "Blizzard",
-        textureIcon = "Interface\\TargetingFrame\\UI-StatusBar",
-        textureNameIcon = "Blizzard",
+        textureBorderIcon = "Interface\\TargetingFrame\\UI-StatusBar",
+        textureNameBorderIcon = "Blizzard",
 
         --textureNameBorder = "1 Pixel",
         --textureBorder = "Interface\\Buttons\\WHITE8X8",

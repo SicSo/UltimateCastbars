@@ -669,9 +669,9 @@ local function BuildIconArgs(args, unit)
                 type  = "toggle",
                 name  = "Show Cast Icon",
                 order = 1,
-                get   = function() return g.showCastIcon ~= false end,
+                get   = function() return g.showCastIcon end,
                 set   = function(_, val)
-                    g.showCastIcon = val and true or false
+                    g.showCastIcon = val
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
             },

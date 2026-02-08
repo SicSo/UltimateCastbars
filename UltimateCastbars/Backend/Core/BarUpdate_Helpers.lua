@@ -264,7 +264,7 @@ function BarUpdate_API:UpdateBorderBar(unit)
             top    = cfg.borderOffsetTop,
             bottom = cfg.borderOffsetBottom,
         },
-        -1 
+        -1
     )
 end
 

@@ -286,7 +286,7 @@ local function BuildCustomisationArgs(args, unit)
                 get   = function() return cfg.syncBorderIcon end,
                 set   = function(_, val)
                     cfg.syncBorderIcon = val
-                    STYLE_API:RebuildOffsets(args, cfg, UIOptions, unit)
+                    STYLE_API:RebuildOffsets(args, cfg, UIOptions, unit, cfg.borderThickness, cfg.borderThicknessIcon)
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
                 disabled = function() return cfg.showBorderIcon == false end,
