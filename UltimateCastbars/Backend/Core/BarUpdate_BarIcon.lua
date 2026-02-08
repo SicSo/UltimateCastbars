@@ -323,13 +323,13 @@ local function LayoutIconAndBar2(bar, cfg)
         -- corners: keep your existing corner logic EXACTLY (per request)
         bar:SetPoint("TOPLEFT", group, "TOPLEFT", 0, 0)
         if iconAnchor == "TOPLEFT" then
-            bar.iconFrame:SetPoint("TOPLEFT", bar, "BOTTOMRIGHT", cfg.iconOffsetX or 0, cfg.iconOffsetY or 0)
-        elseif iconAnchor == "TOPRIGHT" then
-            bar.iconFrame:SetPoint("TOPRIGHT", bar, "BOTTOMLEFT", cfg.iconOffsetX or 0, cfg.iconOffsetY or 0)
-        elseif iconAnchor == "BOTTOMLEFT" then
-            bar.iconFrame:SetPoint("BOTTOMLEFT", bar, "TOPRIGHT", cfg.iconOffsetX or 0, cfg.iconOffsetY or 0)
-        elseif iconAnchor == "BOTTOMRIGHT" then
             bar.iconFrame:SetPoint("BOTTOMRIGHT", bar, "TOPLEFT", cfg.iconOffsetX or 0, cfg.iconOffsetY or 0)
+        elseif iconAnchor == "TOPRIGHT" then
+            bar.iconFrame:SetPoint("BOTTOMLEFT", bar, "TOPRIGHT", cfg.iconOffsetX or 0, cfg.iconOffsetY or 0)
+        elseif iconAnchor == "BOTTOMLEFT" then
+            bar.iconFrame:SetPoint("TOPRIGHT", bar, "BOTTOMLEFT", cfg.iconOffsetX or 0, cfg.iconOffsetY or 0)
+        elseif iconAnchor == "BOTTOMRIGHT" then
+            bar.iconFrame:SetPoint("TOPLEFT", bar, "BOTTOMRIGHT", cfg.iconOffsetX or 0, cfg.iconOffsetY or 0)
         end
     end
 
