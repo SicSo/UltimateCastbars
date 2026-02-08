@@ -120,7 +120,7 @@ function UCB:OpenGUI()
 
 
     -- Header links (left of the close X)
-    local discordUrl = "https://discord.gg/pxuEMHJS"
+    local discordUrl = "https://discord.gg/wX5hWW3N3Q"
     local supportUrl = "https://ko-fi.com/sicso"
 
     GUIWidgets:AttachBottomLeftLinks(Container, {

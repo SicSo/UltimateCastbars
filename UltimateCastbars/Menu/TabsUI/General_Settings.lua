@@ -35,7 +35,7 @@ local function BuildFramePickerArgs(args, unit)
                 frameClickedLast = {
                     type = "header",
                     name = function()
-                        return "Frame clicked last: "..UIOptions.ColorText(UIOptions.blue, g.frameLastClicked)
+                        return "Frame clicked last: "..UIOptions.ColorText(UIOptions.turquoise, g.frameLastClicked)
                     end,
                     width = "full",
                     order = 1,
@@ -334,7 +334,7 @@ local function BuildSizeArgs(args, unit)
                     widthFrameStats = {
                         type = "header",
                         name = function ()
-                            return "Width: "..UIOptions.ColorText(UIOptions.blue, GeneralSettings_API:getFrame(g.widthInput):GetWidth()).."; Height: "..UIOptions.ColorText(UIOptions.blue, GeneralSettings_API:getFrame(g.widthInput):GetHeight())
+                            return "Width: "..UIOptions.ColorText(UIOptions.turquoise, GeneralSettings_API:getFrame(g.widthInput):GetWidth()).."; Height: "..UIOptions.ColorText(UIOptions.turquoise, GeneralSettings_API:getFrame(g.widthInput):GetHeight())
                         end,
                         order = 2,
                         width = "full",
@@ -406,7 +406,7 @@ local function BuildSizeArgs(args, unit)
                     widthFrameStats = {
                         type = "header",
                         name = function ()
-                            return "Width: "..UIOptions.ColorText(UIOptions.blue, GeneralSettings_API:getFrame(g.heightInput):GetWidth()).."; Height: "..UIOptions.ColorText(UIOptions.blue, GeneralSettings_API:getFrame(g.heightInput):GetHeight())
+                            return "Width: "..UIOptions.ColorText(UIOptions.turquoise, GeneralSettings_API:getFrame(g.heightInput):GetWidth()).."; Height: "..UIOptions.ColorText(UIOptions.turquoise, GeneralSettings_API:getFrame(g.heightInput):GetHeight())
                         end,
                         order = 2,
                         width = "full",

@@ -187,15 +187,15 @@ local function tagUI(key, cfg, bigCFG, unit)
             tagHint1 = {
                 type = "description",
                 name = "Available Preset Tags:\n" ..
-                       UIOptions.ColorText(UIOptions.blue, "[sName:X]").." - Spell Name (X repesents the number of maximum allowed characters with an additioanl \"...\" and can be ommited for the use [sName], default is full text; text is seen as default)\n" ..
-                       UIOptions.ColorText(UIOptions.blue, "[rTime:X]").." - Remaining Time (in seconds, X repesents the number of decimals and can be ommited for thse use of [rTime], default is 1 decimal; text is seen as default)\n" ..
-                       UIOptions.ColorText(UIOptions.blue, "[rTimeInv:X]").." - Invesre Remaining Time (in seconds, X repesents the number of decimals and can be ommited for thse use of [rTime], default is 1 decimal; text is seen as default)\n" ..
-                       UIOptions.ColorText(UIOptions.blue, "[dTime:X]").." - Duration Time (in seconds, X repesents the number of decimals and can be ommited for thse use of [dTime], default is 1 decimal; text is seen as default)\n" ..
-                       UIOptions.ColorText(UIOptions.blue, "[rPerTime:X]").." - Remaining Time Percentage (X repesents the number of decimals and can be ommited for thse use of [rPerTime], default is 1 decimal; text is seen as default)\n" ..
-                       UIOptions.ColorText(UIOptions.blue, "[rPerTimeInv:X]").." - Inverse Remaining Time Percentage (X repesents the number of decimals and can be ommited for thse use of [rPerTime], default is 1 decimal; text is seen as default)\n" ..
-                       UIOptions.ColorText(UIOptions.blue, "[dPerTime]").." - Duration Time Percentage (just 100)"..
-                       UIOptions.ColorText(UIOptions.blue, "[cIntr:X]").." - Intreruptable spell (X reprsents the text displayed, by ommiting it is Intr.)"..
-                       UIOptions.ColorText(UIOptions.blue, "[cIntrInv:X]").." - Unintreruptable spell (X reprsents the text displayed, by ommiting it is Unintr.)",
+                       UIOptions.ColorText(UIOptions.turquoise, "[sName:X]").." - Spell Name (X repesents the number of maximum allowed characters with an additioanl \"...\" and can be ommited for the use [sName], default is full text; text is seen as default)\n" ..
+                       UIOptions.ColorText(UIOptions.turquoise, "[rTime:X]").." - Remaining Time (in seconds, X repesents the number of decimals and can be ommited for thse use of [rTime], default is 1 decimal; text is seen as default)\n" ..
+                       UIOptions.ColorText(UIOptions.turquoise, "[rTimeInv:X]").." - Invesre Remaining Time (in seconds, X repesents the number of decimals and can be ommited for thse use of [rTime], default is 1 decimal; text is seen as default)\n" ..
+                       UIOptions.ColorText(UIOptions.turquoise, "[dTime:X]").." - Duration Time (in seconds, X repesents the number of decimals and can be ommited for thse use of [dTime], default is 1 decimal; text is seen as default)\n" ..
+                       UIOptions.ColorText(UIOptions.turquoise, "[rPerTime:X]").." - Remaining Time Percentage (X repesents the number of decimals and can be ommited for thse use of [rPerTime], default is 1 decimal; text is seen as default)\n" ..
+                       UIOptions.ColorText(UIOptions.turquoise, "[rPerTimeInv:X]").." - Inverse Remaining Time Percentage (X repesents the number of decimals and can be ommited for thse use of [rPerTime], default is 1 decimal; text is seen as default)\n" ..
+                       UIOptions.ColorText(UIOptions.turquoise, "[dPerTime]").." - Duration Time Percentage (just 100)"..
+                       UIOptions.ColorText(UIOptions.turquoise, "[cIntr:X]").." - Intreruptable spell (X reprsents the text displayed, by ommiting it is Intr.)"..
+                       UIOptions.ColorText(UIOptions.turquoise, "[cIntrInv:X]").." - Unintreruptable spell (X reprsents the text displayed, by ommiting it is Unintr.)",
                 width = "full",
                 order = 2,
             },
