@@ -1,0 +1,781 @@
+local _, UCB = ...
+UCB.Options = UCB.Options or {}
+UCB.CASTBAR_API = UCB.CASTBAR_API or {}
+UCB.UIOptions = UCB.UIOptions or {}
+UCB.CFG_API = UCB.CFG_API or {}
+UCB.GeneralSettings_API = UCB.GeneralSettings_API or {}
+
+local CASTBAR_API = UCB.CASTBAR_API
+local Opt = UCB.Options
+local CFG_API = UCB.CFG_API
+local GetCfg = CFG_API.GetValueConfig
+local UIOptions = UCB.UIOptions
+local GeneralSettings_API = UCB.GeneralSettings_API
+
+
+
+local function BuildFramePickerArgs(args, unit)
+    local g = CFG_API:Proxy(unit, {"general"})
+
+    args.framePickerGrp = {
+        type = "group",
+        name = "Frame Picker",
+        inline = true,
+        order = 0,
+        args = {
+                info = {
+                    order = 1,
+                    width = "full",
+                    type = "description",
+                    name ="This is a helepr functionality to find the desired frame within your UI. You can use it to find frame to anchor the castbar to or sync the width or height."..
+                        "To do so, click the 'Grab Mouseover Frame' button and then hover on any frame within the UI. The frame will be highlighted in green. If you are looking for another frame on another strata,".. 
+                        "press the keys UP/DOWN arrows to find change the strata level. Once you found the desired, click CTRL while hovering. The name of the frame will be shown in the 'Frame clicked' field and can be copied from there. "..
+                        "You can copy the value from the textbox above and paste it into the 'Custom Anchor Frame', 'Custom Width Frame' or 'Custom Height Frame' field."
+                },
+                frameClickedLast = {
+                    type = "header",
+                    name = function()
+                        return "Frame clicked last: "..UIOptions.ColorText(UIOptions.blue, g.frameLastClicked)
+                    end,
+                    width = "full",
+                    order = 1,
+                },
+                grabButton = {
+                    type = "execute",
+                    name = "Grab Mouseover Frame",
+                    order = 2,
+                    width = 1.5,
+                    func = function()
+                            UCB.SimpleFramePickerObj:Start(
+                                function(frameName)
+                                    g.frameLastClicked = frameName
+                                    UCB:RefreshGUI()
+                                end,
+                                function()
+                                    --print("Picker cancelled.")
+                                end
+                            )
+                    end,
+                },
+                gap1 = {
+                order = 2.5,
+                type = "description",
+                name = " ",
+                width = 0.1
+                },
+                frameLastClickedCopy = {
+                    type = "input",
+                    name = "Frame clicked",
+                    width = 1.2,
+                    order = 3,
+                    get = function() return g.frameLastClicked end,
+                    set = function() end,
+                },
+
+            }
+        }
+end
+local function BuildPositionArgs(args, unit)
+    local g = CFG_API:Proxy(unit, {"general"})
+
+    args.positionGrp = {
+        type = "group",
+        name = "Castbar Position",
+        inline = true,
+        order = 1,
+        args = {
+            anchorGrp = {
+                type = "group",
+                name = "Anchoring",
+                inline = true,
+                order = 1,
+                args = { 
+                    customAnchor = {
+                        type = "group",
+                        name = "Anchoring Frame",
+                        order = 1,
+                        args = {
+                            anchorNameHeader = {
+                                type = "header",
+                                name = function()
+                                    if g.useDefaultAnchor or g.anchorName == "" then
+                                        return "Anchored frame: "..UIOptions.ColorText(UIOptions.green, g._defaultAnchor)
+                                    elseif  g._anchorCustomError then
+                                        return "Anchored frame: "..UIOptions.ColorText(UIOptions.red, g._defaultAnchor.."(Error: "..g.anchorName..")")
+                                    end
+                                    return "Anchored frame: "..UIOptions.ColorText(UIOptions.green, g.anchorName)
+                                end,
+                                width = "full",
+                                order = 1,
+                            },
+                            toggleDefault = {
+                                type = "toggle",
+                                name = "Use Default Anchor (UIParent)",
+                                order = 2,
+                                width = "full",
+                                get = function() return g.useDefaultAnchor end,
+                                set = function(_, v)
+                                    g.useDefaultAnchor = v
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
+                            anchorCustomInput = {
+                                type = "input",
+                                name = "Custom Anchor Frame",
+                                order = 3,
+                                width = 1.2,
+                                get = function() return g.anchorName end,
+                                set = function(_, value) 
+                                    g.anchorName = value 
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                    GeneralSettings_API:addNewItemList(g.anchoredFrameList, value)
+                                    end,
+                                disabled = function() return g.useDefaultAnchor end,
+                            },
+                            gap1 = {
+                            order = 3.5,
+                            type = "description",
+                            name = " ",
+                            width = 0.1
+                            },
+                            anchoredFrameList = {
+                                type = "select",
+                                name = "Previously used custom anchor frames",
+                                order = 4,
+                                width = 1,
+                                values = function()
+                                    local list = {}
+                                    for _, fname in ipairs(g.anchoredFrameList or {}) do
+                                        list[fname] = fname
+                                    end
+                                    return list
+                                end,
+                                get = function() return g.anchorName end,
+                                set = function(_, value) 
+                                    g.anchorName = value
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                    end,
+                                disabled = function() return g.useDefaultAnchor end,
+                            },
+                            gap2 = {
+                            order = 3.5,
+                            type = "description",
+                            name = " ",
+                            width = 0.1
+                            },
+                            clearFramesList = {
+                                type = "execute",
+                                name = "Clear Frame List",
+                                order = 5,
+                                width = 1,
+                                func = function()
+                                        g.anchoredFrameList = {}
+                                        g.anchorName = ""
+                                        CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                                disabled = function() return g.useDefaultAnchor or not g.anchoredFrameList or #g.anchoredFrameList == 0 end,
+                            },
+                        }
+                    },
+                    normalAnchors = {
+                        type = "group",
+                        name = "Anchoring Settings",
+                        order = 2,
+                        inline = true,
+                        args = {
+                            anchorFrom = {
+                                type  = "select",
+                                name  = "Anchor From (point on the castbar)",
+                                order = 1,
+                                width = 1.5,
+                                values = UIOptions.anchors,
+                                get = function() return g.anchorFrom end,
+                                set = function(_, v)
+                                    g.anchorFrom = v
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
+                            anchorTo = {
+                                type  = "select",
+                                name  = "Anchor To (point on the anchoring frame)",
+                                order = 2,
+                                width = 1.5,
+                                values = UIOptions.anchors,
+                                get = function() return g.anchorTo end,
+                                set = function(_, v)
+                                    g.anchorTo = v
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
+                        }
+                    },
+                },
+            },
+            grpOffsets = {
+                type = "group",
+                name = "Offsets",
+                inline = true,
+                order = 2,
+                args = {
+                    offsetX = {
+                        type  = "range",
+                        name  = "X",
+                        min   = UIOptions.offsetMin_bar, max = UIOptions.offsetMax_bar, step = 1,
+                        order = 2,
+                        width = 1.5,
+                        get   = function() return g.offsetX end,
+                        set   = function(_, val)
+                            g.offsetX = val
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                    },
+                    offsetY = {
+                        type  = "range",
+                        name  = "Y",
+                        min   = UIOptions.offsetMin_bar, max = UIOptions.offsetMax_bar, step = 1,
+                        order = 3,
+                        width = 1.5,
+                        get   = function() return g.offsetY end,
+                        set   = function(_, val)
+                            g.offsetY = val
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                    }
+                }
+            },
+        },
+    }
+end
+
+local function BuildSizeArgs(args, unit)
+    local g = CFG_API:Proxy(unit, {"general"})
+
+    args.sizeGrp = {
+        type = "group",
+        name = "Castbar Size",
+        inline = true,
+        order = 2,
+        args = {
+            toggleGroup = {
+                type = "group",
+                name = "Size Control Mode",
+                inline = true,
+                order = 1,
+                args = {
+                    manualWidthToogle = {
+                        type = "toggle",
+                        name = "Use manual Width",
+                        order = 1,
+                        width = 1,
+                        get = function() return g.manualWidth end,
+                        set = function(_, v)
+                            g.manualWidth = v
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                    },
+                    manualHeightToogle = {
+                        type = "toggle",
+                        name = "Use manual Height",
+                        order = 2,
+                        width = 1,
+                        get = function() return g.manualHeight end,
+                        set = function(_, v)
+                            g.manualHeight = v
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                    },
+                    borderWidthToogle = {
+                        type = "toggle",
+                        name = "Include Border in Width",
+                        order = 3,
+                        width = 1,
+                        get = function() return g.includeBorderInWidth end,
+                        set = function(_, v)
+                            g.includeBorderInWidth = v
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                    },
+                    borderHeightToogle = {
+                        type = "toggle",
+                        name = "Include Border in Height",
+                        order = 4,
+                        width = 1,
+                        get = function() return g.includeBorderInHeight end,
+                        set = function(_, v)
+                            g.includeBorderInHeight = v
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                    },
+                }
+            },
+            widthFrameGroup = {
+                type = "group",
+                name = "Width Frame",
+                inline = true,
+                order = 2,
+                hidden = function()
+                    return g.manualWidth
+                end,
+                args = {
+                    widthFrameTitle = {
+                        type = "header",
+                        name = function()
+                            local str1
+                            if g.widthInput == "" or g._widthFrameError then
+                                str1 = "Frame "..UIOptions.ColorText(UIOptions.red, g.widthInput).." not used; ".."Width: "..g.barWidth.." (manual)"
+                            else
+                                str1 = "Frame "..UIOptions.ColorText(UIOptions.green, g.widthInput).." used"
+                            end
+                            return str1
+                        end,
+                        order = 1,
+                        width = "full",
+                    },
+                    widthFrameStats = {
+                        type = "header",
+                        name = function ()
+                            return "Width: "..UIOptions.ColorText(UIOptions.blue, GeneralSettings_API:getFrame(g.widthInput):GetWidth()).."; Height: "..UIOptions.ColorText(UIOptions.blue, GeneralSettings_API:getFrame(g.widthInput):GetHeight())
+                        end,
+                        order = 2,
+                        width = "full",
+                        hidden = function()
+                            return g.widthInput == "" or g._widthFrameError
+                        end,
+                    },
+                    widthFrameInput = {
+                        type = "input",
+                        name = "Custom Width Frame",
+                        order = 3,
+                        width = 1.2,
+                        get = function() return g.widthInput end,
+                        set = function(_, value)
+                            g.widthInput = value
+                            CASTBAR_API:UpdateCastbar(unit)
+                            GeneralSettings_API:addNewItemList(g.frameSizeList, value)
+                            end,
+                    },
+                    gap2 = {
+                    order = 3.5,
+                    type = "description",
+                    name = " ",
+                    width = 0.1
+                    },
+                    widthFrameSelect = {
+                        type = "select",
+                        name = "Previously used frames to sync",
+                        order = 4,
+                        width = 1,
+                        values = function()
+                            local list = {}
+                            for _, fname in ipairs(g.frameSizeList or {}) do
+                                list[fname] = fname
+                            end
+                            return list
+                        end,
+                        get = function() return g.widthInput end,
+                        set = function(_, value) 
+                            g.widthInput = value
+                            CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                    },
+                }
+            },
+            heightFrameGroup = {
+                type = "group",
+                name = "Height Frame",
+                inline = true,
+                order = 3,
+                hidden = function()
+                    return g.manualHeight
+                end,
+                args = {
+                    widthFrameTitle = {
+                        type = "header",
+                        name = function()
+                            local str1
+                            if g.heightInput == "" or g._heightFrameError then
+                                str1 = "Frame "..UIOptions.ColorText(UIOptions.red, g.heightInput).." not used; ".."Height: "..g.barHeight.." (manual)"
+                            else
+                                str1 = "Frame "..UIOptions.ColorText(UIOptions.green, g.heightInput).." used"
+                            end
+                            return str1
+                        end,
+                        order = 1,
+                        width = "full",
+                    },
+                    widthFrameStats = {
+                        type = "header",
+                        name = function ()
+                            return "Width: "..UIOptions.ColorText(UIOptions.blue, GeneralSettings_API:getFrame(g.heightInput):GetWidth()).."; Height: "..UIOptions.ColorText(UIOptions.blue, GeneralSettings_API:getFrame(g.heightInput):GetHeight())
+                        end,
+                        order = 2,
+                        width = "full",
+                        hidden = function()
+                            return g.heightInput == "" or g._heightFrameError
+                        end,
+                    },
+                    widthFrameInput = {
+                        type = "input",
+                        name = "Custom Height Frame",
+                        order = 3,
+                        width = 1.2,
+                        get = function() return g.heightInput end,
+                        set = function(_, value)
+                            g.heightInput = value
+                            CASTBAR_API:UpdateCastbar(unit)
+                            GeneralSettings_API:addNewItemList(g.frameSizeList, value)
+                            end,
+                    },
+                    gap2 = {
+                    order = 3.5,
+                    type = "description",
+                    name = " ",
+                    width = 0.1
+                    },
+                    widthFrameSelect = {
+                        type = "select",
+                        name = "Previously used frames to sync",
+                        order = 4,
+                        width = 1,
+                        values = function()
+                            local list = {}
+                            for _, fname in ipairs(g.frameSizeList or {}) do
+                                list[fname] = fname
+                            end
+                            return list
+                        end,
+                        get = function() return g.heightInput end,
+                        set = function(_, value) 
+                            g.heightInput = value
+                            CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                    },
+                }
+            },
+            groupManualControl = {
+                type = "group",
+                name = "Manual Size Control",
+                inline = true,
+                order = 3,
+                hidden = function()
+                    return not g.manualWidth and not g.manualHeight
+                end,
+                args = {
+                    barWidth = {
+                        type  = "range",
+                        name  = "Manual Width",
+                        min   = UIOptions.widthMin_bar, max = UIOptions.widthMax_bar, step = 1,
+                        order = 2,
+                        width = 1.2,
+                        get   = function() return g.barWidth end,
+                        set   = function(_, val)
+                            g.barWidth = val
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                        hidden = function()
+                            return not g.manualWidth
+                        end,
+                    },
+                    barHeight = {
+                        type  = "range",
+                        name  = "Manual Height",
+                        min   = UIOptions.heightMin_bar, max = UIOptions.heightMax_bar, step = 1,
+                        order = 3,
+                        width = 1.2,
+                        get   = function() return g.barHeight end,
+                        set   = function(_, val)
+                            g.barHeight = val
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                        hidden = function()
+                            return not g.manualHeight
+                        end,
+                    }
+                },
+            },
+            groupOffsetControl = {
+                type = "group",
+                name = "Offset Size Control",
+                inline = true,
+                order = 3,
+                hidden = function()
+                    return g.manualWidth and g.manualHeight
+                end,
+                args = {
+                    barWidth = {
+                        type  = "range",
+                        name  = "Offset Width",
+                        min   = UIOptions.widthOffsetMin_bar, max = UIOptions.widthOffsetMax_bar, step = 1,
+                        order = 2,
+                        width = 1.2,
+                        get   = function() return g.widthOffset end,
+                        set   = function(_, val)
+                            g.widthOffset = val
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                        hidden = function()
+                            return g.manualWidth
+                        end,
+                    },
+                    barHeight = {
+                        type  = "range",
+                        name  = "Offset Height",
+                        min   = UIOptions.heightOffsetMin_bar, max = UIOptions.heightOffsetMax_bar, step = 1,
+                        order = 3,
+                        width = 1.2,
+                        get   = function() return g.heightOffset end,
+                        set   = function(_, val)
+                            g.heightOffset = val
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                        hidden = function()
+                            return g.manualHeight
+                        end,
+                    }
+                },
+            },
+            buttonClearList = {
+                type = "execute",
+                name = "Clear Frame List",
+                order = 4,
+                width = 1,
+                func = function()
+                        g.frameSizeList = {}
+                        g.widthInput = ""
+                        g.heightInput = ""
+                        CASTBAR_API:UpdateCastbar(unit)
+                end,
+                hidden = function() return #g.frameSizeList == 0 or (g.manualWidth and g.manualHeight) end,
+            }
+        }
+    }
+end
+
+
+
+
+local function createOffsetX(unit, args)
+    local g = CFG_API:Proxy(unit, {"general"})
+
+    if g.iconAnchor == "LEFT" then
+        return {
+            type  = "range",
+            name = "X",
+            min = 0, max = UIOptions.offsetMax_icon, step = 1,
+            order = 2,
+            width = 1.5,
+            get = function() return g.iconOffsetX or 0 end,
+            set = function(_, val)
+                g.iconOffsetX = val
+                CASTBAR_API:UpdateCastbar(unit)
+            end,
+        }
+    elseif g.iconAnchor == "RIGHT" then
+        return {
+            type  = "range",
+            name = "X",
+            min = UIOptions.offsetMin_icon, max = 0, step = 1,
+            order = 2,
+            width = 1.5,
+            get = function() return g.iconOffsetX or 0 end,
+            set = function(_, val)
+                g.iconOffsetX = val
+                CASTBAR_API:UpdateCastbar(unit)
+            end,
+        }
+    else
+        return {
+            type  = "range",
+            name  = "X",
+            min   = UIOptions.offsetMin_bar, max = UIOptions.offsetMax_bar, step = 1,
+            order = 2,
+            width = 1.5,
+            get   = function() return g.offsetX or 0 end,
+            set   = function(_, val)
+                g.offsetX = val
+                CASTBAR_API:UpdateCastbar(unit)
+            end,
+        }
+    end
+end
+
+local function buildCreateOffsetX(unit, args)
+    args.iconGrp.args.posSizeIcongrp.args.iconPosGrp.args.iconOffsetX = createOffsetX(unit, args)
+end
+
+
+
+
+local function createOffsetY(unit, args)
+    local g = CFG_API:Proxy(unit, {"general"})
+
+    if g.iconAnchor == "TOP" then
+        return {
+            type  = "range",
+            name = "Y",
+            min = 0, max = UIOptions.offsetMax_icon, step = 1,
+            order = 3,
+            width = 1.5,
+            get = function() return g.iconOffsetY or 0 end,
+            set = function(_, val)
+                g.iconOffsetY = val
+                CASTBAR_API:UpdateCastbar(unit)
+            end,
+        }
+    elseif g.iconAnchor == "BOTTOM" then
+        return {
+            type  = "range",
+            name = "Y",
+            min = UIOptions.offsetMin_icon, max = 0, step = 1,
+            order = 3,
+            width = 1.5,
+            get = function() return g.iconOffsetY or 0 end,
+            set = function(_, val)
+                g.iconOffsetY = val
+                CASTBAR_API:UpdateCastbar(unit)
+            end,
+        }
+    else
+        return {
+            type  = "range",
+            name  = "Y",
+            min   = UIOptions.offsetMin_bar, max = UIOptions.offsetMax_bar, step = 1,
+            order = 3,
+            width = 1.5,
+            get   = function() return g.offsetY or 0 end,
+            set   = function(_, val)
+                g.offsetY = val
+                CASTBAR_API:UpdateCastbar(unit)
+            end,
+        }
+    end
+end
+
+local function buildCreateOffsetY(unit, args)
+    args.iconGrp.args.posSizeIcongrp.args.iconPosGrp.args.iconOffsetY = createOffsetY(unit, args)
+end
+
+
+local function BuildIconArgs(args, unit)
+    local g = CFG_API:Proxy(unit, {"general"})
+
+    args.iconGrp = {
+        type = "group",
+        name = "Castbar Icon",
+        inline = true,
+        order = 3,
+        args = {
+            showCastIcon = {
+                type  = "toggle",
+                name  = "Show Cast Icon",
+                order = 1,
+                get   = function() return g.showCastIcon ~= false end,
+                set   = function(_, val)
+                    g.showCastIcon = val and true or false
+                    CASTBAR_API:UpdateCastbar(unit)
+                end,
+            },
+            posSizeIcongrp = {
+                type = "group",
+                name = "",
+                inline = true,
+                order = 2,
+                disabled = function() return g.showCastIcon == false end,
+                args = {
+                    iconPosGrp =  {
+                        type = "group",
+                        name = "Icon Position",
+                        inline = true,
+                        order = 1,
+                        args = {
+                            iconPosInfo = {
+                                type = "description",
+                                name = "Anchoring places the icon relative to the castbar. The side anchors (LEFT/RIGHT) treat the icon as part of the bar’s width, so the whole widget shifts as a single wide block. The vertical anchors (TOP/BOTTOM) treat the icon as stacked above/below and locked to the castbar height, so it affects the widget’s height instead of its width. The corner anchors (TOPLEFT/TOPRIGHT/BOTTOMLEFT/BOTTOMRIGHT) pin the widget by a corner but don’t let the icon change the synced/manual width or height, so the icon is positioned at that corner without resizing the main bar area.",
+                                order = 0,
+                                width = "full",
+                            },
+                            iconAnchor = {
+                                type  = "select",
+                                name  = "Icon Anchor Point",
+                                order = 1,
+                                width = 1,
+                                values = UIOptions.anchors,
+                                get   = function() return g.iconAnchor end,
+                                set   = function(_, v)
+                                    g.iconAnchor = v
+                                    buildCreateOffsetX(unit, args)
+                                    buildCreateOffsetY(unit, args)
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
+                            iconOffsetX = createOffsetX(unit, args),
+                            iconOffsetY = createOffsetY(unit, args),
+                        }
+                    },
+                    iconSizeGrp = {
+                        type = "group",
+                        name = "Icon Size",
+                        inline = true,
+                        order = 2,
+                        args = {
+                            syncIconBar = {
+                                type  = "toggle",
+                                name  = "Sync Icon Size to Bar Height",
+                                order = 1,
+                                width = 1.2,
+                                get   = function() return g.syncIconBar == true end,
+                                set   = function(_, val)
+                                    g.syncIconBar = val and true or false
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
+                            iconWidth = {
+                                type  = "range",
+                                name  = "Icon Width",
+                                min   = UIOptions.widthMin_icon, max = UIOptions.widthMax_icon, step = 1,
+                                order = 2,
+                                get   = function() return g.iconWidth end,
+                                set   = function(_, val)
+                                    g.iconWidth = val
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                                disabled = function()
+                                    return g.showCastIcon == false or g.syncIconBar == true
+                                end,
+                            },
+                            iconHeight = {
+                                type  = "range",
+                                name  = "Icon Height",
+                                min   = UIOptions.heightMin_icon, max = UIOptions.heightMax_icon, step = 1,
+                                order = 3,
+                                width = 1.2,
+                                get   = function() return g.iconHeight end,
+                                set   = function(_, val)
+                                    g.iconHeight = val
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                                disabled = function()
+                                    return g.showCastIcon == false or g.syncIconBar == true
+                                end,
+                            }
+                        }
+                    },
+                }
+            }
+        }
+    }
+end
+
+
+-- Public builder
+function Opt.BuildGeneralSettingsArgs(unit, opts)
+    opts = opts or {}
+    local args = {}
+
+    BuildFramePickerArgs(args, unit)
+    BuildPositionArgs(args, unit)
+    BuildSizeArgs(args, unit)
+    BuildIconArgs(args, unit)
+
+    return args
+end

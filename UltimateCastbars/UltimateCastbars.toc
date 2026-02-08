@@ -1,0 +1,37 @@
+## Interface: 120000,120001
+## Title: Ultimate Castbars
+## Notes: Castbars
+## Author: SicSo, Ckraigfriend
+## Version: 0.1.0
+## IconTexture: Interface/AddOns/UltimateCastbars/gfx/icon
+## Category: Unit Frames
+## OptionalDeps: Ace3, LibSharedMedia-3.0
+## SavedVariables: UCB_DB
+
+
+Libs\LibStub\LibStub.lua
+Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
+
+# Ace3 libraries (full embedded)
+Libs\AceAddon-3.0\AceAddon-3.0.xml
+Libs\AceDB-3.0\AceDB-3.0.xml
+Libs\AceDBOptions-3.0\AceDBOptions-3.0.xml
+Libs\AceConsole-3.0\AceConsole-3.0.xml
+Libs\AceGUI-3.0\AceGUI-3.0.xml
+Libs\AceConfig-3.0\AceConfig-3.0.xml
+
+# Media & utility libraries
+libs\LibDataBroker-1.1.lua
+libs\LibDualSpec-1.0\LibDualSpec-1.0.lua
+Libs\LibSharedMedia-3.0\lib.xml
+
+# AceGUI-3.0-SharedMediaWidgets (for LSM30_Statusbar)
+
+# Load AceGUI-3.0-SharedMediaWidgets XML (for LSM30_Statusbar)
+PlayersCastbars_AceGUISharedMediaWidgets.xml
+
+Init.lua
+Core.lua
+Misc.lua
+Menu\Init.xml
+Backend\Init.xml

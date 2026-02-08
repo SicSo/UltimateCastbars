@@ -1,0 +1,18 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlGUIS:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+	
+	<!-- ./ -->
+	<Script file="DefaultDB.lua"/>
+
+	<!-- Modules -->
+	<Script file="Modules/SimpleFramePicker.lua"/>
+	<Script file="Modules/Tags.lua"/>
+	<Script file="Modules/EvokerDisintegrateTick.lua"/>
+
+	<!-- Core -->
+	<Script file="Core/BarUpdate_BarIcon.lua"/>
+	<Script file="Core/BarUpdate_Helpers.lua"/>
+	<Script file="Core/Base.lua"/>
+	<Script file="Core/Channel.lua"/>
+	<Script file="Core/Empower.lua"/>
+	<Script file="Core/Normal.lua"/>
+</Ui>

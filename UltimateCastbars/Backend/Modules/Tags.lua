@@ -1,0 +1,359 @@
+
+local _, UCB = ...
+
+UCB.tags = UCB.tags or {}
+
+local tags = UCB.tags
+
+
+
+local function FormatDecimals(n, x)
+    if x ==-1 then x=1 end
+    if type(n) ~= "number" then return "" end
+    x = tonumber(x) or 0
+    if x < 0 then x = 0 end
+    return string.format("%." .. x .. "f", n)
+end
+
+local function FirstNChars(s, x)
+    if x == -1 then return s end
+    if type(s) ~= "string" then return "" end
+    x = tonumber(x) or 0
+    if x <= 0 then return "" end
+    local res = s:sub(1, x)
+
+    if #s <= x then return res end
+    return res.."..."
+end
+
+local TAG_FN = {}
+
+TAG_FN["[sName]"] = function(v, limNum)
+    return FirstNChars(v.sName, limNum)
+end
+
+TAG_FN["[dTime]"] = function(v, limNum)
+    return FormatDecimals(v.dTime, limNum)
+end
+
+TAG_FN["[dPerTime]"] = function()
+    return "100"
+end
+
+TAG_FN["[rTime]"] = function(v, limNum, now, remaining)
+    local t = remaining ~= nil and remaining or (now - v.sTime)
+    return FormatDecimals(t, limNum)
+end
+
+TAG_FN["[rPerTime]"] = function(v, limNum, now, remaining)
+    local d = v.dTime
+    local t = remaining ~= nil and remaining or (now - v.sTime)
+    return FormatDecimals(t * 100 / d, limNum)
+end
+
+TAG_FN["[rTimeInv]"] = function(v, limNum, now, remaining)
+    local t = remaining ~= nil and remaining or (now - v.sTime)
+    return FormatDecimals(v.dTime - t, limNum)
+end
+
+TAG_FN["[rPerTimeInv]"] = function(v, limNum, now, remaining)
+    local d = v.dTime
+    local t = remaining ~= nil and remaining or (now - v.sTime)
+    return FormatDecimals((d - t) * 100 / d, limNum)
+end
+
+-- NOTE: these use limRaw as a payload when not -1
+TAG_FN["[cIntr]"] = function(v, limNum, now, remaining, limRaw)
+    if not v.Intr then return "" end
+    return (limNum == -1) and "Intr." or limRaw
+end
+
+TAG_FN["[cIntrInv]"] = function(v, limNum, now, remaining, limRaw)
+    if v.Intr then return "" end
+    return (limNum == -1) and "Unintr." or limRaw
+end
+
+function tags:compileFormula(formula, limits)
+    local ops = {}
+    local n = 0
+    local needsNow = false
+
+    for i = 1, #formula do
+        local part = formula[i]
+        local fn = TAG_FN[part]
+
+        if fn then
+            local limRaw = limits and limits[i]
+            local limNum
+            if limRaw == nil then
+                limNum = -1
+            elseif type(limRaw) == "string" then
+                -- treat string as "unset" for numeric formatting, but keep raw
+                limNum = -1
+            else
+                limNum = limRaw
+            end
+
+            -- only time-dependent tags need GetTime()
+            if part == "[rTime]" or part == "[rPerTime]" or part == "[rTimeInv]" or part == "[rPerTimeInv]" then
+                needsNow = true
+            end
+
+            n = n + 1
+            ops[n] = { fn = fn, limNum = limNum, limRaw = limRaw }
+        else
+            n = n + 1
+            ops[n] = part
+        end
+    end
+
+    ops._needsNow = needsNow
+    return ops
+end
+
+-- !!!!!!!!!!!!!!!!!!!!!!! DYNAMIC UPDATE FUNCTION !!!!!!!!!!!!!!!!!!!!!!!!
+function tags:processCompiled(ops, unit, remainingTime)
+    local v = self.var[unit]
+
+    local now
+    if ops._needsNow and remainingTime == nil then
+        now = GetTime()
+    else
+        -- if remainingTime is provided, many tags don't need now; safe default anyway
+        now = GetTime()
+    end
+
+    local out = self._out
+    if not out then out = {}; self._out = out end
+
+    local outN = 0
+    for i = 1, #ops do
+        local op = ops[i]
+        outN = outN + 1
+        if type(op) == "table" then
+            out[outN] = op.fn(v, op.limNum, now, remainingTime, op.limRaw)
+        else
+            out[outN] = op
+        end
+    end
+
+    for i = outN + 1, #out do out[i] = nil end
+    return table.concat(out, "", 1, outN)
+end
+
+
+
+local function ParseTagLimit(token, openDelim, closeDelim)
+  -- token includes delimiters, e.g. "[rTime:2]"
+  -- returns: normalizedToken, suffixValue (number | string | -1)
+
+  if #token <= (#openDelim + #closeDelim) then
+    return token, -1
+  end
+
+  local inner = token:sub(#openDelim + 1, #token - #closeDelim)
+
+  -- split on FIRST colon; suffix can be empty
+  local name, suffix = inner:match("^([^:]+):(.*)$")
+  if name then
+    local normalized = openDelim .. name .. closeDelim
+
+    -- empty suffix -> -1
+    if suffix == "" then
+      return normalized, -1
+    end
+
+    -- numeric suffix -> number, else keep string
+    local n = tonumber(suffix)
+    if n ~= nil then
+      return normalized, n
+    end
+
+    return normalized, suffix
+  end
+
+  -- no colon found (or doesn't match): unchanged token, -1
+  return token, -1
+end
+
+
+function tags:splitTags(s, openDelim, closeDelim)
+    assert(type(s) == "string", "s must be a string")
+    assert(type(openDelim) == "string" and #openDelim > 0, "openDelim must be non-empty")
+    assert(type(closeDelim) == "string" and #closeDelim > 0, "closeDelim must be non-empty")
+
+    local state  = "static"
+    local out    = {}
+    local limits = {}
+    local i = 1
+
+    while true do
+        local a, b = s:find(openDelim, i, true) -- plain find (no patterns)
+        if not a then
+            local tail = s:sub(i)
+            if tail ~= "" then
+                table.insert(out, tail)
+                table.insert(limits, -1)
+            end
+            break
+        end
+
+        local before = s:sub(i, a - 1)
+        if before ~= "" then
+            table.insert(out, before)
+            table.insert(limits, -1)
+        end
+
+        local c, d = s:find(closeDelim, b + 1, true)
+        if not c then
+            -- no closing delimiter: treat the rest as plain text (including the openDelim)
+            local rest = s:sub(a)
+            if rest ~= "" then
+                table.insert(out, rest)
+                table.insert(limits, -1)
+            end
+            break
+        end
+
+        -- Extract token INCLUDING delimiters, then parse optional :X
+        local rawToken = s:sub(a, d)
+        local token, lim = ParseTagLimit(rawToken, openDelim, closeDelim)
+
+        table.insert(out, token)
+        table.insert(limits, lim)
+
+        -- Your state logic (now compares against normalized tags like "[rTime]")
+        if state ~= "dynamic" then
+            if token == "[rTime]" or token == "[rPerTime]" or token == "[rTimeInv]" or token == "[rPerTimeInv]" then
+                state = "dynamic"
+            elseif state ~= "semiDynamic" then
+                if token == "[dTime]" or token == "[dPerTime]" or token == "[sName]" then
+                    state = "semiDynamic"
+                end
+            end
+        end
+
+        i = d + 1
+    end
+
+    return out, limits, state
+end
+
+
+function tags:updateVars(unit, type, spellID)
+    local name, _, texture, startTimeMS, endTimeMS, _, _, notInterruptible
+    if type == "normal" or type == "channel" then 
+        if type == "normal" then
+            name, _, texture, startTimeMS, endTimeMS, _, _, notInterruptible = UnitCastingInfo(unit)
+        else
+            name, _, texture, startTimeMS, endTimeMS, _, notInterruptible = UnitChannelInfo(unit)
+        end
+        tags.var[unit].sName = name
+        tags.var[unit].sTime = startTimeMS / 1000
+        tags.var[unit].eTime = endTimeMS / 1000
+        tags.var[unit].dTime =  tags.var[unit].eTime - tags.var[unit].sTime
+        tags.var[unit].Intr  = notInterruptible == false
+    else
+        name, _, texture, startTimeMS, endTimeMS, _, _, notInterruptible = UnitChannelInfo(unit)
+        local stages = UnitEmpoweredStagePercentages(unit, true)
+        local temp_sum = 0
+        for i = 1, #stages do
+            tags.var[unit].empStages[i] = stages[i] + temp_sum
+            temp_sum = temp_sum + stages[i]
+        end
+        local DurationData = UnitEmpoweredChannelDuration(unit)
+        tags.var[unit].sName = name
+        tags.var[unit].sTime = DurationData:GetStartTime()
+        tags.var[unit].eTime = DurationData:GetEndTime()
+        tags.var[unit].dTime = DurationData:GetTotalDuration()
+        tags.var[unit].Intr  = notInterruptible == false
+    end
+    return texture
+end
+
+
+function tags:updateVarsPreview(unit, type, spellID, duration, notInterruptible, stageCount)
+    local now = GetTime()
+    local spellInfo = C_Spell.GetSpellInfo(spellID)
+    local texture = spellInfo and spellInfo.originalIconID or 136243 -- default icon (question mark)
+    tags.var[unit].sName = spellInfo and spellInfo.name or "Test Spell"
+    tags.var[unit].sTime = now
+    tags.var[unit].eTime = now + duration
+    tags.var[unit].dTime = duration
+    tags.var[unit].Intr  = notInterruptible == false
+    if type == "empowered" then
+        local totalDuration = duration
+        for i = 1, stageCount do
+            tags.var[unit].empStages[i] = (((totalDuration / stageCount) * 100) / totalDuration) / 100  * i
+        end
+    end
+    return texture
+end
+
+
+function tags:PrepareTextState(cfgText, bar, state, castType)
+    local tagList = cfgText.tagList[state]
+    if not tagList then return end
+
+    -- per-state cache on the bar
+    local activeByState = bar._activeTags
+    if not activeByState then
+        activeByState = {}
+        bar._activeTags = activeByState
+    end
+
+    local active = activeByState[state]
+    if not active then
+        active = {}
+        activeByState[state] = active
+    else
+        for i = #active, 1, -1 do active[i] = nil end
+    end
+
+    -- decide show/hide ONCE, store only active entries for fast loops later
+    for key, tagOptions in next, tagList do
+        local fs = bar[key]
+        if fs then
+            local show = tagOptions.show
+            if show and castType ~= nil then
+                local st = tagOptions.showType
+                show = st and st[castType]
+            end
+
+            if show then
+                fs:Show()
+                active[#active + 1] = {
+                    fs = fs,
+                    formula = tagOptions._formula,
+                    limits  = tagOptions._limits,
+                    compiled = tagOptions._compiled,
+                }
+            else
+                fs:Hide()
+            end
+        end
+    end
+end
+
+-- !!!!!!!!!!!!!!!!!!!!!!! DYNAMIC UPDATE FUNCTION !!!!!!!!!!!!!!!!!!!!!!!!
+function tags:ApplyTextState(bar, state, unit, remaining)
+    local active = bar._activeTags and bar._activeTags[state]
+    if not active then return end
+
+    for i = 1, #active do
+        local t = active[i]
+        local text = tags:processCompiled(t.compiled, unit, remaining)
+        t.fs:SetText(text)
+    end
+end
+
+
+function tags:setTextSameState(cfgText, bar, state, unit, castType, prepareOnly, remaining)
+    -- If prepareOnly=true, only do show/hide + build active list
+    -- Otherwise do both (prepare then apply)
+    self:PrepareTextState(cfgText, bar, state, castType)
+
+    if not prepareOnly then
+        self:ApplyTextState(bar, state, unit, remaining)
+    end
+end

@@ -1,0 +1,28 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlGUIS:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+	
+	
+	<!-- UI Main -->
+	<Script file="MainUI/GUIWidgets.lua"/>
+	<Script file="MainUI/GUI.lua"/>
+	<Script file="MainUI/Player_Options.lua"/>
+
+	<!-- UI Backend -->
+	<Script file="BackendUI/BlizzCast_Backend.lua"/>
+	<Script file="BackendUI/OtherFeatures_Backend.lua"/>
+	<Script file="BackendUI/Preview_Backend.lua"/>
+	<Script file="BackendUI/Text_Backend.lua"/>
+	<Script file="BackendUI/General_Backend.lua"/>
+	<Script file="BackendUI/Style_Backend.lua"/>
+	
+	<!-- UI Settings -->
+	<Script file="TabsUI/BlizzCast_Settings.lua"/>
+	<Script file="TabsUI/General_Settings.lua"/>
+	<Script file="TabsUI/OtherFeatures_Settings.lua"/>
+	<Script file="TabsUI/Preview_Settings.lua"/>
+	<Script file="TabsUI/Style_Settings.lua"/>
+	<Script file="TabsUI/Text_Settings.lua"/>
+	<Script file="TabsUI/Visibility_Settings.lua"/>
+
+	<!-- Class Settings -->
+	<Script file="TabsUI/ClassOptions/Evoker_Settings.lua"/>
+</Ui>
