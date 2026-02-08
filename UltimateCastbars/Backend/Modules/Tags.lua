@@ -312,7 +312,7 @@ function tags:PrepareTextState(cfgText, bar, state, castType)
 
     -- decide show/hide ONCE, store only active entries for fast loops later
     for key, tagOptions in next, tagList do
-        local fs = bar[key]
+        local fs = bar.texts[key]
         if fs then
             local show = tagOptions.show
             if show and castType ~= nil then
@@ -333,6 +333,38 @@ function tags:PrepareTextState(cfgText, bar, state, castType)
             end
         end
     end
+end
+
+function tags:updateTagText(key, cfg, bigCFG)
+    local out, limits, state = tags:splitTags(cfg.tagText, UCB.tags.openDelim, UCB.tags.closeDelim)
+
+
+    local textIsDynamic
+    if state == "dynamic" or state == "semiDynamic" then
+        textIsDynamic = true
+    else
+        textIsDynamic = false
+    end
+
+    if state == "static" and (not cfg.showType.normal or not cfg.showType.channel or not cfg.showType.empowered) then
+        state = "semiDynamic"
+    end
+
+    local oldTag = tags.typeTags[cfg._type]
+    cfg._formula = out
+    cfg._limits = limits
+    cfg._type = tags.typeNames[state]
+    cfg._typeColour = tags.colours[state]
+
+    if oldTag ~= state then
+        bigCFG.tagList[state][key] = cfg
+        if oldTag then
+            bigCFG.tagList[oldTag][key] = nil
+        end
+    end
+    bigCFG.tagList[state][key]._dynamicTag = textIsDynamic
+
+
 end
 
 -- !!!!!!!!!!!!!!!!!!!!!!! DYNAMIC UPDATE FUNCTION !!!!!!!!!!!!!!!!!!!!!!!!

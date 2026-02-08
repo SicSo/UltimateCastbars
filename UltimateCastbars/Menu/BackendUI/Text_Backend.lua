@@ -80,33 +80,7 @@ function Text_API:addNewTag(bigCFG, name)
 end
 
 function Text_API:updateTagText(key, cfg, bigCFG)
-    local out, limits, state = tags:splitTags(cfg.tagText, UCB.tags.openDelim, UCB.tags.closeDelim)
-
-
-    local textIsDynamic
-    if state == "dynamic" or state == "semiDynamic" then
-        textIsDynamic = true
-    else
-        textIsDynamic = false
-    end
-
-    if state == "static" and not cfg.showType.normal or not cfg.showType.channel or not cfg.showType.empowered then
-        state = "semiDynamic"
-    end
-
-    local oldTag = tags.typeTags[cfg._type]
-    cfg._formula = out
-    cfg._limits = limits
-    cfg._type = tags.typeNames[state]
-    cfg._typeColour = tags.colours[state]
-
-    if oldTag ~= state then
-        bigCFG.tagList[state][key] = cfg
-        bigCFG.tagList[oldTag][key] = nil
-    end
-    bigCFG.tagList[state][key]._dynamicTag = textIsDynamic
-
-
+   tags:updateTagText(key, cfg, bigCFG)
 end
 
 function Text_API:deleteTag(key, cfg, bigCFG)

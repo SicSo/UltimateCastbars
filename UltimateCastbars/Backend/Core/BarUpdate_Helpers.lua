@@ -6,6 +6,7 @@ UCB.CFG_API = UCB.CFG_API or {}
 UCB.BarUpdate_API = UCB.BarUpdate_API or {}
 UCB.OtherFeatures_API = UCB.OtherFeatures_API or {}
 UCB.tags = UCB.tags or {}
+UCB.Text_API = UCB.Text_API or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
 local Opt = UCB.Options
@@ -14,6 +15,7 @@ local CFG_API = UCB.CFG_API
 local UIOptions = UCB.UIOptions
 local BarUpdate_API = UCB.BarUpdate_API
 local OtherFeatures_API = UCB.OtherFeatures_API
+local Text_API = UCB.Text_API
 
 local LSM  = UCB.LSM
 
@@ -110,13 +112,22 @@ function BarUpdate_API:UpdateText(unit)
     local bar = UCB.castBar[unit]
     local cfg = CFG_API.GetValueConfig(unit).text
 
+    --if not bar.texts then bar.texts = {} end
+    if bar.texts then
+        for k, v in pairs(bar.texts) do
+            v:Hide()
+        end
+    end
+    bar.texts = {}
+
     for _, tagStates in pairs(cfg.tagList) do
         for key, tagOptions in pairs(tagStates) do
             if tagOptions.show then
-                if not bar[key] then
-                    bar[key] = bar.status:CreateFontString(nil, tagOptions.frameStrata, "GameFontHighlightSmall")
+                if not bar.texts[key] then
+                    bar.texts[key] = bar.status:CreateFontString(nil, tagOptions.frameStrata, "GameFontHighlightSmall")
                 end
-                local fs = bar[key]
+                UCB.tags:updateTagText(key, tagOptions, cfg)
+                local fs = bar.texts[key]
                 fs:SetJustifyH(tagOptions.justify)
                 fs:SetPoint(tagOptions.anchorFrom, bar.status, tagOptions.anchorTo, tagOptions.textOffsetX, tagOptions.textOffsetY)
                 fs:SetFont(tagOptions.font, tagOptions.textSize, "OUTLINE")
@@ -124,8 +135,8 @@ function BarUpdate_API:UpdateText(unit)
                 fs:SetTextColor(tagOptions.colour.r, tagOptions.colour.g, tagOptions.colour.b, tagOptions.colour.a)
                 fs:Show()
                 tagOptions._compiled = UCB.tags:compileFormula(tagOptions._formula, tagOptions._limits)
-            elseif bar[key] then
-                bar[key]:Hide()
+            elseif bar.texts[key] then
+                bar.texts[key]:Hide()
             end
         end
     end
@@ -315,7 +326,7 @@ function BarUpdate_API:UpdateStyle(unit)
 
     -- Background
     if not bar.bg then
-        bar.bg = bar.status:CreateTexture(nil, "BACKGROUND")
+        bar.bg = bar.status:CreateTexture(nil, "BACKGROUND", nil, 1)
         bar.bg:SetAllPoints()
     end
     if cfg.showBackground then

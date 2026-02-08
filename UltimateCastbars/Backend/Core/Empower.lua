@@ -157,7 +157,7 @@ function CASTBAR_API:InitializeEmpoweredStages(unit)
         -- Create segment
         local seg = bar.empoweredSegments[i]
         if not seg then
-            seg = bar.status:CreateTexture(nil, "BACKGROUND")
+            seg = bar.status:CreateTexture(nil, "BACKGROUND", nil, 2)
             bar.empoweredSegments[i] = seg
         end
         CreateSegment(unit, seg, segColours[i], segTextures[i], prevX, tickPositions[i])

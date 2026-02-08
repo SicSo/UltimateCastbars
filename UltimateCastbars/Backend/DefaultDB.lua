@@ -116,12 +116,6 @@ local Player = {
                         channel = false,
                         empowered = true,
                     },
-
-                    _dynamicTag = true,
-                    _type = "Dynamic",
-                    _typeColour = "red",
-                    _formula = {"[rTime]", "/", "[dTime]"},
-                    _limits = {1, -1, 1},
                 },
                 tag3 = {
                     name = "Timer (increase)",
@@ -146,12 +140,6 @@ local Player = {
                         channel = true,
                         empowered = false,
                     },
-
-                    _dynamicTag = true,
-                    _type = "Dynamic",
-                    _typeColour = "red",
-                    _formula = {"[rTimeInv]", "/", "[dTime]"},
-                    _limits = {1, -1, 1},
                 },
             },
             semiDynamic = {
@@ -178,12 +166,6 @@ local Player = {
                         channel = true,
                         empowered = true,
                     },
-
-                    _dynamicTag = true,
-                    _typeColour = "yellow",
-                    _formula = {"[sName]"},
-                    _limits = {20},
-                    _type = "Semi-Dynamic",
                 },
             },
             static = {

@@ -148,7 +148,7 @@ local function BuildCustomisationArgs(args, unit)
                 type  = "toggle",
                 name  = "Show Background",
                 order = 1,
-                get   = function() return cfg.showBackground ~= false end,
+                get   = function() return cfg.showBackground end,
                 set   = function(_, val)
                     cfg.showBackground = val
                     CASTBAR_API:UpdateCastbar(unit)
@@ -200,7 +200,7 @@ local function BuildCustomisationArgs(args, unit)
                 type  = "toggle",
                 name  = "Show Border",
                 order = 1,
-                get   = function() return cfg.showBorder ~= false end,
+                get   = function() return cfg.showBorder end,
                 set   = function(_, val)
                     cfg.showBorder = val
                     CASTBAR_API:UpdateCastbar(unit)

@@ -20,14 +20,14 @@ local function GoToTag(tagKey)
 end
 
 local function BuildTagButtons(unit)
-  local text = CFG_API:Proxy(unit, {"text"})
+  local text = GetCfg(unit).text 
   text.tagList = text.tagList or {}
 
   local btns, order = {}, 1
 
   for tagType, tagTable in pairs(text.tagList) do
     for key, _ in pairs(tagTable) do
-      local tcfg = CFG_API:Proxy(unit, {"text","tagList", tagType, key}) -- <- proxy per tag
+      local tcfg = GetCfg(unit).text.tagList[tagType][key]
 
       btns["btn_" .. key] = {
         type  = "execute",
@@ -53,9 +53,11 @@ end
 
 
 
-local function tagUI(key, cfg, bigCFG, unit)
+local function tagUI(key, tagType, unit)
     local args = {}
-
+    local bigCFG = GetCfg(unit).text
+    local cfg = GetCfg(unit).text.tagList[tagType][key]
+    
     args.deleteButton = {
         type = "execute",
         name = "Delete Tag",
@@ -352,7 +354,7 @@ end
 
 
 local function addTagUI(unit)
-    local cfg  = CFG_API:Proxy(unit, {"text"})--GetCfg(unit).text
+    local cfg  = GetCfg(unit).text
     local newName = ""
     local treeArgs = UCB.Options._textTreeArgs
     treeArgs.grpAdd = {
@@ -382,7 +384,7 @@ local function addTagUI(unit)
                             type = "group",
                             name = function() return tostring(newCFG.name) end,
                             order = table.maxn(treeArgs) + 1,
-                            args = tagUI(key, newCFG, cfg, unit),
+                            args = tagUI(key, state, unit),
                         }
                         newName = ""
                         RefreshTagPickerButtons(unit)
@@ -425,26 +427,27 @@ end
 
 
 local function BuildTagsTreeArgs(unit)
-  local text = CFG_API:Proxy(unit, {"text"})
-  text.tagList = text.tagList or {}
+    --print("Here")
+    local text = GetCfg(unit).text
+    text.tagList = text.tagList or {}
 
-  local args, order = {}, 1
+    local args, order = {}, 1
 
-  for tagType, tagTable in pairs(text.tagList) do
-    for key, _ in pairs(tagTable) do
-      local cfg = CFG_API:Proxy(unit, {"text","tagList", tagType, key}) -- live per tag
+    for tagType, tagTable in pairs(text.tagList) do
+        for key, _ in pairs(tagTable) do
+            local cfg = GetCfg(unit).text.tagList[tagType][key]
 
-      args[key] = {
-        type  = "group",
-        name  = function() return tostring(cfg.name) end,
-        order = order,
-        args  = tagUI(key, cfg, text, unit), -- cfg is proxy now
-      }
-      order = order + 1
+            args[key] = {
+                type  = "group",
+                name  = function() return tostring(cfg.name) end,
+                order = order,
+                args  = tagUI(key, tagType, unit),
+            }
+            order = order + 1
+        end
     end
-  end
 
-  return args
+    return args
 end
 
 

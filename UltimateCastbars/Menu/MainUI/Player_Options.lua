@@ -203,7 +203,6 @@ local function EnsureOptionsRegistered()
                         width = "full",
                         disabled = IsCastbarDisabled,
                         args = (function()
-                            -- General edits the shared/base config for the player cast bar
                             return Opt.BuildGeneralSettingsPreviewArgs(unit, { includePerTabEnable = false })
                         end)(),
                     },
@@ -216,7 +215,6 @@ local function EnsureOptionsRegistered()
                 order = 1,
                 disabled = IsCastbarDisabled,
                 args = (function()
-                    -- General edits the shared/base config for the player cast bar
                     return Opt.BuildGeneralSettingsArgs(unit, { includePerTabEnable = false })
                 end)(),
             }
@@ -227,7 +225,6 @@ local function EnsureOptionsRegistered()
                 disabled = IsCastbarDisabled,
                 childGroups = "tree",
                 args = (function()
-                    -- General edits the shared/base config for the player cast bar
                     return Opt.BuildGeneralSettingsTextArgs(unit, { includePerTabEnable = false })
                 end)(),
             }
@@ -237,7 +234,6 @@ local function EnsureOptionsRegistered()
                 order = 3,
                 disabled = IsCastbarDisabled,
                 args = (function()
-                    -- General edits the shared/base config for the player cast bar
                     return Opt.BuildGeneralSettingsStyleArgs(unit, { includePerTabEnable = false })
                 end)(),
             }
@@ -247,7 +243,6 @@ local function EnsureOptionsRegistered()
                 order = 4,
                 disabled = IsCastbarDisabled,
                 args = (function()
-                    -- General edits the shared/base config for the player cast bar
                     return Opt.BuildGeneralSettingsVisibilityArgs(unit, { includePerTabEnable = false })
                 end)(),
             }
@@ -257,7 +252,6 @@ local function EnsureOptionsRegistered()
                 order = 5,
                 disabled = IsCastbarDisabled,
                 args = (function()
-                    -- General edits the shared/base config for the player cast bar
                     return Opt.BuildGeneralSettingsOtherFeaturesArgs(unit, { includePerTabEnable = false })
                 end)(),
             }

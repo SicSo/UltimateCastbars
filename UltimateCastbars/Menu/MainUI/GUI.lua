@@ -169,5 +169,30 @@ function UCB:RefreshGUI()
 end
 
 
+function UCB:RebuildUI(unit)
+  unit = unit or "player"
+
+  -- 1) Rebuild your options structures (fresh closures, current profile)
+  if self.Options and self.Options.BuildGeneralSettingsTextArgs then
+    if self.Options._textTreeArgs then
+      wipe(self.Options._textTreeArgs)
+    else
+      self.Options._textTreeArgs = {}
+    end
+
+    -- Recreate the text tree args from CURRENT profile
+    self.Options.BuildGeneralSettingsTextArgs(unit, { includePerTabEnable = false })
+  end
+
+  -- 2) Tell AceConfigRegistry that options changed (only matters if you also use ACD somewhere)
+  if self.ACR then
+    self.ACR:NotifyChange("UCB")
+  end
+
+  -- 3) Rebuild your embedded GUI widgets (this is the important part for your addon)
+  self:RefreshGUI()
+end
+
+
 -- Optional convenience alias (matches some addons' naming)
 UCB.CreateGUI = UCB.OpenGUI
