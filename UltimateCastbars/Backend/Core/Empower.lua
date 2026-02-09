@@ -35,7 +35,7 @@ local function CreateTick(unit, tick, colour, texture, pos)
     local xNorm = cfg.otherFeatures.invertBar.empowered and (1 - pos) or pos
     local x = xNorm * barWidth
 
-    if cfg.EVOKER.showEmpowerTickTexture then
+    if cfg.CLASSES.EVOKER.showEmpowerTickTexture then
         tick:SetTexture(texture)
         tick:SetVertexColor(colour.r, colour.g, colour.b, colour.a)
     else
@@ -43,7 +43,7 @@ local function CreateTick(unit, tick, colour, texture, pos)
         tick:SetColorTexture(colour.r, colour.g, colour.b, colour.a)
     end
 
-    tick:SetWidth(cfg.EVOKER.empowerTickWidth)
+    tick:SetWidth(cfg.CLASSES.EVOKER.empowerTickWidth)
     tick:SetHeight(cfg.general.barHeight)
     tick:ClearAllPoints()
 
@@ -73,7 +73,7 @@ local function CreateSegment(unit, segment, colour, texture, startPos, endPos)
     local startX = s * barWidth
     local width  = (e - s) * barWidth
 
-    if cfg.EVOKER.showEmpowerSegmentTexture then
+    if cfg.CLASSES.EVOKER.showEmpowerSegmentTexture then
         segment:SetTexture(texture)
         segment:SetVertexColor(colour.r, colour.g, colour.b, colour.a)
     else
@@ -125,12 +125,12 @@ function CASTBAR_API:InitializeEmpoweredStages(unit)
     local tickPositions = tags.var[unit].empStages
     local duration = tags.var[unit].dTime
 
-    local tickColours = cfg.EVOKER.empowerStageTickColours
-    local segColours = cfg.EVOKER.empowerSegBackColours
-    local barColours = cfg.EVOKER.empowerBarColours
+    local tickColours = cfg.CLASSES.EVOKER.empowerStageTickColours
+    local segColours = cfg.CLASSES.EVOKER.empowerSegBackColours
+    local barColours = cfg.CLASSES.EVOKER.empowerBarColours
 
-    local tickTextures = cfg.EVOKER.empowerTickTextures
-    local segTextures = cfg.EVOKER.empowerSegmentTextures
+    local tickTextures = cfg.CLASSES.EVOKER.empowerTickTextures
+    local segTextures = cfg.CLASSES.EVOKER.empowerSegmentTextures
 
     -- Initialise ticks and background segments
     if not bar.empoweredSegments then bar.empoweredSegments = {} end
