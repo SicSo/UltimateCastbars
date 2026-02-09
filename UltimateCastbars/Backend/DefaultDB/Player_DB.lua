@@ -28,6 +28,8 @@ UCB.Default_DB.Player = {
         heightOffset = 0,
         barHeight = 20,
         barWidth = 220,
+        widthMinValue = 50,
+        heightMinValue = 10,
 
         includeBorderInWidth = true,
         includeBorderInHeight = true,

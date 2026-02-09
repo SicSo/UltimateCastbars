@@ -373,8 +373,13 @@ local function SizeWhenReady(bar, genCfg, styleCfg, opts)
                 if (not w) and fw.GetWidth then
                     w = fw:GetWidth()
                 end
-                if w and w >= minW then
-                    syncedW = w
+
+                if w then
+                    local minSyncW = genCfg.widthMinValue or 0
+                    if w < minSyncW then w = minSyncW end
+                    if w >= minW then
+                        syncedW = w
+                    end
                 end
             end
         end
@@ -391,8 +396,13 @@ local function SizeWhenReady(bar, genCfg, styleCfg, opts)
                 if (not h) and fh.GetHeight then
                     h = fh:GetHeight()
                 end
-                if h and h >= minH then
-                    syncedH = h
+
+                if h then
+                    local minSyncH = genCfg.heightMinValue or 0
+                    if h < minSyncH then h = minSyncH end
+                    if h >= minH then
+                        syncedH = h
+                    end
                 end
             end
         end

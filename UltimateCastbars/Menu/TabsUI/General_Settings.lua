@@ -324,7 +324,13 @@ local function BuildSizeArgs(args, unit)
                             if g.widthInput == "" or g._widthFrameError then
                                 str1 = "Frame "..UIOptions.ColorText(UIOptions.red, g.widthInput).." not used; ".."Width: "..g.barWidth.." (manual)"
                             else
-                                str1 = "Frame "..UIOptions.ColorText(UIOptions.green, g.widthInput).." used"
+                                local fw = _G[g.widthInput]
+                                local width = fw and fw:GetWidth()
+                                if width < g.widthMinValue then
+                                    str1 = "Frame "..UIOptions.ColorText(UIOptions.red, g.widthInput).." not used; Frame width: "..UIOptions.ColorText(UIOptions.red, width).." < width min value: "..UIOptions.ColorText(UIOptions.red, g.widthMinValue)
+                                else
+                                    str1 = "Frame "..UIOptions.ColorText(UIOptions.green, g.widthInput).." used"
+                                end
                             end
                             return str1
                         end,
@@ -378,6 +384,24 @@ local function BuildSizeArgs(args, unit)
                             CASTBAR_API:UpdateCastbar(unit)
                             end,
                     },
+                    gap3 = {
+                    order = 4.5,
+                    type = "description",
+                    name = " ",
+                    width = 0.1
+                    },
+                    widthMinValue = {
+                        type = "range",
+                        name = "Width Min Value",
+                        min = UIOptions.widthMin_bar, max = UIOptions.widthMax_bar, step = 1,
+                        order = 5,
+                        width = 1.3,
+                        get = function() return g.widthMinValue end,
+                        set = function(_, val)
+                            g.widthMinValue = val
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                    }
                 }
             },
             heightFrameGroup = {
@@ -389,21 +413,27 @@ local function BuildSizeArgs(args, unit)
                     return g.manualHeight
                 end,
                 args = {
-                    widthFrameTitle = {
+                    heigthFrameTitle = {
                         type = "header",
                         name = function()
                             local str1
                             if g.heightInput == "" or g._heightFrameError then
                                 str1 = "Frame "..UIOptions.ColorText(UIOptions.red, g.heightInput).." not used; ".."Height: "..g.barHeight.." (manual)"
                             else
-                                str1 = "Frame "..UIOptions.ColorText(UIOptions.green, g.heightInput).." used"
+                                local fh = _G[g.heightInput]
+                                local height = fh and fh:GetHeight()
+                                if height < g.heightMinValue then
+                                    str1 = "Frame "..UIOptions.ColorText(UIOptions.red, g.heightInput).." not used; Frame height: "..UIOptions.ColorText(UIOptions.red, height).." < height min value: "..UIOptions.ColorText(UIOptions.red, g.heightMinValue)
+                                else
+                                    str1 = "Frame "..UIOptions.ColorText(UIOptions.green, g.heightInput).." used"
+                                end
                             end
                             return str1
                         end,
                         order = 1,
                         width = "full",
                     },
-                    widthFrameStats = {
+                    heightFrameStats = {
                         type = "header",
                         name = function ()
                             return "Width: "..UIOptions.ColorText(UIOptions.turquoise, GeneralSettings_API:getFrame(g.heightInput):GetWidth()).."; Height: "..UIOptions.ColorText(UIOptions.turquoise, GeneralSettings_API:getFrame(g.heightInput):GetHeight())
@@ -414,7 +444,7 @@ local function BuildSizeArgs(args, unit)
                             return g.heightInput == "" or g._heightFrameError
                         end,
                     },
-                    widthFrameInput = {
+                    heightFrameInput = {
                         type = "input",
                         name = "Custom Height Frame",
                         order = 3,
@@ -432,7 +462,7 @@ local function BuildSizeArgs(args, unit)
                     name = " ",
                     width = 0.1
                     },
-                    widthFrameSelect = {
+                    heightFrameSelect = {
                         type = "select",
                         name = "Previously used frames to sync",
                         order = 4,
@@ -450,6 +480,24 @@ local function BuildSizeArgs(args, unit)
                             CASTBAR_API:UpdateCastbar(unit)
                             end,
                     },
+                    gap3 = {
+                    order = 4.5,
+                    type = "description",
+                    name = " ",
+                    width = 0.1
+                    },
+                    heightMinValue = {
+                        type = "range",
+                        name = "Height Min Value",
+                        min = UIOptions.heightMin_bar, max = UIOptions.heightMax_bar, step = 1,
+                        order = 5,
+                        width = 1.2,
+                        get = function() return g.heightMinValue end,
+                        set = function(_, val)
+                            g.heightMinValue = val
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                    }
                 }
             },
             groupManualControl = {
