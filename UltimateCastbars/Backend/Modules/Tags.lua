@@ -242,31 +242,32 @@ end
 
 function tags:updateVars(unit, type, spellID)
     local name, _, texture, startTimeMS, endTimeMS, _, _, notInterruptible
+    local vars = tags.var[unit]
     if type == "normal" or type == "channel" then 
         if type == "normal" then
             name, _, texture, startTimeMS, endTimeMS, _, _, notInterruptible = UnitCastingInfo(unit)
         else
             name, _, texture, startTimeMS, endTimeMS, _, notInterruptible = UnitChannelInfo(unit)
         end
-        tags.var[unit].sName = name
-        tags.var[unit].sTime = startTimeMS / 1000
-        tags.var[unit].eTime = endTimeMS / 1000
-        tags.var[unit].dTime =  tags.var[unit].eTime - tags.var[unit].sTime
-        tags.var[unit].Intr  = notInterruptible == false
+        vars.sName = name
+        vars.sTime = startTimeMS / 1000
+        vars.eTime = endTimeMS / 1000
+        vars.dTime =  vars.eTime - vars.sTime
+        vars.Intr  = notInterruptible == false
     else
         name, _, texture, startTimeMS, endTimeMS, _, _, notInterruptible = UnitChannelInfo(unit)
         local stages = UnitEmpoweredStagePercentages(unit, true)
         local temp_sum = 0
         for i = 1, #stages do
-            tags.var[unit].empStages[i] = stages[i] + temp_sum
+            vars.empStages[i] = stages[i] + temp_sum
             temp_sum = temp_sum + stages[i]
         end
         local DurationData = UnitEmpoweredChannelDuration(unit)
-        tags.var[unit].sName = name
-        tags.var[unit].sTime = DurationData:GetStartTime()
-        tags.var[unit].eTime = DurationData:GetEndTime()
-        tags.var[unit].dTime = DurationData:GetTotalDuration()
-        tags.var[unit].Intr  = notInterruptible == false
+        vars.sName = name
+        vars.sTime = DurationData:GetStartTime()
+        vars.eTime = DurationData:GetEndTime()
+        vars.dTime = DurationData:GetTotalDuration()
+        vars.Intr  = notInterruptible == false
     end
     return texture
 end
@@ -276,15 +277,16 @@ function tags:updateVarsPreview(unit, type, spellID, duration, notInterruptible,
     local now = GetTime()
     local spellInfo = C_Spell.GetSpellInfo(spellID)
     local texture = spellInfo and spellInfo.originalIconID or 136243 -- default icon (question mark)
-    tags.var[unit].sName = spellInfo and spellInfo.name or "Test Spell"
-    tags.var[unit].sTime = now
-    tags.var[unit].eTime = now + duration
-    tags.var[unit].dTime = duration
-    tags.var[unit].Intr  = notInterruptible == false
+    local vars = tags.var[unit]
+    vars.sName = spellInfo and spellInfo.name or "Test Spell"
+    vars.sTime = now
+    vars.eTime = now + duration
+    vars.dTime = duration
+    vars.Intr  = notInterruptible == false
     if type == "empowered" then
         local totalDuration = duration
         for i = 1, stageCount do
-            tags.var[unit].empStages[i] = (((totalDuration / stageCount) * 100) / totalDuration) / 100  * i
+            vars.empStages[i] = (((totalDuration / stageCount) * 100) / totalDuration) / 100  * i
         end
     end
     return texture

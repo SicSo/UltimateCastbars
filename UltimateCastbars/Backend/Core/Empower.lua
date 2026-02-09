@@ -99,9 +99,9 @@ local function CreateColourCurve(unit, tickPositions, colours, duration)
         curve = C_CurveUtil.CreateColorCurve()
         curve:SetType(Enum.LuaCurveType.Step)
         bar.empoweredColourCurve = curve
+    else
+        curve:ClearPoints()
     end
-
-    if curve.Reset then curve:Reset() end  -- IMPORTANT if available
 
     if cfg.otherFeatures.invertBar.empowered then
         curve:AddPoint(0, CreateColor(colours[#colours].r, colours[#colours].g, colours[#colours].b, colours[#colours].a))

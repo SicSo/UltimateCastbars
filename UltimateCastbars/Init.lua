@@ -25,6 +25,7 @@ UCB.CLASS_API = UCB.CLASS_API or {}
 UCB.STYLE_API = UCB.STYLE_API or {}
 UCB.SimpleFramePicker = UCB.SimpleFramePicker or {}
 UCB.Options = UCB.Options or {}
+UCB.Default_DB = UCB.Default_DB or {}
 
 -- Sub APIs
 UCB.CLASS_API.Evoker = UCB.CLASS_API.Evoker or {}
