@@ -1,7 +1,10 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlGUIS:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 	
-	<!-- ./ -->
-	<Script file="DefaultDB.lua"/>
+	<!-- DB -->
+	<Script file="DefaultDB/Player_DB.lua"/>
+	<Script file="DefaultDB/Target_DB.lua"/>
+	<Script file="DefaultDB/Focus_DB.lua"/>
+	<Script file="DefaultDB/Default_DB.lua"/>
 
 	<!-- Modules -->
 	<Script file="Modules/SimpleFramePicker.lua"/>

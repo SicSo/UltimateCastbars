@@ -1,12 +1,9 @@
 local _, UCB = ...
 
+UCB.Default_DB = UCB.Default_DB or {}
 
-
---iconInternalOffsetMltiplier = {player = -1, target = 1, focus = 1},
---iconAnchors = {player = "LEFT", target = "RIGHT", focus = "RIGHT"},
-
-local Player = {
-    enabled = true,
+UCB.Default_DB.Player = {
+     enabled = true,
 
     general = {
         offsetX = 0,
@@ -500,23 +497,3 @@ local Player = {
 }
 
 
-local Target = {}
-local Focus  = {}
-
-
-
-local Default_Values = {
-    global = {
-        UseGlobalProfile = false,
-        GlobalProfileName = "Default",
-    },
-    profile = {
-        player = Player,
-        target = Target,
-        focus = Focus,
-    }
-}
-
-function UCB:GetDefaultDB()
-    return Default_Values
-end
