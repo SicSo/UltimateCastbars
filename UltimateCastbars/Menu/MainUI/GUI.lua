@@ -73,6 +73,24 @@ function SelectMainTab(tabGroup, event, tabValue)
         UCBGUI:BuildUnitTab(holder, "player")
         if holder.DoLayout then holder:DoLayout() end
         return
+    elseif tabValue == "profiles" then
+        local holder = AG:Create("SimpleGroup")
+        holder:SetFullWidth(true)
+        holder:SetFullHeight(true)
+        holder:SetLayout("Fill")
+        wrapper:AddChild(holder)
+
+        if UCB and UCB.OpenProfilesInContainer then
+            UCB:OpenProfilesInContainer(holder)
+        else
+            local label = AG:Create("Label")
+            label:SetFullWidth(true)
+            label:SetText("Profiles options not available.")
+            holder:AddChild(label)
+        end
+
+        if holder.DoLayout then holder:DoLayout() end
+        return
     end
 
     -- Use a scroll frame so future options can grow (target/focus etc.)
@@ -86,6 +104,8 @@ function SelectMainTab(tabGroup, event, tabValue)
         scroll:SetFullHeight(true)
         wrapper:AddChild(scroll)
     end
+
+
 
     if tabValue == "target" then
         UCBGUI:BuildUnitTab(scroll, "target")
@@ -109,6 +129,38 @@ function UCB:OpenGUI()
     Container:SetWidth(1000)
     Container:SetHeight(800)
     Container:EnableResize(true)
+    -- Minimum size
+    local MIN_W = 1000
+    local function ClampMinWidth()
+        if not Container or not Container.frame then return end
+        local w = Container.frame:GetWidth()
+        if w and w < MIN_W then
+            Container.frame:SetWidth(MIN_W)
+            -- also update AceGUI's stored width so it doesn't fight you
+            if Container.SetWidth then Container:SetWidth(MIN_W) end
+        end
+    end
+
+    -- Clamp whenever size changes (covers dragging and programmatic resizes)
+    Container.frame:HookScript("OnSizeChanged", function()
+        ClampMinWidth()
+    end)
+
+    -- Extra safety: clamp when the user finishes dragging a sizer
+    local function HookSizer(sizer)
+        if not sizer then return end
+        sizer:HookScript("OnMouseUp", function()
+            ClampMinWidth()
+        end)
+        sizer:HookScript("OnMouseDown", function()
+            ClampMinWidth()
+        end)
+    end
+
+    HookSizer(Container.sizer_se)
+    HookSizer(Container.sizer_e)
+    HookSizer(Container.sizer_s)
+
     Container:SetCallback("OnClose", function(widget)
         if GUIWidgets and GUIWidgets.DetachBottomLeftLinks then
             GUIWidgets:DetachBottomLeftLinks(widget)
@@ -146,6 +198,7 @@ function UCB:OpenGUI()
         { text = "Player", value = "player" },
         { text = "Target", value = "target" },
         { text = "Focus",  value = "focus"  },
+        { text = "Profiles", value = "profiles" },
     })
     tabGroup:SetCallback("OnGroupSelected", SelectMainTab)
 

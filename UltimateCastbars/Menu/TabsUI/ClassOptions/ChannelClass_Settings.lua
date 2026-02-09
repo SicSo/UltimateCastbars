@@ -183,7 +183,6 @@ end
 
 local function BuildChannelTable(args, unit, class)
     local cfg = GetCfg(unit).CLASSES[class]
-    cfg.channeledSpels = cfg.channeledSpels or {}
 
     -- temp fields for the "add" row
     cfg._channelAdd = cfg._channelAdd or ""

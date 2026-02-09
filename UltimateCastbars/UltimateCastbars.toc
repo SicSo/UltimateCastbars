@@ -19,11 +19,13 @@ Libs\AceDBOptions-3.0\AceDBOptions-3.0.xml
 Libs\AceConsole-3.0\AceConsole-3.0.xml
 Libs\AceGUI-3.0\AceGUI-3.0.xml
 Libs\AceConfig-3.0\AceConfig-3.0.xml
+Libs\AceSerializer-3.0\AceSerializer-3.0.xml
 
 # Media & utility libraries
 libs\LibDataBroker-1.1.lua
 libs\LibDualSpec-1.0\LibDualSpec-1.0.lua
 Libs\LibSharedMedia-3.0\lib.xml
+Libs\LibDeflate\LibDeflate.lua
 
 # AceGUI-3.0-SharedMediaWidgets (for LSM30_Statusbar)
 

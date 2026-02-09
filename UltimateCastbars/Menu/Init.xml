@@ -5,6 +5,7 @@
 	<Script file="MainUI/GUIWidgets.lua"/>
 	<Script file="MainUI/GUI.lua"/>
 	<Script file="MainUI/Player_Options.lua"/>
+	<Script file="MainUI/Profile.lua"/>
 
 	<!-- UI Backend -->
 	<Script file="BackendUI/BlizzCast_Backend.lua"/>

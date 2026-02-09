@@ -232,8 +232,6 @@ function Opt.BuildClassSettingsArgs(unit, opts)
 end
 
 
-
-
 -- ---------- Options registration and display ----------
 local function EnsureOptionsRegistered()
     if UCB._optionsRegistered then return end
@@ -347,16 +345,6 @@ local function EnsureOptionsRegistered()
         return args
         end)(),
     }
-
-    -- Profiles page
-    UCB.optionsTable.args.profiles = UCB.ADBO:GetOptionsTable(UCB.db)
-    UCB.optionsTable.args.profiles.order = 100
-
-    -- LibDualSpec support
-    local LibDualSpec = LibStub and LibStub("LibDualSpec-1.0", true)
-    if LibDualSpec then
-        LibDualSpec:EnhanceOptions(UCB.optionsTable.args.profiles, UCB.db)
-    end
 
     UCB.AC:RegisterOptionsTable("UCB", UCB.optionsTable)
     UCB._optionsRegistered = true
