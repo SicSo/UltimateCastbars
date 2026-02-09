@@ -94,10 +94,10 @@ end
 local function CreateColourCurve(unit, tickPositions, colours, duration)
     local cfg = CFG_API.GetValueConfig(unit)
     local bar = UCB.castBar[unit]
-    --if not bar.empoweredColourCurve then 
-    bar.empoweredColourCurve = C_CurveUtil.CreateColorCurve()
-    bar.empoweredColourCurve:SetType(Enum.LuaCurveType.Step)
-    --end
+    if not bar.empoweredColourCurve then
+        bar.empoweredColourCurve = C_CurveUtil.CreateColorCurve()
+        bar.empoweredColourCurve:SetType(Enum.LuaCurveType.Step)
+    end
     local curve  = bar.empoweredColourCurve
 
     if cfg.otherFeatures.invertBar.empowered then

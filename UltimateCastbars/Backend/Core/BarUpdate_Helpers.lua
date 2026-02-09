@@ -448,11 +448,16 @@ end
 
 
 function BarUpdate_API:UpdateOthers(unit)
-    local bar = UCB.castBar[unit]
     local cfg = CFG_API.GetValueConfig(unit)
-    if bar and bar.empoweredColorCurve then 
-        bar.empoweredColorCurve = C_CurveUtil.CreateColorCurve()
-        bar.empoweredColorCurve:SetType(Enum.LuaCurveType.Step)
+
+    local classCFG = cfg.CLASSES[UCB.className]
+    classCFG._channelingSpellIDs = {}
+    if classCFG and classCFG.channeledSpels then
+        for _, spellCfg in pairs(classCFG.channeledSpels) do
+            if spellCfg.enable then
+                classCFG._channelingSpellIDs[spellCfg.id] = spellCfg.ticks
+            end
+        end
     end
 end
 

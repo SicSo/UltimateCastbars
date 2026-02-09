@@ -543,8 +543,6 @@ function UCB:UpdateAllCastBars()
   self:SetUpConfig()
   self.CASTBAR_API:UpdateCastbar("player")
   UCB:RebuildUI("player")
-  UCB:RefreshGUI()
-  UCB.ACR:NotifyChange("UCB")
 end
 
 

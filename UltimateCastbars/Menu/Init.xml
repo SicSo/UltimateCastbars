@@ -24,5 +24,7 @@
 	<Script file="TabsUI/Visibility_Settings.lua"/>
 
 	<!-- Class Settings -->
+	<Script file="TabsUI/ClassOptions/GeneralClass_Settings.lua"/>
 	<Script file="TabsUI/ClassOptions/Evoker_Settings.lua"/>
+	<Script file="TabsUI/ClassOptions/ChannelClass_Settings.lua"/>
 </Ui>

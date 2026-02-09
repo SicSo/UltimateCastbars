@@ -185,11 +185,6 @@ local Player = {
         textureBorderIcon = "Interface\\TargetingFrame\\UI-StatusBar",
         textureNameBorderIcon = "Blizzard",
 
-        --textureNameBorder = "1 Pixel",
-        --textureBorder = "Interface\\Buttons\\WHITE8X8",
-        --textureNameBorderIcon = "1 Pixel",
-        --textureBorderIcon = "Interface\\Buttons\\WHITE8X8",
-
         colourMode = "class", -- "class", "ombre", "custom"
         gradientEnable = false,
         customColour = {r=1, g=1, b=1, a=1}, -- default white
@@ -294,61 +289,203 @@ local Player = {
         
     },
 
-    EVOKER = {
-        empowerTickWidth = 2,
-        empowerStageTickColours = {
-            {r=0, g=1, b=0, a=1},    -- Stage 1 (Green)
-            {r=1, g=1, b=0, a=1},    -- Stage 2 (Yellow)
-            {r=1, g=0.5, b=0, a=1},  -- Stage 3 (Orange)
-            {r=1, g=0, b=0, a=1},    -- Stage 4 (Red)
-        },
-        empowerSegBackColours = {
-            {r=1, g=1, b=1, a=0.25},   -- Segment 0
-            {r=0, g=1, b=0, a=0.25},   -- Segment 1
-            {r=1, g=1, b=0, a=0.25},   -- Segment 2
-            {r=1, g=0.5, b=0, a=0.25}, -- Segment 3
-            {r=1, g=0, b=0, a=0.25},   -- Segment 4
-        },
-        empowerBarColours = {
-            {r=1, g=1, b=1, a=0.8},   -- Segment 0
-            {r=0, g=1, b=0, a=0.8},   -- Segment 1
-            {r=1, g=1, b=0, a=0.8},   -- Segment 2
-            {r=1, g=0.5, b=0, a=0.8}, -- Segment 3
-            {r=1, g=0, b=0, a=0.8},   -- Segment 4
+    CLASSES = {
+
+        WARRIOR = {
+            useMainSettingsChannel = true,
+            channeledSpels = {},
+            showChannelTicks = true,
+            useTickTexture = false,
+            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+            tickTextureName = "Blizzard",
+            channelTickWidth = 2,
+            channelTickColour = {r=1, g=1, b=1, a=0.7},
         },
 
-        showEmpowerTickTexture = false,
-        showEmpowerSegmentTexture = false,
-        empowerTickTextures = {
-            "Interface\\TargetingFrame\\UI-StatusBar",
-            "Interface\\TargetingFrame\\UI-StatusBar",
-            "Interface\\TargetingFrame\\UI-StatusBar",
-            "Interface\\TargetingFrame\\UI-StatusBar",
+        PALADIN = {
+            useMainSettingsChannel = true,
+            channeledSpels = {},
+            showChannelTicks = true,
+            useTickTexture = false,
+            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+            tickTextureName = "Blizzard",
+            channelTickWidth = 2,
+            channelTickColour = {r=1, g=1, b=1, a=0.7},
         },
 
-        empowerTickTexturesNames = {
-            "Blizzard",
-            "Blizzard",
-            "Blizzard",
-            "Blizzard",
+        HUNTER = {
+            useMainSettingsChannel = true,
+            channeledSpels = {},
+            showChannelTicks = true,
+            useTickTexture = false,
+            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+            tickTextureName = "Blizzard",
+            channelTickWidth = 2,
+            channelTickColour = {r=1, g=1, b=1, a=0.7},
         },
-        empowerSegmentTextures = {
-            "Interface\\TargetingFrame\\UI-StatusBar",
-            "Interface\\TargetingFrame\\UI-StatusBar",
-            "Interface\\TargetingFrame\\UI-StatusBar",
-            "Interface\\TargetingFrame\\UI-StatusBar",
-            "Interface\\TargetingFrame\\UI-StatusBar",
+
+        ROGUE = {
+            useMainSettingsChannel = true,
+            channeledSpels = {},
+            showChannelTicks = true,
+            useTickTexture = false,
+            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+            tickTextureName = "Blizzard",
+            channelTickWidth = 2,
+            channelTickColour = {r=1, g=1, b=1, a=0.7},
         },
-        empowerSegmentTexturesNames = {
-            "Blizzard",
-            "Blizzard",
-            "Blizzard",
-            "Blizzard",
-            "Blizzard",
-        }
 
+        PRIEST = {
+            useMainSettingsChannel = true,
+            channeledSpels = {},
+            showChannelTicks = true,
+            useTickTexture = false,
+            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+            tickTextureName = "Blizzard",
+            channelTickWidth = 2,
+            channelTickColour = {r=1, g=1, b=1, a=0.7},
+        },
 
+        DEATHKNIGHT = {
+            useMainSettingsChannel = true,
+            channeledSpels = {},
+            showChannelTicks = true,
+            useTickTexture = false,
+            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+            tickTextureName = "Blizzard",
+            channelTickWidth = 2,
+            channelTickColour = {r=1, g=1, b=1, a=0.7},
+        },
 
+        SHAMAN = {
+            useMainSettingsChannel = true,
+            channeledSpels = {},
+            showChannelTicks = true,
+            useTickTexture = false,
+            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+            tickTextureName = "Blizzard",
+            channelTickWidth = 2,
+            channelTickColour = {r=1, g=1, b=1, a=0.7},
+        },
+
+        MAGE = {
+            useMainSettingsChannel = true,
+            channeledSpels = {},
+            showChannelTicks = true,
+            useTickTexture = false,
+            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+            tickTextureName = "Blizzard",
+            channelTickWidth = 2,
+            channelTickColour = {r=1, g=1, b=1, a=0.7},
+        },
+
+        WARLOCK = {
+            useMainSettingsChannel = true,
+            channeledSpels = {},
+            showChannelTicks = true,
+            useTickTexture = false,
+            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+            tickTextureName = "Blizzard",
+            channelTickWidth = 2,
+            channelTickColour = {r=1, g=1, b=1, a=0.7},
+        },
+
+        MONK = {
+            useMainSettingsChannel = true,
+            channeledSpels = {},
+            showChannelTicks = true,
+            useTickTexture = false,
+            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+            tickTextureName = "Blizzard",
+            channelTickWidth = 2,
+            channelTickColour = {r=1, g=1, b=1, a=0.7},
+        },
+
+        DRUID = {
+            useMainSettingsChannel = true,
+            channeledSpels = {},
+            showChannelTicks = true,
+            useTickTexture = false,
+            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+            tickTextureName = "Blizzard",
+            channelTickWidth = 2,
+            channelTickColour = {r=1, g=1, b=1, a=0.7},
+        },
+
+        DEMONHUNTER = {
+            useMainSettingsChannel = true,
+            channeledSpels = {},
+            showChannelTicks = true,
+            useTickTexture = false,
+            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+            tickTextureName = "Blizzard",
+            channelTickWidth = 2,
+            channelTickColour = {r=1, g=1, b=1, a=0.7},
+        },
+
+        EVOKER = {
+            useMainSettingsChannel = true,
+            channeledSpels = {},
+            showChannelTicks = true,
+            useTickTexture = false,
+            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+            tickTextureName = "Blizzard",
+            channelTickWidth = 2,
+            channelTickColour = {r=1, g=1, b=1, a=0.7},
+
+            disintegrateDynamicTicks = true,
+            empowerTickWidth = 2,
+            empowerStageTickColours = {
+                {r=0, g=1, b=0, a=1},    -- Stage 1 (Green)
+                {r=1, g=1, b=0, a=1},    -- Stage 2 (Yellow)
+                {r=1, g=0.5, b=0, a=1},  -- Stage 3 (Orange)
+                {r=1, g=0, b=0, a=1},    -- Stage 4 (Red)
+            },
+            empowerSegBackColours = {
+                {r=1, g=1, b=1, a=0.25},   -- Segment 0
+                {r=0, g=1, b=0, a=0.25},   -- Segment 1
+                {r=1, g=1, b=0, a=0.25},   -- Segment 2
+                {r=1, g=0.5, b=0, a=0.25}, -- Segment 3
+                {r=1, g=0, b=0, a=0.25},   -- Segment 4
+            },
+            empowerBarColours = {
+                {r=1, g=1, b=1, a=0.8},   -- Segment 0
+                {r=0, g=1, b=0, a=0.8},   -- Segment 1
+                {r=1, g=1, b=0, a=0.8},   -- Segment 2
+                {r=1, g=0.5, b=0, a=0.8}, -- Segment 3
+                {r=1, g=0, b=0, a=0.8},   -- Segment 4
+            },
+
+            showEmpowerTickTexture = false,
+            showEmpowerSegmentTexture = false,
+            empowerTickTextures = {
+                "Interface\\TargetingFrame\\UI-StatusBar",
+                "Interface\\TargetingFrame\\UI-StatusBar",
+                "Interface\\TargetingFrame\\UI-StatusBar",
+                "Interface\\TargetingFrame\\UI-StatusBar",
+            },
+
+            empowerTickTexturesNames = {
+                "Blizzard",
+                "Blizzard",
+                "Blizzard",
+                "Blizzard",
+            },
+            empowerSegmentTextures = {
+                "Interface\\TargetingFrame\\UI-StatusBar",
+                "Interface\\TargetingFrame\\UI-StatusBar",
+                "Interface\\TargetingFrame\\UI-StatusBar",
+                "Interface\\TargetingFrame\\UI-StatusBar",
+                "Interface\\TargetingFrame\\UI-StatusBar",
+            },
+            empowerSegmentTexturesNames = {
+                "Blizzard",
+                "Blizzard",
+                "Blizzard",
+                "Blizzard",
+                "Blizzard",
+            }
+        },
     },
 
     defaultBar = {

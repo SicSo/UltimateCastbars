@@ -168,29 +168,54 @@ function UCB:RefreshGUI()
     tg:SelectTab(tab)
 end
 
-
 function UCB:RebuildUI(unit)
-  unit = unit or "player"
+    unit = unit or "player"
+    if not self.optionsTable or not self.optionsTable.args then return end
 
-  -- 1) Rebuild your options structures (fresh closures, current profile)
-  if self.Options and self.Options.BuildGeneralSettingsTextArgs then
-    if self.Options._textTreeArgs then
-      wipe(self.Options._textTreeArgs)
-    else
-      self.Options._textTreeArgs = {}
+    -- OPTIONAL: preserve current selection
+    local lastGroups
+    if self.ACD and self.ACD.GetStatus then
+        local st = self.ACD:GetStatus("UCB")
+        lastGroups = st and st.groups
     end
 
-    -- Recreate the text tree args from CURRENT profile
-    self.Options.BuildGeneralSettingsTextArgs(unit, { includePerTabEnable = false })
-  end
+    -- 1) Rebuild TEXT cache
+    if self.Options and self.Options.BuildGeneralSettingsTextArgs then
+        self.Options._textTreeArgs = self.Options._textTreeArgs or {}
+        wipe(self.Options._textTreeArgs)
+        self.Options.BuildGeneralSettingsTextArgs(unit, { includePerTabEnable = false })
+        -- make sure AceConfig node points to cache
+        if self.optionsTable.args.text then
+            self.optionsTable.args.text.args = self.Options._textTreeArgs
+        end
+    end
 
-  -- 2) Tell AceConfigRegistry that options changed (only matters if you also use ACD somewhere)
-  if self.ACR then
-    self.ACR:NotifyChange("UCB")
-  end
+    -- 2) Rebuild CLASS cache
+    if self.Options and self.Options.BuildClassSettingsArgs then
+        self.Options._classTreeArgs = self.Options._classTreeArgs or {}
+        wipe(self.Options._classTreeArgs)
+        self.Options.BuildClassSettingsArgs(unit, { includePerTabEnable = false })
+        -- make sure AceConfig node points to cache
+        if self.optionsTable.args.classSettings then
+            self.optionsTable.args.classSettings.args = self.Options._classTreeArgs
+        end
+    end
 
-  -- 3) Rebuild your embedded GUI widgets (this is the important part for your addon)
-  self:RefreshGUI()
+    -- 3) Notify AceConfig to redraw
+    local ACR = self.ACR or (LibStub and LibStub("AceConfigRegistry-3.0", true))
+    if ACR then
+        ACR:NotifyChange("UCB")
+    end
+
+    -- 4) Rebuild embedded GUI
+    if self.RefreshGUI then
+        self:RefreshGUI()
+    end
+
+    -- 5) Restore selection
+    if lastGroups and self.ACD and self.ACD.SelectGroup then
+        self.ACD:SelectGroup("UCB", unpack(lastGroups))
+    end
 end
 
 

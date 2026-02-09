@@ -2,7 +2,7 @@
 ## Title: Ultimate Castbars
 ## Notes: Castbars
 ## Author: SicSo, Ckraigfriend
-## Version: 0.1.0
+## Version: 0.2.0
 ## IconTexture: Interface/AddOns/UltimateCastbars/gfx/icon
 ## Category: Unit Frames
 ## OptionalDeps: Ace3, LibSharedMedia-3.0

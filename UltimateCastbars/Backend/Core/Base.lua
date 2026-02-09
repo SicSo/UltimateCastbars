@@ -46,6 +46,7 @@ local function CreateCastBar(unit)
     BarUpdate_API:UpdateStyle(unit)
     BarUpdate_API:UpdateText(unit)
     BarUpdate_API:UpdateOtherFeatures(unit)
+    BarUpdate_API:UpdateOthers(unit)
 
     bar.group:Hide()
 end
@@ -117,6 +118,7 @@ function CASTBAR_API:UpdateCastbar(unit)
             BarUpdate_API:UpdateStyle(unit)
             BarUpdate_API:UpdateText(unit)
             BarUpdate_API:UpdateOtherFeatures(unit)
+            BarUpdate_API:UpdateOthers(unit)
         end
     end
 end

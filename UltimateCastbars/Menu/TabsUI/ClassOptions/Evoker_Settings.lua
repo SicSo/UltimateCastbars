@@ -19,20 +19,6 @@ local LSM  = UCB.LSM
 -- Registry: classToken -> function(cfgGetter) -> argsTable
 Opt.ClassExtraBuilders = Opt.ClassExtraBuilders or {}
 
--- Public API: called by Options.lua
-function Opt.GetExtraClassArgs(classToken, unit)
-    local fn = Opt.ClassExtraBuilders and Opt.ClassExtraBuilders[classToken]
-    if type(fn) == "function" then
-        local ok, args = pcall(fn, unit)
-        if ok and type(args) == "table" then
-            return args
-        end
-    end
-    return {}
-end
-
-
-
 
 -----------------------------------------------------------------------
 -- EVOKER: wrapper group + extras
@@ -53,7 +39,7 @@ end
 -- Build Empower Colours rows (3 columns) as its own inline group args
 -------------------------------------------------------------------
 local function BuildEmpowerColoursArgs(unit)
-    local cfg = CFG_API:Proxy(unit, {"EVOKER"})--GetCfg(unit).EVOKER
+    local cfg = GetCfg(unit).CLASSES.EVOKER
 
     local out = {
         header = {
@@ -247,7 +233,7 @@ end
 
 
 Opt.ClassExtraBuilders.EVOKER = function(unit)
-    local cfg = CFG_API:Proxy(unit, {"EVOKER"})--GetCfg(unit).EVOKER
+    local cfg = GetCfg(unit).CLASSES.EVOKER
 
     -------------------------------------------------------------------
     -- WRAPPER GROUP: this gives the “boxed background” look
@@ -265,38 +251,25 @@ Opt.ClassExtraBuilders.EVOKER = function(unit)
                     name = "Disintegrate Ticks",
                     order = 1,
                 },
-                disintegrateDynamicTick = {
-                    type = "toggle",
-                    name = "  Dynamic Disintegrate Tick (recommended)",
-                    desc = "When enabled, tick count is determined and placed dynamically based on Xepheris WA and addon logic.",
+                disintegrateInfo = {
+                    type = "description",
+                    name = "Disintegrate ticks can be determined dynamically (based on Xepheris WA and addon logic) or statically (specified by the use in Channeling Spells). Enabling dynamic ticks is recommended for accuracy, especially with chaining. Disabling this does not by default assign ticks, for that you need use Channeling Spells.",
                     order = 2,
+                    width = "full",
+                },
+                disintegrateDynamicTicks = {
+                    type = "toggle",
+                    name = "  Dynamic Disintegrate Ticks (recommended)",
+                    desc = "When enabled, tick count is determined and placed dynamically based on Xepheris WA and addon logic.",
+                    order = 3,
                     width = "full",
                     image = 4622451,
                     get = function()
-                        if cfg.disintegrateDynamicTick == nil then cfg.disintegrateDynamicTick = true end
-                        return cfg.disintegrateDynamicTick
+                        return cfg.disintegrateDynamicTicks
                     end,
                     set = function(_, val)
-                        cfg.disintegrateDynamicTick = val
+                        cfg.disintegrateDynamicTicks = val
                         CASTBAR_API:UpdateCastbar(unit)
-                    end,
-                },
-                disintegrateTickCount = {
-                    type = "range",
-                    name = "Disintegrate Tick Count",
-                    desc = "Only used when Dynamic Tick is OFF.",
-                    min = 1, max = 20, step = 1,
-                    order = 3,
-                    width = "full",
-                    get = function()
-                        return cfg.disintegrateTickCount
-                    end,
-                    set = function(_, v)
-                        cfg.disintegrateTickCount = v
-                        CASTBAR_API:UpdateCastbar(unit)
-                    end,
-                    disabled = function()
-                        return cfg.disintegrateDynamicTick ~= false
                     end,
                 },
                 -- ---------------- Empower ----------------

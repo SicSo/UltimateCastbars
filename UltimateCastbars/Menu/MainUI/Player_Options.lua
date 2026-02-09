@@ -159,6 +159,79 @@ local function BuildClassButtonMatrix(classes, excludeToken, groupName, groupOrd
 end
 
 
+function Opt.BuildClassSettingsArgs(unit, opts)
+    unit = unit or "player"
+    opts = opts or {}
+
+    local classArgs = Opt._classTreeArgs or {}
+    wipe(classArgs)
+    Opt._classTreeArgs = classArgs
+
+    local classes = GetClassList()
+
+    local function BuildClassGroup(ct, order)
+        return {
+            type = "group",
+            name = function()
+                return Colorize(GetClassDisplayName(ct), GetClassColorAARRGGBB(ct))
+            end,
+            order = order,
+            args = (function()
+                local a = {}
+                local extraArgs = Opt.GetExtraClassArgs(ct, unit)
+                for k, v in pairs(extraArgs) do a[k] = v end
+                return a
+            end)(),
+        }
+    end
+
+    classArgs.currentClass = {
+        type = "group",
+        name = "Current Class",
+        order = 0,
+        inline = true,
+        args = {
+            btn_currentClass = {
+                type = "execute",
+                name = function()
+                    return Colorize(GetClassDisplayName(UCB.className), GetClassColorAARRGGBB(UCB.className))
+                end,
+                order = 1,
+                width = "quarter",
+                func = function() GoToClass(UCB.className) end,
+            },
+        },
+    }
+
+    classArgs.classMatrix = BuildClassButtonMatrix(classes, UCB.className, "Other Classes", 1)
+
+    classArgs["class_" .. UCB.className] = BuildClassGroup(UCB.className, 2)
+
+    classArgs.otherClasses = {
+        type = "group",
+        name = "Other Classes",
+        order = 3,
+        childGroups = "tree",
+        args = (function()
+            local other = {}
+            other.classPicker = BuildClassButtonMatrix(classes, UCB.className, "Other Classes", 0)
+
+            local order = 1
+            for _, ct in ipairs(classes) do
+                if ct ~= UCB.className then
+                    other["class_" .. ct] = BuildClassGroup(ct, order)
+                    order = order + 1
+                end
+            end
+
+            return other
+        end)(),
+    }
+
+    return classArgs
+end
+
+
 
 
 -- ---------- Options registration and display ----------
@@ -258,86 +331,14 @@ local function EnsureOptionsRegistered()
 
             -- -------- Class Specific Settings (parent node) --------
             args.classSettings = {
-            type = "group",
-            name = "Class Specific Settings",
-            order = 6,
-            childGroups = "tree",
-            disabled = IsCastbarDisabled,
-            args = (function()
-                local classArgs = {}
-                local classes = GetClassList()
-
-                local function BuildClassGroup(ct, order)
-                return {
-                    type = "group",
-                    name = function()
-                    return Colorize(GetClassDisplayName(ct), GetClassColorAARRGGBB(ct))
-                    end,
-                    order = order,
-                    args = (function()
-                    local a = {}
-                    local extraArgs = Opt.GetExtraClassArgs(ct, unit)
-                    for k, v in pairs(extraArgs) do
-                        a[k] = v
-                    end
-                    return a
-                    end)(),
-                }
-                end
-
-                -- Parent panel: Current Class group
-                classArgs.currentClass = {
                 type = "group",
-                name = "Current Class",
-                order = 0,
-                inline = true,
-                args = {
-                    btn_currentClass = {
-                    type = "execute",
-                    name = function()
-                        return Colorize(GetClassDisplayName(UCB.className), GetClassColorAARRGGBB(UCB.className))
-                    end,
-                    order = 1,
-                    width = "quarter",
-                    func = function() GoToClass(UCB.className) end,
-                    },
-                },
-                }
-
-                -- Parent panel: Matrix under Current Class (same idea as otherClasses)
-                -- Exclude your current class so you don't have duplicate with the button above.
-                classArgs.classMatrix = BuildClassButtonMatrix(classes, UCB.className, "Other Classes", 1)
-
-                -- Tree node 1: your class first
-                classArgs["class_" .. UCB.className] = BuildClassGroup(UCB.className, 2)
-
-                -- Tree node 2: Other Classes (keep your matrix + keep class nodes)
-                classArgs.otherClasses = {
-                type = "group",
-                name = "Other Classes",
-                order = 3,
+                name = "Class Specific Settings",
+                order = 6,
                 childGroups = "tree",
+                disabled = IsCastbarDisabled,
                 args = (function()
-                    local other = {}
-
-                    -- Keep the matrix here too
-                    other.classPicker = BuildClassButtonMatrix(classes, UCB.className, "Other Classes", 0)
-
-                    -- Keep the class tree nodes under otherClasses
-                    local order = 1
-                    for _, ct in ipairs(classes) do
-                    if ct ~= UCB.className then  -- IMPORTANT: this was `ct ~= UCB` in your snippet
-                        other["class_" .. ct] = BuildClassGroup(ct, order)
-                        order = order + 1
-                    end
-                    end
-
-                    return other
+                    return Opt.BuildClassSettingsArgs(unit, { includePerTabEnable = false })
                 end)(),
-                }
-
-                return classArgs
-            end)(),
             }
 
             args.defaultCastbar = {
