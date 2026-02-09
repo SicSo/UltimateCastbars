@@ -67,22 +67,24 @@ function CASTBAR_API:AssignQueueWindow(unit, typeCast)
 
     local bigCFG = CFG_API.GetValueConfig(unit)
     local cfg = bigCFG.otherFeatures
+    local queueWindowOverlay = bar.queueWindowOverlay
+    local status = bar.status
 
     if cfg.showQueueWindow[typeCast] then
         local queWindow = BarUpdate_API.queueWindow / 1000
         local px = bigCFG.general.actualBarWidth * (queWindow / tags.var[unit].dTime)
-        bar.queueWindowOverlay:SetWidth(px)
-        bar.queueWindowOverlay:ClearAllPoints()
+        queueWindowOverlay:SetWidth(px)
+        queueWindowOverlay:ClearAllPoints()
         if (not cfg.invertBar[typeCast] and typeCast ~= "channel") or (typeCast == "channel" and cfg.invertBar[typeCast]) then
-            bar.queueWindowOverlay:SetPoint("TOPRIGHT", bar.status, "TOPRIGHT", 0, 0)
-            bar.queueWindowOverlay:SetPoint("BOTTOMRIGHT", bar.status, "BOTTOMRIGHT", 0, 0)
+            queueWindowOverlay:SetPoint("TOPRIGHT", status, "TOPRIGHT", 0, 0)
+            queueWindowOverlay:SetPoint("BOTTOMRIGHT", status, "BOTTOMRIGHT", 0, 0)
         else
-            bar.queueWindowOverlay:SetPoint("TOPLEFT", bar.status, "TOPLEFT", 0, 0)
-            bar.queueWindowOverlay:SetPoint("BOTTOMLEFT", bar.status, "BOTTOMLEFT", 0, 0)
+            queueWindowOverlay:SetPoint("TOPLEFT", status, "TOPLEFT", 0, 0)
+            queueWindowOverlay:SetPoint("BOTTOMLEFT", status, "BOTTOMLEFT", 0, 0)
         end
-        bar.queueWindowOverlay:Show()
+        queueWindowOverlay:Show()
     else
-        bar.queueWindowOverlay:Hide()
+        queueWindowOverlay:Hide()
     end
 end
 

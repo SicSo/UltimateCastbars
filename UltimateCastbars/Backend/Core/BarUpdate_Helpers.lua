@@ -459,6 +459,21 @@ function BarUpdate_API:UpdateOthers(unit)
             end
         end
     end
+
+    -- Predecide tick settings her
+    local otherCFG = cfg.otherFeatures
+    if not classCFG.useMainSettingsChannel then
+        otherCFG._tickWidth  = classCFG.channelTickWidth
+        otherCFG._tickColour = classCFG.channelTickColour
+        otherCFG._useTickTexture = classCFG.useTickTexture
+        otherCFG._tickTexture = classCFG.tickTexture
+    else
+        otherCFG._tickWidth  = otherCFG.channelTickWidth
+        otherCFG._tickColour = otherCFG.channelTickColour
+        otherCFG._useTickTexture = otherCFG.useTickTexture
+        otherCFG._tickTexture = otherCFG.tickTexture
+    end
+
 end
 
 

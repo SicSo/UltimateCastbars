@@ -263,12 +263,6 @@ local function EnsureOptionsRegistered()
                             UCB.ACR:NotifyChange("UCB")
                         end,
                     },
-                    hint = {
-                        type = "description",
-                        name = "When disabled, all settings are locked (greyed out).",
-                        order = 0.52,
-                        width = "full",
-                    },
                     previewButtons = {
                         type = "group",
                         name = "Preview Castbar",
