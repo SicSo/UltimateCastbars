@@ -46,10 +46,6 @@ UCB.previewActive = {} -- Preview active flags
 UCB.eventFrame = {} -- Event frames per unit
 
 
-
-UCB.optionsPanel, UCB.optionsCategoryID = UCB.ACD:AddToBlizOptions("UCB", "UCB")
-
-
 UCB.units = {
     "player",
     "target",
@@ -443,6 +439,9 @@ local function GatherInfo()
     f:SetScript("OnEvent", function()
         f:UnregisterAllEvents()
         f:SetScript("OnEvent", nil)
+        if UCB.GeneralSettings_API and UCB.GeneralSettings_API.ResolveAllFramesOnLogin then
+          UCB.GeneralSettings_API:ResolveAllFramesOnLogin({timeout=10, interval=0.1})
+        end
 
         -- small delay helps tooltip/spellbook settle on first load
         C_Timer.After(0.1, function()

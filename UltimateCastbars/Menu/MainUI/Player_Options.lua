@@ -233,7 +233,7 @@ end
 
 
 -- ---------- Options registration and display ----------
-local function EnsureOptionsRegistered()
+function UCB:EnsureOptionsRegistered()
     if UCB._optionsRegistered then return end
 
     UCB.optionsTable = {
@@ -353,7 +353,7 @@ end
 
 -- Public: open inside an AceGUI container (your Player tab scroll frame)
 function UCB:OpenOptionsInContainer(parentWidget)
-    EnsureOptionsRegistered()
+    UCB:EnsureOptionsRegistered()
 
     -- Standalone
     if not parentWidget then
@@ -393,6 +393,7 @@ function UCB:OpenOptionsInContainer(parentWidget)
         end
         end)
     end
+    --UCB.optionsPanel, UCB.optionsCategoryID = UCB.ACD:AddToBlizOptions("UCB", "UCB")
 end
 
 -- Keep slash command as a convenience (opens standalone frame if no container supplied)

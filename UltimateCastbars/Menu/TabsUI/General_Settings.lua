@@ -98,12 +98,22 @@ local function BuildPositionArgs(args, unit)
                             anchorNameHeader = {
                                 type = "header",
                                 name = function()
+                                    local defaultName = g._defaultAnchor or "UIParent"
+
                                     if g.useDefaultAnchor or g.anchorName == "" then
-                                        return "Anchored frame: "..UIOptions.ColorText(UIOptions.green, g._defaultAnchor)
-                                    elseif  g._anchorCustomError then
-                                        return "Anchored frame: "..UIOptions.ColorText(UIOptions.red, g._defaultAnchor.."(Error: "..g.anchorName..")")
+                                        return "Anchored frame: "..UIOptions.ColorText(UIOptions.green, defaultName)
                                     end
-                                    return "Anchored frame: "..UIOptions.ColorText(UIOptions.green, g.anchorName)
+
+                                    if g._anchorCustomError then
+                                        return "Anchored frame: "..UIOptions.ColorText(UIOptions.red, defaultName.."(Error: "..tostring(g.anchorName)..")")
+                                    end
+
+                                    -- If resolved, show it; otherwise show “waiting…”
+                                    if g._anchorFrameRef and g._anchorFrameRef ~= UIParent then
+                                        return "Anchored frame: "..UIOptions.ColorText(UIOptions.green, g.anchorName)
+                                    end
+
+                                    return "Anchored frame: "..UIOptions.ColorText(UIOptions.turquoise, "Waiting for: "..tostring(g.anchorName))
                                 end,
                                 width = "full",
                                 order = 1,
@@ -116,6 +126,7 @@ local function BuildPositionArgs(args, unit)
                                 get = function() return g.useDefaultAnchor end,
                                 set = function(_, v)
                                     g.useDefaultAnchor = v
+                                    GeneralSettings_API:ResolveAnchorWithRetry(g, {timeout=10, interval=0.1})
                                     CASTBAR_API:UpdateCastbar(unit)
                                 end,
                             },
@@ -126,7 +137,8 @@ local function BuildPositionArgs(args, unit)
                                 width = 1.2,
                                 get = function() return g.anchorName end,
                                 set = function(_, value) 
-                                    g.anchorName = value 
+                                    g.anchorName = value
+                                    GeneralSettings_API:ResolveAnchorWithRetry(g, {timeout=10, interval=0.1})
                                     CASTBAR_API:UpdateCastbar(unit)
                                     GeneralSettings_API:addNewItemList(g.anchoredFrameList, value)
                                     end,
@@ -153,6 +165,7 @@ local function BuildPositionArgs(args, unit)
                                 get = function() return g.anchorName end,
                                 set = function(_, value) 
                                     g.anchorName = value
+                                    GeneralSettings_API:ResolveAnchorWithRetry(g, {timeout=10, interval=0.1})
                                     CASTBAR_API:UpdateCastbar(unit)
                                     end,
                                 disabled = function() return g.useDefaultAnchor end,
@@ -171,6 +184,7 @@ local function BuildPositionArgs(args, unit)
                                 func = function()
                                         g.anchoredFrameList = {}
                                         g.anchorName = ""
+                                        GeneralSettings_API:ResolveAnchorWithRetry(g, {timeout=0})
                                         CASTBAR_API:UpdateCastbar(unit)
                                 end,
                                 disabled = function() return g.useDefaultAnchor or not g.anchoredFrameList or #g.anchoredFrameList == 0 end,
@@ -321,11 +335,11 @@ local function BuildSizeArgs(args, unit)
                         type = "header",
                         name = function()
                             local str1
-                            if g.widthInput == "" or g._widthFrameError then
+                            local widthFrame = g._widthFrameRef or GeneralSettings_API:getFrame(g.widthInput) or UIParent
+                            if g.widthInput == "" or g._widthFrameError or widthFrame == UIParent then
                                 str1 = "Frame "..UIOptions.ColorText(UIOptions.red, g.widthInput).." not used; ".."Width: "..g.barWidth.." (manual)"
                             else
-                                local fw = _G[g.widthInput]
-                                local width = fw and fw:GetWidth()
+                                local width = widthFrame and widthFrame:GetWidth()
                                 if width < g.widthMinValue then
                                     str1 = "Frame "..UIOptions.ColorText(UIOptions.red, g.widthInput).." not used; Frame width: "..UIOptions.ColorText(UIOptions.red, width).." < width min value: "..UIOptions.ColorText(UIOptions.red, g.widthMinValue)
                                 else
@@ -340,12 +354,18 @@ local function BuildSizeArgs(args, unit)
                     widthFrameStats = {
                         type = "header",
                         name = function ()
-                            return "Width: "..UIOptions.ColorText(UIOptions.turquoise, GeneralSettings_API:getFrame(g.widthInput):GetWidth()).."; Height: "..UIOptions.ColorText(UIOptions.turquoise, GeneralSettings_API:getFrame(g.widthInput):GetHeight())
+                            local frame = g._widthFrameRef or GeneralSettings_API:getFrame(g.widthInput) or UIParent
+                            if frame and frame ~= UIParent then
+                                return "Width: "..UIOptions.ColorText(UIOptions.turquoise, frame:GetWidth()).."; Height: "..UIOptions.ColorText(UIOptions.turquoise, frame:GetHeight())
+                            else
+                                return UIOptions.ColorText(UIOptions.red, "Frame not found")
+                            end
                         end,
                         order = 2,
                         width = "full",
                         hidden = function()
-                            return g.widthInput == "" or g._widthFrameError
+                            local f = g._widthFrameRef or GeneralSettings_API:getFrame(g.widthInput) or UIParent
+                            return g.widthInput == "" or g._widthFrameError or f == UIParent
                         end,
                     },
                     widthFrameInput = {
@@ -356,9 +376,10 @@ local function BuildSizeArgs(args, unit)
                         get = function() return g.widthInput end,
                         set = function(_, value)
                             g.widthInput = value
+                            GeneralSettings_API:ResolveFrameWithRetry(g, "width", value, {timeout=10, interval=0.1})
                             CASTBAR_API:UpdateCastbar(unit)
                             GeneralSettings_API:addNewItemList(g.frameSizeList, value)
-                            end,
+                        end,
                     },
                     gap2 = {
                     order = 3.5,
@@ -379,10 +400,11 @@ local function BuildSizeArgs(args, unit)
                             return list
                         end,
                         get = function() return g.widthInput end,
-                        set = function(_, value) 
+                       set = function(_, value)
                             g.widthInput = value
+                            GeneralSettings_API:ResolveFrameWithRetry(g, "width", value, {timeout=10, interval=0.1})
                             CASTBAR_API:UpdateCastbar(unit)
-                            end,
+                        end,
                     },
                     gap3 = {
                     order = 4.5,
@@ -417,11 +439,11 @@ local function BuildSizeArgs(args, unit)
                         type = "header",
                         name = function()
                             local str1
-                            if g.heightInput == "" or g._heightFrameError then
+                            local heightFrame = g._heightFrameRef or GeneralSettings_API:getFrame(g.heightInput) or UIParent
+                            if g.heightInput == "" or g._heightFrameError or heightFrame == UIParent then
                                 str1 = "Frame "..UIOptions.ColorText(UIOptions.red, g.heightInput).." not used; ".."Height: "..g.barHeight.." (manual)"
                             else
-                                local fh = _G[g.heightInput]
-                                local height = fh and fh:GetHeight()
+                                local height = heightFrame and heightFrame:GetHeight()
                                 if height < g.heightMinValue then
                                     str1 = "Frame "..UIOptions.ColorText(UIOptions.red, g.heightInput).." not used; Frame height: "..UIOptions.ColorText(UIOptions.red, height).." < height min value: "..UIOptions.ColorText(UIOptions.red, g.heightMinValue)
                                 else
@@ -436,12 +458,18 @@ local function BuildSizeArgs(args, unit)
                     heightFrameStats = {
                         type = "header",
                         name = function ()
-                            return "Width: "..UIOptions.ColorText(UIOptions.turquoise, GeneralSettings_API:getFrame(g.heightInput):GetWidth()).."; Height: "..UIOptions.ColorText(UIOptions.turquoise, GeneralSettings_API:getFrame(g.heightInput):GetHeight())
+                            local frame = g._heightFrameRef or GeneralSettings_API:getFrame(g.heightInput) or UIParent
+                            if frame and frame ~= UIParent then
+                                return "Width: "..UIOptions.ColorText(UIOptions.turquoise, frame:GetWidth()).."; Height: "..UIOptions.ColorText(UIOptions.turquoise, frame:GetHeight())
+                            else
+                                return UIOptions.ColorText(UIOptions.red, "Frame not found")
+                            end
                         end,
                         order = 2,
                         width = "full",
                         hidden = function()
-                            return g.heightInput == "" or g._heightFrameError
+                            local f = g._heightFrameRef or GeneralSettings_API:getFrame(g.heightInput) or UIParent
+                            return g.heightInput == "" or g._heightFrameError or f == UIParent
                         end,
                     },
                     heightFrameInput = {
@@ -452,6 +480,7 @@ local function BuildSizeArgs(args, unit)
                         get = function() return g.heightInput end,
                         set = function(_, value)
                             g.heightInput = value
+                            GeneralSettings_API:ResolveFrameWithRetry(g, "height", value, {timeout=10, interval=0.1})
                             CASTBAR_API:UpdateCastbar(unit)
                             GeneralSettings_API:addNewItemList(g.frameSizeList, value)
                             end,
@@ -477,6 +506,7 @@ local function BuildSizeArgs(args, unit)
                         get = function() return g.heightInput end,
                         set = function(_, value) 
                             g.heightInput = value
+                            GeneralSettings_API:ResolveFrameWithRetry(g, "height", value, {timeout=10, interval=0.1})
                             CASTBAR_API:UpdateCastbar(unit)
                             end,
                     },
