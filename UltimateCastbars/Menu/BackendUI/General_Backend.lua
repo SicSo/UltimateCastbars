@@ -38,14 +38,16 @@ end
 
 function GeneralSettings_API:ResolveFrameWithRetry(unit, g, which, frameName, opts)
     opts = opts or {}
-    local timeout  = opts.timeout or 10
-    local interval = opts.interval or 0.1
+    local tries = tonumber(opts.tries) or 50
+    local interval = tonumber(opts.interval) or 0.1
+    local delay = tonumber(opts.delay) or 0.1
+    if tries < 1 then tries = 1 end
+    if interval <= 0 then interval = 0.1 end
+    if delay < 0 then delay = 0.1 end
 
-    -- which = "width" or "height"
-    local refKey  = which == "width" and "_widthFrameRef"  or "_heightFrameRef"
-    local errKey  = which == "width" and "_widthFrameError" or "_heightFrameError"
+    local refKey = which == "width" and "_widthFrameRef" or "_heightFrameRef"
+    local errKey = which == "width" and "_widthFrameError" or "_heightFrameError"
 
-    -- empty = treat as UIParent/manual
     if not frameName or frameName == "" then
         g[refKey] = UIParent
         g[errKey] = false
@@ -53,8 +55,10 @@ function GeneralSettings_API:ResolveFrameWithRetry(unit, g, which, frameName, op
         return
     end
 
-    local start = GetTime()
-    local function try()
+    local attempt = 0
+    local function tryResolve()
+        attempt = attempt + 1
+
         local f = _G[frameName]
         if f then
             g[refKey] = f
@@ -63,42 +67,52 @@ function GeneralSettings_API:ResolveFrameWithRetry(unit, g, which, frameName, op
             return
         end
 
-        if (GetTime() - start) >= timeout then
+        if attempt >= tries then
             g[refKey] = UIParent
             g[errKey] = true
             UCB:NotifyChange(unit)
             return
         end
 
-        C_Timer.After(interval, try)
+        C_Timer.After(interval, tryResolve)
     end
 
-    try()
+    if delay > 0 then
+        C_Timer.After(delay, tryResolve)
+    else
+        tryResolve()
+    end
 end
+
 
 
 -- Wait up to `timeout` seconds for _G[frameName] to exist.
 -- Calls `onDone(frame)` when found, or `onDone(nil)` on timeout.
 function GeneralSettings_API:getFrameWhenReady(frameName, onDone, opts)
     opts = opts or {}
-    local timeout  = opts.timeout or 10
-    local interval = opts.interval or 0.1
+    local tries = tonumber(opts.tries) or 50
+    local interval = tonumber(opts.interval) or 0.1
+    if tries < 1 then tries = 1 end
+    if interval <= 0 then interval = 0.1 end
+
 
     if not frameName or frameName == "" then
         if onDone then onDone(UIParent) end
         return
     end
 
-    local start = GetTime()
+    local attempt = 0
     local function try()
-        local frame = _G[frameName]
-        if frame then
-            if onDone then onDone(frame) end
+        attempt = attempt + 1
+
+        local f = _G[frameName] -- or _G[wanted] for anchor
+        if f then
+            -- success
             return
         end
 
-        if (GetTime() - start) >= timeout then
-            if onDone then onDone(nil) end
+        if attempt >= tries then
+            -- fail/fallback
             return
         end
 
@@ -111,13 +125,14 @@ end
 
 function GeneralSettings_API:ResolveAnchorWithRetry(unit, g, opts)
     opts = opts or {}
-    local timeout  = opts.timeout or 10
-    local interval = opts.interval or 0.1
+    local tries = tonumber(opts.tries) or 50
+    local interval = tonumber(opts.interval) or 0.1
+    if tries < 1 then tries = 1 end
+    if interval <= 0 then interval = 0.1 end
 
-    -- default
     local defaultName = g._defaultAnchor or "UIParent"
 
-    -- if using default, resolve immediately
+    -- default anchor path
     if g.useDefaultAnchor or not g.anchorName or g.anchorName == "" then
         g._anchorFrameRef = _G[defaultName] or UIParent
         g._anchorCustomError = false
@@ -126,9 +141,11 @@ function GeneralSettings_API:ResolveAnchorWithRetry(unit, g, opts)
     end
 
     local wanted = g.anchorName
-    local start = GetTime()
+    local attempt = 0
 
-    local function try()
+    local function tryResolve()
+        attempt = attempt + 1
+
         local f = _G[wanted]
         if f then
             g._anchorFrameRef = f
@@ -137,26 +154,29 @@ function GeneralSettings_API:ResolveAnchorWithRetry(unit, g, opts)
             return
         end
 
-        if (GetTime() - start) >= timeout then
-            -- timeout: flag error, fallback to default
+        if attempt >= tries then
             g._anchorCustomError = true
             g._anchorFrameRef = _G[defaultName] or UIParent
             UCB:NotifyChange(unit)
             return
         end
 
-        C_Timer.After(interval, try)
+        C_Timer.After(interval, tryResolve)
     end
 
-    try()
+    tryResolve()
 end
 
 
 
 function GeneralSettings_API:ResolveAllFramesOnLogin(opts)
     opts = opts or {}
-    local timeout  = opts.timeout or 10
-    local interval = opts.interval or 0.1
+    local anchorTries = tonumber(opts.anchorTries) or 50
+    local anchorInterval = tonumber(opts.anchorInterval) or 0.1
+    local syncTries = tonumber(opts.frameTries) or 50
+    local syncInterval = tonumber(opts.frameInterval) or 0.1
+    local syncDelay = tonumber(opts.syncDelay) or 0.1
+    local anchorDelay = tonumber(opts.anchorDelay) or 0.1
 
     local function notify(unit)
         UCB:NotifyChange(unit)
@@ -172,7 +192,7 @@ function GeneralSettings_API:ResolveAllFramesOnLogin(opts)
             g._widthFrameRef = nil
             -- reuse your retry helper if you made it; otherwise do local retry:
             if self.ResolveFrameWithRetry then
-                self:ResolveFrameWithRetry(unit, g, "width", g.widthInput, {timeout=timeout, interval=interval})
+                self:ResolveFrameWithRetry(unit, g, "width", g.widthInput, {tries=syncTries, interval=syncInterval, delay = syncDelay})
             end
         end
 
@@ -181,7 +201,7 @@ function GeneralSettings_API:ResolveAllFramesOnLogin(opts)
             g._heightFrameError = false
             g._heightFrameRef = nil
             if self.ResolveFrameWithRetry then
-                self:ResolveFrameWithRetry(unit, g, "height", g.heightInput, {timeout=timeout, interval=interval})
+                self:ResolveFrameWithRetry(unit, g, "height", g.heightInput, {tries=syncTries, interval=syncInterval, delay = syncDelay})
             end
         end
     end
@@ -189,7 +209,7 @@ function GeneralSettings_API:ResolveAllFramesOnLogin(opts)
     local function resolveAnchor(unit, g)
         if not g then return end
         if self.ResolveAnchorWithRetry then
-            self:ResolveAnchorWithRetry(unit, g, {timeout=timeout, interval=interval})
+            self:ResolveAnchorWithRetry(unit, g, {tries=anchorTries, interval=anchorInterval, delay = anchorDelay})
         end
     end
 

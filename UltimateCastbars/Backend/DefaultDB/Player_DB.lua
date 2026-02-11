@@ -15,9 +15,13 @@ UCB.Default_DB.Player = {
         frameLastClicked = "",
 
         anchoredFrameList = {},
+        anchorDelay = 0.1, -- delay in seconds for resolving anchor frames when changing settings or on login
+        anchorFrameTries = 50,
+        anchorFrameInterval = 0.1,
 
-        --widthSyncMode = "manual", -- "manual", "essential", "utility", "unit"
-
+        syncDelay = 0.1, -- delay in seconds for syncing position across bars when moving one
+        syncFrameTries = 50,
+        syncFrameInterval = 0.1,
 
         widthInput = "",
         heightInput = "",

@@ -218,8 +218,9 @@ function UCB:OpenGUI(selectPath)
         end
 
         if self.ACD and self.ACD.SelectGroup then
+        -- ensure any changes are reflected before switching
         self.ACD:SelectGroup(ROOT_APP, unpack(path))
-        print(ROOT_APP, unpack(path))
+        UCB:RefreshGUI(path)
         self.GUI._currentSelectedKey = wantedKey
         end
         return
@@ -310,7 +311,47 @@ function UCB:OpenGUI(selectPath)
     C_Timer.After(0, function()
         if self.ACD and self.ACD.SelectGroup and self.GUI and self.GUI.isGUIOpen then
             self.ACD:SelectGroup(ROOT_APP, unpack(path))
+            UCB:RefreshGUI(path)
             self.GUI._currentSelectedKey = wantedKey
         end
+    end)
+end
+
+
+function UCB:RefreshGUI(hard, path)
+    if not (self.GUI and self.GUI.isGUIOpen and self.ACD) then return end
+
+    local st = self.ACD.GetStatus and self.ACD:GetStatus(ROOT_APP)
+    local groups = path or (st and st.groups) or { "player", "general" }
+
+    -- If an editbox is focused, Ace may not repaint that field value.
+    local focused = GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus()
+    if focused and focused.ClearFocus then
+        focused:ClearFocus()
+    end
+
+    -- Hard refresh: rebuild options + reopen + restore selected path.
+    if hard then
+        self:FullRebuildRootUI() -- your existing function already preserves/restores selection
+        C_Timer.After(0, function()
+            if self.ACD and self.ACD.SelectGroup and self.GUI and self.GUI.isGUIOpen then
+                self.ACD:SelectGroup(ROOT_APP, unpack(groups))
+            end
+        end)
+        return
+    end
+
+    -- Soft refresh: notify + reselect twice (next frames)
+    if self.ACR then
+        self.ACR:NotifyChange(ROOT_APP)
+    end
+
+    C_Timer.After(0, function()
+        if not (self.ACD and self.ACD.SelectGroup and self.GUI and self.GUI.isGUIOpen) then return end
+        self.ACD:SelectGroup(ROOT_APP, unpack(groups))
+        C_Timer.After(0, function()
+            if not (self.ACD and self.ACD.SelectGroup and self.GUI and self.GUI.isGUIOpen) then return end
+            self.ACD:SelectGroup(ROOT_APP, unpack(groups))
+        end)
     end)
 end

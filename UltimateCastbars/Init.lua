@@ -50,11 +50,7 @@ UCB.previewActive = {} -- Preview active flags
 UCB.eventFrame = {} -- Event frames per unit
 
 
-UCB.apps = {
-  BLIZZ = "UCB_ROOT_BLIZZ",
-  WIN = "UCB_ROOT_WIN",
-}
-
+UCB.firstBuild = true
 
 UCB.units = {
     "player",
@@ -217,6 +213,13 @@ UCB.UIOptions.blizzOffsetMin = -1000
 UCB.UIOptions.blizzOffsetMax = 1000
 UCB.UIOptions.blizzScaleMin = 0.01
 UCB.UIOptions.blizzScaleMax = 10.0
+
+UCB.UIOptions.frameDelayMin = 0
+UCB.UIOptions.frameDelayMax = 10
+UCB.UIOptions.frameTriesMin = 1
+UCB.UIOptions.frameTriesMax = 1000
+UCB.UIOptions.frameIntervalMin = 0.01
+UCB.UIOptions.frameIntervalMax = 1.0
 
 
 UCB.UIOptions.white = "FFFFFFFF"
@@ -463,8 +466,23 @@ local function SetUpSpellTypes()
 end
 
 local function ResolveFrames()
+  local cfg = UCB.CFG_API.GetValueConfig("player").general
+  local delayAcnhor = cfg.anchorDelay
+  local delaySync = cfg.syncDelay
+  if not UCB.firstBuild then
+    delayAcnhor = 0
+    delaySync = 0
+  end
+
   if UCB.GeneralSettings_API and UCB.GeneralSettings_API.ResolveAllFramesOnLogin then
-    UCB.GeneralSettings_API:ResolveAllFramesOnLogin({timeout=10, interval=0.1})
+    UCB.GeneralSettings_API:ResolveAllFramesOnLogin({
+      anchorTries = cfg.anchorFrameTries,
+      anchorInterval = cfg.anchorFrameInterval,
+      syncTries = cfg.syncFrameTries,
+      syncInterval = cfg.syncFrameInterval,
+      syncDelay = delaySync,
+      anchorDelay = delayAcnhor,
+    })
   end
 end
 
@@ -625,10 +643,12 @@ function UCB:EnsureUnit(unit)
 end
 
 function UCB:UpdateAllCastBarsFirst()
+  UCB.firstBuild = true
   self:EnsureUnit("player")
   self:SetUpConfig()
   self.CASTBAR_API:UpdateCastbar("player")
   self:RegisterRootOptions()
+  UCB.firstBuild = false
 end
 
 function UCB:UpdateAllCastBars()

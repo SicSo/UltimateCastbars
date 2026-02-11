@@ -49,7 +49,7 @@ local function BuildFramePickerArgs(args, unit)
                             UCB.SimpleFramePickerObj:Start(
                                 function(frameName)
                                     g.frameLastClicked = frameName
-                                    UCB:RefreshGUI()
+                                    UCB:RefreshGUI({ "player", "general"})
                                 end,
                                 function()
                                     --print("Picker cancelled.")
@@ -126,7 +126,11 @@ local function BuildPositionArgs(args, unit)
                                 get = function() return g.useDefaultAnchor end,
                                 set = function(_, v)
                                     g.useDefaultAnchor = v
-                                    GeneralSettings_API:ResolveAnchorWithRetry(unit, g, {timeout=10, interval=0.1})
+                                    if UCB.firstBuild then
+                                        GeneralSettings_API:ResolveAnchorWithRetry(unit, g, {tries=g.anchorFrameTries, interval=g.anchorFrameInterval, delay=g.anchorDelay})
+                                    else
+                                        GeneralSettings_API:ResolveAnchorWithRetry(unit, g, {tries=g.anchorFrameTries, interval=g.anchorFrameInterval, delay=0})
+                                    end
                                     CASTBAR_API:UpdateCastbar(unit)
                                 end,
                             },
@@ -138,7 +142,11 @@ local function BuildPositionArgs(args, unit)
                                 get = function() return g.anchorName end,
                                 set = function(_, value) 
                                     g.anchorName = value
-                                    GeneralSettings_API:ResolveAnchorWithRetry(unit, g, {timeout=10, interval=0.1})
+                                    if UCB.firstBuild then
+                                        GeneralSettings_API:ResolveAnchorWithRetry(unit, g, {tries=g.anchorFrameTries, interval=g.anchorFrameInterval, delay=g.anchorDelay})
+                                    else
+                                        GeneralSettings_API:ResolveAnchorWithRetry(unit, g, {tries=g.anchorFrameTries, interval=g.anchorFrameInterval, delay=0})
+                                    end
                                     CASTBAR_API:UpdateCastbar(unit)
                                     GeneralSettings_API:addNewItemList(g.anchoredFrameList, value)
                                     end,
@@ -165,7 +173,11 @@ local function BuildPositionArgs(args, unit)
                                 get = function() return g.anchorName end,
                                 set = function(_, value) 
                                     g.anchorName = value
-                                    GeneralSettings_API:ResolveAnchorWithRetry(unit, g, {timeout=10, interval=0.1})
+                                    if UCB.firstBuild then
+                                        GeneralSettings_API:ResolveAnchorWithRetry(unit, g, {tries=g.anchorFrameTries, interval=g.anchorFrameInterval, delay=g.anchorDelay})
+                                    else
+                                        GeneralSettings_API:ResolveAnchorWithRetry(unit, g, {tries=g.anchorFrameTries, interval=g.anchorFrameInterval, delay=0})
+                                    end
                                     CASTBAR_API:UpdateCastbar(unit)
                                     end,
                                 disabled = function() return g.useDefaultAnchor end,
@@ -184,11 +196,81 @@ local function BuildPositionArgs(args, unit)
                                 func = function()
                                         g.anchoredFrameList = {}
                                         g.anchorName = ""
-                                        GeneralSettings_API:ResolveAnchorWithRetry(unit, g, {timeout=0})
+                                        GeneralSettings_API:ResolveAnchorWithRetry(unit, g, {tries = 1})
                                         CASTBAR_API:UpdateCastbar(unit)
                                 end,
                                 disabled = function() return g.useDefaultAnchor or not g.anchoredFrameList or #g.anchoredFrameList == 0 end,
                             },
+                            anchoringSettingsGrp = {
+                                type = "group",
+                                name = "Custom Anchoring Settings",
+                                order = 6,
+                                inline = true,
+                                hidden = function() return g.useDefaultAnchor end,
+                                args = {
+                                    anchoringSettingsDescr = {
+                                        type = "description",
+                                        name = "If you notice that the castbar is not anchoring correctly to tyhe custom frame, you can add delay before it attempt to find the frame. "..
+                                            "You can also adjust the number of tries and the interval between tries to find the frame. The total number of seconds it will try to find the frame is tries*interval. Increase either or both if the addon cant find the frame to anchor to.",
+                                        order = 0.5,
+                                        width = "full",
+                                    },
+                                    anchorDelay = {
+                                        type = "range",
+                                        name = "Anchor Resolve Delay (s)",
+                                        order = 1,
+                                        width = 1,
+                                        min = UIOptions.frameDelayMin,
+                                        max = UIOptions.frameDelayMax,
+                                        step = 0.1,
+                                        get = function() return g.anchorDelay end,
+                                        set = function(_, v)
+                                            g.anchorDelay = v
+                                            CASTBAR_API:UpdateCastbar(unit)
+                                        end,
+                                    },
+                                    gap1 = {
+                                    order = 1.5,
+                                    type = "description",
+                                    name = " ",
+                                    width = 0.1
+                                    },
+                                    anchorTries = {
+                                        type = "range",
+                                        name = "Anchor Resolve Max Tries",
+                                        order = 2,
+                                        width = 1,
+                                        min = UIOptions.frameTriesMin,
+                                        max = UIOptions.frameTriesMax,
+                                        step = 1,
+                                        get = function() return g.anchorFrameTries end,
+                                        set = function(_, v)
+                                            g.anchorFrameTries = v
+                                            CASTBAR_API:UpdateCastbar(unit)
+                                        end,
+                                    },
+                                    gap2 = {
+                                    order = 2.5,
+                                    type = "description",
+                                    name = " ",
+                                    width = 0.1
+                                    },
+                                    anchorInterval = {
+                                        type = "range",
+                                        name = "Anchor Resolve Interval (s)",
+                                        order = 3,
+                                        width = 1,
+                                        min = UIOptions.frameIntervalMin,
+                                        max = UIOptions.frameIntervalMax,
+                                        step = 0.01,
+                                        get = function() return g.anchorFrameInterval end,
+                                        set = function(_, v)
+                                            g.anchorFrameInterval = v
+                                            CASTBAR_API:UpdateCastbar(unit)
+                                        end,
+                                    }
+                                }
+                            }
                         }
                     },
                     normalAnchors = {
@@ -320,6 +402,76 @@ local function BuildSizeArgs(args, unit)
                             CASTBAR_API:UpdateCastbar(unit)
                         end,
                     },
+                    syncSettingsGrp = {
+                        type = "group",
+                        name = "Custom Sync Settings",
+                        inline = true,
+                        order = 5,
+                        hidden = function() return not (g.manualWidth or g.manualHeight) end,
+                        args = {
+                            syncDescr = {
+                                type = "description",
+                                name = "When syncing width/height across bars, delay is applied to prevent size issues. Increase if you notice bars are sizing incorrectly."..
+                                 " Sync tries and interval determine how long it will attempt to find the frame. The total number of seounds is tries*interval. Increase either or both if the addon cant find the frame to sync to.",
+                                order = 0.5,
+                                width = "full",
+                            },
+                            syncDelay = {
+                                type = "range",
+                                name = "Sync Delay (s)",
+                                order = 1,
+                                width = 1,
+                                min = UIOptions.frameDelayMin,
+                                max = UIOptions.frameDelayMax,
+                                step = 0.1,
+                                get = function() return g.syncDelay end,
+                                set = function(_, v)
+                                    g.syncDelay = v
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
+                            gap1 = {
+                            order = 1.5,
+                            type = "description",
+                            name = " ",
+                            width = 0.1
+                            },
+                            numTries = {
+                                type = "range",
+                                name = "Sync Max Tries",
+                                order = 2,
+                                width = 1,
+                                min = UIOptions.frameTriesMin,
+                                max = UIOptions.frameTriesMax,
+                                step = 1,
+                                get = function() return g.syncFrameTries end,
+                                set = function(_, v)
+                                    g.syncFrameTries = v
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
+                            gap2 = {
+                            order = 2.5,
+                            type = "description",
+                            name = " ",
+                            width = 0.1
+                            },
+                            interval = {
+                                type = "range",
+                                name = "Sync Interval (s)",
+                                order = 3,
+                                width = 1,
+                                min = UIOptions.frameIntervalMin,
+                                max = UIOptions.frameIntervalMax,
+                                step = 0.01,
+                                get = function() return g.syncFrameInterval end,
+                                set = function(_, v)
+                                    g.syncFrameInterval = v
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
+                        }
+                    }
                 }
             },
             widthFrameGroup = {
@@ -376,7 +528,11 @@ local function BuildSizeArgs(args, unit)
                         get = function() return g.widthInput end,
                         set = function(_, value)
                             g.widthInput = value
-                            GeneralSettings_API:ResolveFrameWithRetry(unit, g, "width", value, {timeout=10, interval=0.1})
+                            if UCB.firstBuild then
+                                GeneralSettings_API:ResolveFrameWithRetry(unit, g, "width", value, {tries=g.syncFrameTries, interval=g.syncFrameInterval, delay=g.syncDelay})
+                            else
+                                GeneralSettings_API:ResolveFrameWithRetry(unit, g, "width", value, {tries=g.syncFrameTries, interval=g.syncFrameInterval, delay=0})
+                            end
                             CASTBAR_API:UpdateCastbar(unit)
                             GeneralSettings_API:addNewItemList(g.frameSizeList, value)
                         end,
@@ -402,7 +558,11 @@ local function BuildSizeArgs(args, unit)
                         get = function() return g.widthInput end,
                        set = function(_, value)
                             g.widthInput = value
-                            GeneralSettings_API:ResolveFrameWithRetry(unit, g, "width", value, {timeout=10, interval=0.1})
+                            if UCB.firstBuild then
+                                GeneralSettings_API:ResolveFrameWithRetry(unit, g, "width", value, {tries=g.syncFrameTries, interval=g.syncFrameInterval, delay=g.syncDelay})
+                            else
+                                GeneralSettings_API:ResolveFrameWithRetry(unit, g, "width", value, {tries=g.syncFrameTries, interval=g.syncFrameInterval, delay=0})
+                            end
                             CASTBAR_API:UpdateCastbar(unit)
                         end,
                     },
@@ -480,7 +640,11 @@ local function BuildSizeArgs(args, unit)
                         get = function() return g.heightInput end,
                         set = function(_, value)
                             g.heightInput = value
-                            GeneralSettings_API:ResolveFrameWithRetry(unit, g, "height", value, {timeout=10, interval=0.1})
+                            if UCB.firstBuild then
+                                GeneralSettings_API:ResolveFrameWithRetry(unit, g, "height", value, {tries=g.syncFrameTries, interval=g.syncFrameInterval, delay=g.syncDelay})
+                            else
+                                GeneralSettings_API:ResolveFrameWithRetry(unit, g, "height", value, {tries=g.syncFrameTries, interval=g.syncFrameInterval, delay=0})
+                            end
                             CASTBAR_API:UpdateCastbar(unit)
                             GeneralSettings_API:addNewItemList(g.frameSizeList, value)
                             end,
@@ -506,7 +670,11 @@ local function BuildSizeArgs(args, unit)
                         get = function() return g.heightInput end,
                         set = function(_, value) 
                             g.heightInput = value
-                            GeneralSettings_API:ResolveFrameWithRetry(unit, g, "height", value, {timeout=10, interval=0.1})
+                            if UCB.firstBuild then
+                                GeneralSettings_API:ResolveFrameWithRetry(unit, g, "height", value, {tries=g.syncFrameTries, interval=g.syncFrameInterval, delay=g.syncDelay})
+                            else
+                                GeneralSettings_API:ResolveFrameWithRetry(unit, g, "height", value, {tries=g.syncFrameTries, interval=g.syncFrameInterval, delay=0})
+                            end
                             CASTBAR_API:UpdateCastbar(unit)
                             end,
                     },

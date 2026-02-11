@@ -20,6 +20,11 @@ local function AnchorWhenReady(frameToAnchor, cfg, opts)
     cfg._anchorCustomError = false
     local maxTries = opts.maxTries or 100 -- ~10s if interval is 0.1
     local interval = opts.interval or 0.1
+    local delay = opts.delay or 0.1
+
+    if not UCB.firstBuild then
+        delay = 0 -- skip delay on subsequent updates
+    end
 
     local tries = 0
     local function try()
@@ -51,7 +56,12 @@ local function AnchorWhenReady(frameToAnchor, cfg, opts)
         frameToAnchor:SetPoint(cfg.anchorFrom, anchor, cfg.anchorTo, cfg.offsetX or 0, cfg.offsetY or 0)
     end
 
-    try()
+    if delay > 0 then
+        C_Timer.After(delay, try)
+    else
+        try()
+    end
+
 end
 
 local function BorderExtents(show, thickness, offL, offR, offT, offB)
@@ -97,7 +107,7 @@ end
 
 local function NN(x) return (x and x > 0) and x or 0 end
 
-local function ComputeSize2(bar, genCfg, styleCfg, syncedW, syncedH)
+local function ComputeSize(bar, genCfg, styleCfg, syncedW, syncedH)
     genCfg._widthFrameError  = false
     genCfg._heightFrameError = false
 
@@ -343,11 +353,15 @@ local function SizeWhenReady(bar, genCfg, styleCfg, opts)
     local maxTries = opts.maxTries or 100
     local minW     = opts.minWidth  or 1
     local minH     = opts.minHeight or 1
-    local delay    = opts.delay     or 1
+    local delay    = opts.delay     or 0.1
+
+    if not UCB.firstBuild then
+        delay = 0 -- skip delay on subsequent updates
+    end
 
     -- Apply defaults immediately (manual sizes) so bar isn't broken while waiting
     --ComputeSize(bar, genCfg, nil, nil)
-    ComputeSize2(bar, genCfg, styleCfg, nil, nil)
+    ComputeSize(bar, genCfg, styleCfg, nil, nil)
 
     local needW = (not genCfg.manualWidth)  and genCfg.widthInput  and genCfg.widthInput  ~= ""
     local needH = (not genCfg.manualHeight) and genCfg.heightInput and genCfg.heightInput ~= ""
@@ -414,7 +428,7 @@ local function SizeWhenReady(bar, genCfg, styleCfg, opts)
         if wReady and hReady then
             -- Ready: compute + apply using synced values
             --ComputeSize(bar, genCfg, syncedW, syncedH)
-            ComputeSize2(bar, genCfg, styleCfg, syncedW, syncedH)
+            ComputeSize(bar, genCfg, styleCfg, syncedW, syncedH)
             return
         end
 
@@ -425,31 +439,30 @@ local function SizeWhenReady(bar, genCfg, styleCfg, opts)
             genCfg._widthFrameError  = needW and (syncedW == nil) or false
             genCfg._heightFrameError = needH and (syncedH == nil) or false
             --ComputeSize(bar, genCfg, syncedW, syncedH)
-            ComputeSize2(bar, genCfg, styleCfg, syncedW, syncedH)
+            ComputeSize(bar, genCfg, styleCfg, syncedW, syncedH)
         end
     end
 
-    --if delay > 0 then
-    --    C_Timer.After(delay, try)
-    --else
+    if delay > 0 then
+        C_Timer.After(delay, try)
+    else
         try()
-    --end
+    end
 end
 
 ----------------------------------------MAIN----------------------------------------
 function BarUpdate_API:UpdateBarIcon(unit)
-    local bar = UCB.castBar[unit]
     local bar = UCB.castBar[unit]
     local bigCFG = CFG_API.GetValueConfig(unit)
     local genCfg = bigCFG.general
     local styleCfg = bigCFG.style
 
     -- Determine width and apply
-    SizeWhenReady(bar, genCfg, styleCfg, {interval=0.1, maxTries=100, minWidth=1, minHeight = 1})
+    SizeWhenReady(bar, genCfg, styleCfg, {interval=genCfg.syncFrameInterval, maxTries=genCfg.syncFrameTries, minWidth=1, minHeight = 1})
 
     -- Apply icon/bar layout (update icon)
     LayoutIconAndBar2(bar, genCfg)
 
     -- Determine anchor frame and attach
-    AnchorWhenReady(bar.group, genCfg, {interval=0.1, maxTries=100})
+    AnchorWhenReady(bar.group, genCfg, {interval=genCfg.anchorFrameInterval, maxTries=genCfg.anchorFrameTries, delay=genCfg.anchorDelay})
 end
