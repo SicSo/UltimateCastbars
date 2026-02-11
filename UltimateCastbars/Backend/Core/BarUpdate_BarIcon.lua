@@ -343,6 +343,7 @@ local function SizeWhenReady(bar, genCfg, styleCfg, opts)
     local maxTries = opts.maxTries or 100
     local minW     = opts.minWidth  or 1
     local minH     = opts.minHeight or 1
+    local delay    = opts.delay     or 1
 
     -- Apply defaults immediately (manual sizes) so bar isn't broken while waiting
     --ComputeSize(bar, genCfg, nil, nil)
@@ -428,7 +429,11 @@ local function SizeWhenReady(bar, genCfg, styleCfg, opts)
         end
     end
 
-    try()
+    --if delay > 0 then
+    --    C_Timer.After(delay, try)
+    --else
+        try()
+    --end
 end
 
 ----------------------------------------MAIN----------------------------------------

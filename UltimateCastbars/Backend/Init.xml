@@ -10,6 +10,7 @@
 	<Script file="Modules/SimpleFramePicker.lua"/>
 	<Script file="Modules/Tags.lua"/>
 	<Script file="Modules/EvokerDisintegrateTick.lua"/>
+	<Script file="Modules/Debug.lua"/>
 
 	<!-- Core -->
 	<Script file="Core/BarUpdate_BarIcon.lua"/>

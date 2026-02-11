@@ -27,6 +27,7 @@ UCB.SimpleFramePicker = UCB.SimpleFramePicker or {}
 UCB.Options = UCB.Options or {}
 UCB.Default_DB = UCB.Default_DB or {}
 UCB.Profiles = UCB.Profiles or {}
+UCB.Debug = UCB.Debug or {}
 
 -- Sub APIs
 UCB.CLASS_API.Evoker = UCB.CLASS_API.Evoker or {}
@@ -47,6 +48,12 @@ UCB.castBarGroup = {} -- The cast bar groups (for anchoring)
 UCB.defaultBar = {} -- The default blizz cast bars
 UCB.previewActive = {} -- Preview active flags
 UCB.eventFrame = {} -- Event frames per unit
+
+
+UCB.apps = {
+  BLIZZ = "UCB_ROOT_BLIZZ",
+  WIN = "UCB_ROOT_WIN",
+}
 
 
 UCB.units = {
@@ -258,16 +265,20 @@ end
 --]]
 
 function UCB:NotifyChange(unit)
-    local ROOT_APP = "UCB_ROOT"
-    if UCB.ACR then
-        UCB.ACR:NotifyChange(ROOT_APP)
+  local apps = {"UCB_ROOT"}
+  if UCB.ACR then
+    for _, app in ipairs(apps) do
+      UCB.ACR:NotifyChange(app)
     end
+  end
 end
 
 function UCB:SelectGroup(unit, path)
-  local ROOT_APP = "UCB_ROOT"
-  if UCB.ACD then
-      UCB.ACD:SelectGroup(ROOT_APP, unit, unpack(path))
+  local apps = {"UCB_ROOT"}
+   if UCB.ACD then
+      for _, app in ipairs(apps) do
+        UCB.ACD:SelectGroup(app, unpack(path))
+      end
   end
 end
 
@@ -390,15 +401,13 @@ local function createPicker()
 end
 
 
-local function SetUpClassInfo()
+local function SetUpPlayerInfo()
     local _, class = UnitClass("player")
     local classColor = RAID_CLASS_COLORS and RAID_CLASS_COLORS[class] or {r=1, g=1, b=1}
     UCB.classColour = {r = classColor.r, g = classColor.g, b = classColor.b, a = 1}
     UCB.className = class
-end
-
-local function SetUpSecInfo()
     UCB.specID = PlayerUtil.GetCurrentSpecID()
+    UCB.charName = UnitName("player")
 end
 
 
@@ -479,8 +488,7 @@ local function ResolveFrames()
 end
 
 local function GatherInfo()
-    SetUpClassInfo()
-    SetUpSecInfo()
+    SetUpPlayerInfo()
 
     -- delay spell scanning until the world is ready
     local f = CreateFrame("Frame")
@@ -577,6 +585,18 @@ local function RegisterGUIPathCommands(cmds, path)
     end
 end
 
+local function RegisterDebug(slashStart, funcStart, slashStop, funcStop)
+    if slashStart and funcStart then
+        SLASH_UCBDEBUGSTART1 = slashStart
+        SlashCmdList["UCBDEBUGSTART"] = funcStart
+    end
+
+    if slashStop and funcStop then
+        SLASH_UCBDEBUGSTOP1 = slashStop
+        SlashCmdList["UCBDEBUGSTOP"] = funcStop
+    end
+end
+
 local function SetupSlashCommands()
     -- Player tab
     RegisterGUIPathCommands(
@@ -602,6 +622,9 @@ local function SetupSlashCommands()
         { "profiles", "management" }
     )
 
+    -- Debug
+    RegisterDebug("/ucbdebug", function() UCB.Debug:StartDebug() end,
+                "/ucbdebugstop", function() UCB.Debug:StopDebug() end)
     -- reload command
     SLASH_UCBRELOAD1 = "/rl"
     SlashCmdList["UCBRELOAD"] = function() C_UI.Reload() end
