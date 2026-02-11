@@ -39,6 +39,9 @@ UCB.CASTBAR_API.CreateCastbar = UCB.CASTBAR_API.UpdateCastbar -- for backward co
 UCB.defaultCastbarFrame = CreateFrame("Frame")
 UCB.defaultCastbarFrame:Hide()
 
+UCB.optionsTable = UCB.optionsTable or {}
+UCB._optionsRegistered = UCB._optionsRegistered or {}
+
 UCB.castBar = {} -- The cast bars
 UCB.castBarGroup = {} -- The cast bar groups (for anchoring)
 UCB.defaultBar = {} -- The default blizz cast bars
@@ -221,12 +224,52 @@ UCB.UIOptions.grey = "FF808080"
 
 
 
+
 function UCB.UIOptions.ColorText(hex, text)
     return ("|c%s%s|r"):format(hex, text)
 end
 
 
 function UCB:PrintAddonMsg(msg)  print(self.ADDON_NAME .. ":|r " .. msg) end
+
+
+function UCB:AppNameForUnit(unit)
+    return "UCB_" .. tostring(unit or "player")
+end
+
+--[[
+UCB.appNames = {
+    player = "UCB_player",
+    target = "UCB_target",
+    focus = "UCB_focus"
+}
+
+function UCB:NotifyChange(unit)
+    if UCB.ACR then
+        UCB.ACR:NotifyChange(UCB.appNames[unit])
+    end
+end
+
+function UCB:SelectGroup(unit, path)
+    if UCB.ACD then
+        UCB.ACD:SelectGroup(UCB.appNames[unit], unpack(path))
+    end
+end
+--]]
+
+function UCB:NotifyChange(unit)
+    local ROOT_APP = "UCB_ROOT"
+    if UCB.ACR then
+        UCB.ACR:NotifyChange(ROOT_APP)
+    end
+end
+
+function UCB:SelectGroup(unit, path)
+  local ROOT_APP = "UCB_ROOT"
+  if UCB.ACD then
+      UCB.ACD:SelectGroup(ROOT_APP, unit, unpack(path))
+  end
+end
 
 
 local function GetPathValue(root, key)
@@ -429,6 +472,12 @@ local function SetUpSpellTypes()
   return out
 end
 
+local function ResolveFrames()
+  if UCB.GeneralSettings_API and UCB.GeneralSettings_API.ResolveAllFramesOnLogin then
+    UCB.GeneralSettings_API:ResolveAllFramesOnLogin({timeout=10, interval=0.1})
+  end
+end
+
 local function GatherInfo()
     SetUpClassInfo()
     SetUpSecInfo()
@@ -439,9 +488,7 @@ local function GatherInfo()
     f:SetScript("OnEvent", function()
         f:UnregisterAllEvents()
         f:SetScript("OnEvent", nil)
-        if UCB.GeneralSettings_API and UCB.GeneralSettings_API.ResolveAllFramesOnLogin then
-          UCB.GeneralSettings_API:ResolveAllFramesOnLogin({timeout=10, interval=0.1})
-        end
+        ResolveFrames()
 
         -- small delay helps tooltip/spellbook settle on first load
         C_Timer.After(0.1, function()
@@ -511,21 +558,55 @@ local function createBar(unit)
     UCB.DefBlizzCast:ApplyDefaultBlizzCastbar(unit, false)
 end
 
--- Add slash commands
-local function SetupSlashCommands()
-    SLASH_UCB1 = "/ucb"
-    --SLASH_UCB2 = "/pcb"
-    --SLASH_UCB3 = "/tcb"
-    --SLASH_UCB4 = "/fcb"
-    SLASH_UCB5 = "/ultimatecastbars"
-    SLASH_UCB6 = "/uc"
-    SlashCmdList["UCB"] = function() UCB:OpenGUI() end
-    UCB:PrintAddonMsg("'|cFF8080FF/ucb|r' for in-game configuration.")
 
-    -- RL command
+local function RegisterGUIPathCommands(cmds, path)
+    if type(cmds) ~= "table" or #cmds == 0 then return end
+    if type(path) ~= "table" or #path == 0 then return end
+
+    -- Build a unique SlashCmdList key from the first command + path
+    local key = "UCB_GUI_" .. tostring(cmds[1]):gsub("[^%w]", "") .. "_" .. table.concat(path, "_"):upper()
+
+    -- Register the slashes
+    for i, slash in ipairs(cmds) do
+        _G["SLASH_" .. key .. i] = slash
+    end
+
+    -- Handler: ONLY OpenGUI with the path
+    SlashCmdList[key] = function()
+        UCB:OpenGUI(path)
+    end
+end
+
+local function SetupSlashCommands()
+    -- Player tab
+    RegisterGUIPathCommands(
+        { "/ucb", "/ultimatecastbars", "/uc" },
+        { "player", "general" }
+    )
+
+    -- Target tab
+    --RegisterGUIPathCommands(
+    --    { "/tcb" },
+    --    { "target", "general" }
+    --)
+
+    -- Focus tab
+    --RegisterGUIPathCommands(
+    --    { "/fcb" },
+    --    { "focus", "general" }
+    --)
+
+    -- Profiles tab
+    RegisterGUIPathCommands(
+        { "/ucbprof" },
+        { "profiles", "management" }
+    )
+
+    -- reload command
     SLASH_UCBRELOAD1 = "/rl"
     SlashCmdList["UCBRELOAD"] = function() C_UI.Reload() end
 end
+
 
 
 function UCB:EnsureUnit(unit)
@@ -539,11 +620,19 @@ function UCB:EnsureUnit(unit)
   -- OR you can have an explicit CreateCastbar(unit) if your API supports it.
 end
 
+function UCB:UpdateAllCastBarsFirst()
+  self:EnsureUnit("player")
+  self:SetUpConfig()
+  self.CASTBAR_API:UpdateCastbar("player")
+  self:RegisterRootOptions()
+end
+
 function UCB:UpdateAllCastBars()
   self:EnsureUnit("player")
   self:SetUpConfig()
   self.CASTBAR_API:UpdateCastbar("player")
-  UCB:RebuildUI("player")
+  UCB:OnProfileSwapRefreshUI()
+  ResolveFrames()
 end
 
 
@@ -551,7 +640,8 @@ function UCB:Init()
   SetupSlashCommands()
   GatherInfo()
   createPicker()
+  --UCB:RegisterRootOptions()
 
   -- do the once-only setup and initial paint
-  self:UpdateAllCastBars()
+  self:UpdateAllCastBarsFirst()
 end

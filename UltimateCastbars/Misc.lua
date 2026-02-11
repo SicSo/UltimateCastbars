@@ -25,21 +25,18 @@ local broker = LDB:NewDataObject(ADDON_NAME, {
 -- What happens when clicked
 broker.OnClick = function(_, button)
     if button == "LeftButton" then
-        if SlashCmdList and SlashCmdList.UCB then
-        SlashCmdList.UCB()
-        end
+        UCB:OpenGUI({ "player", "general" })
     elseif button == "RightButton" then
-        if SlashCmdList and SlashCmdList.UCB then
-        SlashCmdList.UCB() -- if you support args; otherwise just ""
-        end
+        UCB:OpenGUI({ "profiles", "management" })
     end
 end
+
 -- Tooltip on hover (ElvUI will show this when hovering the datatext)
 broker.OnEnter = function(self)
     GameTooltip:SetOwner(self, "ANCHOR_TOP")
     GameTooltip:AddLine("Ultimate Castbars")
-    GameTooltip:AddLine("Left-click: Toggle", 1, 1, 1)
-    GameTooltip:AddLine("Right-click: Options", 1, 1, 1)
+    GameTooltip:AddLine("Left-click: Open profiles", 1, 1, 1)
+    GameTooltip:AddLine("Right-click: Open settings", 1, 1, 1)
     GameTooltip:Show()
 end
 

@@ -16,7 +16,7 @@ local LSM  = UCB.LSM
 
 
 local function BuildCustomisationArgs(args, unit)
-    local cfg = CFG_API:Proxy(unit, {"style"})
+    local cfg = GetCfg(unit).style
     args.grpBarTexture = {
         type   = "group",
         name   = "Texture",

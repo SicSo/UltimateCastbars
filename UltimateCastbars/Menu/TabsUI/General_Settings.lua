@@ -15,7 +15,7 @@ local GeneralSettings_API = UCB.GeneralSettings_API
 
 
 local function BuildFramePickerArgs(args, unit)
-    local g = CFG_API:Proxy(unit, {"general"})
+    local g = GetCfg(unit).general
 
     args.framePickerGrp = {
         type = "group",
@@ -76,7 +76,7 @@ local function BuildFramePickerArgs(args, unit)
         }
 end
 local function BuildPositionArgs(args, unit)
-    local g = CFG_API:Proxy(unit, {"general"})
+    local g = GetCfg(unit).general
 
     args.positionGrp = {
         type = "group",
@@ -126,7 +126,7 @@ local function BuildPositionArgs(args, unit)
                                 get = function() return g.useDefaultAnchor end,
                                 set = function(_, v)
                                     g.useDefaultAnchor = v
-                                    GeneralSettings_API:ResolveAnchorWithRetry(g, {timeout=10, interval=0.1})
+                                    GeneralSettings_API:ResolveAnchorWithRetry(unit, g, {timeout=10, interval=0.1})
                                     CASTBAR_API:UpdateCastbar(unit)
                                 end,
                             },
@@ -138,7 +138,7 @@ local function BuildPositionArgs(args, unit)
                                 get = function() return g.anchorName end,
                                 set = function(_, value) 
                                     g.anchorName = value
-                                    GeneralSettings_API:ResolveAnchorWithRetry(g, {timeout=10, interval=0.1})
+                                    GeneralSettings_API:ResolveAnchorWithRetry(unit, g, {timeout=10, interval=0.1})
                                     CASTBAR_API:UpdateCastbar(unit)
                                     GeneralSettings_API:addNewItemList(g.anchoredFrameList, value)
                                     end,
@@ -165,7 +165,7 @@ local function BuildPositionArgs(args, unit)
                                 get = function() return g.anchorName end,
                                 set = function(_, value) 
                                     g.anchorName = value
-                                    GeneralSettings_API:ResolveAnchorWithRetry(g, {timeout=10, interval=0.1})
+                                    GeneralSettings_API:ResolveAnchorWithRetry(unit, g, {timeout=10, interval=0.1})
                                     CASTBAR_API:UpdateCastbar(unit)
                                     end,
                                 disabled = function() return g.useDefaultAnchor end,
@@ -184,7 +184,7 @@ local function BuildPositionArgs(args, unit)
                                 func = function()
                                         g.anchoredFrameList = {}
                                         g.anchorName = ""
-                                        GeneralSettings_API:ResolveAnchorWithRetry(g, {timeout=0})
+                                        GeneralSettings_API:ResolveAnchorWithRetry(unit, g, {timeout=0})
                                         CASTBAR_API:UpdateCastbar(unit)
                                 end,
                                 disabled = function() return g.useDefaultAnchor or not g.anchoredFrameList or #g.anchoredFrameList == 0 end,
@@ -262,7 +262,7 @@ local function BuildPositionArgs(args, unit)
 end
 
 local function BuildSizeArgs(args, unit)
-    local g = CFG_API:Proxy(unit, {"general"})
+    local g = GetCfg(unit).general
 
     args.sizeGrp = {
         type = "group",
@@ -376,7 +376,7 @@ local function BuildSizeArgs(args, unit)
                         get = function() return g.widthInput end,
                         set = function(_, value)
                             g.widthInput = value
-                            GeneralSettings_API:ResolveFrameWithRetry(g, "width", value, {timeout=10, interval=0.1})
+                            GeneralSettings_API:ResolveFrameWithRetry(unit, g, "width", value, {timeout=10, interval=0.1})
                             CASTBAR_API:UpdateCastbar(unit)
                             GeneralSettings_API:addNewItemList(g.frameSizeList, value)
                         end,
@@ -402,7 +402,7 @@ local function BuildSizeArgs(args, unit)
                         get = function() return g.widthInput end,
                        set = function(_, value)
                             g.widthInput = value
-                            GeneralSettings_API:ResolveFrameWithRetry(g, "width", value, {timeout=10, interval=0.1})
+                            GeneralSettings_API:ResolveFrameWithRetry(unit, g, "width", value, {timeout=10, interval=0.1})
                             CASTBAR_API:UpdateCastbar(unit)
                         end,
                     },
@@ -480,7 +480,7 @@ local function BuildSizeArgs(args, unit)
                         get = function() return g.heightInput end,
                         set = function(_, value)
                             g.heightInput = value
-                            GeneralSettings_API:ResolveFrameWithRetry(g, "height", value, {timeout=10, interval=0.1})
+                            GeneralSettings_API:ResolveFrameWithRetry(unit, g, "height", value, {timeout=10, interval=0.1})
                             CASTBAR_API:UpdateCastbar(unit)
                             GeneralSettings_API:addNewItemList(g.frameSizeList, value)
                             end,
@@ -506,7 +506,7 @@ local function BuildSizeArgs(args, unit)
                         get = function() return g.heightInput end,
                         set = function(_, value) 
                             g.heightInput = value
-                            GeneralSettings_API:ResolveFrameWithRetry(g, "height", value, {timeout=10, interval=0.1})
+                            GeneralSettings_API:ResolveFrameWithRetry(unit, g, "height", value, {timeout=10, interval=0.1})
                             CASTBAR_API:UpdateCastbar(unit)
                             end,
                     },
@@ -633,7 +633,7 @@ end
 
 
 local function createOffsetX(unit, args)
-    local g = CFG_API:Proxy(unit, {"general"})
+    local g = GetCfg(unit).general
 
     if g.iconAnchor == "LEFT" then
         return {
@@ -685,7 +685,7 @@ end
 
 
 local function createOffsetY(unit, args)
-    local g = CFG_API:Proxy(unit, {"general"})
+    local g = GetCfg(unit).general
 
     if g.iconAnchor == "TOP" then
         return {
@@ -735,7 +735,7 @@ end
 
 
 local function BuildIconArgs(args, unit)
-    local g = CFG_API:Proxy(unit, {"general"})
+    local g = GetCfg(unit).general
 
     args.iconGrp = {
         type = "group",

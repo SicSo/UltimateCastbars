@@ -17,7 +17,7 @@ local LSM  = UCB.LSM
 
 
 local function BuildOtherArgs(args, unit)
-    local cfg = CFG_API:Proxy(unit, {"otherFeatures"}) --GetCfg(unit).otherFeatures
+    local cfg = GetCfg(unit).otherFeatures
 
     args.channelTickGrp = {
         type   = "group",

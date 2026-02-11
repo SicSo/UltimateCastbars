@@ -149,7 +149,7 @@ local function PreviewSettings(cfg)
 end
 
 local function BuildPreviewArgs(args, unit, opts)
-    local cfg = CFG_API:Proxy(unit, {})--GetCfg(unit) 
+    local cfg = GetCfg(unit)
     Preview_API.showSettings = false
 
     args.previewRow = {

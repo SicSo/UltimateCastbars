@@ -343,9 +343,6 @@ local function ImportFilteredProfile(targetProfileName, serialized)
     -- If we imported into the active profile, re-apply immediately
     local activeName = UCB.db.GetCurrentProfile and UCB.db:GetCurrentProfile()
     if not targetProfileName or targetProfileName == "" or targetProfileName == activeName then
-        if CASTBAR_API and CASTBAR_API.UpdateCastbar then
-            CASTBAR_API:UpdateCastbar("player")
-        end
         if UCB.UpdateAllCastBars then
             UCB:UpdateAllCastBars()
         end
@@ -369,7 +366,7 @@ end
 -- Builds the Profiles page with:
 --  - "Profile Management" (AceDBOptions-3.0)
 --  - "Import / Export" (AceSerializer-3.0 string)
-local function BuildProfilesOptions()
+function UCB:BuildProfilesOptions()
     -- Base profile management (choose/copy/reset/delete)
     local profilesMgmt = UCB.ADBO:GetOptionsTable(UCB.db)
     profilesMgmt.order = 1
@@ -393,11 +390,6 @@ local function BuildProfilesOptions()
 
 
     return {
-        type = "group",
-        name = "Profiles",
-        order = 100,
-        childGroups = "tab",
-        args = {
             management = profilesMgmt,
 
             import = {
@@ -441,10 +433,14 @@ local function BuildProfilesOptions()
                             },
                             importButton = {
                                 type = "execute",
-                                name = "Import Into Selected Profile",
+                                name = function()
+                                    local p = Profiles._importProfileName
+                                    if not p or p == "" then p = "(current)" end
+                                    return "Import Into: " .. p
+                                end,
                                 order = 2,
                                 confirm = true,
-                                confirmText = "This will overwrite your current profile settings. Continue?",
+                                confirmText = "This will overwrite the selected profile with the import string. Continue?",
                                 func = function()
                                     if not ImportFilteredProfile then
                                         print("UCB: ImportFilteredProfile() not found.")
@@ -455,12 +451,6 @@ local function BuildProfilesOptions()
                                     if not ok then
                                         print("UCB: Import failed: " .. tostring(err))
                                         return
-                                    end
-
-                                    -- Re-apply visuals/state after import
-                                    if CASTBAR_API and CASTBAR_API.UpdateCastbar then
-                                        CASTBAR_API:UpdateCastbar("player")
-                                        UCB:UpdateAllCastBars()
                                     end
 
                                     print("UCB: Import complete.")
@@ -491,12 +481,6 @@ local function BuildProfilesOptions()
                                         if not ok then
                                             print("UCB: Import failed: " .. tostring(err))
                                             return
-                                        end
-
-                                        -- Re-apply visuals/state (since current profile changed)
-                                        if CASTBAR_API and CASTBAR_API.UpdateCastbar then
-                                            CASTBAR_API:UpdateCastbar("player")
-                                            UCB:UpdateAllCastBars()
                                         end
 
                                         print("UCB: Import complete.")
@@ -663,15 +647,20 @@ local function BuildProfilesOptions()
                     },
                 }
             },
-        },
-    }
+        }
 end
 
 local function EnsureProfilesOptionsRegistered()
     if UCB._profilesOptionsRegistered then return end
 
     -- Make the Profiles group the ROOT table for this AceConfig app
-    local profilesRoot = BuildProfilesOptions()
+    local profilesRoot = {
+        type = "group",
+        name = "Profiles",
+        order = 100,
+        childGroups = "tab",
+        args = UCB:BuildProfilesOptions()
+    }
 
     -- Important: this must be a "group" root table, which it already is
     UCB.AC:RegisterOptionsTable("UCB_Profiles", profilesRoot)
@@ -701,8 +690,6 @@ function UCB:OpenProfilesInContainer(parentWidget)
         end
     end)
 end
-
-
 
 
 function UCB:NormalizeCurrentProfileToSchema()

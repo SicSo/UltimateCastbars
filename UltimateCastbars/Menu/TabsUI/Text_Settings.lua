@@ -15,8 +15,8 @@ local Text_API = UCB.Text_API
 UCB.Options._textTreeArgs = UCB.Options._textTreeArgs or {}
 
 
-local function GoToTag(tagKey)
-  UCB.ACD:SelectGroup("UCB", "text", tagKey)
+local function GoToTag(unit, tagKey)
+    UCB:SelectGroup(unit, {"text", tagKey})
 end
 
 local function BuildTagButtons(unit)
@@ -34,7 +34,7 @@ local function BuildTagButtons(unit)
         name  = function() return tostring(tcfg.name) end, -- now live
         order = order,
         width = "quarter",
-        func  = function() GoToTag(key) end,
+        func  = function() GoToTag(unit, key) end,
       }
       order = order + 1
     end
@@ -71,9 +71,9 @@ local function tagUI(key, tagType, unit)
            treeArgs[key] = nil
            RefreshTagPickerButtons(unit)
 
-            UCB.ACR:NotifyChange("UCB")
+            UCB:NotifyChange(unit)
 
-            UCB.ACD:SelectGroup("UCB", "text")
+            UCB:SelectGroup(unit, {"text"})
 
             CASTBAR_API:UpdateCastbar(unit)
         end,
@@ -127,9 +127,8 @@ local function tagUI(key, tagType, unit)
                 set = function(_, v)
                     cfg.showType.normal = v
                     if Text_API:updateStaticShow(key, cfg, bigCFG) then
-                        UCB.ACR:NotifyChange("UCB")
+                        UCB:NotifyChange(unit)
                     end
-                     UCB.ACR:NotifyChange("UCB")
                     CASTBAR_API:UpdateCastbar(unit)
                     end,
             },
@@ -141,9 +140,8 @@ local function tagUI(key, tagType, unit)
                 set = function(_, v) 
                     cfg.showType.channel = v
                     if Text_API:updateStaticShow(key, cfg, bigCFG) then
-                        UCB.ACR:NotifyChange("UCB")
+                        UCB:NotifyChange(unit)
                     end
-                    UCB.ACR:NotifyChange("UCB")
                     CASTBAR_API:UpdateCastbar(unit)
                     end,
             },
@@ -155,9 +153,8 @@ local function tagUI(key, tagType, unit)
                 set = function(_, v) 
                     cfg.showType.empowered = v
                     if Text_API:updateStaticShow(key, cfg, bigCFG) then
-                        UCB.ACR:NotifyChange("UCB")
+                        UCB:NotifyChange(unit)
                     end
-                    UCB.ACR:NotifyChange("UCB")
                     CASTBAR_API:UpdateCastbar(unit)
                     end,
             },
@@ -181,7 +178,7 @@ local function tagUI(key, tagType, unit)
                         if v ~= "" then
                             cfg.tagText = tostring(v)
                             Text_API:updateTagText(key, cfg, bigCFG)
-                            UCB.ACR:NotifyChange("UCB")
+                            UCB:NotifyChange(unit)
                             CASTBAR_API:UpdateCastbar(unit)
                         end
                     end,
@@ -388,8 +385,8 @@ local function addTagUI(unit)
                         }
                         newName = ""
                         RefreshTagPickerButtons(unit)
-                        UCB.ACR:NotifyChange("UCB")
-                        UCB.ACD:SelectGroup("UCB", "text", key)
+                        UCB:NotifyChange(unit)
+                        UCB:SelectGroup(unit, {"text", key})
                     end
                 end,
             },

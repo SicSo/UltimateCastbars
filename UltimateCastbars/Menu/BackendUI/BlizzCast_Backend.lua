@@ -262,9 +262,7 @@ function DefBlizzCast:UpdateDefaultCastbarPosition(x, y, point, unit)
         end
     end
 
-    if UCB.ACR then
-        UCB.ACR:NotifyChange("UCB")
-    end
+    UCB:NotifyChange(unit)
 end
 
 -- ============================================================

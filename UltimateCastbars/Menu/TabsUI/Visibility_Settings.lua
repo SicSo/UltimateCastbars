@@ -12,7 +12,8 @@ local UIOptions = UCB.UIOptions
 
 
 local function BuildLayeringArgs(args, unit)
-    local cfg = CFG_API:Proxy(unit, {"visibility"})
+    local cfg = GetCfg(unit).visibility
+
 
     args.layeringGroup = {
         type   = "group",
