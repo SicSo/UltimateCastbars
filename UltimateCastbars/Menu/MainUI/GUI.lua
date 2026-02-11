@@ -14,260 +14,7 @@ local GUIWidgets = UCB.GUIWidgets
 local UCBGUI = UCB.GUI or {}
 UCB.GUI = UCBGUI
 
-local isGUIOpen = false
 local Container
-
---[[
-function UCBGUI:BuildUnitTab(contentFrame, unit)
-    contentFrame:ReleaseChildren()
-
-    if UCB and UCB.OpenOptionsInContainer then
-        UCB:OpenOptionsInContainer(contentFrame, unit)
-        return
-    end
-
-    local label = AG:Create("Label")
-    label:SetFullWidth(true)
-    label:SetText("Options not available.")
-    contentFrame:AddChild(label)
-end
-
-
-UCBGUI._embedParent = UCBGUI._embedParent or {}
-
-local UNIT_TABS = { player = true, target = false, focus = false }
-
-function SelectMainTab(tabGroup, event, tabValue)
-    UCB.GUI.selectedTab = tabValue
-    tabGroup:ReleaseChildren()
-
-    local wrapper = AG:Create("SimpleGroup")
-    wrapper:SetFullWidth(true)
-    wrapper:SetFullHeight(true)
-    wrapper:SetLayout("Fill")
-    tabGroup:AddChild(wrapper)
-
-    local holder = AG:Create("SimpleGroup")
-    holder:SetFullWidth(true)
-    holder:SetFullHeight(true)
-    holder:SetLayout("Fill")
-    wrapper:AddChild(holder)
-
-    -- store holder so we can refresh THIS tab if needed
-    UCBGUI._embedParent = UCBGUI._embedParent or {}
-    UCBGUI._embedParent[tabValue] = holder
-
-    if UNIT_TABS[tabValue] then
-        UCBGUI:BuildUnitTab(holder, tabValue)
-        return
-    end
-
-    if tabValue == "profiles" then
-        if UCB and UCB.OpenProfilesInContainer then
-            UCB:OpenProfilesInContainer(holder)
-        else
-            local label = AG:Create("Label")
-            label:SetFullWidth(true)
-            label:SetText("Profiles options not available.")
-            holder:AddChild(label)
-        end
-        return
-    end
-end
-
-
-function UCB:InvalidateUnitOptions(unit)
-    UCB._optionsRegistered = UCB._optionsRegistered or {}
-    UCB.optionsTable = UCB.optionsTable or {}
-
-    UCB._optionsRegistered[unit] = nil
-    UCB.optionsTable[unit] = nil
-end
-
-
-function UCB:OpenGUI()
-    if isGUIOpen then return end
-    if InCombatLockdown and InCombatLockdown() then return end
-
-    isGUIOpen = true
-
-    Container = AG:Create("Frame")
-    Container:SetTitle(UCB.PRETTY_ADDON_NAME or "Ultimate Castbars")
-    Container:SetLayout("Fill")
-    Container:SetWidth(1000)
-    Container:SetHeight(800)
-    Container:EnableResize(true)
-    -- Minimum size
-    local MIN_W = 1000
-    local function ClampMinWidth()
-        if not Container or not Container.frame then return end
-        local w = Container.frame:GetWidth()
-        if w and w < MIN_W then
-            Container.frame:SetWidth(MIN_W)
-            -- also update AceGUI's stored width so it doesn't fight you
-            if Container.SetWidth then Container:SetWidth(MIN_W) end
-        end
-    end
-
-    -- Clamp whenever size changes (covers dragging and programmatic resizes)
-    Container.frame:HookScript("OnSizeChanged", function()
-        ClampMinWidth()
-    end)
-
-    -- Extra safety: clamp when the user finishes dragging a sizer
-    local function HookSizer(sizer)
-        if not sizer then return end
-        sizer:HookScript("OnMouseUp", function()
-            ClampMinWidth()
-        end)
-        sizer:HookScript("OnMouseDown", function()
-            ClampMinWidth()
-        end)
-    end
-
-    HookSizer(Container.sizer_se)
-    HookSizer(Container.sizer_e)
-    HookSizer(Container.sizer_s)
-
-    Container:SetCallback("OnClose", function(widget)
-        if GUIWidgets and GUIWidgets.DetachBottomLeftLinks then
-            GUIWidgets:DetachBottomLeftLinks(widget)
-        end
-        AG:Release(widget)
-        isGUIOpen = false
-        Container = nil
-    end)
-
-
-    -- Header links (left of the close X)
-    local discordUrl = "https://discord.gg/wX5hWW3N3Q"
-    local supportUrl = "https://ko-fi.com/sicso"
-
-    GUIWidgets:AttachBottomLeftLinks(Container, {
-        {
-            text  = "Need support or want to suggest features? Join Discord!",
-            title = "Discord",
-            url   = discordUrl,
-        },
-        {
-            text  = "Good addons take a lot of personal time to develop. Support the creator if you can!",
-            title = "Support the creator",
-            url   = supportUrl,
-        },
-    })
-
-
-
-    local tabGroup = AG:Create("TabGroup")
-    tabGroup:SetFullWidth(true)
-    tabGroup:SetFullHeight(true)
-    tabGroup:SetLayout("Fill")
-    tabGroup:SetTabs({
-        { text = "Player", value = "player" },
-        { text = "Target", value = "target" },
-        { text = "Focus",  value = "focus"  },
-        { text = "Profiles", value = "profiles" },
-    })
-    tabGroup:SetCallback("OnGroupSelected", SelectMainTab)
-
-    UCBGUI.tabGroup = tabGroup
-    UCBGUI.selectedTab = "player"
-
-    Container:AddChild(tabGroup)
-
-    -- Default tab
-    tabGroup:SelectTab("player")
-end
-
-function UCB:RefreshGUI()
-    if not Container or not UCB.GUI or not UCB.GUI.tabGroup then return end
-
-    local tg = UCB.GUI.tabGroup
-    local tab = UCB.GUI.selectedTab or (tg.status and tg.status.selected) or "player"
-
-    -- Force rebuild of the current tab contents
-    tg:SelectTab(tab)
-end
-
-
-function UCB:FullRebuildOptionsUI(unit)
-    unit = unit or "player"
-    local appName = UCB:AppNameForUnit(unit)
-
-    -- preserve selection path if that app is currently open
-    local lastGroups
-    if self.ACD and self.ACD.GetStatus then
-        local st = self.ACD:GetStatus(appName)
-        lastGroups = st and st.groups
-    end
-
-    -- close existing instance of this app (standalone or embedded)
-    if self.ACD and self.ACD.Close then
-        self.ACD:Close(appName)
-    end
-
-    -- force rebuild of options table
-    self:InvalidateUnitOptions(unit)
-    self:EnsureOptionsRegistered(unit)
-
-    -- If this unit tab is currently visible, re-open into its holder.
-    local parent = self.GUI and self.GUI._embedParent and self.GUI._embedParent[unit]
-    if parent then
-        parent:ReleaseChildren()
-        if parent.SetLayout then parent:SetLayout("Fill") end
-        if parent.SetFullWidth then parent:SetFullWidth(true) end
-        if parent.SetFullHeight then parent:SetFullHeight(true) end
-
-        self.ACD:Open(appName, parent)
-
-        C_Timer.After(0, function()
-            if lastGroups and #lastGroups > 0 then
-                if UCB.ACD and UCB.ACD.SelectGroup then
-                    UCB.ACD:SelectGroup(appName, unpack(lastGroups))
-                end
-            else
-                if UCB.ACD and UCB.ACD.SelectGroup then
-                    UCB.ACD:SelectGroup(appName, "general")
-                end
-            end
-        end)
-    end
-
-    -- If not visible, we’re done: it will be fresh next time the user clicks that tab.
-end
-
-function UCB:QueueFullRebuildOptionsUI(unit)
-    unit = unit or "player"
-    self._rebuildQueued = self._rebuildQueued or {}
-    if self._rebuildQueued[unit] then return end
-    self._rebuildQueued[unit] = true
-
-    C_Timer.After(0, function()
-        self._rebuildQueued[unit] = nil
-        self:FullRebuildOptionsUI(unit)
-    end)
-end
-
-
-function UCB:OnProfileSwapRefreshUI()
-    -- Always invalidate all unit option tables so they will rebuild from the new DB
-    self:InvalidateUnitOptions("player")
-    self:InvalidateUnitOptions("target")
-    self:InvalidateUnitOptions("focus")
-
-    -- If GUI is open and a unit tab is currently visible, rebuild that one immediately
-    local selected = self.GUI and self.GUI.selectedTab
-    if selected == "player" or selected == "target" or selected == "focus" then
-        self:QueueFullRebuildOptionsUI(selected)
-    end
-
-    -- If you also have standalone windows open for any unit appName,
-    -- you can optionally force NotifyChange for each app:
-    -- self:NotifyChange("player"); self:NotifyChange("target"); self:NotifyChange("focus")
-end
-
---]]
-
 
 local ROOT_APP = "UCB_ROOT"
 
@@ -354,9 +101,9 @@ function UCB:RegisterRootOptions(force)
     self.AC:RegisterOptionsTable(ROOT_APP, self.optionsTable)
 
     -- Add to Blizzard Options only once
-    if not self.optionsPanel then
-        self.optionsPanel, self.optionsCategoryID = self.ACD:AddToBlizOptions(ROOT_APP, "Ultimate Castbars")
-    end
+    --if not self.optionsPanel then
+    --    self.optionsPanel, self.optionsCategoryID = self.ACD:AddToBlizOptions(ROOT_APP, "Ultimate Castbars")
+    --end
 end
 
 function UCB:FullRebuildRootUI()
@@ -472,7 +219,7 @@ function UCB:OpenGUI(selectPath)
 
         if self.ACD and self.ACD.SelectGroup then
         self.ACD:SelectGroup(ROOT_APP, unpack(path))
-        print("Done")
+        print(ROOT_APP, unpack(path))
         self.GUI._currentSelectedKey = wantedKey
         end
         return
@@ -527,6 +274,23 @@ function UCB:OpenGUI(selectPath)
         self.GUI._currentSelectedTab = nil
     end)
 
+    -- Header links (left of the close X)
+    local discordUrl = "https://discord.gg/wX5hWW3N3Q"
+    local supportUrl = "https://ko-fi.com/sicso"
+
+    GUIWidgets:AttachBottomLeftLinks(Container, {
+        {
+            text  = "Need support or want to suggest features? Join Discord!",
+            title = "Discord",
+            url   = discordUrl,
+        },
+        {
+            text  = "Good addons take a lot of personal time to develop. Support the creator if you can!",
+            title = "Support the creator",
+            url   = supportUrl,
+        },
+    })
+
     local holder = AG:Create("SimpleGroup")
     holder:SetFullWidth(true)
     holder:SetFullHeight(true)
@@ -550,8 +314,3 @@ function UCB:OpenGUI(selectPath)
         end
     end)
 end
-
-
-
--- Optional convenience alias (matches some addons' naming)
-UCB.CreateGUI = UCB.OpenGUI

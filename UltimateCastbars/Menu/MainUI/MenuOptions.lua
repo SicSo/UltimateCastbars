@@ -367,6 +367,4 @@ function UCB:OpenOptionsInContainer(parentWidget, unit)
 
     -- Immediate attempt (may update right pane)
     --UCB:SelectGroup(unit, {"general"})
-
-    --UCB.optionsPanel, UCB.optionsCategoryID = UCB.ACD:AddToBlizOptions("UCB", "UCB")
 end

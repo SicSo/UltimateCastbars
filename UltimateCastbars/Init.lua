@@ -244,26 +244,6 @@ function UCB:AppNameForUnit(unit)
     return "UCB_" .. tostring(unit or "player")
 end
 
---[[
-UCB.appNames = {
-    player = "UCB_player",
-    target = "UCB_target",
-    focus = "UCB_focus"
-}
-
-function UCB:NotifyChange(unit)
-    if UCB.ACR then
-        UCB.ACR:NotifyChange(UCB.appNames[unit])
-    end
-end
-
-function UCB:SelectGroup(unit, path)
-    if UCB.ACD then
-        UCB.ACD:SelectGroup(UCB.appNames[unit], unpack(path))
-    end
-end
---]]
-
 function UCB:NotifyChange(unit)
   local apps = {"UCB_ROOT"}
   if UCB.ACR then
@@ -275,10 +255,11 @@ end
 
 function UCB:SelectGroup(unit, path)
   local apps = {"UCB_ROOT"}
-   if UCB.ACD then
-      for _, app in ipairs(apps) do
-        UCB.ACD:SelectGroup(app, unpack(path))
-      end
+  if UCB.ACD then
+    for _, app in ipairs(apps) do
+      UCB.ACD:SelectGroup(app, unit, unpack(path))
+      print(app, unit, unpack(path))
+    end
   end
 end
 
