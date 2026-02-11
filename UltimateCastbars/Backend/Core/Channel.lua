@@ -19,7 +19,11 @@ local function CastbarOnUpdate(bar, elapsed)
     local unit = bar._ucbUnit
     local cfg  = bar._ucbCfg
     local castType = bar._ucbCastType
-    UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType)
+    local spellID = bar._ucbSpellID
+    local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType)
+    if remainig < -0.01 then
+        CASTBAR_API:OnUnitSpellcastChannelStop(unit, nil, spellID)
+    end
 end
 
 local function GetChannelTickNumber(spellID, cfg)
@@ -175,8 +179,10 @@ function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID)
     bar._ucbUnit = unit
     bar._ucbCfg = cfg
     bar._ucbCastType = castType
+    bar._ucbSpellID = spellID
     bar:SetScript("OnUpdate", CastbarOnUpdate)
     bar.group:Show()
+    bar.castActive = true
 end
 
 function CASTBAR_API:OnUnitSpellcastChannelUpdate(unit, castGUID, spellID)
@@ -207,18 +213,21 @@ function CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID)
     if UnitChannelInfo(unit) then return end
     
     local bar = UCB.castBar[unit]
-    bar.group:Hide()
-    bar:SetScript("OnUpdate", nil)
-    bar._ucbUnit, bar._ucbCfg, bar._ucbCastType = nil, nil, nil
+    if bar and bar.castActive == true then
+        bar.castActive = false
+        bar.group:Hide()
+        bar:SetScript("OnUpdate", nil)
+        bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbSpellID = nil, nil, nil, nil
 
-    local cfg = CFG_API.GetValueConfig(unit)
-    local classCFG = CFG_API.GetValueConfig(unit).CLASSES[UCB.className]
-    -- Player main, targets, focus,
-    if UnitIsPlayer(unit) then
-        if UCB.specID == 1467 and spellID == 356995 and classCFG.disintegrateDynamicTicks then
-            local barWidth = cfg.general.actualBarWidth
-            Evoker_API:OnChannelEvent("STOP", barWidth, spellID)
+        local cfg = CFG_API.GetValueConfig(unit)
+        local classCFG = CFG_API.GetValueConfig(unit).CLASSES[UCB.className]
+        -- Player main, targets, focus,
+        if UnitIsPlayer(unit) then
+            if UCB.specID == 1467 and spellID == 356995 and classCFG.disintegrateDynamicTicks then
+                local barWidth = cfg.general.actualBarWidth
+                Evoker_API:OnChannelEvent("STOP", barWidth, spellID)
+            end
+            CASTBAR_API:HideChannelTicks(unit)
         end
-        CASTBAR_API:HideChannelTicks(unit)
     end
 end

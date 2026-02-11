@@ -16,7 +16,10 @@ local function CastbarOnUpdate(bar, elapsed)
     local unit = bar._ucbUnit
     local cfg  = bar._ucbCfg
     local castType = bar._ucbCastType
-    UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType)
+    local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType)
+    if remainig < -0.01 then
+        CASTBAR_API:OnUnitSpellcastStop(unit)
+    end
 end
 
 function CASTBAR_API:OnUnitSpellcastStart(unit, castGUID, spellID)
@@ -51,6 +54,7 @@ function CASTBAR_API:OnUnitSpellcastStart(unit, castGUID, spellID)
     bar._ucbCastType = castType
     bar:SetScript("OnUpdate", CastbarOnUpdate)
     bar.group:Show()
+    bar.castActive = true
 end
 
 function CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID)
@@ -60,7 +64,10 @@ function CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID)
     if nameCast or nameChannel then return end
 
     local bar = UCB.castBar[unit]
-    bar.group:Hide()
-    bar:SetScript("OnUpdate", nil)
-    bar._ucbUnit, bar._ucbCfg, bar._ucbCastType = nil, nil, nil
+    if bar and bar.castActive then
+        bar.castActive = false
+        bar.group:Hide()
+        bar:SetScript("OnUpdate", nil)
+        bar._ucbUnit, bar._ucbCfg, bar._ucbCastType = nil, nil, nil
+     end
 end
