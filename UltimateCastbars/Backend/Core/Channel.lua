@@ -176,6 +176,12 @@ function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID)
 
     CASTBAR_API:SemiColourUpdate(bar)
     bar.status:SetMinMaxValues(0, math.max(vars.dTime, 0.001))
+    local inverted = cfg.otherFeatures.invertBar[castType]
+    if inverted then
+        bar.status:SetValue(0)
+    else
+        bar.status:SetValue(math.max(vars.dTime, 0.001))
+    end
     bar._ucbUnit = unit
     bar._ucbCfg = cfg
     bar._ucbCastType = castType
@@ -206,6 +212,12 @@ function CASTBAR_API:OnUnitSpellcastChannelUpdate(unit, castGUID, spellID)
 
     CASTBAR_API:AssignChannelTicks(unit, spellID, "UPDATE")
     bar.status:SetMinMaxValues(0, math.max(vars.dTime, 0.001))
+    local inverted = cfg.otherFeatures.invertBar[castType]
+    if inverted then
+        bar.status:SetValue(0)
+    else
+        bar.status:SetValue(math.max(vars.dTime, 0.001))
+    end
 end
 
 function CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID)

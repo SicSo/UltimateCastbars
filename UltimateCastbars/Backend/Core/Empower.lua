@@ -210,6 +210,12 @@ function CASTBAR_API:OnUnitSpellcastEmpowerStart(unit, castGUID, spellID)
     CASTBAR_API:InitializeEmpoweredStages(unit)
 
     bar.status:SetMinMaxValues(0, math.max(vars.dTime, 0.001))
+    local inverted = cfg.otherFeatures.invertBar[castType]
+    if inverted then
+        bar.status:SetValue(math.max(vars.dTime, 0.001))
+    else
+        bar.status:SetValue(0)
+    end
     bar._ucbUnit = unit
     bar._ucbCfg = cfg
     bar._ucbCastType = castType
@@ -237,6 +243,12 @@ function CASTBAR_API:OnUnitSpellcastEmpowerUpdate(unit, castGUID, spellID)
     bar.icon:SetTexture(icon_texture)
     CASTBAR_API:AssignQueueWindow(unit, castType)
     bar.status:SetMinMaxValues(0, math.max(vars.dTime, 0.001))
+    local inverted = cfg.otherFeatures.invertBar[castType]
+    if inverted then
+        bar.status:SetValue(math.max(vars.dTime, 0.001))
+    else
+        bar.status:SetValue(0)
+    end
 end
 
 function CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID)

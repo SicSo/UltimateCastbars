@@ -101,9 +101,9 @@ function UCB:RegisterRootOptions(force)
     self.AC:RegisterOptionsTable(ROOT_APP, self.optionsTable)
 
     -- Add to Blizzard Options only once
-    --if not self.optionsPanel then
-    --    self.optionsPanel, self.optionsCategoryID = self.ACD:AddToBlizOptions(ROOT_APP, "Ultimate Castbars")
-    --end
+    if not self.optionsPanel then
+        self.optionsPanel, self.optionsCategoryID = self.ACD:AddToBlizOptions(ROOT_APP, "Ultimate Castbars")
+    end
 end
 
 function UCB:FullRebuildRootUI()
