@@ -15,6 +15,10 @@ local Default_Values = {
         player = UCB.Default_DB.Player,
         target = UCB.Default_DB.Target,
         focus = UCB.Default_DB.Focus,
+        debug = {
+            enabled = false,
+            _addonList = {}
+        },
     }
 }
 

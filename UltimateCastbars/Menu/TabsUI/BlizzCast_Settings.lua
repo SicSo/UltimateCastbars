@@ -15,7 +15,9 @@ local DefBlizzCast = UCB.DefBlizzCast
 
 
 local function BuildDefaultBarArgs(args, unit, opts)
-    local cfg = GetCfg(unit).defaultBar
+    local bigCFG = GetCfg(unit)
+    local cfg = bigCFG.defaultBar
+    local debugCFG = GetCfg("debug")
 
     args.hideDefaultBargrp = {
         type = "group",
@@ -122,6 +124,51 @@ local function BuildDefaultBarArgs(args, unit, opts)
                 },
             }
         },
+    }
+    args.debugMode = {
+        type = "group",
+        name = "Debug Controls",
+        order = 3,
+        inline = true,
+        args = {
+            title = {
+                type = "header",
+                name = function()
+                    local addonsDisabled = debugCFG._addonList and #debugCFG._addonList or 0
+                    if addonsDisabled > 0 then
+                        return UCB.UIOptions.ColorText(UCB.UIOptions.red, addonsDisabled).. " addons disabled for debug mode."
+                    else
+                        return  UCB.UIOptions.ColorText(UCB.UIOptions.green, "Debug mode inactive (no addon disabled)")
+                    end
+                end,
+                order = 1,
+            },
+            descDebug = {
+                type = "description",
+                name = "Debug mode disables all other addons to help identify if an issue is caused by an addon conflict. Click the button below to toggle debug mode on/off.".. 
+                "Alternatively, you can use the command /ucbdebug to start and /ucbdebugstop to stop without opening the menu.",
+                order = 1.5,
+            },
+            debugButton = {
+                type = "execute",
+                name = function()
+                    if not debugCFG.enabled then
+                        return "Start debug mode"
+                    else
+                        return "Stop debug mode"
+                    end
+                end,
+                order = 2,
+                func = function()
+                    local startDebug = not debugCFG.enabled
+                    if startDebug then
+                        UCB:StartDebug()
+                    else
+                        UCB:StopDebug()
+                    end
+                end,
+            }
+        }
     }
 end
 

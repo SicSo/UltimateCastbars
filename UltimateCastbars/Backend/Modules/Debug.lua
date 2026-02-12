@@ -60,15 +60,14 @@ end
 function Debug:StartDebug()
   local playerName = UCB.charName
   local addonList = self:GetEnabledAddons(false, playerName) -- get all enabled addons except itself
-  local cfg = CFG_API.GetValueConfig("player").debug
+  local cfg = CFG_API.GetValueConfig("debug")
   cfg.enabled = true
   cfg._addonList = addonList
-  --print(unpack(cfg._addonList))
   DisableAddonList(addonList, UCB.charName)
 end
 
 function Debug:StopDebug()
-    local cfg = CFG_API.GetValueConfig("player").debug
+    local cfg = CFG_API.GetValueConfig("debug")
     local addonList = cfg._addonList or {}
     if #addonList > 0 and cfg.enabled then
         EnableAddonList(addonList, UCB.charName)

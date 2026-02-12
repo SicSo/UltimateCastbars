@@ -531,11 +531,6 @@ UCB.Default_DB.Player = {
         offsetY = 0,
         anchorPoint = "CENTER",
     },
-
-    debug = {
-        enabled = false,
-        _addonList = {}
-    },
 }
 
 
