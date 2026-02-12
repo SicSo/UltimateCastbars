@@ -314,8 +314,7 @@ local function tagUI(key, tagType, unit)
         order = 6,
         inline = true,
         args = {
-            font = Text_API:MakeLSMFontOption(cfg, 8, nil, function() return cfg.show == false end, unit),
-
+            font = Text_API:MakeLSMFontOption(cfg, 0.5, nil, function() return cfg.show == false end, unit),
             textSize = {
                 type = "range",
                 name = "Text Size",
@@ -327,11 +326,60 @@ local function tagUI(key, tagType, unit)
                     CASTBAR_API:UpdateCastbar(unit)
                     end,
             },
+            outline = {
+                type = "select",
+                name = "Outline",
+                order = 2,
+                values = UIOptions.fontOutlines,
+                sorting = {
+                    "NONE", "OUTLINE", "THICKOUTLINE", "MONO_NONE", "MONO_OUTLINE", "MONO_THICKOUTLINE", "SHADOW", "SHADOW_OUTLINE", "SHADOW_THICKOUTLINE",
+                },
+                get = function() return cfg.outline end,
+                set = function(_, v)
+                    cfg.outline = v
+                    CASTBAR_API:UpdateCastbar(unit)
+                    end,
+            },
+            shadowOffset = {
+                type = "range",
+                name = "Shadow Offset",
+                order = 3,
+                min = UIOptions.shadowOffsetMin, max = UIOptions.shadowOffsetMax, step = 1,
+                get = function() return cfg.shadowOffset end,
+                set = function(_, v)
+                    cfg.shadowOffset = v
+                    CASTBAR_API:UpdateCastbar(unit)
+                    end,
+                disabled = function()
+                    local tags, shadow = Text_API:OutlineFlags(cfg.outline)
+                    return shadow == false
+                end,
+            },
+            shadowColour = {
+                type = "color",
+                name = "Shadow Color",
+                order = 4,
+                hasAlpha = true,
+                get = function()
+                local c = cfg.shadowColour or {}
+                return c.r, c.g, c.b, c.a
+                end,
+                set = function(_, r, g, b, a)
+                cfg.shadowColour = cfg.shadowColour or {}
+                cfg.shadowColour.r, cfg.shadowColour.g, cfg.shadowColour.b, cfg.shadowColour.a = r, g, b, a
+                CASTBAR_API:UpdateCastbar(unit)
+                end,
+                disabled = function()
+                    local tags, shadow = Text_API:OutlineFlags(cfg.outline)
+                    return shadow == false
+                end,
+            },
+
             -- ---- Color picker
             colour = {
                 type = "color",
                 name = "Text Color",
-                order = 2,
+                order = 5,
                 hasAlpha = true,
                 get = function()
                 local c = cfg.colour or {}
@@ -352,6 +400,7 @@ end
 
 local function addTagUI(unit)
     local cfg  = GetCfg(unit).text
+    local generalCFG = cfg.generalValues
     local newName = ""
     local treeArgs = UCB.Options._textTreeArgs
     treeArgs.grpAdd = {
@@ -400,26 +449,176 @@ local function addTagUI(unit)
         inline = true,
         args = BuildTagButtons(unit),
     }
-    --[[
+
     treeArgs.grpGeneralOpt = {
         type = "group",
         name = "General Text Options",
         order = 3,
         inline = true,
         args = {
-            globalFont = {
-                type = "toggle",
-                name = function () return "Use Global Font Settings"..GameFontHighlightSmall:GetFont() end,
+            fontGrp = {
+                type = "group",
+                name = "Font Options",
                 order = 1,
-                get = function() return cfg.useGlobalFont end,
-                set = function(_, v)
-                    cfg.useGlobalFont = v and true or false
-                    CASTBAR_API:UpdateCastbar(unit)
-                    end,
+                inline = true,
+                args = {
+                    useGeneralFont = {
+                        type = "toggle",
+                        name = "Use General Font",
+                        order = 1,
+                        get = function() return generalCFG.useGeneralFont end,
+                        set = function(_, v)
+                            generalCFG.useGeneralFont = v and true or false
+                            CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                    },
+                    useGlobalFont = {
+                        type = "toggle",
+                        name = "Use Global Font",
+                        order = 2,
+                        get = function() return generalCFG.useGlobalFont end,
+                        set = function(_, v)
+                            generalCFG.useGlobalFont = v and true or false
+                            CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        disabled = function() return not generalCFG.useGeneralFont end,
+                    },
+                    font = Text_API:MakeLSMFontOption(generalCFG, 3, nil, function() return not generalCFG.useGeneralFont and not generalCFG.useGlobalFont end, unit),
+                },
             },
+            sizeGrp = {
+                type = "group",
+                name = "Size Options",
+                order = 2,
+                inline = true,
+                args = {
+                    useGeneralSize = {
+                        type = "toggle",
+                        name = "Use General Size",
+                        order = 1,
+                        get = function() return generalCFG.useGeneralSize end,
+                        set = function(_, v)
+                            generalCFG.useGeneralSize = v and true or false
+                            CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                    },
+                    textSize = {
+                        type = "range",
+                        name = "Text Size",
+                        order = 2,
+                        min = UIOptions.sizeMin_text, max = UIOptions.sizeMax_text, step = 2,
+                        get = function() return generalCFG.textSize end,
+                        set = function(_, v)
+                            generalCFG.textSize = v
+                            CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        disabled = function() return not generalCFG.useGeneralSize end,
+                    },
+                },
+            },
+            outlinrGrp = {
+                type = "group",
+                name = "Outline Options",
+                order = 3,
+                inline = true,
+                args = {
+                    useGeneralOutline = {
+                        type = "toggle",
+                        name = "Use General Outline",
+                        order = 1,
+                        get = function() return generalCFG.useGeneralOutline end,
+                        set = function(_, v)
+                            generalCFG.useGeneralOutline = v and true or false
+                            CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                    },
+                    outline = {
+                        type = "select",
+                        name = "Outline",
+                        order = 2,
+                        values = UIOptions.fontOutlines,
+                        sorting = {
+                            "NONE", "OUTLINE", "THICKOUTLINE", "MONO_NONE", "MONO_OUTLINE", "MONO_THICKOUTLINE", "SHADOW", "SHADOW_OUTLINE", "SHADOW_THICKOUTLINE",
+                        },
+                        get = function() return generalCFG.outline end,
+                        set = function(_, v)
+                            generalCFG.outline = v
+                            CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        disabled = function() return not generalCFG.useGeneralOutline end,
+                    },
+                    shadowOffset = {
+                        type = "range",
+                        name = "Shadow Offset",
+                        order = 3,
+                        min = UIOptions.shadowOffsetMin, max = UIOptions.shadowOffsetMax, step = 1,
+                        get = function() return generalCFG.shadowOffset end,
+                        set = function(_, v)
+                            generalCFG.shadowOffset = v
+                            CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        disabled = function()
+                            local tags, useShadow = Text_API:OutlineFlags(generalCFG.outline)
+                            return not generalCFG.useGeneralOutline or not useShadow
+                        end,
+                    },
+                    shadowColour = {
+                        type = "color",
+                        name = "Shadow Colour",
+                        order = 4,
+                        hasAlpha = true,
+                        get = function()
+                            local c = generalCFG.shadowColour or {}
+                            return c.r, c.g, c.b, c.a
+                        end,
+                        set = function(_, r, g, b, a)
+                            generalCFG.shadowColour = generalCFG.shadowColour or {}
+                            generalCFG.shadowColour.r, generalCFG.shadowColour.g, generalCFG.shadowColour.b, generalCFG.shadowColour.a = r, g, b, a
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                        disabled = function()
+                            local tags, useShadow = Text_API:OutlineFlags(generalCFG.outline)
+                            return not generalCFG.useGeneralOutline or not useShadow
+                        end,
+                    },
+                },
+            },
+            colorGrp = {
+                type = "group",
+                name = "Color Options",
+                order = 3,
+                inline = true,
+                args = {
+                    useGeneralColor = {
+                        type = "toggle",
+                        name = "Use General Color",
+                        order = 1,
+                        get = function() return generalCFG.useGeneralColor end,
+                        set = function(_, v)
+                            generalCFG.useGeneralColor = v and true or false
+                            CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                    },
+                    colour = {
+                        type = "color",
+                        name = "Text Color",
+                        order = 2,
+                        hasAlpha = true,
+                        get = function()
+                            local c = generalCFG.colour or {}
+                            return c.r, c.g, c.b, c.a
+                        end,
+                        set = function(_, r, g, b, a)
+                            generalCFG.colour = generalCFG.colour or {}
+                            generalCFG.colour.r, generalCFG.colour.g, generalCFG.colour.b, generalCFG.colour.a = r, g, b, a
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                        disabled = function() return not generalCFG.useGeneralColor end,
+                    },
+                },
+            }
         }
     }
-    --]]
 end
 
 

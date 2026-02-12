@@ -157,7 +157,17 @@ UCB.UIOptions.stratSubComponents = {
     OVERLAY="OVERLAY",
 }
 
-
+UCB.UIOptions.fontOutlines = {
+    NONE = "None",
+    OUTLINE= "Outline",
+    THICKOUTLINE= "Thick Outline",
+    MONO_NONE = "Monochrome",
+    MONO_OUTLINE = "Monochrome Outline",
+    MONO_THICKOUTLINE = "Monochrome Thick Outline",
+    SHADOW = "Shadow",
+    SHADOW_OUTLINE = "Shadow Outline",
+    SHADOW_THICKOUTLINE = "Shadow Thick Outline",
+}
 
 UCB.UIOptions.offsetMin_icon = -500
 UCB.UIOptions.offsetMax_icon = 500
@@ -182,6 +192,8 @@ UCB.UIOptions.textSizeMin = 6
 UCB.UIOptions.textSizeMax = 40
 UCB.UIOptions.textOffsetMin = -200
 UCB.UIOptions.textOffsetMax = 200
+UCB.UIOptions.shadowOffsetMin = 0
+UCB.UIOptions.shadowOffsetMax = 10
 
 UCB.UIOptions.alphaMin = 0.0
 UCB.UIOptions.alphaMax = 1.0

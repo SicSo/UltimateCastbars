@@ -63,6 +63,21 @@ UCB.Default_DB.Player = {
         newIDTags = 4,
         oldIDTags = {},
         useGlobalFont = false,
+        generalValues = {
+            useGeneralSize = false,
+            useGeneralFont = false,
+            useGeneralColour = false,
+            useGlobalFont = false,
+            useGeneralOutline = false,
+            textSize = 12,
+            fontName = "Friz Quadrata TT",
+            font = "Fonts\\FRIZQT__.TTF",
+            outline = "NONE",
+            shadowColour = {r=0, g=0, b=0, a=1},
+            shadowOffset = 1,
+
+            colour = {r=1, g=1, b=1, a=1},
+        },
         defaultValues = {
             name = "NewTag",
 
@@ -78,6 +93,10 @@ UCB.Default_DB.Player = {
             frameStrata = "OVERLAY",
 
             font = "Fonts\\FRIZQT__.TTF",
+            fontName = "Friz Quadrata TT",
+            outline = "NONE",
+            shadowColour = {r=0, g=0, b=0, a=1},
+            shadowOffset = 1,
             textSize = 12,
             colour = {r=1, g=1, b=1, a=1},
 
@@ -111,6 +130,10 @@ UCB.Default_DB.Player = {
                     frameStrata = "OVERLAY",
 
                     font = "Fonts\\FRIZQT__.TTF",
+                    fontName = "Friz Quadrata TT",
+                    outline = "NONE",
+                    shadowColour = {r=0, g=0, b=0, a=1},
+                    shadowOffset = 1,
                     textSize = 12,
                     colour = {r=1, g=1, b=1, a=1},
 
@@ -135,6 +158,10 @@ UCB.Default_DB.Player = {
                     frameStrata = "OVERLAY",
 
                     font = "Fonts\\FRIZQT__.TTF",
+                    fontName = "Friz Quadrata TT",
+                    outline = "NONE",
+                    shadowColour = {r=0, g=0, b=0, a=1},
+                    shadowOffset = 1,
                     textSize = 12,
                     colour = {r=1, g=1, b=1, a=1},
 
@@ -153,6 +180,10 @@ UCB.Default_DB.Player = {
                     tagText = "[sName]",
 
                     font = "Fonts\\FRIZQT__.TTF",
+                    fontName = "Friz Quadrata TT",
+                    outline = "NONE",
+                    shadowColour = {r=0, g=0, b=0, a=1},
+                    shadowOffset = 1,
                     textSize = 12,
                     textOffsetX = 4,
                     textOffsetY = 0,

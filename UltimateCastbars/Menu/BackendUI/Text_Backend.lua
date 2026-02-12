@@ -33,6 +33,24 @@ local function DeepCopy(src, seen)
   return dst
 end
 
+function Text_API:OutlineFlags(outline)
+    local flags = {}
+    local shadow = false
+    if outline == "OUTLINE" or outline == "SHADOW_OUTLINE"  or outline == "MONO_OUTLINE" then
+        table.insert(flags, "OUTLINE")
+    end
+    if outline == "THICKOUTLINE" or outline == "SHADOW_THICKOUTLINE"  or outline == "MONO_THICKOUTLINE" then
+        table.insert(flags, "THICKOUTLINE")
+    end
+    if outline == "MONO_NONE" or outline == "MONO_OUTLINE" or outline == "MONO_THICKOUTLINE" then
+        table.insert(flags, "MONOCHROME")
+    end
+    if outline == "SHADOW" or outline == "SHADOW_OUTLINE" or outline == "SHADOW_THICKOUTLINE" then
+        shadow = true
+    end
+    return flags, shadow
+end
+
 function Text_API:MakeLSMFontOption(cfg, order, applyFont, disabledFn, unit)
     return {
         type          = "select",

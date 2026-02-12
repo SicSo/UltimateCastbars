@@ -111,6 +111,11 @@ end
 function BarUpdate_API:UpdateText(unit)
     local bar = UCB.castBar[unit]
     local cfg = CFG_API.GetValueConfig(unit).text
+    local generalCFG = cfg.generalValues
+    local generalFont, generalFontSize, generalColour = generalCFG.font, generalCFG.textSize, generalCFG.colour
+    local generalOutlineTags, generalShadow = Text_API:OutlineFlags(generalCFG.outline)
+    local generalShadowOffset, generalShadowColour = generalCFG.shadowOffset, generalCFG.shadowColour
+    local globalFont = LSM:GetDefault("font") or GameFontHighlightSmall:GetFont()
 
     --if not bar.texts then bar.texts = {} end
     if bar.texts then
@@ -127,12 +132,37 @@ function BarUpdate_API:UpdateText(unit)
                     bar.texts[key] = bar.status:CreateFontString(nil, tagOptions.frameStrata, "GameFontHighlightSmall")
                 end
                 UCB.tags:updateTagText(key, tagOptions, cfg)
+
+                local usedFont, usedFontSize, usedColour = generalFont, generalFontSize, generalColour
+                local usedOutline, usedShadow, usedShadowOffset, usedShadowColour = generalOutlineTags, generalShadow, generalShadowOffset, generalShadowColour
+                if not generalCFG.useGeneralFont then
+                    usedFont = tagOptions.font
+                elseif generalCFG.useGlobalFont then
+                    usedFont = globalFont
+                end
+                if not generalCFG.useGeneralTextSize then
+                    usedFontSize = tagOptions.textSize
+                end
+                if not generalCFG.useGeneralColour then
+                    usedColour = tagOptions.colour
+                end
+                if not generalCFG.useGeneralOutline then
+                    usedOutline, usedShadow = Text_API:OutlineFlags(tagOptions.outline)
+                    usedShadowOffset = tagOptions.shadowOffset
+                    usedShadowColour = tagOptions.shadowColour
+                end
+
                 local fs = bar.texts[key]
                 fs:SetJustifyH(tagOptions.justify)
                 fs:SetPoint(tagOptions.anchorFrom, bar.status, tagOptions.anchorTo, tagOptions.textOffsetX, tagOptions.textOffsetY)
-                fs:SetFont(tagOptions.font, tagOptions.textSize, "OUTLINE")
-                fs:SetShadowOffset(0, 0)
-                fs:SetTextColor(tagOptions.colour.r, tagOptions.colour.g, tagOptions.colour.b, tagOptions.colour.a)
+                fs:SetFont(usedFont, usedFontSize, unpack(usedOutline))
+                if usedShadow then
+                    fs:SetShadowColor(usedShadowColour.r, usedShadowColour.g, usedShadowColour.b, usedShadowColour.a)
+                    fs:SetShadowOffset(usedShadowOffset, -usedShadowOffset)
+                else
+                    fs:SetShadowOffset(0, 0)
+                end
+                fs:SetTextColor(usedColour.r, usedColour.g, usedColour.b, usedColour.a)
                 fs:Show()
                 tagOptions._compiled = UCB.tags:compileFormula(tagOptions._formula, tagOptions._limits)
             elseif bar.texts[key] then
