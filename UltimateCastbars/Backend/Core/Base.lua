@@ -70,13 +70,17 @@ function CASTBAR_API:AssignQueueWindow(typeCast)
     local cfg = bigCFG.otherFeatures
     local queueWindowOverlay = bar.queueWindowOverlay
     local status = bar.status
+    local inverted = cfg.invertBar[typeCast]
+    local mirror = cfg.mirrorBar[typeCast]
+
+    local switch = (inverted or mirror) and not (inverted and mirror)  -- if either is true, but not both
 
     if cfg.showQueueWindow[typeCast] then
         local queWindow = BarUpdate_API.queueWindow / 1000
         local px = bigCFG.general.actualBarWidth * (queWindow / tags.var[unit].dTime)
         queueWindowOverlay:SetWidth(px)
         queueWindowOverlay:ClearAllPoints()
-        if (not cfg.invertBar[typeCast] and typeCast ~= "channel") or (typeCast == "channel" and cfg.invertBar[typeCast]) then
+        if (not switch and typeCast ~= "channel") or (typeCast == "channel" and switch) then
             queueWindowOverlay:SetPoint("TOPRIGHT", status, "TOPRIGHT", 0, 0)
             queueWindowOverlay:SetPoint("BOTTOMRIGHT", status, "BOTTOMRIGHT", 0, 0)
         else
@@ -202,6 +206,16 @@ function CASTBAR_API:StopPrevCast(unit, bar, castGUID, spellID)
     end
 end
 
+function CASTBAR_API:MirrorBar(cfg, bar, castType)
+    local mirror = cfg.mirrorBar[castType]
+    local tex = bar.status:GetStatusBarTexture()
+    if mirror then
+        tex:SetTexCoord(1, 0, 0, 1)  -- horizontal flip
+    else
+        tex:SetTexCoord(0, 1, 0, 1) -- normal orientation
+    end
+    bar.status:SetReverseFill(mirror)
+end
 
 -- !!!!!!!!!!!!!!!!!!!!!!! DYNAMIC UPDATE FUNCTION !!!!!!!!!!!!!!!!!!!!!!!!
 function CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
@@ -229,7 +243,9 @@ function CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
     -- Set dynamic colours
     local colourMode = cfg.style.colourMode
     if castType == "empowered" or colourMode == "ombre" then
-        BarUpdate_API:AssignColours(unit, bar, cfg, colourMode, castType, durationObject, inverted)
+        local mirror = cfg.otherFeatures.mirrorBar[castType]
+        local switch = (inverted or mirror) and not (inverted and mirror)  -- if either is true, but not both
+        BarUpdate_API:AssignColours(unit, bar, cfg, colourMode, castType, durationObject, switch)
     end
     
     return remaining

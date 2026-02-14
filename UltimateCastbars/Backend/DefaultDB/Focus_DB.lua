@@ -296,6 +296,12 @@ local focus_db = {
             channel = false,
             empowered = false,
         },
+
+        mirrorBar = {
+            normal = false,
+            channel = false,
+            empowered = false,
+        }
     },
 
     previewSettings = {

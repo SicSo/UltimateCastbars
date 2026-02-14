@@ -58,7 +58,9 @@ function CASTBAR_API:OnUnitSpellcastStart(unit, castGUID, spellID, resumeCast)
 
     CASTBAR_API:SemiColourUpdate(unit, bar)
     bar.status:SetMinMaxValues(0, vars.dTime)
-    local inverted = cfg.otherFeatures.invertBar[castType]
+    local otherCFG = cfg.otherFeatures
+    CASTBAR_API:MirrorBar(otherCFG, bar, castType)
+    local inverted = otherCFG.invertBar[castType]
     if resumeCast then
         if inverted then
             bar.status:SetValue(vars.durationObject:GetRemainingDuration())

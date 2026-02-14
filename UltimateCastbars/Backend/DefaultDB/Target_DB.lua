@@ -299,6 +299,12 @@ local target_db = {
             channel = false,
             empowered = false,
         },
+
+        mirrorBar = {
+            normal = false,
+            channel = false,
+            empowered = false,
+        }
     },
 
     previewSettings = {

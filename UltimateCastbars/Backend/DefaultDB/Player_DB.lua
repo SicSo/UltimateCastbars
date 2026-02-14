@@ -308,6 +308,12 @@ UCB.Default_DB.Player = {
             empowered = false,
         },
 
+        mirrorBar = {
+            normal = false,
+            channel = false,
+            empowered = false,
+        }
+
     },
 
     previewSettings = {

@@ -174,6 +174,8 @@ function CASTBAR_API:InitializeEmpoweredStages(unit)
     local barWidth = cfg.general.actualBarWidth
     local barHeight = cfg.general.barHeight
     local invert = cfg.otherFeatures.invertBar.empowered
+    local mirror = cfg.otherFeatures.mirrorBar.empowered
+    local switch = (invert or mirror) and not (invert and mirror)  -- if either is true, but not both
     local useTexTick = classCFG.showEmpowerTickTexture
     local useTexSeg = classCFG.showEmpowerSegmentTexture
     local tickWidth = classCFG.empowerTickWidth
@@ -184,7 +186,7 @@ function CASTBAR_API:InitializeEmpoweredStages(unit)
     local empoweredSegments = bar.empoweredSegments
     local empoweredStages = bar.empoweredStages
 
-    CreateColourCurve(unit, tickPositions, barColours, invert)
+    CreateColourCurve(unit, tickPositions, barColours, switch)
 
     -- Create ticks, segments and bar curve
     local prevX = 0
@@ -198,7 +200,7 @@ function CASTBAR_API:InitializeEmpoweredStages(unit)
                 stage = bar.status:CreateTexture(nil, "OVERLAY")
                 empoweredStages[i] = stage
             end
-            CreateTick(bar, barWidth, invert, useTexTick, stage, tickColours[i], tickTextures[i],  tickPositions[i], tickWidth, barHeight)
+            CreateTick(bar, barWidth, switch, useTexTick, stage, tickColours[i], tickTextures[i],  tickPositions[i], tickWidth, barHeight)
         end
         
         -- Create segment
@@ -207,7 +209,7 @@ function CASTBAR_API:InitializeEmpoweredStages(unit)
             seg = bar.status:CreateTexture(nil, "BACKGROUND", nil, 2)
             empoweredSegments[i] = seg
         end
-        CreateSegment(bar, barWidth, invert, useTexSeg, seg, segColours[i], segTextures[i], prevX, tickPositions[i], barHeight)
+        CreateSegment(bar, barWidth, switch, useTexSeg, seg, segColours[i], segTextures[i], prevX, tickPositions[i], barHeight)
         prevX = tickPositions[i]
     end
 end
@@ -249,7 +251,9 @@ function CASTBAR_API:OnUnitSpellcastEmpowerStart(unit, castGUID, spellID)
     end
 
     bar.status:SetMinMaxValues(0, vars.dTime)
-    local inverted = cfg.otherFeatures.invertBar[castType]
+    local otherCFG = cfg.otherFeatures
+    CASTBAR_API:MirrorBar(otherCFG, bar, castType)
+    local inverted = otherCFG.invertBar[castType]
     if inverted then
         bar.status:SetValue(vars.dTime)
     else
@@ -288,7 +292,9 @@ function CASTBAR_API:OnUnitSpellcastEmpowerUpdate(unit, castGUID, spellID)
     end
 
     bar.status:SetMinMaxValues(0, vars.dTime)
-    local inverted = cfg.otherFeatures.invertBar[castType]
+    local otherCFG = cfg.otherFeatures
+    CASTBAR_API:MirrorBar(otherCFG, bar, castType)
+    local inverted = otherCFG.invertBar[castType]
     if inverted then
         bar.status:SetValue(vars.dTime)
     else
