@@ -238,7 +238,8 @@ Opt.ClassExtraBuilders.EVOKER = function(unit)
     -------------------------------------------------------------------
     -- WRAPPER GROUP: this gives the “boxed background” look
     -------------------------------------------------------------------
-    return {
+    ---
+    local warpperGrp =  {
         evokerPanel = {
             type = "group",
             name = "Evoker Settings",
@@ -246,6 +247,89 @@ Opt.ClassExtraBuilders.EVOKER = function(unit)
             order = 1,
             args = {
                 -- ---------------- Disintegrate ----------------
+                disintegrateGrp = nil,
+                -- ---------------- Empower ----------------
+                empowerGrp = {
+                    type = "group",
+                    name = "Empower Effects",
+                    inline = true,
+                    order = 3,
+                    args = {
+                        enableEmpowerEffects = {
+                            type = "toggle",
+                            name = "Enable Empower Effects (for non player will be possibly innacurate)",
+                            desc = "Show empower stages and ticks on the castbar for Evoker spells like Eternity Surge, Fire Breath, etc.",
+                            order = 1,
+                            width = "full",
+                            get = function()
+                                return cfg.enableEmpowerEffects
+                            end,
+                            set = function(_, val)
+                                cfg.enableEmpowerEffects = val
+                                if not val then
+                                    CASTBAR_API:HideStages(unit)
+                                end
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                        empowerSettingsGrp = {
+                            type = "group",
+                            name = "Empower Settings",
+                            inline = true,
+                            order = 2,
+                            disabled = function() return not cfg.enableEmpowerEffects end,
+                            args = {
+                                empowerHeader = {
+                                    type = "header",
+                                    name = "Empower spell settings",
+                                    order = 1,
+                                },
+                                empowerSpellList = {
+                                    type = "group",
+                                    name = "",
+                                    inline = true,
+                                    order = 2,
+                                    args = BuildEmpowerSpellLineArgs(),
+                                },
+                                empowerTickWidth = {
+                                    type = "range",
+                                    name = "Empower Tick Width",
+                                    desc = "Width of each tick mark on the Empowered Cast Bar.",
+                                    width = "full",
+                                    min = 0.5, max = 30, step = 0.5,
+                                    order = 3,
+                                    get = function()
+                                        return cfg.empowerTickWidth
+                                    end,
+                                    set = function(_, v)
+                                        cfg.empowerTickWidth = v
+                                        CASTBAR_API:UpdateCastbar(unit)
+                                    end,
+                                },
+                                empowerColours = {
+                                    type = "group",
+                                    name = "Empower Cast Colours",
+                                    inline = true,
+                                    order = 4,
+                                    args = BuildEmpowerColoursArgs(unit),
+                                },
+                                
+                            },
+                        },
+                    }
+                }
+
+            },
+        },
+    }
+    if unit == "player" then
+        -- For non-player units, empower effects are possibly innacurate but can still be shown if enabled, so we add a disclaimer
+        warpperGrp.args.disintegrateGrp = {
+            type = "group",
+            name = "Disintegrate Ticks",
+            inline = true,
+            order = 2,
+            args = {
                 disintegrateHeader = {
                     type = "header",
                     name = "Disintegrate Ticks",
@@ -272,42 +356,8 @@ Opt.ClassExtraBuilders.EVOKER = function(unit)
                         CASTBAR_API:UpdateCastbar(unit)
                     end,
                 },
-                -- ---------------- Empower ----------------
-                empowerHeader = {
-                    type = "header",
-                    name = "Empower spell settings",
-                    order = 4,
-                },
-                empowerSpellList = {
-                    type = "group",
-                    name = "",
-                    inline = true,
-                    order = 5,
-                    args = BuildEmpowerSpellLineArgs(),
-                },
-                empowerTickWidth = {
-                    type = "range",
-                    name = "Empower Tick Width",
-                    desc = "Width of each tick mark on the Empowered Cast Bar.",
-                    width = "full",
-                    min = 0.5, max = 30, step = 0.5,
-                    order = 6,
-                    get = function()
-                        return cfg.empowerTickWidth
-                    end,
-                    set = function(_, v)
-                        cfg.empowerTickWidth = v
-                        CASTBAR_API:UpdateCastbar(unit)
-                    end,
-                },
-                empowerColours = {
-                    type = "group",
-                    name = "Empower Cast Colours",
-                    inline = true,
-                    order = 7,
-                    args = BuildEmpowerColoursArgs(unit),
-                },
             },
-        },
-    }
+        }
+    end
+    return warpperGrp
 end

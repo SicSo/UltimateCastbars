@@ -61,7 +61,8 @@ local function DeleteCastBar(unit)
 end
 
 
-function CASTBAR_API:AssignQueueWindow(unit, typeCast)
+function CASTBAR_API:AssignQueueWindow(typeCast)
+    local unit  = "player"
     local bar = UCB.castBar[unit]
     if not bar.queueWindowOverlay then return end
 
@@ -126,69 +127,110 @@ function CASTBAR_API:UpdateCastbar(unit)
 end
 
 
-function CASTBAR_API:SemiColourUpdate(bar)
+function CASTBAR_API:SemiColourUpdate(unit, bar)
     local tex = bar.status:GetStatusBarTexture()
     local colourMode = bar._colourMode
     local canGradient = tex and tex.SetGradient
     local status = bar.status
 
-    if colourMode == "single" then
-        local r, g, b, a = bar._r, bar._g, bar._b, bar._a
-        local col1 = bar._c1
-        status:SetStatusBarColor(r, g, b, a)
-        if canGradient then
-            tex:SetGradient("HORIZONTAL", col1, col1)
+    if unit == "player" then 
+        if colourMode == "single" then
+            local r, g, b, a = bar._r, bar._g, bar._b, bar._a
+            local col1 = bar._c1
+            status:SetStatusBarColor(r, g, b, a)
+            if canGradient then
+                tex:SetGradient("HORIZONTAL", col1, col1)
+            end
+        elseif colourMode == "gradient" then
+            local r1, g1, b1, a1 = bar._r1, bar._g1, bar._b1, bar._a1
+            local col1 = bar._c1
+            local col2 = bar._c2
+            status:SetStatusBarColor(r1, g1, b1, a1)
+            if canGradient then
+                tex:SetGradient("HORIZONTAL", col1, col2)
+            end
         end
-    elseif colourMode == "gradient" then
-        local r1, g1, b1, a1 = bar._r1, bar._g1, bar._b1, bar._a1
-        local col1 = bar._c1
-        local col2 = bar._c2
-        status:SetStatusBarColor(r1, g1, b1, a1)
-        if canGradient then
-            tex:SetGradient("HORIZONTAL", col1, col2)
+    else
+        if colourMode == "single" then
+            if bar._colourType == "custom" then
+                local r, g, b, a = bar._r, bar._g, bar._b, bar._a
+                local col1 = bar._c1
+                status:SetStatusBarColor(r, g, b, a)
+                if canGradient then
+                    tex:SetGradient("HORIZONTAL", col1, col1)
+                end
+            else
+                local r, g, b, a, col1, RGBA
+                if UnitIsPlayer(unit) then
+                    local _, classFile = UnitClass(unit)
+                    local classColourVal = UCB.UIOptions.classColoursList[classFile]
+                    RGBA = classColourVal.RGBA
+                    col1 = classColourVal.COL
+                else
+                    local defaultEnemyColour = bar._enemyColour
+                    RGBA = defaultEnemyColour.RGBA
+                    col1 = defaultEnemyColour.COL
+                end
+                r, g, b, a = RGBA.r, RGBA.g, RGBA.b ,RGBA.a
+                status:SetStatusBarColor(r, g, b, a)
+                if canGradient then
+                    tex:SetGradient("HORIZONTAL", col1, col1)
+                end
+            end
+        elseif colourMode == "gradient" then
+            local r1, g1, b1, a1 = bar._r1, bar._g1, bar._b1, bar._a1
+            local col1 = bar._c1
+            local col2 = bar._c2
+            status:SetStatusBarColor(r1, g1, b1, a1)
+            if canGradient then
+                tex:SetGradient("HORIZONTAL", col1, col2)
+            end
+        end
+    end
+end
+
+-- Tries to stop previous casts
+function CASTBAR_API:StopPrevCast(unit, bar, castGUID, spellID)
+    if bar.activeCast then
+        if bar._prevType == "normal" then
+            CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID)
+        elseif bar._prevType == "channel" then
+            CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID)
+        elseif bar._prevType == "empowered" then
+            CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID)
         end
     end
 end
 
 
-
 -- !!!!!!!!!!!!!!!!!!!!!!! DYNAMIC UPDATE FUNCTION !!!!!!!!!!!!!!!!!!!!!!!!
-function CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType)
-    local now = GetTime()
-
-    local var = UCB.tags.var[unit]
-    local sTime, eTime, duration = var.sTime, var.eTime, var.dTime
+function CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
+    local durationObject = vars.durationObject
+    if not durationObject then return end
 
     local status = bar.status
     local inverted = cfg.otherFeatures.invertBar[castType]
 
-
-    local remaining = eTime - now
-    local elapsedSinceStart = now - sTime
-
+    local progress
+    local remaining = durationObject:GetRemainingDuration()
+    local elapsedTime = durationObject:GetElapsedDuration()
     -- progress for the bar fill
     local isChannel = (castType == "channel")
-    local progress
     if (not inverted and not isChannel) or (inverted and isChannel) then
-        progress = elapsedSinceStart
+        progress = elapsedTime
     else
         progress = remaining
     end
     status:SetValue(progress)
 
     -- Set dynamic texts
-    UCB.tags:ApplyTextState(bar, "dynamic", unit, remaining)
+    UCB.tags:ApplyTextState(bar, "dynamic", unit, remaining, elapsedTime)
 
     -- Set dynamic colours
-    local colourMode = cfg.colourMode
+    local colourMode = cfg.style.colourMode
     if castType == "empowered" or colourMode == "ombre" then
-        -- colour progress (forward along curve unless inverted)
-        local colourProgress = elapsedSinceStart
-        if inverted then
-            colourProgress = duration - elapsedSinceStart  -- == remaining if duration is accurate
-        end
-       BarUpdate_API:AssignColours(bar, colourMode, castType, colourProgress)
+        BarUpdate_API:AssignColours(unit, bar, cfg, colourMode, castType, durationObject, inverted)
     end
-
+    
     return remaining
 end

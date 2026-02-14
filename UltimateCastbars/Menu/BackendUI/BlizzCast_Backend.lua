@@ -29,12 +29,32 @@ end
 -- ============================================================
 -- Helpers: Blizzard frames
 -- ============================================================
-local function GetBlizzFrames()
-    return {
-        _G.PlayerCastingBarFrame,
-        _G.CastingBarFrame,
-    }
+-- Replace GetBlizzFrames() with:
+local function GetBlizzFrames(unit)
+    if unit == "player" then
+        return { _G.PlayerCastingBarFrame, _G.CastingBarFrame }
+    elseif unit == "target" then
+        local out = {}
+
+        -- Retail target frame spellbar (common)
+        if _G.TargetFrame and _G.TargetFrame.spellbar then
+            out[#out + 1] = _G.TargetFrame.spellbar
+        end
+
+        -- Fallback global name if present
+        if _G.TargetFrameSpellBar then
+            local same = (_G.TargetFrame and _G.TargetFrame.spellbar == _G.TargetFrameSpellBar)
+            if not same then
+                out[#out + 1] = _G.TargetFrameSpellBar
+            end
+        end
+
+        return out
+    end
+
+    return {}
 end
+
 
 -- Try to pick a sane default unit for event-driven refresh
 local function GetPrimaryUnit()
@@ -102,18 +122,20 @@ local function CacheFrameState(f)
 end
 
 -- Prefer baseline (if it exists) otherwise fallback to orig
-local function RestoreFrameState(f)
+local function RestoreFrameState(f, unit)
     if not f then return end
-    ApplyCapturedState(f, f.__ucbBlizzBaseline or f.__pcbOrig)
+    local baseline = f.__ucbBlizzBaseline and f.__ucbBlizzBaseline[unit]
+    ApplyCapturedState(f, baseline or f.__pcbOrig)
 end
 
 -- Snapshot the CURRENT Blizzard layout (post Edit Mode / layout updates)
 -- This must only be done when we're ACTUALLY in Blizzard mode, otherwise we'd
 -- just snapshot our custom position and call it "baseline".
-local function SnapshotBlizzBaseline()
-    for _, f in ipairs(GetBlizzFrames()) do
+local function SnapshotBlizzBaseline(unit)
+    for _, f in ipairs(GetBlizzFrames(unit)) do
         if f then
-            f.__ucbBlizzBaseline = CaptureState(f)
+            f.__ucbBlizzBaseline = f.__ucbBlizzBaseline or {}
+            f.__ucbBlizzBaseline[unit] = CaptureState(f)
         end
     end
 end
@@ -123,19 +145,19 @@ end
 -- Blizzard / EditMode can re-anchor after you restore.
 -- Doing a second restore next frame fixes the common anchor drift.
 -- ============================================================
-local function RestoreBlizzBaselineWithDelay()
-    for _, f in ipairs(GetBlizzFrames()) do
+local function RestoreBlizzBaselineWithDelay(unit)
+    for _, f in ipairs(GetBlizzFrames(unit)) do
         if f then
             CacheFrameState(f)
-            RestoreFrameState(f)
+            RestoreFrameState(f, unit)
         end
     end
 
     if C_Timer and C_Timer.After then
         C_Timer.After(0, function()
-            for _, f in ipairs(GetBlizzFrames()) do
+            for _, f in ipairs(GetBlizzFrames(unit)) do
                 if f then
-                    RestoreFrameState(f)
+                    RestoreFrameState(f, unit)
                 end
             end
         end)
@@ -159,7 +181,7 @@ function DefBlizzCast:RefreshBlizzardCastbarScale(unit)
 
     local scale = cfg.defaultBar.blizzBarScale or 1
 
-    for _, f in ipairs(GetBlizzFrames()) do
+    for _, f in ipairs(GetBlizzFrames(unit)) do
         if f then
             ApplyScaleState(f, scale)
         end
@@ -204,13 +226,16 @@ function DefBlizzCast:RefreshBlizzardCastbarHide(unit, showBar)
         dontForceShow = not IsUnitCastingOrChanneling(unit)
     end
 
-    for _, f in ipairs(GetBlizzFrames()) do
+    for _, f in ipairs(GetBlizzFrames(unit)) do
+        f.__ucbOwnerUnit = unit
         if f then
             if not f.__ucbHideHooked then
                 f.__ucbHideHooked = true
 
                 f:HookScript("OnShow", function(self)
-                    local c = GetCfg(unit)
+                    local owner = self.__ucbOwnerUnit
+                    if not owner then return end
+                    local c = GetCfg(owner)
                     if c and c.defaultBar and c.defaultBar.enabled == false then
                         ApplyHideState(self, true)
                     end
@@ -218,7 +243,9 @@ function DefBlizzCast:RefreshBlizzardCastbarHide(unit, showBar)
 
                 if hooksecurefunc then
                     hooksecurefunc(f, "Show", function(self)
-                        local c = GetCfg(unit)
+                        local owner = self.__ucbOwnerUnit
+                        if not owner then return end
+                        local c = GetCfg(owner)
                         if c and c.defaultBar and c.defaultBar.enabled == false then
                             ApplyHideState(self, true)
                         end
@@ -256,7 +283,7 @@ function DefBlizzCast:UpdateDefaultCastbarPosition(x, y, point, unit)
     cfg.defaultBar.offsetX = tonumber(x) or 0
     cfg.defaultBar.offsetY = tonumber(y) or 0
 
-    for _, f in ipairs(GetBlizzFrames()) do
+    for _, f in ipairs(GetBlizzFrames(unit)) do
         if f then
             ApplyFrameXY(f, cfg.defaultBar)
         end
@@ -310,25 +337,19 @@ local function EnsureBaselineEventFrame()
     RegisterEventSafe(ef, "EDIT_MODE_LAYOUTS_RESET")
 
     ef:SetScript("OnEvent", function()
-        local unit = GetPrimaryUnit()
-        local cfg = GetCfg(unit)
-        if not cfg then return end
-        cfg.defaultBar = cfg.defaultBar or {}
-        local db = cfg.defaultBar
-
-        -- Only update baseline when Blizzard mode is active and not hidden
-        if db.useBlizzardDefaults and db.enabled ~= false then
-            CacheFrameState(_G.PlayerCastingBarFrame)
-            CacheFrameState(_G.CastingBarFrame)
-
-            SnapshotBlizzBaseline()
-            if C_Timer and C_Timer.After then
-                C_Timer.After(0, function()
-                    local c = GetCfg(unit)
-                    if c and c.defaultBar and c.defaultBar.useBlizzardDefaults and c.defaultBar.enabled ~= false then
-                        SnapshotBlizzBaseline()
-                    end
-                end)
+        for _, unit in ipairs({ "player", "target" }) do
+            local u = unit
+            local cfg = GetCfg(u)
+            if cfg and cfg.defaultBar and cfg.defaultBar.useBlizzardDefaults and cfg.defaultBar.enabled ~= false then
+                SnapshotBlizzBaseline(u)
+                if C_Timer and C_Timer.After then
+                    C_Timer.After(0, function()
+                        local c = GetCfg(u)
+                        if c and c.defaultBar and c.defaultBar.useBlizzardDefaults and c.defaultBar.enabled ~= false then
+                            SnapshotBlizzBaseline(u)
+                        end
+                    end)
+                end
             end
         end
     end)
@@ -354,13 +375,13 @@ function DefBlizzCast:RefreshBlizzardCastbarLayoutMode(unit, showBar)
     if db.useBlizzardDefaults then
         -- Returning to Blizzard mode:
         -- Restore baseline (or orig fallback) and do a late restore to beat EditMode/layout manager.
-        for _, f in ipairs(GetBlizzFrames()) do
+        for _, f in ipairs(GetBlizzFrames(unit)) do
             if f then
                 CacheFrameState(f) -- ensures __pcbOrig exists
             end
         end
 
-        RestoreBlizzBaselineWithDelay()
+        RestoreBlizzBaselineWithDelay(unit)
 
         -- After restoring, refresh baseline so future restores match the *current* Blizzard layout
         -- (especially if Blizzard adjusts between frames).
@@ -368,19 +389,19 @@ function DefBlizzCast:RefreshBlizzardCastbarLayoutMode(unit, showBar)
             C_Timer.After(0, function()
                 local c = GetCfg(unit)
                 if c and c.defaultBar and c.defaultBar.useBlizzardDefaults and c.defaultBar.enabled ~= false then
-                    SnapshotBlizzBaseline()
+                    SnapshotBlizzBaseline(unit)
                 end
             end)
         else
-            SnapshotBlizzBaseline()
+            SnapshotBlizzBaseline(unit)
         end
     else
         -- Leaving Blizzard mode -> snapshot Blizzard baseline NOW (only if we were in blizz mode)
         -- If baseline already exists it's fine; this keeps it "fresh" before we start moving frames.
-        SnapshotBlizzBaseline()
+        SnapshotBlizzBaseline(unit)
 
         -- Apply custom placement+scale
-        for _, f in ipairs(GetBlizzFrames()) do
+        for _, f in ipairs(GetBlizzFrames(unit)) do
             if f then
                 CacheFrameState(f)
                 ApplyScaleState(f, db.blizzBarScale or 1)
@@ -401,7 +422,7 @@ local function ApplyCustomNowAndNextFrame(unit)
     if not cfg or not cfg.defaultBar then return end
     local db = cfg.defaultBar
 
-    for _, f in ipairs(GetBlizzFrames()) do
+    for _, f in ipairs(GetBlizzFrames(unit)) do
         if f then
             ApplyScaleState(f, db.blizzBarScale or 1)
             ApplyFrameXY(f, db)
@@ -416,7 +437,7 @@ local function ApplyCustomNowAndNextFrame(unit)
             if d.enabled == false then return end
             if d.useBlizzardDefaults == true then return end
 
-            for _, f in ipairs(GetBlizzFrames()) do
+            for _, f in ipairs(GetBlizzFrames(unit)) do
                 if f then
                     ApplyScaleState(f, d.blizzBarScale or 1)
                     ApplyFrameXY(f, d)
@@ -440,7 +461,7 @@ function DefBlizzCast:ApplyDefaultBlizzCastbar(unit, showBar)
 
     if db.useBlizzardDefaults then
         -- restore Blizzard baseline
-        DefBlizzCast:RefreshBlizzardCastbarLayoutMode(unit)
+        DefBlizzCast:RefreshBlizzardCastbarLayoutMode(unit, showBar)
     else
         -- force custom and beat late Blizzard anchoring
         ApplyCustomNowAndNextFrame(unit)

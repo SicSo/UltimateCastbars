@@ -20,25 +20,30 @@ local function CastbarOnUpdate(bar, elapsed)
     local unit = bar._ucbUnit
     local cfg  = bar._ucbCfg
     local castType = bar._ucbCastType
-    local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType)
+    local vars = bar._ucbVars
+    local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
     if remainig <= 0 then
         Preview_API:ShowPreviewCastBar(unit, castType)
     end
 end
 
 
-local function NormalCast(bar)
-    CASTBAR_API:SemiColourUpdate(bar)
+local function NormalCast(unit, bar)
+    CASTBAR_API:SemiColourUpdate(unit, bar)
 end
 
 
 local function ChannelCast(unit, spellID, bar)
     CASTBAR_API:AssignChannelTicks(unit, spellID, "START")
-    CASTBAR_API:SemiColourUpdate(bar)
+    CASTBAR_API:SemiColourUpdate(unit, bar)
 end
 
-local function EmpowerCast(unit)
-    CASTBAR_API:InitializeEmpoweredStages(unit)
+local function EmpowerCast(unit, bar, cfg)
+    if cfg.CLASSES.EVOKER.enableEmpowerEffects then
+        CASTBAR_API:InitializeEmpoweredStages(unit)
+    else
+        CASTBAR_API:SemiColourUpdate(unit, bar)
+    end
 end
 
 function Preview_API:ShowPreviewCastBar(unit, castType)
@@ -57,26 +62,31 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
     end
 
     local icon_texture = tags:updateVarsPreview(unit, castType, previewCFG.previewSpellID[castType], duration, previewCFG.previewNotIntrerruptible, previewCFG.previewEmpowerStages)
+    local vars = tags.var[unit]
 
     local textCFG = cfg.text
     tags:setTextSameState(textCFG, bar, "semiDynamic", unit, castType, false)
     tags:setTextSameState(textCFG, bar, "dynamic", unit, castType, true)
 
     bar.icon:SetTexture(icon_texture)
-    CASTBAR_API:AssignQueueWindow(unit, castType)
+
+    if unit == "player" then
+        CASTBAR_API:AssignQueueWindow(castType)
+    end
 
     if castType == "normal" then
-        NormalCast(bar)
+        NormalCast(unit, bar)
     elseif castType == "channel" then
         ChannelCast(unit, previewCFG.previewSpellID[castType], bar)
     elseif castType == "empowered" then
-        EmpowerCast(unit)
+        EmpowerCast(unit, bar, cfg)
     end
 
     bar.status:SetMinMaxValues(0, math.max(tags.var[unit].dTime, 0.001))
     bar._ucbUnit = unit
     bar._ucbCfg = cfg
     bar._ucbCastType = castType
+    bar._ucbVars = vars
     bar:SetScript("OnUpdate", CastbarOnUpdate)
     bar.group:Show()
 end
@@ -89,13 +99,12 @@ function Preview_API:HidePreviewCastBar(unit)
     local bar = UCB.castBar[unit]
     bar.group:Hide()
     bar:SetScript("OnUpdate", nil)
-    bar._ucbUnit, bar._ucbCfg, bar._ucbCastType = nil, nil, nil
+    bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars = nil, nil, nil, nil
 
     -- Player main, targets, focus,
-    if UnitIsPlayer(unit) then
-        CASTBAR_API:HideChannelTicks(unit)
-    end
+    CASTBAR_API:HideChannelTicks(unit)
     CASTBAR_API:HideStages(unit)
+
 end
 
 

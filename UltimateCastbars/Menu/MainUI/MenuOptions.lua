@@ -17,7 +17,7 @@ local DefBlizzCast = UCB.DefBlizzCast
 UCB.optionsTable = UCB.optionsTable or {}
 UCB._optionsRegistered = UCB._optionsRegistered or {}
 
-
+--[[
 local function GetPlayerCfg(unit)
    return CFG_API.GetValueConfig(unit)
 end
@@ -50,7 +50,7 @@ local function SetCastbarEnabled(unit, val)
     EnsureEnabledKey(cfg)
 
     -- Store real boolean
-    cfg.enabled = (val and true or false)
+    cfg.enabled = val 
 
     -- When custom is enabled -> Blizzard should be hidden
     -- When custom is disabled -> Blizzard should be shown
@@ -59,10 +59,11 @@ local function SetCastbarEnabled(unit, val)
 
     -- Spellcast events: only needed when custom bar is enabled
     if cfg.enabled then
-        UCB:EUCBurePlayerSpellcastEventFrame(unit)
+        UCB:TrackUnit(unit)
         UCB:SelectGroup(unit, {"general"})
     else
-        UCB:DestroyPlayerSpellcastEventFrame(unit)
+        --UCB:DestroyPlayerSpellcastEventFrame(unit)
+        UCB:UntrackUnit(unit)
         UCB:SelectGroup(unit, {"defaultCastbar"})
     end
 
@@ -190,6 +191,7 @@ function UCB:EnsureOptionsRegistered(unit)
     UCB.AC:RegisterOptionsTable(UCB.appNames[unit], UCB.optionsTable[unit])
     UCB._optionsRegistered[unit] = true
 end
+--]]
 
 
 function UCB:BuildUnitOptionsArgs(unit)
@@ -219,9 +221,11 @@ function UCB:BuildUnitOptionsArgs(unit)
         cfg.defaultBar.enabled = (cfg.enabled == false)
 
         if cfg.enabled then
-            UCB:EUCBurePlayerSpellcastEventFrame(unit)
+            UCB:TrackUnit(unit)
+            UCB:SelectGroup(unit, {"general"})
         else
-            UCB:DestroyPlayerSpellcastEventFrame(unit)
+            UCB:UntrackUnit(unit)
+            UCB:SelectGroup(unit, {"defaultCastbar"})
         end
 
         if UCB.DefBlizzCast and UCB.DefBlizzCast.ApplyDefaultBlizzCastbar then
@@ -321,7 +325,7 @@ function UCB:BuildUnitOptionsArgs(unit)
     }
 end
 
-
+--[[
 
 -- Public: open inside an AceGUI container (your Player tab scroll frame)
 function UCB:OpenOptionsInContainer(parentWidget, unit)
@@ -368,3 +372,5 @@ function UCB:OpenOptionsInContainer(parentWidget, unit)
     -- Immediate attempt (may update right pane)
     --UCB:SelectGroup(unit, {"general"})
 end
+
+--]]

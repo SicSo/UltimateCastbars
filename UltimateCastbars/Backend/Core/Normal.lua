@@ -16,26 +16,32 @@ local function CastbarOnUpdate(bar, elapsed)
     local unit = bar._ucbUnit
     local cfg  = bar._ucbCfg
     local castType = bar._ucbCastType
-    local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType)
-    if remainig < -0.01 then
+    local vars = bar._ucbVars
+    local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
+    if unit == "player" and remainig < -0.001 then
         CASTBAR_API:OnUnitSpellcastStop(unit)
     end
+    --if unit ~= "player" and vars.durationObject:IsZero() then
+    --    print("Here")
+    --    CASTBAR_API:OnUnitSpellcastStop(unit)
+    --end
 end
 
-function CASTBAR_API:OnUnitSpellcastStart(unit, castGUID, spellID)
+function CASTBAR_API:OnUnitSpellcastStart(unit, castGUID, spellID, resumeCast)
     if Preview_API.previewActive and Preview_API.previewActive[unit] then
         Preview_API:HidePreviewCastBar(unit)
     end
 
     local cfg = CFG_API.GetValueConfig(unit)
     local bar = UCB.castBar[unit]
+    CASTBAR_API:StopPrevCast(unit, bar, castGUID, spellID)
 
     -- Update internal vars with spellInfo
-    local icon_texture = tags:updateVars(unit, castType)
+    local icon_texture = tags:updateVars(unit, castType, spellID)
     local vars = tags.var[unit]
 
     -- Failsafe
-    if not vars.sName or not vars.sTime or not vars.eTime then
+    if not vars.durationObject then
         return
     end
 
@@ -45,21 +51,34 @@ function CASTBAR_API:OnUnitSpellcastStart(unit, castGUID, spellID)
     tags:setTextSameState(textCFG, bar, "dynamic", unit, castType, true)
     
     bar.icon:SetTexture(icon_texture)
-    CASTBAR_API:AssignQueueWindow(unit, castType)
 
-    CASTBAR_API:SemiColourUpdate(bar)
-    bar.status:SetMinMaxValues(0, math.max(vars.dTime, 0.001))
+    if unit == "player" then
+        CASTBAR_API:AssignQueueWindow(castType)
+    end
+
+    CASTBAR_API:SemiColourUpdate(unit, bar)
+    bar.status:SetMinMaxValues(0, vars.dTime)
     local inverted = cfg.otherFeatures.invertBar[castType]
-    if inverted then
-        bar.status:SetValue(math.max(vars.dTime, 0.001))
+    if resumeCast then
+        if inverted then
+            bar.status:SetValue(vars.durationObject:GetRemainingDuration())
+        else
+            bar.status:SetValue(vars.durationObject:GetElapsedDuration())
+        end
     else
-        bar.status:SetValue(0)
+        if inverted then
+            bar.status:SetValue(vars.dTime)
+        else
+            bar.status:SetValue(0)
+        end
     end
     bar._ucbUnit = unit
     bar._ucbCfg = cfg
     bar._ucbCastType = castType
+    bar._ucbVars = vars
     bar:SetScript("OnUpdate", CastbarOnUpdate)
     bar.group:Show()
+    bar._prevType = castType
     bar.castActive = true
 end
 
@@ -71,9 +90,10 @@ function CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID)
 
     local bar = UCB.castBar[unit]
     if bar and bar.castActive then
-        bar.castActive = false
         bar.group:Hide()
         bar:SetScript("OnUpdate", nil)
-        bar._ucbUnit, bar._ucbCfg, bar._ucbCastType = nil, nil, nil
+        bar.castActive = false
+        bar._prevType = nil
+        bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars = nil, nil, nil, nil
      end
 end

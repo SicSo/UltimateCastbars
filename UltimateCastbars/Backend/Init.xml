@@ -19,4 +19,5 @@
 	<Script file="Core/Channel.lua"/>
 	<Script file="Core/Empower.lua"/>
 	<Script file="Core/Normal.lua"/>
+	<Script file="Core/UnitChange.lua"/>
 </Ui>

@@ -237,7 +237,12 @@ local function BuildPreviewArgs(args, unit, opts)
                         bar.group:SetScript("OnDragStop", nil)
                     end
                 end,
-                hidden = function() return not UCB.allSpellTypes.channel or #UCB.allSpellTypes.channel == 0 end,
+                hidden = function()
+                    if unit == "player" then
+                        return not UCB.allSpellTypes.channel or #UCB.allSpellTypes.channel == 0
+                    end
+                    return false
+                    end,
             },
 
             previewbuttonEmpower = {
@@ -278,7 +283,12 @@ local function BuildPreviewArgs(args, unit, opts)
                         bar.group:SetScript("OnDragStop", nil)
                     end
                 end,
-                hidden = function() return not UCB.allSpellTypes.empowered or #UCB.allSpellTypes.empowered == 0 end,
+                hidden = function() 
+                    if unit == "player" then
+                        return not UCB.allSpellTypes.empowered or #UCB.allSpellTypes.empowered == 0
+                    end
+                    return false
+                    end,
             },
             showSettings = {
                 type  = "execute",

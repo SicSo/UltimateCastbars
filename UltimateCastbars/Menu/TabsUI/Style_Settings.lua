@@ -95,6 +95,7 @@ local function BuildCustomisationArgs(args, unit)
                     CASTBAR_API:UpdateCastbar(unit) 
                 end,
             },
+            customEnemyColour = nil,
             gradientEnable = {
                 type = "toggle",
                 name = "Enable Gradient",
@@ -138,6 +139,25 @@ local function BuildCustomisationArgs(args, unit)
             }
         }
     }
+
+    if unit ~= "player" then
+        args.grpColours.args.customEnemyColour = {
+                type = "color",
+                name = function() return "Enemy colour (NPC)" end,
+                order = 2,
+                hasAlpha = true,
+                get = function()
+                    local c = cfg.enemyColour
+                    return c.r, c.g, c.b, c.a
+                end,
+                set = function(_, r,g,b,a)
+                    cfg.enemyColour = {r=r,g=g,b=b,a=a}
+                    CASTBAR_API:UpdateCastbar(unit)
+                end,
+                hidden = function() return cfg.colourMode ~= "class" and cfg.colourMode~="ombre" end,
+            }
+    end
+
     args.grpBackground = {
         type   = "group",
         name   = "Background",

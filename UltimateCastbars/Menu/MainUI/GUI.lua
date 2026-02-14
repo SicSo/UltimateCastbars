@@ -41,12 +41,16 @@ function UCB:BuildRootOptionsTable()
     self._rootOptions = self._rootOptions or {}
     self._rootArgs    = self._rootArgs    or {}
 
+    local treeArgs = {}
+
     -- Build / rebuild sub-args (MUST return tables)
-    local playerArgs = self:BuildUnitOptionsArgs("player") or {}
-    --local targetArgs = self:BuildUnitOptionsArgs("target") or {}
-    --local focusArgs  = self:BuildUnitOptionsArgs("focus")  or {}
-    local targetArgs = {}
-    local focusArgs  = {}
+    for unit, shown in pairs(UCB.menuUnits) do
+        if shown then
+            treeArgs[unit] = self:BuildUnitOptionsArgs(unit)
+        else
+            treeArgs[unit] = {}
+        end
+    end
 
     -- Profiles group: BuildProfilesOptions() returns a group table; we want its args table
     local profArgs  = self:BuildProfilesOptions() or {}
@@ -57,21 +61,21 @@ function UCB:BuildRootOptionsTable()
         type  = "group",
         name  = "Player",
         order = 1,
-        args  = playerArgs,
+        args  = treeArgs["player"],
     }
 
     self._rootArgs.target = {
         type  = "group",
         name  = "Target",
         order = 2,
-        args  = targetArgs,
+        args  = treeArgs["target"],
     }
 
     self._rootArgs.focus = {
         type  = "group",
         name  = "Focus",
         order = 3,
-        args  = focusArgs,
+        args  = treeArgs["focus"],
     }
 
     self._rootArgs.profiles = {
@@ -202,6 +206,7 @@ function UCB:CloseGUI()
 end
 
 function UCB:OpenGUI(selectPath)
+    collectgarbage("collect")
     self:RegisterRootOptions()
     self.GUI = self.GUI or {}
 

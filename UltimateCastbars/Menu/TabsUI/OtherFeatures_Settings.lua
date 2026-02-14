@@ -18,6 +18,150 @@ local LSM  = UCB.LSM
 
 local function BuildOtherArgs(args, unit)
     local cfg = GetCfg(unit).otherFeatures
+    if unit == "player" then
+        args.spellQueGrp = {
+            type   = "group",
+            name   = "Spell Queue Options",
+            inline = true,
+            order  = 2,
+            args = {
+                queueCvarGrp = {
+                    type   = "group",
+                    name   = "Spell Queue CVAR Options",
+                    inline = true,
+                    order  = 1,
+                    args = {
+                        queueWindowInfo = {
+                            type = "description",
+                            name = "This option changes the SPELL QUEUE WINDOW CVAR, which affects global spell queue timing for ALL cast bars.",
+                            order = 1,
+                        },
+                        queueWindowCVAR = {
+                            type  = "range",
+                            name  = "Window Duration (ms) - CVAR",
+                            min   = UIOptions.queueWindowMin, max = UIOptions.queueWindowMax, step = 10,
+                            order = 2,
+                            get   = function() return OtherFeatures_API:getSpellQueCVAR() end,
+                            set   = function(_, val)
+                                OtherFeatures_API:setSpellQueCVAR(val)
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                        
+                    },
+                },
+                queueVisualGrp = {
+                    type   = "group",
+                    name   = "Spell Queue Visual Options",
+                    inline = true,
+                    order  = 2,
+                    args = {
+                        queueWindowInfo = {
+                            type = "description",
+                            name = "These options control the VISUAL spell queue window shown after casting a spell.",
+                            order = 1,
+                        },
+                        showQueueWindow = {
+                            type  = "toggle",
+                            name  = "Show Spell Queue Window",
+                            order = 2,
+                            width = "full",
+                            get   = function() return cfg.showQueueWindow.normal end,
+                            set   = function(_, val)
+                                cfg.showQueueWindow.normal = val
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                        showQueueWindowChannel = {
+                            type  = "toggle",
+                            name  = "Show Spell Queue Window for Channeled Spells",
+                            order = 3,
+                            width = "full",
+                            get   = function() return cfg.showQueueWindow.channel end,
+                            set   = function(_, val)
+                                cfg.showQueueWindow.channel = val
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                        showQueueWindowEmpowered = {
+                            type  = "toggle",
+                            name  = "Show Spell Queue Window for Empowered Spells",
+                            order = 4,
+                            width = "full",
+                            get   = function() return cfg.showQueueWindow.empowered end,
+                            set   = function(_, val)
+                                cfg.showQueueWindow.empowered = val
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                        queueMatchCVAR = {
+                            type  = "toggle",
+                            name  = "Match CVAR Duration",
+                            desc  = "When enabled, the visual spell queue window duration will match the SPELL QUEUE WINDOW CVAR value.",
+                            order = 5,
+                            get   = function() return cfg.queueMatchCVAR end,
+                            set   = function(_, val)
+                                cfg.queueMatchCVAR = val
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                        queueWindow = {
+                            type  = "range",
+                            name  = "Window Duration (ms)",
+                            min   = UIOptions.queueWindowMin, max = UIOptions.queueWindowMax, step = 10,
+                            order = 6,
+                            get   = function() return cfg.queueWindow end,
+                            set   = function(_, val)
+                                cfg.queueWindow = val
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                        queueWindowColor = {
+                            type = "color",
+                            name = "Window Colour",
+                            hasAlpha = true,
+                            order = 7,
+                            get = function()
+                                local c = cfg.queueWindowColour 
+                                return c.r, c.g, c.b, c.a
+                            end,
+                            set = function(_, r,g,b,a)
+                                cfg.queueWindowColour = {r=r,g=g,b=b,a=a}
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                        useQueueTexture = {
+                            type  = "toggle",
+                            name  = "Use texture for queue window",
+                            order = 8,
+                            width = "full",
+                            get   = function() return cfg.useQueueTexture end,
+                            set   = function(_, val)
+                                cfg.useQueueTexture = val
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                        queueTextureName = {
+                            type          = "select",
+                            dialogControl = "LSM30_Statusbar",
+                            name          = "Queue Window texture",
+                            order         = 9,
+                            values        = function() return LSM:HashTable(LSM.MediaType.STATUSBAR) end,
+                            get           = function() return cfg.queueTextureName end,
+                            set           = function(_, val)
+                                cfg.queueTextureName = val
+                                cfg.queueTexture = LSM:Fetch(LSM.MediaType.STATUSBAR, val)
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                            disabled = function() return cfg.useQueueTexture == false end,
+                        },
+                    },
+                },
+            },
+        }
+    else
+        args.spellQueGrp = nil
+    end
 
     args.channelTickGrp = {
         type   = "group",
@@ -32,8 +176,9 @@ local function BuildOtherArgs(args, unit)
             },
             showChannelTicks = {
                 type  = "toggle",
-                name  = "Show Channel Ticks",
+                name  = "Show Channel Ticks (ON for class tick options)",
                 order = 2,
+                width = 1.8,
                 get   = function() return cfg.showChannelTicks ~= false end,
                 set   = function(_, val)
                     cfg.showChannelTicks = val
@@ -70,176 +215,41 @@ local function BuildOtherArgs(args, unit)
                 end,
                 disabled = function() return cfg.showChannelTicks == false end,
             },
-            useTickTexture = {
-                type  = "toggle",
-                name  = "Use texture for ticks",
+            tickTexture = {
+                type = "group",
+                name = "Tick Texture",
+                inline = true,
                 order = 5,
-                width = "full",
-                get   = function() return cfg.useTickTexture end,
-                set   = function(_, val)
-                    cfg.useTickTexture = val
-                    CASTBAR_API:UpdateCastbar(unit)
-                end,
-            },
-            tickTextureName = {
-                type          = "select",
-                dialogControl = "LSM30_Statusbar",
-                name          = "Tick texture",
-                order         = 6,
-                values        = function() return LSM:HashTable(LSM.MediaType.STATUSBAR) end,
-                get           = function() return cfg.tickTextureName end,
-                set           = function(_, val)
-                    cfg.tickTextureName = val
-                    cfg.tickTexture = LSM:Fetch(LSM.MediaType.STATUSBAR, val)
-                    CASTBAR_API:UpdateCastbar(unit)
-                end,
-                disabled = function() return cfg.useTickTexture == false end,
-            },
-        },
-    }
-    args.spellQueGrp = {
-        type   = "group",
-        name   = "Spell Queue Options",
-        inline = true,
-        order  = 2,
-        args = {
-            queueCvarGrp = {
-                type   = "group",
-                name   = "Spell Queue CVAR Options",
-                inline = true,
-                order  = 1,
                 args = {
-                    queueWindowInfo = {
-                        type = "description",
-                        name = "This option changes the SPELL QUEUE WINDOW CVAR, which affects global spell queue timing for ALL cast bars.",
+                    useTickTexture = {
+                        type  = "toggle",
+                        name  = "Use texture for ticks",
                         order = 1,
-                    },
-                    queueWindowCVAR = {
-                        type  = "range",
-                        name  = "Window Duration (ms) - CVAR",
-                        min   = UIOptions.queueWindowMin, max = UIOptions.queueWindowMax, step = 10,
-                        order = 2,
-                        get   = function() return OtherFeatures_API:getSpellQueCVAR() end,
+                        get   = function() return cfg.useTickTexture end,
                         set   = function(_, val)
-                            OtherFeatures_API:setSpellQueCVAR(val)
+                            cfg.useTickTexture = val
                             CASTBAR_API:UpdateCastbar(unit)
                         end,
                     },
-                    
-                },
-            },
-            queueVisualGrp = {
-                type   = "group",
-                name   = "Spell Queue Visual Options",
-                inline = true,
-                order  = 2,
-                args = {
-                     queueWindowInfo = {
-                        type = "description",
-                        name = "These options control the VISUAL spell queue window shown after casting a spell.",
-                        order = 1,
-                    },
-                    showQueueWindow = {
-                        type  = "toggle",
-                        name  = "Show Spell Queue Window",
-                        order = 2,
-                        width = "full",
-                        get   = function() return cfg.showQueueWindow.normal end,
-                        set   = function(_, val)
-                            cfg.showQueueWindow.normal = val
-                            CASTBAR_API:UpdateCastbar(unit)
-                        end,
-                    },
-                    showQueueWindowChannel = {
-                        type  = "toggle",
-                        name  = "Show Spell Queue Window for Channeled Spells",
-                        order = 3,
-                        width = "full",
-                        get   = function() return cfg.showQueueWindow.channel end,
-                        set   = function(_, val)
-                            cfg.showQueueWindow.channel = val
-                            CASTBAR_API:UpdateCastbar(unit)
-                        end,
-                    },
-                    showQueueWindowEmpowered = {
-                        type  = "toggle",
-                        name  = "Show Spell Queue Window for Empowered Spells",
-                        order = 4,
-                        width = "full",
-                        get   = function() return cfg.showQueueWindow.empowered end,
-                        set   = function(_, val)
-                            cfg.showQueueWindow.empowered = val
-                            CASTBAR_API:UpdateCastbar(unit)
-                        end,
-                    },
-                    queueMatchCVAR = {
-                        type  = "toggle",
-                        name  = "Match CVAR Duration",
-                        desc  = "When enabled, the visual spell queue window duration will match the SPELL QUEUE WINDOW CVAR value.",
-                        order = 5,
-                        get   = function() return cfg.queueMatchCVAR end,
-                        set   = function(_, val)
-                            cfg.queueMatchCVAR = val
-                            CASTBAR_API:UpdateCastbar(unit)
-                        end,
-                        --disabled = function() return cfg.showQueueWindow == false end,
-                    },
-                    queueWindow = {
-                        type  = "range",
-                        name  = "Window Duration (ms)",
-                        min   = UIOptions.queueWindowMin, max = UIOptions.queueWindowMax, step = 10,
-                        order = 6,
-                        get   = function() return cfg.queueWindow end,
-                        set   = function(_, val)
-                            cfg.queueWindow = val
-                            CASTBAR_API:UpdateCastbar(unit)
-                        end,
-                        --disabled = function() return cfg.showQueueWindow == false or cfg.queueMatchCVAR == true end,
-                    },
-                    queueWindowColor = {
-                        type = "color",
-                        name = "Window Colour",
-                        hasAlpha = true,
-                        order = 7,
-                        get = function()
-                            local c = cfg.queueWindowColour 
-                            return c.r, c.g, c.b, c.a
-                        end,
-                        set = function(_, r,g,b,a)
-                            cfg.queueWindowColour = {r=r,g=g,b=b,a=a}
-                            CASTBAR_API:UpdateCastbar(unit)
-                        end,
-                        --disabled = function() return cfg.showQueueWindow == false end,
-                    },
-                    useQueueTexture = {
-                        type  = "toggle",
-                        name  = "Use texture for queue window",
-                        order = 8,
-                        width = "full",
-                        get   = function() return cfg.useQueueTexture end,
-                        set   = function(_, val)
-                            cfg.useQueueTexture = val
-                            CASTBAR_API:UpdateCastbar(unit)
-                        end,
-                    },
-                    queueTextureName = {
+                    tickTextureName = {
                         type          = "select",
                         dialogControl = "LSM30_Statusbar",
-                        name          = "Queue Window texture",
-                        order         = 9,
+                        name          = "Tick texture",
+                        order         = 2,
                         values        = function() return LSM:HashTable(LSM.MediaType.STATUSBAR) end,
-                        get           = function() return cfg.queueTextureName end,
+                        get           = function() return cfg.tickTextureName end,
                         set           = function(_, val)
-                            cfg.queueTextureName = val
-                            cfg.queueTexture = LSM:Fetch(LSM.MediaType.STATUSBAR, val)
+                            cfg.tickTextureName = val
+                            cfg.tickTexture = LSM:Fetch(LSM.MediaType.STATUSBAR, val)
                             CASTBAR_API:UpdateCastbar(unit)
                         end,
-                        disabled = function() return cfg.useQueueTexture == false end,
+                        disabled = function() return cfg.useTickTexture == false end,
                     },
-                },
-            },
+                }
+            }
         },
     }
+
     args.inversGrp = {
         type   = "group",
         name   = "Inverse Bar Options",

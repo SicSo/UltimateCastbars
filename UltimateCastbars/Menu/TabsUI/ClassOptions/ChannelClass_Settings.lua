@@ -22,15 +22,16 @@ Opt.ClassExtraBuilders = Opt.ClassExtraBuilders or {}
 
 
 local function BuildChannelSettings(unit, class)
-    local cfg = GetCfg(unit).CLASSES[class]
+    local bigCFG = GetCfg(unit)
+    local cfg = bigCFG.CLASSES[class]
 
 
     local channelSettings = {
         type = "group",
-        name = "Channeling Settings",
+        name = "Channeling Class Settings (overrides main settings)",
         inline = true,
         order = 3,
-        disabled = function() return not cfg.showChannelTicks or cfg.useMainSettingsChannel end,
+        disabled = function() return not cfg.showChannelTicks or not bigCFG.otherFeatures.showChannelTicks or cfg.useMainSettingsChannel end,
         args = {
             channelTickInfo = {
                 type = "description",
@@ -149,7 +150,7 @@ local function BuildRows(channelTable, cfg, unit)
                     name = "",
                     order = 7,
                     width = 0.90,
-                    min = 1, max = 20, step = 1,
+                    min = UCB.UIOptions.channelTickNumMin, max = UCB.UIOptions.channelTickNumMax, step = 1,
                     get = function() return tonumber(cfg.channeledSpels[i].ticks or 1) end,
                     set = function(_, v) cfg.channeledSpels[i].ticks = v end,
                 },
@@ -182,7 +183,8 @@ local function BuildRows(channelTable, cfg, unit)
 end
 
 local function BuildChannelTable(args, unit, class)
-    local cfg = GetCfg(unit).CLASSES[class]
+    local bigCFG = GetCfg(unit)
+    local cfg = bigCFG.CLASSES[class]
 
     -- temp fields for the "add" row
     cfg._channelAdd = cfg._channelAdd or ""
@@ -226,7 +228,7 @@ local function BuildChannelTable(args, unit, class)
         name = "Channeling Spells",
         inline = true,
         order = 4,
-        disabled = function() return not cfg.showChannelTicks end,
+        disabled = function() return not cfg.showChannelTicks or not bigCFG.otherFeatures.showChannelTicks end,
         args = {
             selectGroup = {
                 type = "group",
@@ -360,14 +362,23 @@ local function BuildChannelTable(args, unit, class)
     return channelTable
 end
 
-local function BuildChannelSection(args, unit, class)
-    local cfg = GetCfg(unit).CLASSES[class]
+local function BuildChannelSectionPlayer(args, unit, class)
+    local bigCFG = GetCfg(unit)
+    local cfg = bigCFG.CLASSES[class]
+    
 
     args.channelSection = {
         type = "group",
         name = "Channeling Spells",
         order = 3,
         args = {
+            titleWarning = {
+                type = "header",
+                name = UIOptions.ColorText(UIOptions.red, "To use the channeling options, you need to enable them in the Other Features section first.") ,
+                order = 0.5,
+                width = "full",
+                hidden = function() return bigCFG.otherFeatures.showChannelTicks end,
+            },
             channelToogle = {
                 type  = "toggle",
                 name  = "Enable channeling options",
@@ -378,6 +389,7 @@ local function BuildChannelSection(args, unit, class)
                     cfg.showChannelTicks = val 
                     CASTBAR_API:UpdateCastbar(unit)
                     end,
+                disabled = function() return not bigCFG.otherFeatures.showChannelTicks end,
             },
             useMainSettings = {
                 type  = "toggle",
@@ -389,7 +401,7 @@ local function BuildChannelSection(args, unit, class)
                 cfg.useMainSettingsChannel = val 
                 CASTBAR_API:UpdateCastbar(unit)
                 end,
-                disabled = function() return not cfg.showChannelTicks end,
+                disabled = function() return not cfg.showChannelTicks or not bigCFG.otherFeatures.showChannelTicks end,
             },
             channelSettings = BuildChannelSettings(unit, class),
             channelTable = BuildChannelTable(args, unit, class),
@@ -397,10 +409,165 @@ local function BuildChannelSection(args, unit, class)
     }
 end
 
+local function BuildChannelSpecSettings(args, unit, class)
+    local bigCFG = GetCfg(unit)
+    local cfg = bigCFG.CLASSES[class]
+    local specs = cfg.specs
+    local spec_data = UCB.specs[class].specs
+
+    local channelTable
+
+    channelTable = {
+        type = "group",
+        name = "Channeling Spells",
+        inline = true,
+        order = 4,
+        disabled = function() return not cfg.showChannelTicks or not bigCFG.otherFeatures.showChannelTicks end,
+        args = {
+            tickGrpoup = {
+                type = "group",
+                name = "Channel Tick Settings by Spec",
+                inline = true,
+                order = 1,
+                args = {
+                    classTickGrp = {
+                        type = "group",
+                        name = "Class-wide settings",
+                        inline = true,
+                        order = 1,
+                        args = {
+                            enableTick = {
+                                type = "toggle",
+                                name = function() return "Enable ticks for ".. UCB.UIOptions.ColorText(UCB.UIOptions.classColoursList[class].HEX, class) end,
+                                order = 1,
+                                width = 2,
+                                get = function() return cfg.enableTick end,
+                                set = function(_, val) 
+                                    cfg.enableTick = val 
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
+                            tickNumber = {
+                                type = "range",
+                                name = function() return "Number of ticks for "..UCB.UIOptions.ColorText(UCB.UIOptions.classColoursList[class].HEX, class) end,
+                                order = 2,
+                                width = 1.5,
+                                min = UCB.UIOptions.channelTickNumMin, max = UCB.UIOptions.channelTickNumMax, step = 1,
+                                get = function() return tonumber(cfg.tickNumber) end,
+                                set = function(_, val) 
+                                    cfg.tickNumber = val 
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                                disabled = function() return not cfg.enableTick end,
+                            },
+                        },
+                    },
+                    --[[
+                    specTickGrp = {
+                        type = "group",
+                        name = "Spec-specific settings",
+                        inline = true,
+                        order = 2,
+                        args = {},
+                    }
+                    --]]
+                },
+            },
+        }
+    }
+    --[[
+    for specID, specInfo in pairs(specs) do
+        channelTable.args.tickGrpoup.args.specTickGrp.args["spec"..specID] = {
+            type = "group",
+            name = function() return spec_data[specID] end,
+            inline = true,
+            order = specID,
+            args = {
+                enableTick = {
+                    type = "toggle",
+                    name = function() return "Enable ticks for "..UCB.UIOptions.ColorText(UCB.UIOptions.classColoursList[class].HEX, spec_data[specID]).." (overrides class-wide)" end,
+                    order = 1,
+                    width = 2,
+                    get = function() return specInfo.enableTick end,
+                    set = function(_, val) 
+                        specInfo.enableTick = val 
+                        CASTBAR_API:UpdateCastbar(unit)
+                    end,
+                },
+                tickNumber = {
+                    type = "range",
+                    name = function () return"Number of ticks for "..UCB.UIOptions.ColorText(UCB.UIOptions.classColoursList[class].HEX, spec_data[specID]) end,
+                    order = 2,
+                    width = 1.5,
+                    min = UCB.UIOptions.channelTickNumMin, max = UCB.UIOptions.channelTickNumMax, step = 1,
+                    get = function() return tonumber(specInfo.tickNumber) end,
+                    set = function(_, val) 
+                        specInfo.tickNumber = val 
+                        CASTBAR_API:UpdateCastbar(unit)
+                    end,
+                    disabled = function() return not specInfo.enableTick end,
+                },
+            },
+        }
+    end
+    --]]
+    return channelTable
+end
+
+local function BuildChannelSectionNonPlayer(args, unit, class)
+    local bigCFG = GetCfg(unit)
+    local cfg = bigCFG.CLASSES[class]
+
+    args.channelSection = {
+        type = "group",
+        name = "Channeling Spells",
+        order = 3,
+        args = {
+            titleWarning = {
+                type = "header",
+                name = UIOptions.ColorText(UIOptions.red, "To use the channeling options, you need to enable them in the Other Features section first.") ,
+                order = 0.5,
+                width = "full",
+                hidden = function() return bigCFG.otherFeatures.showChannelTicks end,
+            },
+            channelToogle = {
+                type  = "toggle",
+                name  = "Enable channeling options",
+                order = 1,
+                width = 1.5,
+                get   = function() return cfg.showChannelTicks end,
+                set   = function(_, val) 
+                    cfg.showChannelTicks = val 
+                    CASTBAR_API:UpdateCastbar(unit)
+                    end,
+                disabled = function() return not bigCFG.otherFeatures.showChannelTicks end,
+            },
+            useMainSettings = {
+                type  = "toggle",
+                name  = "Use Other Features settings for channeling",
+                order = 2,
+                width = 1.5,
+                get   = function() return cfg.useMainSettingsChannel end,
+                set   = function(_, val)
+                cfg.useMainSettingsChannel = val 
+                CASTBAR_API:UpdateCastbar(unit)
+                end,
+                disabled = function() return not cfg.showChannelTicks or not bigCFG.otherFeatures.showChannelTicks end,
+            },
+            channelSettings = BuildChannelSettings(unit, class),
+            channelTable = BuildChannelSpecSettings(args, unit, class),
+        },
+    }
+end
+
 
 Opt.ClassExtraBuilders["*"] = function(unit, classToken)
     local args = {}
-    BuildChannelSection(args, unit, classToken)
+    if unit == "player" then
+        BuildChannelSectionPlayer(args, unit, classToken)
+    else
+        BuildChannelSectionNonPlayer(args, unit, classToken)
+    end
     return args
 end
 
@@ -410,7 +577,7 @@ end
 function Opt.BuildGeneralSettingsClass(unit, class, opts)
     opts = opts or {}
     local args = {}
-    BuildChannelSection(args, unit, class)
+    BuildChannelSectionPlayer(args, unit, class)
 
     return args
 end

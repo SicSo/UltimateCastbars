@@ -33,13 +33,13 @@ local OMBRE_STOPS = {
 }
 
 -- !!!!!!!!!!!!!!!!!!!!!!! DYNAMIC UPDATE FUNCTION !!!!!!!!!!!!!!!!!!!!!!!!
-local function ombreColours(bar, percent)
+local function ombreColours_Legacy(bar, percent)
     local status = bar.status
     local tex = bar._tex or status:GetStatusBarTexture()
     bar._tex = tex
 
     -- Patch last stop only if class colour changed
-    local cc = UCB.classColour
+    local cc = UCB.classColour.RGBA
     if bar._ombreCCr ~= cc.r or bar._ombreCCg ~= cc.g or bar._ombreCCb ~= cc.b then
         bar._ombreCCr, bar._ombreCCg, bar._ombreCCb = cc.r, cc.g, cc.b
         local last = OMBRE_STOPS[#OMBRE_STOPS]
@@ -106,6 +106,76 @@ local function ombreColours(bar, percent)
         tex:SetGradient("HORIZONTAL", c1, c1)
     end
 end
+
+local function EnsureOmbreCurve(unit, bar, cfg)
+    local cc
+    if UnitIsPlayer(unit) then
+        local _, classFile = UnitClass(unit)
+        local classColourVal = UCB.UIOptions.classColoursList[classFile]
+        cc = classColourVal.RGBA
+    else
+        cc = cfg.style.enemyColour
+    end
+    local needsRebuild = false
+
+    if bar._ombreCCr ~= cc.r or bar._ombreCCg ~= cc.g or bar._ombreCCb ~= cc.b then
+        bar._ombreCCr, bar._ombreCCg, bar._ombreCCb = cc.r, cc.g, cc.b
+        local last = OMBRE_STOPS[#OMBRE_STOPS]
+        last.r, last.g, last.b = cc.r, cc.g, cc.b
+        needsRebuild = true
+    end
+
+    local curve = bar._ombreCurve
+    if not curve then
+        curve = C_CurveUtil.CreateColorCurve()
+        curve:SetType(Enum.LuaCurveType.Linear)
+        bar._ombreCurve = curve
+        needsRebuild = true
+    end
+
+    if needsRebuild then
+        curve:ClearPoints()
+        for i = 1, #OMBRE_STOPS do
+            local stop = OMBRE_STOPS[i]
+            curve:AddPoint(stop.p, CreateColor(stop.r, stop.g, stop.b, 1)) -- 0..1
+        end
+    end
+
+    return curve
+end
+
+local function ombreColours(unit, bar, cfg, durationObject, inverted)
+    local status = bar.status
+    local tex = bar._tex or status:GetStatusBarTexture()
+    bar._tex = tex
+
+    local curve = EnsureOmbreCurve(unit, bar, cfg)
+
+    local colour
+    if durationObject and durationObject.EvaluateElapsedPercent and durationObject.EvaluateRemainingPercent then
+        colour = inverted and durationObject:EvaluateRemainingPercent(curve)
+                         or durationObject:EvaluateElapsedPercent(curve)
+    --else
+    --    local percent = 1
+    --    if duration and duration > 0 then
+    --        percent = (elapsedSinceStart or 0) / duration
+    --    end
+    --    if percent <= 0.10 then percent = 0.10 end
+    --    if percent >= 1.00 then percent = 1.00 end
+    --    colour = curve:Evaluate(percent)
+    end
+
+    if not colour then return end
+    local r, g, b, a = colour:GetRGBA()
+    if not a then a = 1 end
+
+    -- no arithmetic on secret values
+    status:SetStatusBarColor(r, g, b, a)
+    if tex and tex.SetVertexColor then
+        tex:SetVertexColor(r, g, b, a)
+    end
+end
+
 
 ----------------------------------------MAIN----------------------------------------
 function BarUpdate_API:UpdateText(unit)
@@ -380,27 +450,29 @@ function BarUpdate_API:UpdateOtherFeatures(unit)
     local bar = UCB.castBar[unit]
     local cfg = CFG_API.GetValueConfig(unit).otherFeatures
 
-    if cfg.showQueueWindow.normal or  cfg.showQueueWindow.channel or cfg.showQueueWindow.empowered then
-        if not bar.queueWindowOverlay then
-            bar.queueWindowOverlay = bar.status:CreateTexture(nil, "OVERLAY", nil, 7)
+    if unit == "player" then
+        if cfg.showQueueWindow.normal or  cfg.showQueueWindow.channel or cfg.showQueueWindow.empowered then
+            if not bar.queueWindowOverlay then
+                bar.queueWindowOverlay = bar.status:CreateTexture(nil, "OVERLAY", nil, 7)
+            end
+            -- CVAR
+            if cfg.queueMatchCVAR then
+                BarUpdate_API.queueWindow = OtherFeatures_API:getSpellQueCVAR()
+            else
+                BarUpdate_API.queueWindow = cfg.queueWindow
+            end
+            -- Texture and colour
+            if cfg.useQueueTexture then
+                bar.queueWindowOverlay:SetTexture(cfg.queueTexture)
+                bar.queueWindowOverlay:SetVertexColor(cfg.queueWindowColour.r, cfg.queueWindowColour.g, cfg.queueWindowColour.b, cfg.queueWindowColour.a)
+            else
+                bar.queueWindowOverlay:SetVertexColor(1, 1, 1, 1)
+                bar.queueWindowOverlay:SetColorTexture(cfg.queueWindowColour.r, cfg.queueWindowColour.g, cfg.queueWindowColour.b, cfg.queueWindowColour.a)
+            end
+            bar.queueWindowOverlay:Show()
+        elseif bar.queueWindowOverlay then
+            bar.queueWindowOverlay:Hide()
         end
-        -- CVAR
-        if cfg.queueMatchCVAR then
-            BarUpdate_API.queueWindow = OtherFeatures_API:getSpellQueCVAR()
-        else
-            BarUpdate_API.queueWindow = cfg.queueWindow
-        end
-        -- Texture and colour
-        if cfg.useQueueTexture then
-            bar.queueWindowOverlay:SetTexture(cfg.queueTexture)
-            bar.queueWindowOverlay:SetVertexColor(cfg.queueWindowColour.r, cfg.queueWindowColour.g, cfg.queueWindowColour.b, cfg.queueWindowColour.a)
-        else
-            bar.queueWindowOverlay:SetVertexColor(1, 1, 1, 1)
-            bar.queueWindowOverlay:SetColorTexture(cfg.queueWindowColour.r, cfg.queueWindowColour.g, cfg.queueWindowColour.b, cfg.queueWindowColour.a)
-        end
-        bar.queueWindowOverlay:Show()
-    elseif bar.queueWindowOverlay then
-        bar.queueWindowOverlay:Hide()
     end
 end
 
@@ -410,17 +482,24 @@ function BarUpdate_API:UpdateColours(unit)
 
     local cfg = CFG_API.GetValueConfig(unit).style
 
+    if unit ~= "player" then
+        local rgba = cfg.enemyColour
+        bar._enemyColour = {RGBA = rgba, COL = CreateColor(rgba.r, rgba.g, rgba.b, rgba.a)}
+    end
+
     local colourMode = cfg.colourMode
 
     -- Build the static palette (1 colour or 2-colour gradient)
     local colours
     if colourMode == "class" then
-        colours = { UCB.classColour }
+        colours = { UCB.classColour.RGBA }
+        bar._colourType = "class"
     else
         -- "custom" (or anything not class): either single or gradient depending on cfg
         if cfg.gradientEnable then
             colours = { cfg.customColour, cfg.customColour2 }
         else
+            bar._colourType = "custom"
             colours = { cfg.customColour }
         end
     end
@@ -508,16 +587,57 @@ end
 
 
 -- !!!!!!!!!!!!!!!!!!!!!!! DYNAMIC UPDATE FUNCTION !!!!!!!!!!!!!!!!!!!!!!!!
-function BarUpdate_API:AssignColours(bar, colourMode, castType, colourProgress)
-     if castType == "empowered" then
+function BarUpdate_API:AssignColours_Legacy(unit, bar, cfg, colourMode, castType, colourProgress, vars, inverted)
+    if castType == "empowered" and cfg.CLASSES.EVOKER.enableEmpowerEffects then
+        if unit == "player" then
+            local tex = bar._tex or bar.status:GetStatusBarTexture()
+            bar._tex = tex
+            local colour = bar.empoweredColourCurve:Evaluate(colourProgress)
+            local r, g, b, a = colour:GetRGBA()
+            tex:SetVertexColor(r, g, b, a)
+        else
+            local tex = bar._tex or bar.status:GetStatusBarTexture()
+            bar._tex = tex
+
+            local curve = bar.empoweredColourCurve
+            if not curve then return end
+
+            local durObj = vars and vars.durationObject
+            local colour
+            if durObj and durObj.EvaluateElapsedPercent and durObj.EvaluateRemainingPercent then
+                colour = inverted and durObj:EvaluateRemainingPercent(curve)
+                                or durObj:EvaluateElapsedPercent(curve)
+            else
+                -- fallback expects colourProgress already normalized 0..1
+                colour = curve:Evaluate(colourProgress)
+            end
+
+            if not colour then return end
+            local r, g, b, a = colour:GetRGBA()
+            tex:SetVertexColor(r, g, b, a)
+        end
+    elseif colourMode == "ombre" then
+        if unit == "player" then 
+            return ombreColours_Legacy(bar, colourProgress)
+        else
+            local durationObject = vars and vars.durationObject or nil
+            return ombreColours(unit, bar, cfg, durationObject, inverted)
+        end
+    end
+end
+
+
+function BarUpdate_API:AssignColours(unit, bar, cfg, colourMode, castType, durationObject, inverted)
+    if castType == "empowered" and cfg.CLASSES.EVOKER.enableEmpowerEffects then
         local tex = bar._tex or bar.status:GetStatusBarTexture()
         bar._tex = tex
-        local colour = bar.empoweredColourCurve:Evaluate(colourProgress)
+        local curve = bar.empoweredColourCurve
+        if not curve then return end
+
+        local colour = inverted and durationObject:EvaluateRemainingPercent(curve) or durationObject:EvaluateElapsedPercent(curve)
         local r, g, b, a = colour:GetRGBA()
         tex:SetVertexColor(r, g, b, a)
-    else
-        if colourMode == "ombre" then
-            return ombreColours(bar, colourProgress)
-        end
+    elseif colourMode == "ombre" then
+        return ombreColours(unit, bar, cfg, durationObject, inverted)
     end
 end

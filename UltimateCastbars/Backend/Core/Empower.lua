@@ -16,10 +16,14 @@ local function CastbarOnUpdate(bar, elapsed)
     local unit = bar._ucbUnit
     local cfg  = bar._ucbCfg
     local castType = bar._ucbCastType
-    local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType)
-    if remainig < -0.01 then
+    local vars = bar._ucbVars
+    local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
+    if unit == "player" and remainig < -0.001 then
         CASTBAR_API:OnUnitSpellcastEmpowerStop(unit)
     end
+    --if unit ~= "player" and vars.durationObject:IsZero() then
+    --    CASTBAR_API:OnUnitSpellcastEmpowerStop(unit)
+    --end
 end
 
 function CASTBAR_API:HideStages(unit)
@@ -93,7 +97,7 @@ local function CreateSegment(bar, barWidth, invert, useTex, segment, colour, tex
     segment:Show()
 end
 
-local function CreateColourCurve(unit, tickPositions, colours, duration)
+local function CreateColourCurve_Legacy(unit, tickPositions, colours, invert, duration)
     local cfg = CFG_API.GetValueConfig(unit)
     local bar = UCB.castBar[unit]
     local curve = bar.empoweredColourCurve
@@ -106,7 +110,7 @@ local function CreateColourCurve(unit, tickPositions, colours, duration)
         curve:ClearPoints()
     end
 
-    if cfg.otherFeatures.invertBar.empowered then
+    if invert then
         curve:AddPoint(0, CreateColor(colours[#colours].r, colours[#colours].g, colours[#colours].b, colours[#colours].a))
         for i = #tickPositions, 1, -1 do
             curve:AddPoint((1 - tickPositions[i]) * duration, CreateColor(colours[i].r, colours[i].g, colours[i].b, colours[i].a))
@@ -118,6 +122,34 @@ local function CreateColourCurve(unit, tickPositions, colours, duration)
         end
     end
 end
+
+local function CreateColourCurve(unit, tickPositions, colours, inverted)
+    local bar = UCB.castBar[unit]
+    local curve = bar.empoweredColourCurve
+
+    if not curve then
+        curve = C_CurveUtil.CreateColorCurve()
+        curve:SetType(Enum.LuaCurveType.Step)
+        bar.empoweredColourCurve = curve
+    else
+        curve:ClearPoints()
+    end
+
+    if inverted then
+        -- Start from last stage color, then walk boundaries mirrored across 1.0
+        curve:AddPoint(0, CreateColor(colours[#colours].r, colours[#colours].g, colours[#colours].b, colours[#colours].a))
+        for i = #tickPositions - 1, 1, -1 do
+            curve:AddPoint(1 - tickPositions[i], CreateColor(colours[i].r, colours[i].g, colours[i].b, colours[i].a))
+        end
+    else
+        curve:AddPoint(0, CreateColor(colours[1].r, colours[1].g, colours[1].b, colours[1].a))
+        for i = 1, #tickPositions - 1 do
+            curve:AddPoint(tickPositions[i], CreateColor(colours[i + 1].r, colours[i + 1].g, colours[i + 1].b, colours[i + 1].a))
+        end
+    end
+end
+
+
 
 -- Empowered Cast Stage Markers
 function CASTBAR_API:InitializeEmpoweredStages(unit)
@@ -131,7 +163,6 @@ function CASTBAR_API:InitializeEmpoweredStages(unit)
 
     local numStages = #vars.empStages
     local tickPositions = vars.empStages
-    local duration = vars.dTime
 
     local tickColours = classCFG.empowerStageTickColours
     local segColours = classCFG.empowerSegBackColours
@@ -153,7 +184,7 @@ function CASTBAR_API:InitializeEmpoweredStages(unit)
     local empoweredSegments = bar.empoweredSegments
     local empoweredStages = bar.empoweredStages
 
-    CreateColourCurve(unit, tickPositions, barColours, duration)
+    CreateColourCurve(unit, tickPositions, barColours, invert)
 
     -- Create ticks, segments and bar curve
     local prevX = 0
@@ -186,16 +217,17 @@ function CASTBAR_API:OnUnitSpellcastEmpowerStart(unit, castGUID, spellID)
         Preview_API:HidePreviewCastBar(unit)
     end
     -- Prevent Font of Magic (spellID 411212) from showing empower stages ???
-    if spellID == 411212 then return end
+    if unit == "player" and spellID == 411212 then return end
 
     local cfg = CFG_API.GetValueConfig(unit)
     local bar = UCB.castBar[unit]
+    CASTBAR_API:StopPrevCast(unit, bar, castGUID, spellID)
 
     local icon_texture = tags:updateVars(unit, castType, spellID)
     local vars = tags.var[unit]
-
+    
     -- Failsafe
-    if not vars.sName or not vars.sTime or not vars.eTime then
+    if not vars.durationObject then
         return
     end
     
@@ -205,34 +237,43 @@ function CASTBAR_API:OnUnitSpellcastEmpowerStart(unit, castGUID, spellID)
     tags:setTextSameState(textCFG, bar, "dynamic", unit, castType, true)
 
     bar.icon:SetTexture(icon_texture)
-    CASTBAR_API:AssignQueueWindow(unit, castType)
 
-    CASTBAR_API:InitializeEmpoweredStages(unit)
+    if unit == "player" then
+        CASTBAR_API:AssignQueueWindow(castType)
+    end
+    
+    if cfg.CLASSES.EVOKER.enableEmpowerEffects and UnitIsPlayer(unit) then
+        CASTBAR_API:InitializeEmpoweredStages(unit)
+    else
+        CASTBAR_API:SemiColourUpdate(unit, bar)
+    end
 
-    bar.status:SetMinMaxValues(0, math.max(vars.dTime, 0.001))
+    bar.status:SetMinMaxValues(0, vars.dTime)
     local inverted = cfg.otherFeatures.invertBar[castType]
     if inverted then
-        bar.status:SetValue(math.max(vars.dTime, 0.001))
+        bar.status:SetValue(vars.dTime)
     else
         bar.status:SetValue(0)
     end
     bar._ucbUnit = unit
     bar._ucbCfg = cfg
     bar._ucbCastType = castType
+    bar._ucbVars = vars
     bar:SetScript("OnUpdate", CastbarOnUpdate)
     bar.group:Show()
     bar.castActive = true
+    bar._prevType = castType
 end
 
 function CASTBAR_API:OnUnitSpellcastEmpowerUpdate(unit, castGUID, spellID)
     local cfg = CFG_API.GetValueConfig(unit)
     local bar = UCB.castBar[unit]
 
-    local icon_texture = tags:updateVars(unit, castType)
+    local icon_texture = tags:updateVars(unit, castType, spellID)
     local vars = tags.var[unit]
 
     -- Failsafe
-    if not vars.sName or not vars.sTime or not vars.eTime then
+    if not vars.durationObject then
         return
     end
 
@@ -241,11 +282,15 @@ function CASTBAR_API:OnUnitSpellcastEmpowerUpdate(unit, castGUID, spellID)
     tags:setTextSameState(textCFG, bar, "dynamic", unit, castType, true)
     
     bar.icon:SetTexture(icon_texture)
-    CASTBAR_API:AssignQueueWindow(unit, castType)
-    bar.status:SetMinMaxValues(0, math.max(vars.dTime, 0.001))
+
+    if unit=="player" then 
+        CASTBAR_API:AssignQueueWindow(castType)
+    end
+
+    bar.status:SetMinMaxValues(0, vars.dTime)
     local inverted = cfg.otherFeatures.invertBar[castType]
     if inverted then
-        bar.status:SetValue(math.max(vars.dTime, 0.001))
+        bar.status:SetValue(vars.dTime)
     else
         bar.status:SetValue(0)
     end
@@ -254,10 +299,14 @@ end
 function CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID)
     local bar = UCB.castBar[unit]
     if bar and bar.castActive then
-        bar.castActive = false
         bar.group:Hide()
         bar:SetScript("OnUpdate", nil)
-        bar._ucbUnit, bar._ucbCfg, bar._ucbCastType = nil, nil, nil
-        CASTBAR_API:HideStages(unit)
+        bar.castActive = false
+        bar._prevType = nil
+        bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars = nil, nil, nil, nil
+        local cfg = CFG_API.GetValueConfig(unit)
+        if cfg.CLASSES.EVOKER.enableEmpowerEffects and UnitIsPlayer(unit) then
+            CASTBAR_API:HideStages(unit)
+        end
     end
 end

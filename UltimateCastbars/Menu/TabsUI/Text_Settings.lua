@@ -45,7 +45,7 @@ end
 
 
 local function RefreshTagPickerButtons(unit)
-    local tree = UCB.Options._textTreeArgs
+    local tree = UCB.Options._textTreeArgs[unit]
     if not tree or not tree.tagPicker then return end
     tree.tagPicker.args = BuildTagButtons(unit)
 end
@@ -67,7 +67,7 @@ local function tagUI(key, tagType, unit)
             Text_API:deleteTag(key, cfg, bigCFG)
 
           
-           local treeArgs = UCB.Options._textTreeArgs 
+           local treeArgs = UCB.Options._textTreeArgs[unit]
            treeArgs[key] = nil
            RefreshTagPickerButtons(unit)
 
@@ -100,8 +100,8 @@ local function tagUI(key, tagType, unit)
                 order = 2,
                 width = "full",
                 get = function() return cfg.show end,
-                set = function(_, v) 
-                    cfg.show = v and true or false 
+                set = function(_, v)
+                    cfg.show = v
                     CASTBAR_API:UpdateCastbar(unit)
                     end,
             }
@@ -192,9 +192,9 @@ local function tagUI(key, tagType, unit)
                        UIOptions.ColorText(UIOptions.turquoise, "[dTime:X]").." - Duration Time (in seconds, X repesents the number of decimals and can be ommited for thse use of [dTime], default is 1 decimal; text is seen as default)\n" ..
                        UIOptions.ColorText(UIOptions.turquoise, "[rPerTime:X]").." - Remaining Time Percentage (X repesents the number of decimals and can be ommited for thse use of [rPerTime], default is 1 decimal; text is seen as default)\n" ..
                        UIOptions.ColorText(UIOptions.turquoise, "[rPerTimeInv:X]").." - Inverse Remaining Time Percentage (X repesents the number of decimals and can be ommited for thse use of [rPerTime], default is 1 decimal; text is seen as default)\n" ..
-                       UIOptions.ColorText(UIOptions.turquoise, "[dPerTime]").." - Duration Time Percentage (just 100)"..
-                       UIOptions.ColorText(UIOptions.turquoise, "[cIntr:X]").." - Intreruptable spell (X reprsents the text displayed, by ommiting it is Intr.)"..
-                       UIOptions.ColorText(UIOptions.turquoise, "[cIntrInv:X]").." - Unintreruptable spell (X reprsents the text displayed, by ommiting it is Unintr.)",
+                       UIOptions.ColorText(UIOptions.turquoise, "[dPerTime]").." - Duration Time Percentage (just 100)\n"..
+                       UIOptions.ColorText(UIOptions.turquoise, "[nIntr:X]").." - Unintreruptable spell (X reprsents the text displayed, by ommiting it is Unintr. IT WILL SHOW OR HIDE THE ENTIRE TAG BASED ON Unintreruptable.)\n"..
+                       UIOptions.ColorText(UIOptions.turquoise, "[nIntrInv:X]").." - Intreruptable spell -> ONLY PLAYER (X reprsents the text displayed, by ommiting it is Intr. IT WILL SHOW OR HIDE THE ENTIRE TAG BASED ON Intreruptable.)\n",
                 width = "full",
                 order = 2,
             },
@@ -402,7 +402,7 @@ local function addTagUI(unit)
     local cfg  = GetCfg(unit).text
     local generalCFG = cfg.generalValues
     local newName = ""
-    local treeArgs = UCB.Options._textTreeArgs
+    local treeArgs = UCB.Options._textTreeArgs[unit]
     treeArgs.grpAdd = {
         type = "group",
         name = "Add New Tag",
@@ -649,7 +649,8 @@ end
 
 function Opt.BuildGeneralSettingsTextArgs(unit, opts)
     opts = opts or {}
-    local tree = UCB.Options._textTreeArgs
+    UCB.Options._textTreeArgs[unit] = UCB.Options._textTreeArgs[unit] or {}
+    local tree = UCB.Options._textTreeArgs[unit]
     wipe(tree)
 
     addTagUI(unit)  -- just to initialise new tag UI elements

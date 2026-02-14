@@ -45,7 +45,7 @@ UCB.Default_DB.Player = {
         fullBarWidth = 240,
 
         showCastIcon = true,
-        syncIconBar = false,
+        syncIconBar = true,
         iconWidth = 20,
         iconHeight = 20,
         iconOffsetX = 0,
@@ -316,9 +316,9 @@ UCB.Default_DB.Player = {
         previewEmpowerStages = 5,
         previewNotIntrerruptible = true,
         previewSpellID = {
-            normal = 359073,
-            channel = 198013,
-            empowered = 339690,
+            normal = 585,
+            channel = 356995,
+            empowered = 359073,
         }
         
     },
@@ -468,6 +468,8 @@ UCB.Default_DB.Player = {
             channelTickColour = {r=1, g=1, b=1, a=0.7},
 
             disintegrateDynamicTicks = true,
+
+            enableEmpowerEffects = true,
             empowerTickWidth = 2,
             empowerStageTickColours = {
                 {r=0, g=1, b=0, a=1},    -- Stage 1 (Green)

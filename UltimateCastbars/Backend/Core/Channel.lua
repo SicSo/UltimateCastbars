@@ -19,11 +19,15 @@ local function CastbarOnUpdate(bar, elapsed)
     local unit = bar._ucbUnit
     local cfg  = bar._ucbCfg
     local castType = bar._ucbCastType
+    local vars = bar._ucbVars
     local spellID = bar._ucbSpellID
-    local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType)
-    if remainig < -0.01 then
+    local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
+    if unit == "player" and remainig < -0.001 then
         CASTBAR_API:OnUnitSpellcastChannelStop(unit, nil, spellID)
     end
+    --if unit ~= "player" and vars.durationObject:IsZero() then
+    --    CASTBAR_API:OnUnitSpellcastChannelStop(unit)
+    --end
 end
 
 local function GetChannelTickNumber(spellID, cfg)
@@ -126,41 +130,64 @@ function CASTBAR_API:AssignChannelTicks(unit, spellID, event)
     if UnitIsPlayer(unit) then
         if not cfg.otherFeatures.showChannelTicks then return end
 
-        local classCFG = cfg.CLASSES[UCB.className]
-        if not classCFG.showChannelTicks then return end
-        local spellIDD = spellID
-        
-        -- Dynamic ticks
-        if UCB.specID == 1467 and spellIDD == 356995 and classCFG.disintegrateDynamicTicks then
-            local vars = tags.var[unit]
-            local barWidth = cfg.general.actualBarWidth
-            local startMS, endMS = vars.sTime * 1000, vars.eTime * 1000
-            local mode, positions = Evoker_API:OnChannelEvent(event, barWidth, spellID, startMS, endMS)
-            ShowChannelTicks(unit, nil, positions)
-        -- Normal ticks based on spellID -> numTicks
-        else
-            local numTicks = GetChannelTickNumber(spellIDD, classCFG)
-            if numTicks and numTicks > 0 then
-                ShowChannelTicks(unit, numTicks, nil)
+        if unit == "player" then
+            local classCFG = cfg.CLASSES[UCB.className]
+            if not classCFG.showChannelTicks then return end
+            local spellIDD = spellID
+            
+            -- Dynamic ticks
+            if UCB.specID == 1467 and spellIDD == 356995 and classCFG.disintegrateDynamicTicks then
+                local vars = tags.var[unit]
+                local barWidth = cfg.general.actualBarWidth
+                local startMS, endMS = vars.sTime * 1000, vars.eTime * 1000
+                local mode, positions = Evoker_API:OnChannelEvent(event, barWidth, spellID, startMS, endMS)
+                ShowChannelTicks(unit, nil, positions)
+            -- Normal ticks based on spellID -> numTicks
             else
-                CASTBAR_API:HideChannelTicks(unit)
+                local numTicks = GetChannelTickNumber(spellIDD, classCFG)
+                if numTicks and numTicks > 0 then
+                    ShowChannelTicks(unit, numTicks, nil)
+                else
+                    CASTBAR_API:HideChannelTicks(unit)
+                end
             end
+        else
+            local _, unitClassId, _ = UnitClass(unit)
+            --local unitSpecID = GetInspectSpecialization(unit)
+            local classCFG = cfg.CLASSES[unitClassId]
+            if not classCFG.showChannelTicks then return end
+
+            --print(unitSpecID)
+            --local spec_data = classCFG.specs[unitSpecID]
+            --if not classCFG.enableTick and not spec_data.enableTick then return end
+            if not classCFG.enableTick then return end
+
+            local numTicks
+            --if spec_data.enableTick then
+            --    numTicks =  spec_data.tickNumber
+            --else
+                numTicks = classCFG.tickNumber
+            --end
+            ShowChannelTicks(unit, numTicks, nil)
         end
 
     end
 end
 
-function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID)
+function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID, resumeCast)
     if Preview_API.previewActive and Preview_API.previewActive[unit] then
         Preview_API:HidePreviewCastBar(unit)
     end
+
     local cfg = CFG_API.GetValueConfig(unit)
     local bar = UCB.castBar[unit]
-    local icon_texture = tags:updateVars(unit, castType)
+    CASTBAR_API:StopPrevCast(unit, bar, castGUID, spellID)
+
+    local icon_texture = tags:updateVars(unit, castType, spellID)
+    local vars = tags.var[unit]
     
     -- Failsafe
-    local vars = tags.var[unit]
-    if not vars.sName or not vars.sTime or not vars.eTime then
+    if not vars.durationObject then
         return
     end
 
@@ -170,35 +197,40 @@ function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID)
     tags:setTextSameState(textCFG, bar, "dynamic", unit, castType, true)
 
     bar.icon:SetTexture(icon_texture)
-    CASTBAR_API:AssignQueueWindow(unit, castType)
 
+    if unit == "player" then
+        CASTBAR_API:AssignQueueWindow(castType)
+    end
     CASTBAR_API:AssignChannelTicks(unit, spellID, "START")
 
-    CASTBAR_API:SemiColourUpdate(bar)
-    bar.status:SetMinMaxValues(0, math.max(vars.dTime, 0.001))
+    CASTBAR_API:SemiColourUpdate(unit, bar)
+    bar.status:SetMinMaxValues(0, vars.dTime)
     local inverted = cfg.otherFeatures.invertBar[castType]
     if inverted then
         bar.status:SetValue(0)
     else
-        bar.status:SetValue(math.max(vars.dTime, 0.001))
+        bar.status:SetValue(vars.dTime)
     end
     bar._ucbUnit = unit
     bar._ucbCfg = cfg
     bar._ucbCastType = castType
+    bar._ucbVars = vars
     bar._ucbSpellID = spellID
     bar:SetScript("OnUpdate", CastbarOnUpdate)
     bar.group:Show()
     bar.castActive = true
+    bar._prevType = castType
 end
 
 function CASTBAR_API:OnUnitSpellcastChannelUpdate(unit, castGUID, spellID)
     local cfg = CFG_API.GetValueConfig(unit)
     local bar = UCB.castBar[unit]
-    local icon_texture = tags:updateVars(unit, castType)
+
+    local icon_texture = tags:updateVars(unit, castType, spellID)
+    local vars = tags.var[unit]
 
     -- Failsafe
-    local vars = tags.var[unit]
-    if not vars.sName or not vars.sTime or not vars.eTime then
+    if not vars.durationObject then
         return
     end
 
@@ -206,17 +238,20 @@ function CASTBAR_API:OnUnitSpellcastChannelUpdate(unit, castGUID, spellID)
     local textCFG = cfg.text
     tags:setTextSameState(textCFG, bar, "semiDynamic", unit, castType, false)
     tags:setTextSameState(textCFG, bar, "dynamic", unit, castType, true)
-    
-    bar.icon:SetTexture(icon_texture)
-    CASTBAR_API:AssignQueueWindow(unit, castType)
 
+    bar.icon:SetTexture(icon_texture)
+
+    if unit == "player" then
+        CASTBAR_API:AssignQueueWindow(castType)
+    end
     CASTBAR_API:AssignChannelTicks(unit, spellID, "UPDATE")
-    bar.status:SetMinMaxValues(0, math.max(vars.dTime, 0.001))
+
+    bar.status:SetMinMaxValues(0, vars.dTime)
     local inverted = cfg.otherFeatures.invertBar[castType]
     if inverted then
         bar.status:SetValue(0)
     else
-        bar.status:SetValue(math.max(vars.dTime, 0.001))
+        bar.status:SetValue(vars.dTime)
     end
 end
 
@@ -226,20 +261,21 @@ function CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID)
     
     local bar = UCB.castBar[unit]
     if bar and bar.castActive == true then
-        bar.castActive = false
         bar.group:Hide()
         bar:SetScript("OnUpdate", nil)
-        bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbSpellID = nil, nil, nil, nil
+        bar.castActive = false
+        bar._prevType = nil
+        bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars, bar._ucbSpellID = nil, nil, nil, nil, nil
 
         local cfg = CFG_API.GetValueConfig(unit)
         local classCFG = CFG_API.GetValueConfig(unit).CLASSES[UCB.className]
         -- Player main, targets, focus,
-        if UnitIsPlayer(unit) then
+        if unit == "player" then
             if UCB.specID == 1467 and spellID == 356995 and classCFG.disintegrateDynamicTicks then
                 local barWidth = cfg.general.actualBarWidth
                 Evoker_API:OnChannelEvent("STOP", barWidth, spellID)
             end
-            CASTBAR_API:HideChannelTicks(unit)
         end
+        CASTBAR_API:HideChannelTicks(unit)
     end
 end

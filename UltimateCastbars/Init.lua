@@ -1,18 +1,5 @@
 local ADDON_NAME, UCB = ...
 
-
-UCB.ADDON_NAME = C_AddOns.GetAddOnMetadata("UltimateCastBars", "Title")
--- Libraries
-UCB.LSM = LibStub("LibSharedMedia-3.0")
-UCB.LDS = LibStub("LibDualSpec-1.0")
-UCB.AG = LibStub("AceGUI-3.0")
-UCB.AC = LibStub("AceConfig-3.0")
-UCB.ACR = LibStub("AceConfigRegistry-3.0")
-UCB.ACD = LibStub("AceConfigDialog-3.0")
-UCB.ADBO = LibStub("AceDBOptions-3.0")
-UCB.LDB = LibStub("LibDataBroker-1.1")
-
-
 -- Created APIs
 UCB.CFG_API = UCB.CFG_API or {}
 UCB.tags = UCB.tags or {}
@@ -28,11 +15,11 @@ UCB.Options = UCB.Options or {}
 UCB.Default_DB = UCB.Default_DB or {}
 UCB.Profiles = UCB.Profiles or {}
 UCB.Debug = UCB.Debug or {}
+UCB.UIOptions = UCB.UIOptions or {}
 
 -- Sub APIs
 UCB.CLASS_API.Evoker = UCB.CLASS_API.Evoker or {}
 UCB.Options.ClassExtraBuilders = UCB.Options.ClassExtraBuilders or {}
-
 
 UCB.CASTBAR_API.CreateCastbar = UCB.CASTBAR_API.UpdateCastbar -- for backward compatibility
 
@@ -58,39 +45,126 @@ UCB.units = {
     "focus"
 }
 
-UCB.tags.keys = {
-    "[sName:X]",
-    "[rTime:X]",
-    "[rTimeInv:X]",
-    "[dTime:X]",
-    "[rPerTime:X]",
-    "[rPerTimeInv:X]",
-    "[dPerTime:X]",
-    "[cIntr:X]",
-    "[cIntrInv:X]"
+UCB.events = {
+  UNIT_SPELLCAST_START          = "OnUnitSpellcastStart",
+  UNIT_SPELLCAST_STOP           = "OnUnitSpellcastStop",
+  UNIT_SPELLCAST_CHANNEL_START  = "OnUnitSpellcastChannelStart",
+  UNIT_SPELLCAST_CHANNEL_UPDATE = "OnUnitSpellcastChannelUpdate",
+  UNIT_SPELLCAST_CHANNEL_STOP   = "OnUnitSpellcastChannelStop",
+  UNIT_SPELLCAST_EMPOWER_START  = "OnUnitSpellcastEmpowerStart",
+  UNIT_SPELLCAST_EMPOWER_UPDATE = "OnUnitSpellcastEmpowerUpdate",
+  UNIT_SPELLCAST_EMPOWER_STOP   = "OnUnitSpellcastEmpowerStop",
+
+  --PLAYER_TARGET_CHANGED 
+  
+  --UNIT_SPELLCAST_DELAYED = CastUpdate,
+	--UNIT_SPELLCAST_FAILED = CastFail,
+	--UNIT_SPELLCAST_INTERRUPTED = CastFail,
+	--UNIT_SPELLCAST_INTERRUPTIBLE = CastInterruptible,
+	--UNIT_SPELLCAST_NOT_INTERRUPTIBLE = CastInterruptible,
 }
 
-UCB.tags.openDelim = "["
-UCB.tags.closeDelim  = "]"
-UCB.tags.colours = {
-    dynamic = "red",
-    semiDynamic = "yellow",
-    static = "green",
-    unk = "grey"
-}
-UCB.tags.typeNames = {
-    dynamic = "Dynamic",
-    semiDynamic = "Semi-Dynamic",
-    static = "Static",
-    unk = "Unknown"
+UCB.swapEvents = {
+    PLAYER_TARGET_CHANGED = {"OnUnitChange", "target"},
+    PLAYER_FOCUS_CHANGED = {"OnUnitChange", "focus"},
 }
 
-UCB.tags.typeTags = {
-    Dynamic = "dynamic",
-    ["Semi-Dynamic"] = "semiDynamic",
-    Static = "static",
-    Unknown = "unk"
+UCB.menuUnits = {
+    player = true,
+    target = true,
+    focus = true
 }
+
+
+UCB.trackedUnits = {}
+
+function UCB:EnsureSpellcastEventFrame()
+  if UCB.eventFrame.spellcast and UCB.eventFrame.swap then return end
+
+  if not UCB.eventFrame.spellcast then
+    local events = UCB.events
+    local f1 = CreateFrame("Frame")
+    for eventName in pairs(events) do
+      f1:RegisterEvent(eventName)
+    end
+
+    f1:SetScript("OnEvent", function(_, event, unit, castGUID, spellID)
+      if not UCB.trackedUnits[unit] then return end
+      local resumeCast = false
+
+      local method = events[event]
+      local api = UCB.CASTBAR_API
+      if method and api and api[method] then
+        api[method](api, unit, castGUID, spellID, resumeCast)
+      end
+    end)
+
+    UCB.eventFrame.spellcast = f1
+
+  end
+
+  if not UCB.eventFrame.swap then 
+    local swapEvents = UCB.swapEvents
+    local f2 = CreateFrame("Frame")
+    for eventName in pairs(swapEvents) do
+      f2:RegisterEvent(eventName)
+    end
+
+    f2:SetScript("OnEvent", function(_, event)
+      local eventInfo = swapEvents[event]
+      local method = eventInfo and eventInfo[1]
+      local unit = eventInfo and eventInfo[2]
+      local api = UCB.CASTBAR_API
+      if method and api and api[method] then
+        api[method](api, unit)
+      end
+
+    end)
+
+    UCB.eventFrame.swap = f2
+  end
+end
+
+
+function UCB:SaveDefaultCastbarFrames()
+  for unit, tracked in pairs(self.trackedUnits) do
+    if tracked then
+      self.DefBlizzCast:ApplyDefaultBlizzCastbar(unit, false)
+    end
+  end
+end
+
+function UCB:UpdateCastbarTrackedUnits()
+  for unit, tracked in pairs(self.trackedUnits) do
+    if tracked then
+      self.CASTBAR_API:UpdateCastbar(unit)
+    end
+  end
+end
+
+function UCB:TrackUnit(unit)
+  self:EnsureSpellcastEventFrame()
+  self.trackedUnits[unit] = true
+end
+
+function UCB:UntrackUnit(unit)
+  if self.trackedUnits then
+    self.trackedUnits[unit] = nil
+  end
+end
+
+function UCB:SetUpTrackedUnit()
+  local cfg = self.CFG_API.GetValueConfig()
+  if not cfg then return end
+  for unit, shown in pairs(self.menuUnits) do
+    local shouldTrack = cfg[unit] and cfg[unit].enabled
+    if shouldTrack and shown then
+      self:TrackUnit(unit)
+    else
+      self:UntrackUnit(unit)
+    end
+  end
+end
 
 UCB.tags.var = {
     player = {
@@ -98,7 +172,7 @@ UCB.tags.var = {
         sTime = 0,
         eTime = 0,
         dTime = 0,
-        Intr = false,
+        nIntr = false,
         empStages = {}
     },
     target = {
@@ -106,7 +180,7 @@ UCB.tags.var = {
         sTime = 0,
         eTime = 0,
         dTime = 0,
-        Intr = false,
+        nIntr = false,
         empStages = {}
     },
     focus = {
@@ -114,150 +188,16 @@ UCB.tags.var = {
         sTime = 0,
         eTime = 0,
         dTime = 0,
-        Intr = false,
+        nIntr = false,
         empStages = {}
     },
 }
-
-UCB.UIOptions = UCB.UIOptions or {}
-
-UCB.UIOptions.anchors = {
-    TOP="Top",
-    BOTTOM="Bottom",
-    LEFT="Left",
-    RIGHT="Right",
-    CENTER="Center",
-    TOPLEFT="Top Left",
-    TOPRIGHT="Top Right",
-    BOTTOMLEFT="Bottom Left",
-    BOTTOMRIGHT="Bottom Right"
-}
-
-UCB.UIOptions.justify = {
-    LEFT="Left",
-    CENTER="Center",
-    RIGHT="Right",
-}
-
-UCB.UIOptions.strata = {
-    BACKGROUND="Background",
-    LOW="Low",
-    MEDIUM="Medium",
-    HIGH="High",
-    DIALOG="Dialog",
-    FULLSCREEN="Fullscreen",
-    FULLSCREEN_DIALOG="Fullscreen Dialog",
-    TOOLTIP="Tooltip"
-}
-
-UCB.UIOptions.stratSubComponents = {
-    BACKGROUND="BACKGROUND",
-    BORDER ="BORDER",
-    ARTWORK="ARTWORK",
-    OVERLAY="OVERLAY",
-}
-
-UCB.UIOptions.fontOutlines = {
-    NONE = "None",
-    OUTLINE= "Outline",
-    THICKOUTLINE= "Thick Outline",
-    MONO_NONE = "Monochrome",
-    MONO_OUTLINE = "Monochrome Outline",
-    MONO_THICKOUTLINE = "Monochrome Thick Outline",
-    SHADOW = "Shadow",
-    SHADOW_OUTLINE = "Shadow Outline",
-    SHADOW_THICKOUTLINE = "Shadow Thick Outline",
-}
-
-UCB.UIOptions.offsetMin_icon = -500
-UCB.UIOptions.offsetMax_icon = 500
-UCB.UIOptions.widthMax_icon = 200
-UCB.UIOptions.widthMin_icon = 5
-UCB.UIOptions.heightMax_icon = 200
-UCB.UIOptions.heightMin_icon = 5
-
-
-UCB.UIOptions.offsetMin_bar = -500
-UCB.UIOptions.offsetMax_bar = 500
-UCB.UIOptions.widthMax_bar = 1000
-UCB.UIOptions.widthMin_bar = 20
-UCB.UIOptions.heightMax_bar = 500
-UCB.UIOptions.heightMin_bar = 10
-UCB.UIOptions.heightOffsetMin_bar= -200
-UCB.UIOptions.heightOffsetMax_bar= 200
-UCB.UIOptions.widthOffsetMin_bar= -500
-UCB.UIOptions.widthOffsetMax_bar= 500
-
-UCB.UIOptions.textSizeMin = 6
-UCB.UIOptions.textSizeMax = 40
-UCB.UIOptions.textOffsetMin = -200
-UCB.UIOptions.textOffsetMax = 200
-UCB.UIOptions.shadowOffsetMin = 0
-UCB.UIOptions.shadowOffsetMax = 10
-
-UCB.UIOptions.alphaMin = 0.0
-UCB.UIOptions.alphaMax = 1.0
-
-
-UCB.UIOptions.borderThicknessMin = 0.5
-UCB.UIOptions.borderThicknessMax = 100
-
-UCB.UIOptions.borderOffsetMin = 0
-UCB.UIOptions.borderOffsetMax = 50
-
-UCB.UIOptions.channelTickWidthMin = 0.5
-UCB.UIOptions.channelTickWidthMax = 30
-
-UCB.UIOptions.queueWindowMin = 1
-UCB.UIOptions.queueWindowMax = 1000
-
-UCB.UIOptions.frameLevelMin = 10
-UCB.UIOptions.frameLevelMax = 500
-
-UCB.UIOptions.minPreviewDuration = 0.5
-UCB.UIOptions.maxPreviewDuration = 60
-UCB.UIOptions.minPreviewEmpowerStages = 1
-UCB.UIOptions.maxPreviewEmpowerStages = 5
-
-
-
-UCB.UIOptions.blizzOffsetMin = -1000
-UCB.UIOptions.blizzOffsetMax = 1000
-UCB.UIOptions.blizzScaleMin = 0.01
-UCB.UIOptions.blizzScaleMax = 10.0
-
-UCB.UIOptions.frameDelayMin = 0
-UCB.UIOptions.frameDelayMax = 10
-UCB.UIOptions.frameTriesMin = 1
-UCB.UIOptions.frameTriesMax = 1000
-UCB.UIOptions.frameIntervalMin = 0.01
-UCB.UIOptions.frameIntervalMax = 1.0
-
-
-UCB.UIOptions.white = "FFFFFFFF"
-UCB.UIOptions.black = "FF000000"
-UCB.UIOptions.blue = "FF0000FF"
-UCB.UIOptions.purple = "FFFF00FF"
-UCB.UIOptions.turquoise = "FF00FFFF"
-UCB.UIOptions.red = "FFFF0000"
-UCB.UIOptions.green = "FF00FF00"
-UCB.UIOptions.yellow = "FFFFFF00"
-UCB.UIOptions.grey = "FF808080"
-
-
-
 
 function UCB.UIOptions.ColorText(hex, text)
     return ("|c%s%s|r"):format(hex, text)
 end
 
-
 function UCB:PrintAddonMsg(msg)  print(self.ADDON_NAME .. ":|r " .. msg) end
-
-
-function UCB:AppNameForUnit(unit)
-    return "UCB_" .. tostring(unit or "player")
-end
 
 function UCB:NotifyChange(unit)
   local apps = {"UCB_ROOT"}
@@ -339,57 +279,13 @@ end
 function UCB.CFG_API.GetValueConfig(unit, key)
     local profile = UCB.db and UCB.db.profile
     if not profile then return nil end -- DB not ready yet
+    if not unit then return profile end
     local root = profile[unit]
     --local root = UCB.db.profile[unit]
     if key == nil then return root end
     if not root then return nil end
     return GetPathValue(root, key)
 end
-
-
--- Creates a live proxy table that always points at the current profile table.
--- Example: local g = UCB.CFG_API:Proxy(unit, {"general"})
-function UCB.CFG_API:Proxy(unit, path)
-  local function ensureRoot()
-    local db = UCB.db
-    if not db or not db.profile then return nil end
-
-    local p = db.profile
-    p[unit] = p[unit] or {}
-    local t = p[unit]
-
-    if type(path) == "table" then
-      for i = 1, #path do
-        local k = path[i]
-        if type(t[k]) ~= "table" then t[k] = {} end
-        t = t[k]
-      end
-    elseif type(path) == "string" then
-      if type(t[path]) ~= "table" then t[path] = {} end
-      t = t[path]
-    end
-
-    return t
-  end
-
-  local proxy = {}
-  return setmetatable(proxy, {
-    __index = function(_, k)
-      local t = ensureRoot()
-      return t and t[k] or nil
-    end,
-    __newindex = function(_, k, v)
-      local t = ensureRoot()
-      if t then t[k] = v end
-    end,
-    -- optional, helps if you ever iterate pairs(g)
-    __pairs = function()
-      local t = ensureRoot() or {}
-      return next, t, nil
-    end,
-  })
-end
-
 
 
 local function createPicker()
@@ -399,8 +295,7 @@ end
 
 local function SetUpPlayerInfo()
     local _, class = UnitClass("player")
-    local classColor = RAID_CLASS_COLORS and RAID_CLASS_COLORS[class] or {r=1, g=1, b=1}
-    UCB.classColour = {r = classColor.r, g = classColor.g, b = classColor.b, a = 1}
+    UCB.classColour = UCB.UIOptions.classColoursList[class]
     UCB.className = class
     UCB.specID = PlayerUtil.GetCurrentSpecID()
     UCB.charName = UnitName("player")
@@ -517,67 +412,6 @@ local function GatherInfo()
 end
 
 
-
--- Teardown for spellcast events
-function  UCB:DestroyPlayerSpellcastEventFrame(mainUnit)
-    if not UCB.eventFrame or not UCB.eventFrame[mainUnit] then return end
-
-    local f = UCB.eventFrame[mainUnit]
-    f:UnregisterAllEvents()
-    f:SetScript("OnEvent", nil)
-    f:Hide()
-    UCB.eventFrame[mainUnit] = nil
-end
-
--- Your spellcast event frame (unchanged logic, just guarded for unit == "player")
-function UCB:EUCBurePlayerSpellcastEventFrame(mainUnit)
-  if UCB.eventFrame[mainUnit] then return end
-
-  local f = CreateFrame("Frame")
-  f:RegisterEvent("UNIT_SPELLCAST_START")
-  f:RegisterEvent("UNIT_SPELLCAST_STOP")
-  f:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
-  f:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
-  f:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
-  f:RegisterEvent("UNIT_SPELLCAST_EMPOWER_START")
-  f:RegisterEvent("UNIT_SPELLCAST_EMPOWER_UPDATE")
-  f:RegisterEvent("UNIT_SPELLCAST_EMPOWER_STOP")
-
-  f:SetScript("OnEvent", function(_, event, unit, castGUID, spellID)
-    if unit ~= mainUnit then return end
-
-    if event == "UNIT_SPELLCAST_START" then UCB.CASTBAR_API:OnUnitSpellcastStart(unit, castGUID, spellID)
-    elseif event == "UNIT_SPELLCAST_STOP" then UCB.CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID)
-    elseif event == "UNIT_SPELLCAST_CHANNEL_START" then UCB.CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID)
-    elseif event == "UNIT_SPELLCAST_CHANNEL_UPDATE" then UCB.CASTBAR_API:OnUnitSpellcastChannelUpdate(unit, castGUID, spellID)
-    elseif event == "UNIT_SPELLCAST_CHANNEL_STOP" then UCB.CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID)
-    elseif event == "UNIT_SPELLCAST_EMPOWER_START" then UCB.CASTBAR_API:OnUnitSpellcastEmpowerStart(unit, castGUID, spellID)
-    elseif event == "UNIT_SPELLCAST_EMPOWER_UPDATE" then UCB.CASTBAR_API:OnUnitSpellcastEmpowerUpdate(unit, castGUID, spellID)
-    elseif event == "UNIT_SPELLCAST_EMPOWER_STOP" then UCB.CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID)
-    end
-  end)
-
-  UCB.eventFrame[mainUnit] = f
-end
-
-
-
-
-local function createBar(unit)
-    local frameInit = CreateFrame("Frame")
-    frameInit:RegisterEvent("PLAYER_LOGIN")
-    frameInit:RegisterEvent("PLAYER_ENTERING_WORLD")
-    frameInit:SetScript("OnEvent", function()
-    --UCB:RefreshBlizzardCastbar()
-    UCB:EUCBurePlayerSpellcastEventFrame(unit)
-    end)
-    UCB.CASTBAR_API:UpdateCastbar(unit)
-
-    -- Hide or Show the default bar
-    UCB.DefBlizzCast:ApplyDefaultBlizzCastbar(unit, false)
-end
-
-
 local function RegisterGUIPathCommands(cmds, path)
     if type(cmds) ~= "table" or #cmds == 0 then return end
     if type(path) ~= "table" or #path == 0 then return end
@@ -616,16 +450,16 @@ local function SetupSlashCommands()
     )
 
     -- Target tab
-    --RegisterGUIPathCommands(
-    --    { "/tcb" },
-    --    { "target", "general" }
-    --)
+    RegisterGUIPathCommands(
+        { "/tcb" },
+        { "target", "general" }
+    )
 
     -- Focus tab
-    --RegisterGUIPathCommands(
-    --    { "/fcb" },
-    --    { "focus", "general" }
-    --)
+    RegisterGUIPathCommands(
+        { "/fcb" },
+        { "focus", "general" }
+    )
 
     -- Profiles tab
     RegisterGUIPathCommands(
@@ -643,32 +477,22 @@ end
 
 
 
-function UCB:EnsureUnit(unit)
-  -- One-time event frame setup
-  self:EUCBurePlayerSpellcastEventFrame(unit)
-
-  -- One-time default blizz castbar handling
-  self.DefBlizzCast:ApplyDefaultBlizzCastbar(unit, false)
-
-  -- One-time castbar object/frame creation should happen inside UpdateCastbar
-  -- OR you can have an explicit CreateCastbar(unit) if your API supports it.
-end
-
-function UCB:UpdateAllCastBarsFirst()
+function UCB:InitSequence()
   UCB.firstBuild = true
-  self:EnsureUnit("player")
   self:SetUpConfig()
-  self.CASTBAR_API:UpdateCastbar("player")
-  self:RegisterRootOptions()
+  self:SetUpTrackedUnit() -- See which units should be tracked and track them (also ensures event frame is created)
+  self:EnsureSpellcastEventFrame() -- Ensure the spellcast event frame exists
+  self:SaveDefaultCastbarFrames() -- Save the default blizz castbar frames for tracked units
+  self:UpdateCastbarTrackedUnits() -- Create cast bars for tracked units
+  self:RegisterRootOptions() -- Create UI
   UCB.firstBuild = false
 end
 
 function UCB:UpdateAllCastBars()
-  self:EnsureUnit("player")
   self:SetUpConfig()
-  self.CASTBAR_API:UpdateCastbar("player")
-  UCB:OnProfileSwapRefreshUI()
-  ResolveFrames()
+  self:UpdateCastbarTrackedUnits() -- Upadate cast bars for tracked units
+  UCB:OnProfileSwapRefreshUI() -- Refresh UI elements for CFG
+  ResolveFrames() -- Resolve frame acnhors for all units
 end
 
 
@@ -676,8 +500,6 @@ function UCB:Init()
   SetupSlashCommands()
   GatherInfo()
   createPicker()
-  --UCB:RegisterRootOptions()
-
   -- do the once-only setup and initial paint
-  self:UpdateAllCastBarsFirst()
+  self:InitSequence()
 end

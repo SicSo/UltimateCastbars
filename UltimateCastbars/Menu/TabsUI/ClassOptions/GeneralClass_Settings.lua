@@ -14,7 +14,7 @@ local UIOptions = UCB.UIOptions
 local BarUpdate_API = UCB.BarUpdate_API
 local OtherFeatures_API = UCB.OtherFeatures_API
 
-
+Opt._classTreeArgs = Opt._classTreeArgs or {}
 
 -- Registry: classToken -> function(cfgGetter) -> argsTable
 Opt.ClassExtraBuilders = Opt.ClassExtraBuilders or {}
@@ -196,12 +196,12 @@ end
 
 
 function Opt.BuildClassSettingsArgs(unit, opts)
-    unit = unit or "player"
+    unit = unit
     opts = opts or {}
 
-    local classArgs = Opt._classTreeArgs or {}
+    local classArgs = Opt._classTreeArgs[unit] or {}
     wipe(classArgs)
-    Opt._classTreeArgs = classArgs
+    Opt._classTreeArgs[unit] = classArgs
 
     local classes = GetClassList()
 
