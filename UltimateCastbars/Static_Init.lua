@@ -22,7 +22,7 @@ UCB.UI.icons = {
 
 
 UCB.UI.links = {
-    discord = "https://discord.gg/yourlink", -- change yourlink
+    discord = "https://discord.gg/wX5hWW3N3Q",
     github = "https://github.com/SicSo/UltimateCastbars",
     donate = "https://ko-fi.com/sicso",
 }

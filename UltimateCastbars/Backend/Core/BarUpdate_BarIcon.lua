@@ -271,6 +271,9 @@ local function ComputeSize(bar, genCfg, styleCfg, syncedW, syncedH)
     -- Apply
     bar:SetSize(barW, barH)
     bar.status:SetAllPoints(bar)
+    bar.textFrame:SetAllPoints(bar)
+    bar.overlayFrame:SetAllPoints(bar)
+    bar.underlayFrame:SetAllPoints(bar)
     bar.group:SetSize(genCfg.fullBarWidth, genCfg.fullBarHeight)
 end
 
@@ -305,6 +308,9 @@ local function LayoutIconAndBar2(bar, cfg)
         bar:SetPoint("TOPLEFT", group, "TOPLEFT", bL, -bT)
         bar:SetSize(barW, barH)
         bar.status:SetAllPoints(bar)
+        bar.textFrame:SetAllPoints(bar)
+        bar.overlayFrame:SetAllPoints(bar)
+        bar.underlayFrame:SetAllPoints(bar)
         return
     end
 
@@ -345,6 +351,9 @@ local function LayoutIconAndBar2(bar, cfg)
 
     bar:SetSize(barW, barH)
     bar.status:SetAllPoints(bar)
+    bar.textFrame:SetAllPoints(bar)
+    bar.overlayFrame:SetAllPoints(bar)
+    bar.underlayFrame:SetAllPoints(bar)
 end
 
 local function SizeWhenReady(bar, genCfg, styleCfg, opts)

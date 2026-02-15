@@ -35,6 +35,26 @@ local function CreateCastBar(unit)
     bar.status:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
     bar.status:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 0, 0)
 
+
+    bar.overlayFrame = CreateFrame("Frame", nil, bar)
+    bar.overlayFrame:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
+    bar.overlayFrame:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 0, 0)
+
+    bar.underlayFrame = CreateFrame("Frame", nil, bar)
+    bar.underlayFrame:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
+    bar.underlayFrame:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 0, 0)
+
+    bar.textFrame = CreateFrame("Frame", nil, bar)
+    bar.textFrame:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
+    bar.textFrame:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 0, 0)
+
+    bar.mirrorFrame = CreateFrame("Frame", nil, bar)
+    bar.mirrorFrame:SetPoint("TOPRIGHT", bar, "TOPRIGHT", 0, 0)
+    bar.mirrorFrame:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 0, 0)
+    bar.mirrorFrame:SetWidth(0)
+    bar.mirrorFrame:SetClipsChildren(true)
+    bar.mirrorFrame:Hide()
+
     bar.iconFrame = CreateFrame("Frame", nil, group, "BackdropTemplate")
     bar.icon = bar.iconFrame:CreateTexture(nil, "ARTWORK")
     bar.icon:SetAllPoints()
@@ -69,7 +89,7 @@ function CASTBAR_API:AssignQueueWindow(typeCast)
     local bigCFG = CFG_API.GetValueConfig(unit)
     local cfg = bigCFG.otherFeatures
     local queueWindowOverlay = bar.queueWindowOverlay
-    local status = bar.status
+    local overlayFrame = bar.overlayFrame
     local inverted = cfg.invertBar[typeCast]
     local mirror = cfg.mirrorBar[typeCast]
 
@@ -81,11 +101,11 @@ function CASTBAR_API:AssignQueueWindow(typeCast)
         queueWindowOverlay:SetWidth(px)
         queueWindowOverlay:ClearAllPoints()
         if (not switch and typeCast ~= "channel") or (typeCast == "channel" and switch) then
-            queueWindowOverlay:SetPoint("TOPRIGHT", status, "TOPRIGHT", 0, 0)
-            queueWindowOverlay:SetPoint("BOTTOMRIGHT", status, "BOTTOMRIGHT", 0, 0)
+            queueWindowOverlay:SetPoint("TOPRIGHT", overlayFrame, "TOPRIGHT", 0, 0)
+            queueWindowOverlay:SetPoint("BOTTOMRIGHT", overlayFrame, "BOTTOMRIGHT", 0, 0)
         else
-            queueWindowOverlay:SetPoint("TOPLEFT", status, "TOPLEFT", 0, 0)
-            queueWindowOverlay:SetPoint("BOTTOMLEFT", status, "BOTTOMLEFT", 0, 0)
+            queueWindowOverlay:SetPoint("TOPLEFT", overlayFrame, "TOPLEFT", 0, 0)
+            queueWindowOverlay:SetPoint("BOTTOMLEFT", overlayFrame, "BOTTOMLEFT", 0, 0)
         end
         queueWindowOverlay:Show()
     else
@@ -133,6 +153,8 @@ end
 
 function CASTBAR_API:SemiColourUpdate(unit, bar)
     local tex = bar.status:GetStatusBarTexture()
+    local mtex = bar._mirrorTex
+    local doMirror = bar._mirrored and mtex
     local colourMode = bar._colourMode
     local canGradient = tex and tex.SetGradient
     local status = bar.status
@@ -142,8 +164,10 @@ function CASTBAR_API:SemiColourUpdate(unit, bar)
             local r, g, b, a = bar._r, bar._g, bar._b, bar._a
             local col1 = bar._c1
             status:SetStatusBarColor(r, g, b, a)
+            if doMirror then mtex:SetVertexColor(r, g, b, a) end
             if canGradient then
                 tex:SetGradient("HORIZONTAL", col1, col1)
+                if doMirror then mtex:SetGradient("HORIZONTAL", col1, col1) end
             end
         elseif colourMode == "gradient" then
             local r1, g1, b1, a1 = bar._r1, bar._g1, bar._b1, bar._a1
@@ -152,6 +176,7 @@ function CASTBAR_API:SemiColourUpdate(unit, bar)
             status:SetStatusBarColor(r1, g1, b1, a1)
             if canGradient then
                 tex:SetGradient("HORIZONTAL", col1, col2)
+                if doMirror then mtex:SetGradient("HORIZONTAL", col2, col1) end
             end
         end
     else
@@ -160,8 +185,10 @@ function CASTBAR_API:SemiColourUpdate(unit, bar)
                 local r, g, b, a = bar._r, bar._g, bar._b, bar._a
                 local col1 = bar._c1
                 status:SetStatusBarColor(r, g, b, a)
+                if doMirror then mtex:SetVertexColor(r, g, b, a) end
                 if canGradient then
                     tex:SetGradient("HORIZONTAL", col1, col1)
+                    if doMirror then mtex:SetGradient("HORIZONTAL", col1, col1) end
                 end
             else
                 local r, g, b, a, col1, RGBA
@@ -177,8 +204,10 @@ function CASTBAR_API:SemiColourUpdate(unit, bar)
                 end
                 r, g, b, a = RGBA.r, RGBA.g, RGBA.b ,RGBA.a
                 status:SetStatusBarColor(r, g, b, a)
+                if doMirror then mtex:SetVertexColor(r, g, b, a) end
                 if canGradient then
                     tex:SetGradient("HORIZONTAL", col1, col1)
+                    if doMirror then mtex:SetGradient("HORIZONTAL", col1, col1) end
                 end
             end
         elseif colourMode == "gradient" then
@@ -186,8 +215,10 @@ function CASTBAR_API:SemiColourUpdate(unit, bar)
             local col1 = bar._c1
             local col2 = bar._c2
             status:SetStatusBarColor(r1, g1, b1, a1)
+            if doMirror then mtex:SetVertexColor(r1, g1, b1, a1) end
             if canGradient then
                 tex:SetGradient("HORIZONTAL", col1, col2)
+                if doMirror then mtex:SetGradient("HORIZONTAL", col2, col1) end
             end
         end
     end
@@ -208,13 +239,13 @@ end
 
 function CASTBAR_API:MirrorBar(cfg, bar, castType)
     local mirror = cfg.mirrorBar[castType]
-    local tex = bar.status:GetStatusBarTexture()
-    if mirror then
-        tex:SetTexCoord(1, 0, 0, 1)  -- horizontal flip
-    else
-        tex:SetTexCoord(0, 1, 0, 1) -- normal orientation
-    end
-    bar.status:SetReverseFill(mirror)
+    bar._mirrored = mirror
+    bar.mirrorFrame:SetShown(bar._mirrored)
+    local status = bar.status and bar.status --bar.status:GetStatusBarTexture()
+    if status then status:SetAlphaFromBoolean(not bar._mirrored) end
+end
+
+function CASTBAR_API:UninterruptibleCast(unit, unInt)
 end
 
 -- !!!!!!!!!!!!!!!!!!!!!!! DYNAMIC UPDATE FUNCTION !!!!!!!!!!!!!!!!!!!!!!!!
@@ -239,6 +270,9 @@ function CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
 
     -- Set dynamic texts
     UCB.tags:ApplyTextState(bar, "dynamic", unit, remaining, elapsedTime)
+
+    -- Look for mirror bar updates
+    BarUpdate_API:SyncMirror(bar)
 
     -- Set dynamic colours
     local colourMode = cfg.style.colourMode

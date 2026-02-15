@@ -93,10 +93,10 @@ local function ShowChannelTicks(unit, numTicks, pos)
 		for i = 1, numTicks - 1 do
 			local tick = bar.channelTicks[i]
 			if not tick then
-				tick = bar.status:CreateTexture(nil, "OVERLAY")
+				tick = bar.overlayFrame:CreateTexture(nil, "OVERLAY")
 				bar.channelTicks[i] = tick
 			end
-            CreateTick(unit, tick, (i / numTicks) * barWidth, bar.status)
+            CreateTick(unit, tick, (i / numTicks) * barWidth, bar.overlayFrame)
 		end
     else
         -- CASE 2: positions provided -> pos is an array of x offsets FROM THE LEFT
@@ -105,10 +105,10 @@ local function ShowChannelTicks(unit, numTicks, pos)
         for i = 1, count do
             local tick = bar.channelTicks[i]
             if not tick then
-                tick = bar.status:CreateTexture(nil, "OVERLAY")
+                tick = bar.overlayFrame:CreateTexture(nil, "OVERLAY")
                 bar.channelTicks[i] = tick
             end
-            CreateTick(unit, tick, positions[i], bar.status)
+            CreateTick(unit, tick, positions[i], bar.overlayFrame)
         end
         numTicks = count -- Update numTicks to reflect actual number of ticks shown based on positions table
 	end
@@ -203,7 +203,6 @@ function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID, resume
     end
     CASTBAR_API:AssignChannelTicks(unit, spellID, "START")
 
-    CASTBAR_API:SemiColourUpdate(unit, bar)
     bar.status:SetMinMaxValues(0, vars.dTime)
     local otherCFG = cfg.otherFeatures
     CASTBAR_API:MirrorBar(otherCFG, bar, castType)
@@ -213,6 +212,10 @@ function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID, resume
     else
         bar.status:SetValue(vars.dTime)
     end
+
+    -- Set colours
+    CASTBAR_API:SemiColourUpdate(unit, bar)
+
     bar._ucbUnit = unit
     bar._ucbCfg = cfg
     bar._ucbCastType = castType

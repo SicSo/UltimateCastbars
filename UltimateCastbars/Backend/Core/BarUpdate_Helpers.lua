@@ -148,13 +148,14 @@ local function ombreColours(unit, bar, cfg, durationObject, inverted)
     local status = bar.status
     local tex = bar._tex or status:GetStatusBarTexture()
     bar._tex = tex
+    local mtex = bar._mirrorTex
+    local doMirror = bar._mirrored and mtex
 
     local curve = EnsureOmbreCurve(unit, bar, cfg)
 
     local colour
     if durationObject and durationObject.EvaluateElapsedPercent and durationObject.EvaluateRemainingPercent then
-        colour = inverted and durationObject:EvaluateRemainingPercent(curve)
-                         or durationObject:EvaluateElapsedPercent(curve)
+        colour = inverted and durationObject:EvaluateRemainingPercent(curve) or durationObject:EvaluateElapsedPercent(curve)
     --else
     --    local percent = 1
     --    if duration and duration > 0 then
@@ -173,6 +174,7 @@ local function ombreColours(unit, bar, cfg, durationObject, inverted)
     status:SetStatusBarColor(r, g, b, a)
     if tex and tex.SetVertexColor then
         tex:SetVertexColor(r, g, b, a)
+        if doMirror then mtex:SetVertexColor(r, g, b, a) end
     end
 end
 
@@ -199,7 +201,7 @@ function BarUpdate_API:UpdateText(unit)
         for key, tagOptions in pairs(tagStates) do
             if tagOptions.show then
                 if not bar.texts[key] then
-                    bar.texts[key] = bar.status:CreateFontString(nil, tagOptions.frameStrata, "GameFontHighlightSmall")
+                    bar.texts[key] = bar.textFrame:CreateFontString(nil, tagOptions.frameStrata, "GameFontHighlightSmall")
                 end
                 UCB.tags:updateTagText(key, tagOptions, cfg)
 
@@ -224,7 +226,7 @@ function BarUpdate_API:UpdateText(unit)
 
                 local fs = bar.texts[key]
                 fs:SetJustifyH(tagOptions.justify)
-                fs:SetPoint(tagOptions.anchorFrom, bar.status, tagOptions.anchorTo, tagOptions.textOffsetX, tagOptions.textOffsetY)
+                fs:SetPoint(tagOptions.anchorFrom, bar.textFrame, tagOptions.anchorTo, tagOptions.textOffsetX, tagOptions.textOffsetY)
                 fs:SetFont(usedFont, usedFontSize, unpack(usedOutline))
                 if usedShadow then
                     fs:SetShadowColor(usedShadowColour.r, usedShadowColour.g, usedShadowColour.b, usedShadowColour.a)
@@ -253,6 +255,12 @@ function BarUpdate_API:UpdateVisibility(unit)
     bar:SetFrameLevel(cfg.frameLevel)
     bar.iconFrame:SetFrameStrata(cfg.frameStrata)
     bar.iconFrame:SetFrameLevel(cfg.frameLevel + 1)  -- icon above bar
+
+    bar.status:SetFrameLevel(cfg.frameLevel + 1)
+    bar.overlayFrame:SetFrameLevel(cfg.frameLevel + 9) -- below text
+    bar.textFrame:SetFrameLevel(cfg.frameLevel + 10)    -- text above all
+    bar.underlayFrame:SetFrameLevel(cfg.frameLevel) -- underlay below all
+    bar.mirrorFrame:SetFrameLevel(cfg.frameLevel + 1) -- same as status, but only shown when mirrored
 end
 
 
@@ -424,9 +432,16 @@ function BarUpdate_API:UpdateStyle(unit)
     -- Bar style
     bar.status:SetStatusBarTexture(cfg.texture)
 
+    if not bar._mirrorTex then
+        bar._mirrorTex = bar.mirrorFrame:CreateTexture(nil, "ARTWORK", nil, -8)
+    end
+    bar._mirrorTex:SetAllPoints(bar)
+    bar._mirrorTex:SetTexture(cfg.texture)
+    bar._mirrorTex:SetTexCoord(1, 0, 0, 1)
+
     -- Background
     if not bar.bg then
-        bar.bg = bar.status:CreateTexture(nil, "BACKGROUND", nil, 1)
+        bar.bg = bar:CreateTexture(nil, "BACKGROUND", nil, 1)
         bar.bg:SetAllPoints()
     end
     if cfg.showBackground then
@@ -453,7 +468,7 @@ function BarUpdate_API:UpdateOtherFeatures(unit)
     if unit == "player" then
         if cfg.showQueueWindow.normal or  cfg.showQueueWindow.channel or cfg.showQueueWindow.empowered then
             if not bar.queueWindowOverlay then
-                bar.queueWindowOverlay = bar.status:CreateTexture(nil, "OVERLAY", nil, 7)
+                bar.queueWindowOverlay = bar.overlayFrame:CreateTexture(nil, "OVERLAY", nil, 7)
             end
             -- CVAR
             if cfg.queueMatchCVAR then
@@ -626,17 +641,27 @@ function BarUpdate_API:AssignColours_Legacy(unit, bar, cfg, colourMode, castType
     end
 end
 
+function BarUpdate_API:SyncMirror(bar)
+    if not bar._mirrored then return end
+    local status = bar.status and bar.status:GetStatusBarTexture()
+    if not status then return end
+    bar.mirrorFrame:SetWidth(status:GetWidth())
+end
 
 function BarUpdate_API:AssignColours(unit, bar, cfg, colourMode, castType, durationObject, inverted)
     if castType == "empowered" and cfg.CLASSES.EVOKER.enableEmpowerEffects then
         local tex = bar._tex or bar.status:GetStatusBarTexture()
         bar._tex = tex
+        local mtex = bar._mirrorTex or bar.mirrorFrame:GetStatusBarTexture()
+        bar._mirrorTex = mtex
+        local doMirror = bar._mirrored and mtex
         local curve = bar.empoweredColourCurve
         if not curve then return end
 
         local colour = inverted and durationObject:EvaluateRemainingPercent(curve) or durationObject:EvaluateElapsedPercent(curve)
         local r, g, b, a = colour:GetRGBA()
         tex:SetVertexColor(r, g, b, a)
+        if doMirror then mtex:SetVertexColor(r, g, b, a) end
     elseif colourMode == "ombre" then
         return ombreColours(unit, bar, cfg, durationObject, inverted)
     end

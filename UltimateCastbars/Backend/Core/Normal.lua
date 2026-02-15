@@ -56,7 +56,7 @@ function CASTBAR_API:OnUnitSpellcastStart(unit, castGUID, spellID, resumeCast)
         CASTBAR_API:AssignQueueWindow(castType)
     end
 
-    CASTBAR_API:SemiColourUpdate(unit, bar)
+   
     bar.status:SetMinMaxValues(0, vars.dTime)
     local otherCFG = cfg.otherFeatures
     CASTBAR_API:MirrorBar(otherCFG, bar, castType)
@@ -74,6 +74,10 @@ function CASTBAR_API:OnUnitSpellcastStart(unit, castGUID, spellID, resumeCast)
             bar.status:SetValue(0)
         end
     end
+
+    -- Set colours
+    CASTBAR_API:SemiColourUpdate(unit, bar)
+
     bar._ucbUnit = unit
     bar._ucbCfg = cfg
     bar._ucbCastType = castType

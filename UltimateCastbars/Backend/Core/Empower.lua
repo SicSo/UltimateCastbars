@@ -45,6 +45,7 @@ end
 local function CreateTick(bar, barWidth, invert, useTex, tick, colour, texture, pos, tickWidth, barHeight)
     local xNorm = invert and (1 - pos) or pos
     local x = xNorm * barWidth
+    local overlayFrame = bar.overlayFrame
 
     if useTex then
         tick:SetTexture(texture)
@@ -57,9 +58,9 @@ local function CreateTick(bar, barWidth, invert, useTex, tick, colour, texture, 
     tick:SetWidth(tickWidth)
     tick:SetHeight(barHeight)
     tick:ClearAllPoints()
-    tick:SetPoint("LEFT", bar.status, "LEFT", x - 1, 0)
-    tick:SetPoint("TOP",  bar.status, "TOP",  0, 0)
-    tick:SetPoint("BOTTOM", bar.status, "BOTTOM", 0, 0)
+    tick:SetPoint("LEFT",overlayFrame, "LEFT", x - 1, 0)
+    tick:SetPoint("TOP",  overlayFrame, "TOP",  0, 0)
+    tick:SetPoint("BOTTOM", overlayFrame, "BOTTOM", 0, 0)
     tick:Show()
 end
 
@@ -67,7 +68,7 @@ end
 --local function CreateSegment(unit, segment, colour, texture, startPos, endPos)
 local function CreateSegment(bar, barWidth, invert, useTex, segment, colour, texture, startPos, endPos, barHeight)
     -- startPos/endPos are normalized 0..1, startPos < endPos
-    local status = bar.status
+    local underlayFrame = bar.underlayFrame
     local s, e
     if invert then
         -- mirror interval
@@ -90,8 +91,8 @@ local function CreateSegment(bar, barWidth, invert, useTex, segment, colour, tex
     end
 
     segment:ClearAllPoints()
-    segment:SetPoint("TOPLEFT", status, "TOPLEFT", startX, 0)
-    segment:SetPoint("BOTTOMLEFT", status, "BOTTOMLEFT", startX, 0)
+    segment:SetPoint("TOPLEFT", underlayFrame, "TOPLEFT", startX, 0)
+    segment:SetPoint("BOTTOMLEFT", underlayFrame, "BOTTOMLEFT", startX, 0)
     segment:SetWidth(width)
     segment:SetHeight(barHeight)
     segment:Show()
@@ -197,7 +198,7 @@ function CASTBAR_API:InitializeEmpoweredStages(unit)
             -- Create tick
             local stage = empoweredStages[i]
             if not stage then
-                stage = bar.status:CreateTexture(nil, "OVERLAY")
+                stage = bar.overlayFrame:CreateTexture(nil, "OVERLAY")
                 empoweredStages[i] = stage
             end
             CreateTick(bar, barWidth, switch, useTexTick, stage, tickColours[i], tickTextures[i],  tickPositions[i], tickWidth, barHeight)
@@ -206,7 +207,7 @@ function CASTBAR_API:InitializeEmpoweredStages(unit)
         -- Create segment
         local seg = empoweredSegments[i]
         if not seg then
-            seg = bar.status:CreateTexture(nil, "BACKGROUND", nil, 2)
+            seg = bar.underlayFrame:CreateTexture(nil, "BACKGROUND", nil, 2)
             empoweredSegments[i] = seg
         end
         CreateSegment(bar, barWidth, switch, useTexSeg, seg, segColours[i], segTextures[i], prevX, tickPositions[i], barHeight)
@@ -243,12 +244,6 @@ function CASTBAR_API:OnUnitSpellcastEmpowerStart(unit, castGUID, spellID)
     if unit == "player" then
         CASTBAR_API:AssignQueueWindow(castType)
     end
-    
-    if cfg.CLASSES.EVOKER.enableEmpowerEffects and UnitIsPlayer(unit) then
-        CASTBAR_API:InitializeEmpoweredStages(unit)
-    else
-        CASTBAR_API:SemiColourUpdate(unit, bar)
-    end
 
     bar.status:SetMinMaxValues(0, vars.dTime)
     local otherCFG = cfg.otherFeatures
@@ -259,6 +254,14 @@ function CASTBAR_API:OnUnitSpellcastEmpowerStart(unit, castGUID, spellID)
     else
         bar.status:SetValue(0)
     end
+
+    -- Set colours and other empower stage visuals
+    if cfg.CLASSES.EVOKER.enableEmpowerEffects and UnitIsPlayer(unit) then
+        CASTBAR_API:InitializeEmpoweredStages(unit)
+    else
+        CASTBAR_API:SemiColourUpdate(unit, bar)
+    end
+
     bar._ucbUnit = unit
     bar._ucbCfg = cfg
     bar._ucbCastType = castType
