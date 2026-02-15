@@ -193,8 +193,10 @@ function UCB:CloseGUI()
     end
 
     if Container then
-        if GUIWidgets and GUIWidgets.DetachBottomLeftLinks then
-            GUIWidgets:DetachBottomLeftLinks(Container)
+        if GUIWidgets and GUIWidgets.DetachFooterBar then
+        --if GUIWidgets and GUIWidgets.DetachBottomLeftLinks then
+            --GUIWidgets:DetachBottomLeftLinks(Container)
+            GUIWidgets:DetachFooterBar(Container)
         end
         AG:Release(Container)
         Container = nil
@@ -268,8 +270,11 @@ function UCB:OpenGUI(selectPath)
             self.ACD:Close(ROOT_APP)
         end
 
-        if GUIWidgets and GUIWidgets.DetachBottomLeftLinks then
-            GUIWidgets:DetachBottomLeftLinks(widget)
+        --if GUIWidgets and GUIWidgets.DetachBottomLeftLinks then
+        if GUIWidgets and GUIWidgets.DetachFooterBar then
+            --GUIWidgets:DetachBottomLeftLinks(widget)
+            GUIWidgets:DetachFooterBar(widget)
+
         end
 
         AG:Release(widget)
@@ -280,21 +285,36 @@ function UCB:OpenGUI(selectPath)
         self.GUI._currentSelectedTab = nil
     end)
 
-    -- Header links (left of the close X)
-    local discordUrl = "https://discord.gg/wX5hWW3N3Q"
-    local supportUrl = "https://ko-fi.com/sicso"
-
-    GUIWidgets:AttachBottomLeftLinks(Container, {
-        {
-            text  = "Need support or want to suggest features? Join Discord!",
-            title = "Discord",
-            url   = discordUrl,
-        },
-        {
-            text  = "Good addons take a lot of personal time to develop. Support the creator if you can!",
-            title = "Support the creator",
-            url   = supportUrl,
-        },
+    GUIWidgets:AttachFooterBar(Container, {
+        logo  = "Interface\\AddOns\\UltimateCastbars\\gfx\\icon.tga",
+        title = "Ultimate Castbars",
+        madeByName = "SicSo",
+        links = {
+            {
+                id="github",
+                text="GitHub",
+                icon="Interface\\AddOns\\UltimateCastbars\\gfx\\Icons\\github.png",
+                title="GitHub",
+                url="https://github.com/SicSo/UltimateCastbars",
+                width = 90,
+            },
+            {
+                id="discord",
+                text="Discord",
+                icon="Interface\\AddOns\\UltimateCastbars\\gfx\\Icons\\discord.png",
+                title="Discord",
+                url="https://discord.gg/wX5hWW3N3Q",
+                width = 90,
+            },
+            {
+                id="donate",
+                text="Donate",
+                icon="Interface\\AddOns\\UltimateCastbars\\gfx\\Icons\\Ko-fi_HEART.png",
+                title="Donate",
+                url="https://ko-fi.com/sicso",
+                width = 90,
+            },
+        }
     })
 
     local holder = AG:Create("SimpleGroup")
