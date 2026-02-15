@@ -16,6 +16,7 @@ UCB.Default_DB = UCB.Default_DB or {}
 UCB.Profiles = UCB.Profiles or {}
 UCB.Debug = UCB.Debug or {}
 UCB.UIOptions = UCB.UIOptions or {}
+UCB.UI = UCB.UI or {}
 
 -- Sub APIs
 UCB.CLASS_API.Evoker = UCB.CLASS_API.Evoker or {}
@@ -485,6 +486,7 @@ function UCB:InitSequence()
   self:SaveDefaultCastbarFrames() -- Save the default blizz castbar frames for tracked units
   self:UpdateCastbarTrackedUnits() -- Create cast bars for tracked units
   self:RegisterRootOptions() -- Create UI
+  self.UCB_RegisterLandingPanel() -- Attach Blizzard Landing
   UCB.firstBuild = false
 end
 

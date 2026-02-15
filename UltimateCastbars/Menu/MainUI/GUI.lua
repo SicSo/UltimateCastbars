@@ -14,6 +14,9 @@ local GUIWidgets = UCB.GUIWidgets
 local UCBGUI = UCB.GUI or {}
 UCB.GUI = UCBGUI
 
+UCB.UI = UCB.UI or {}
+local UI = UCB.UI
+
 local Container
 
 local ROOT_APP = "UCB_ROOT"
@@ -103,11 +106,6 @@ function UCB:RegisterRootOptions(force)
     self.optionsTable = self:BuildRootOptionsTable()
 
     self.AC:RegisterOptionsTable(ROOT_APP, self.optionsTable)
-
-    -- Add to Blizzard Options only once
-    if not self.optionsPanel then
-        self.optionsPanel, self.optionsCategoryID = self.ACD:AddToBlizOptions(ROOT_APP, "Ultimate Castbars")
-    end
 end
 
 function UCB:FullRebuildRootUI()
@@ -194,8 +192,6 @@ function UCB:CloseGUI()
 
     if Container then
         if GUIWidgets and GUIWidgets.DetachFooterBar then
-        --if GUIWidgets and GUIWidgets.DetachBottomLeftLinks then
-            --GUIWidgets:DetachBottomLeftLinks(Container)
             GUIWidgets:DetachFooterBar(Container)
         end
         AG:Release(Container)
@@ -238,7 +234,7 @@ function UCB:OpenGUI(selectPath)
     self.GUI._currentSelectedTab = nil
 
     Container = AG:Create("Frame")
-    Container:SetTitle(UCB.PRETTY_ADDON_NAME or "Ultimate Castbars")
+    Container:SetTitle(UI.text.name.." - v"..UI.text.version)
     Container:SetLayout("Fill")
     Container:SetWidth(1000)
     Container:SetHeight(800)
@@ -286,32 +282,32 @@ function UCB:OpenGUI(selectPath)
     end)
 
     GUIWidgets:AttachFooterBar(Container, {
-        logo  = "Interface\\AddOns\\UltimateCastbars\\gfx\\icon.tga",
-        title = "Ultimate Castbars",
-        madeByName = "SicSo",
+        logo  = UI.icons.logo,
+        title = UI.text.name,
+        madeByName = UI.text.madeByM,
         links = {
             {
                 id="github",
                 text="GitHub",
-                icon="Interface\\AddOns\\UltimateCastbars\\gfx\\Icons\\github.png",
+                icon=UI.icons.github,
                 title="GitHub",
-                url="https://github.com/SicSo/UltimateCastbars",
+                url=UI.links.github,
                 width = 90,
             },
             {
                 id="discord",
                 text="Discord",
-                icon="Interface\\AddOns\\UltimateCastbars\\gfx\\Icons\\discord.png",
+                icon=UI.icons.discord,
                 title="Discord",
-                url="https://discord.gg/wX5hWW3N3Q",
+                url=UI.links.discord,
                 width = 90,
             },
             {
                 id="donate",
                 text="Donate",
-                icon="Interface\\AddOns\\UltimateCastbars\\gfx\\Icons\\Ko-fi_HEART.png",
+                icon=UI.icons.donate,
                 title="Donate",
-                url="https://ko-fi.com/sicso",
+                url=UI.links.donate,
                 width = 90,
             },
         }

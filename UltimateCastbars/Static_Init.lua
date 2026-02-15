@@ -11,6 +11,29 @@ UCB.ADBO = LibStub("AceDBOptions-3.0")
 UCB.LDB = LibStub("LibDataBroker-1.1")
 UCB.ADDON_NAME = C_AddOns.GetAddOnMetadata("UltimateCastbars", "Title")
 
+UCB.UI = UCB.UI or {}
+
+UCB.UI.icons = {
+    discord = "Interface\\AddOns\\UltimateCastbars\\gfx\\Icons\\discord.png",
+    github = "Interface\\AddOns\\UltimateCastbars\\gfx\\Icons\\github.png",
+    donate = "Interface\\AddOns\\UltimateCastbars\\gfx\\Icons\\Ko-fi_HEART.png",
+    logo = "Interface\\AddOns\\UltimateCastbars\\gfx\\icon.tga",
+}
+
+
+UCB.UI.links = {
+    discord = "https://discord.gg/yourlink", -- change yourlink
+    github = "https://github.com/SicSo/UltimateCastbars",
+    donate = "https://ko-fi.com/sicso",
+}
+
+UCB.UI.text = {
+    madeBy = "SicSo",
+    madeByM = "SicSo, Ckraig ",
+    version = C_AddOns.GetAddOnMetadata(ADDON_NAME, "Version"),
+    name = "Ultimate Castbars",
+}
+
 --------------------------------------------------------------- General ------------------------------------------------------------
 UCB.specs =  {
   WARRIOR = {

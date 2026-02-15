@@ -6,6 +6,7 @@
 	<Script file="MainUI/GUI.lua"/>
 	<Script file="MainUI/MenuOptions.lua"/>
 	<Script file="MainUI/Profile.lua"/>
+	<Script file="MainUI/BlizzardLanding.lua"/>
 
 	<!-- UI Backend -->
 	<Script file="BackendUI/BlizzCast_Backend.lua"/>

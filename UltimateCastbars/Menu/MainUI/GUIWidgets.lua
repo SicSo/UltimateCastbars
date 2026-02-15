@@ -346,14 +346,14 @@ function GUIWidgets:AttachFooterBar(aceGuiContainer, footerData)
     -- Left brand block (logo + title + "Made by <Name>")
     local logo = bar:CreateTexture(nil, "ARTWORK")
     logo:SetSize(20 * scale, 20 * scale)
-    logo:SetPoint("LEFT", bar, "LEFT", 10 * scale, 0)
+    logo:SetPoint("LEFT", bar, "LEFT", 5 * scale, 0)
     if footerData and footerData.logo then
         logo:SetTexture(footerData.logo)
     end
     bar.logo = logo
 
     local title = bar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    title:SetPoint("LEFT", logo, "RIGHT", 8 * scale, 0)
+    title:SetPoint("LEFT", logo, "RIGHT", 3 * scale, 0)
     title:SetText((footerData and footerData.title) or "Addon")
     bar.title = title
 
@@ -367,7 +367,7 @@ function GUIWidgets:AttachFooterBar(aceGuiContainer, footerData)
 
     -- Inline "Made by " (normal) + Name (highlighted)
     local madeByPrefix = bar:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    madeByPrefix:SetPoint("LEFT", title, "RIGHT", 10 * scale, 0)
+    madeByPrefix:SetPoint("LEFT", title, "RIGHT", 8 * scale, 0)
     madeByPrefix:SetText("Made by ")
     madeByPrefix:SetTextColor(0.85, 0.85, 0.85, 0.90)
 
