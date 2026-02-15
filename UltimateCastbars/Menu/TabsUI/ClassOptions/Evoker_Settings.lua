@@ -232,15 +232,102 @@ end
 
 
 
-Opt.ClassExtraBuilders.EVOKER = function(unit)
+local function CreateTicksEmpowered(args, unit, cfg)
+   local args = {
+            empowerManualTick1 = {
+                type = "range",
+                name = "Stage 1 Tick Placement (% of cast time)",
+                desc = "Placement for the tick between stage 0 and 1 (in %, relative to cast start)",
+                order = 1,
+                width = 1.5,
+                min = UCB.UIOptions.empowerTickPositionMin, max = UCB.UIOptions.empowerTickPositionMax-0.004, step = 0.001,
+                get = function()
+                    return cfg.empowerManualTicks[1] or 0
+                end,
+                set = function(_, v)
+                    cfg.empowerManualTicks[1] = v
+                    for i = 2, 4 do
+                        if cfg.empowerManualTicks[i] and cfg.empowerManualTicks[i] <= cfg.empowerManualTicks[i-1] then
+                            cfg.empowerManualTicks[i] = cfg.empowerManualTicks[i-1] + 0.001
+                        end
+                    end
+                    args.evokerPanel.args.empowerGrp.args.empowerSettingsGrp.args.empowerManualTicks.args.tickGrp.args = CreateTicksEmpowered(args, unit, cfg)
+                    CASTBAR_API:UpdateCastbar(unit)
+                end,
+            },
+            empowerManualTick2 = {
+                type = "range",
+                name = "Stage 2 Tick Placement (% of cast time)",
+                desc = "Placement for the tick between stage 1 and 2 (in %, relative to cast start)",
+                order = 2,
+                width = 1.5,
+                min = cfg.empowerManualTicks[1]+0.001, max = UCB.UIOptions.empowerTickPositionMax-0.003, step = 0.001,
+                get = function()
+                    return cfg.empowerManualTicks[2] or 0
+                end,
+                set = function(_, v)
+                    cfg.empowerManualTicks[2] = v
+                    for i = 3, 4 do
+                        if cfg.empowerManualTicks[i] and cfg.empowerManualTicks[i] <= cfg.empowerManualTicks[i-1] then
+                            cfg.empowerManualTicks[i] = cfg.empowerManualTicks[i-1] + 0.001
+                        end
+                    end
+                    args.evokerPanel.args.empowerGrp.args.empowerSettingsGrp.args.empowerManualTicks.args.tickGrp.args = CreateTicksEmpowered(args, unit, cfg)
+                    CASTBAR_API:UpdateCastbar(unit)
+                end,
+            },
+            empowerManualTick3 = {
+                type = "range",
+                name = "Stage 3 Tick Placement (% of cast time)",
+                desc = "Placement for the tick between stage 2 and 3 (in %, relative to cast start)",
+                order = 3,
+                width = 1.5,
+                min = cfg.empowerManualTicks[2]+0.001, max = UCB.UIOptions.empowerTickPositionMax-0.002, step = 0.001,
+                get = function()
+                    return cfg.empowerManualTicks[3] or 0
+                end,
+                set = function(_, v)
+                    cfg.empowerManualTicks[3] = v
+                    for i = 4, 4 do
+                        if cfg.empowerManualTicks[i] and cfg.empowerManualTicks[i] <= cfg.empowerManualTicks[i-1] then
+                            cfg.empowerManualTicks[i] = cfg.empowerManualTicks[i-1] + 0.001
+                        end
+                    end
+                    args.evokerPanel.args.empowerGrp.args.empowerSettingsGrp.args.empowerManualTicks.args.tickGrp.args = CreateTicksEmpowered(args, unit, cfg)
+                    CASTBAR_API:UpdateCastbar(unit)
+                end,
+            },
+            empowerManualTick4 = {
+                type = "range",
+                name = "Stage 4 Tick Placement (% of cast time)",
+                desc = "Placement for the tick between stage 3 and 4 (in %, relative to cast start)",
+                order = 4,
+                width = 1.5,
+                min = cfg.empowerManualTicks[3]+0.001, max = UCB.UIOptions.empowerTickPositionMax-0.001, step = 0.001,
+                get = function()
+                    return cfg.empowerManualTicks[4] or 0
+                end,
+                set = function(_, v)
+                    cfg.empowerManualTicks[4] = v
+                    args.evokerPanel.args.empowerGrp.args.empowerSettingsGrp.args.empowerManualTicks.args.tickGrp.args = CreateTicksEmpowered(args, unit, cfg)
+                    CASTBAR_API:UpdateCastbar(unit)
+                end,
+            }
+        }
+    return args
+end
+
+Opt.ClassExtraBuilders.EVOKER = function(unit, args)
     local cfg = GetCfg(unit).CLASSES.EVOKER
+
+    local warpperGrp = {}
 
     -------------------------------------------------------------------
     -- WRAPPER GROUP: this gives the “boxed background” look
     -------------------------------------------------------------------
     ---
-    local warpperGrp =  {
-        evokerPanel = {
+
+    args.evokerPanel = {
             type = "group",
             name = "Evoker Settings",
             inline = true,
@@ -306,25 +393,60 @@ Opt.ClassExtraBuilders.EVOKER = function(unit)
                                         CASTBAR_API:UpdateCastbar(unit)
                                     end,
                                 },
+                                empowerManualTicks = {
+                                    type = "group",
+                                    name = "Manual Tick Placements",
+                                    inline = true,
+                                    order = 4,
+                                    hidden = function() return unit=="player" end, -- only show if dynamic ticks is disabled, otherwise ticks are determined dynamically and this section would be confusing
+                                    args = {
+                                        empowerManualTicksInfo = {
+                                            type = "description",
+                                            name = "Dynamic ticks are disbaled for target and focus. Use these settings to manually specify tick placements for each stage (in %, relative to cast start). Default values are based on player data but may not be accurate for all units.",
+                                            order = 1,
+                                            width = "full",
+                                        },
+                                        mpowerManualTicksReset = {
+                                            type = "execute",
+                                            name = "Reset Manual Ticks",
+                                            desc = "Reset manual tick placements to default.",
+                                            width = "full",
+                                            order = 2,
+                                            func = function()
+                                                for i = 1, 4 do
+                                                    cfg.empowerManualTicks[i] = cfg._empowerManualTicksDefault[5][i]
+                                                end
+                                                args.evokerPanel.args.empowerGrp.args.empowerSettingsGrp.args.empowerManualTicks.args.tickGrp.args = CreateTicksEmpowered(args, unit, cfg)
+                                                CASTBAR_API:UpdateCastbar(unit)
+                                            end,
+                                        },
+                                        tickGrp = {
+                                            type = "group",
+                                            name = "Empower Ticks",
+                                            inline = true,
+                                            order = 2,
+                                            args = CreateTicksEmpowered(args, unit, cfg)
+                                        }
+                                    }
+                                },
                                 empowerColours = {
                                     type = "group",
                                     name = "Empower Cast Colours",
                                     inline = true,
-                                    order = 4,
+                                    order = 5,
                                     args = BuildEmpowerColoursArgs(unit),
                                 },
-                                
                             },
                         },
                     }
                 }
 
             },
-        },
-    }
+        }
+    
     if unit == "player" then
         -- For non-player units, empower effects are possibly innacurate but can still be shown if enabled, so we add a disclaimer
-        warpperGrp.args.disintegrateGrp = {
+        args.evokerPanel.args.disintegrateGrp = {
             type = "group",
             name = "Disintegrate Ticks",
             inline = true,

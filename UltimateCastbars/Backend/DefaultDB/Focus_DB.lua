@@ -554,6 +554,8 @@ local focus_db = {
             disintegrateDynamicTicks = true,
 
             enableEmpowerEffects = false,
+            empowerManualTicks = {0.19, 0.33, 0.47, 0.60},
+            _empowerManualTicksDefault = {[5]={0.19, 0.33, 0.47, 0.60}, [4]={0.24, 0.42, 0.60}},
             empowerTickWidth = 2,
             empowerStageTickColours = {
                 {r=0, g=1, b=0, a=1},    -- Stage 1 (Green)

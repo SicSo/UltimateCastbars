@@ -37,7 +37,7 @@ function CASTBAR_API:OnUnitSpellcastStart(unit, castGUID, spellID, resumeCast)
     CASTBAR_API:StopPrevCast(unit, bar, castGUID, spellID)
 
     -- Update internal vars with spellInfo
-    local icon_texture = tags:updateVars(unit, castType, spellID)
+    local icon_texture = tags:updateVars(unit, castType, spellID, cfg)
     local vars = tags.var[unit]
 
     -- Failsafe

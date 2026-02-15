@@ -203,7 +203,7 @@ local function BuildLandingPanel()
 
         -- Logo (same line as title)
     local logo = panel:CreateTexture(nil, "ARTWORK")
-    logo:SetSize(48, 48) -- adjust
+    logo:SetSize(65, 65)
     logo:SetTexture(UI.icons.logo)
     logo:SetPoint("CENTER", panel, "CENTER", -220, 110)
 

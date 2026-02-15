@@ -183,7 +183,7 @@ function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID, resume
     local bar = UCB.castBar[unit]
     CASTBAR_API:StopPrevCast(unit, bar, castGUID, spellID)
 
-    local icon_texture = tags:updateVars(unit, castType, spellID)
+    local icon_texture = tags:updateVars(unit, castType, spellID, cfg)
     local vars = tags.var[unit]
     
     -- Failsafe
@@ -228,7 +228,7 @@ function CASTBAR_API:OnUnitSpellcastChannelUpdate(unit, castGUID, spellID)
     local cfg = CFG_API.GetValueConfig(unit)
     local bar = UCB.castBar[unit]
 
-    local icon_texture = tags:updateVars(unit, castType, spellID)
+    local icon_texture = tags:updateVars(unit, castType, spellID, cfg)
     local vars = tags.var[unit]
 
     -- Failsafe

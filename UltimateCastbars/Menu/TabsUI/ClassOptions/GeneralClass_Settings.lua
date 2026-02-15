@@ -96,12 +96,12 @@ function Opt.GetExtraClassArgs(classToken, unit)
     do
         local fn = Opt.ClassExtraBuilders and Opt.ClassExtraBuilders[classToken]
         if type(fn) == "function" then
-            local ok, args = pcall(fn, unit, classToken)
-            if ok and type(args) == "table" then
-                for k, v in pairs(args) do
-                    out[k] = v
-                end
-            end
+            local ok, args = pcall(fn, unit, out, classToken)
+            --if ok and type(args) == "table" then
+            --    for k, v in pairs(args) do
+            --        out[k] = v
+            --   end
+            --end
         end
     end
 

@@ -266,7 +266,7 @@ function tags:splitTags(s, openDelim, closeDelim)
 end
 
 
-function tags:updateVars(unit, type, spellID)
+function tags:updateVars(unit, type, spellID, cfg)
     local name, texture, notInterruptible, durationObject
     local vars = tags.var[unit]
     if vars.empStages then
@@ -294,9 +294,15 @@ function tags:updateVars(unit, type, spellID)
             -- Generic ticks for non-player units
             local numStages = #stages
             if numStages == 5 then
-                vars.empStages =  {0.19, 0.33, 0.47, 0.60, 0.999}
+                for i = 1, numStages-1 do
+                    vars.empStages[i] = cfg.CLASSES.EVOKER.empowerManualTicks[i] --{0.19, 0.33, 0.47, 0.60, 0.999}
+                end
+                vars.empStages[5] = 0.999
             elseif numStages == 4 then
-                vars.empStages = {0.24, 0.42, 0.60, 0.999}
+                for i = 1, numStages-1 do
+                    vars.empStages[i] = cfg.CLASSES.EVOKER.empowerManualTicks[i] --{0.24, 0.42, 0.60, 0.999}
+                end
+                vars.empStages[4] = 0.999
             else
                 for i = 1, numStages do
                     vars.empStages[i] = i / (numStages + 1)

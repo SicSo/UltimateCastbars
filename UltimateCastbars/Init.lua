@@ -214,7 +214,6 @@ function UCB:SelectGroup(unit, path)
   if UCB.ACD then
     for _, app in ipairs(apps) do
       UCB.ACD:SelectGroup(app, unit, unpack(path))
-      print(app, unit, unpack(path))
     end
   end
 end

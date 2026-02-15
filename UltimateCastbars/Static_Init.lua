@@ -297,6 +297,9 @@ UCB.UIOptions.channelTickWidthMax = 30
 UCB.UIOptions.channelTickNumMin = 1
 UCB.UIOptions.channelTickNumMax = 20
 
+UCB.UIOptions.empowerTickPositionMin = 0.001
+UCB.UIOptions.empowerTickPositionMax = 0.999
+
 UCB.UIOptions.queueWindowMin = 1
 UCB.UIOptions.queueWindowMax = 1000
 
