@@ -248,7 +248,7 @@ function CASTBAR_API:MirrorBar(cfg, bar, castType)
     local mirror = cfg.mirrorBar[castType]
     bar._mirrored = mirror
     bar.mirrorFrame:SetShown(bar._mirrored)
-    bar.unInterruptedMirrorFrame:SetShown(bar._mirrored)
+    bar.unInterruptedMirrorFrame:SetShown(bar._mirrored and cfg.uninterruptable.showUninterruptable and cfg.uninterruptable.showUninterruptableFill)
     local status = bar.status and bar.status --bar.status:GetStatusBarTexture()
     local unint_status = bar.unInterruptedFrame and bar.unInterruptedFrame.status
     if status then status:SetAlphaFromBoolean(not bar._mirrored) end
@@ -256,7 +256,7 @@ function CASTBAR_API:MirrorBar(cfg, bar, castType)
 end
 
 function CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
-    local uint = not vars.nIntr
+    local uint = vars.nIntr
     local frame = bar.unInterruptedFrame
     local mirrorFrame = bar.unInterruptedMirrorFrame
     local status = frame.status
