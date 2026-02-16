@@ -259,11 +259,81 @@ function BarUpdate_API:UpdateVisibility(unit)
     bar.unInterruptedMirrorFrame:SetFrameLevel(cfg.frameLevel + 2) -- same as status, but only shown when uninterruptible and mirrored
 end
 
+function BarUpdate_API:UpdateUnkickable(unit)
+    local bar = UCB.castBar[unit]
+    if not bar then return end
+
+    local cfg = CFG_API.GetValueConfig(unit).uninterruptible
+    local status = bar
+    local helperTex = "Interface\\TARGETINGFRAME\\UI-StatusBar"
+
+    if not status.interruptMarker then
+        status.interruptMarker = CreateFrame("StatusBar", nil, status)
+        status.interruptMarker:SetStatusBarTexture(helperTex)
+        status.interruptMarker:SetPoint("CENTER")
+        status.interruptMarker:SetAllPoints()
+        -- IMPORTANT: do NOT clip children, it causes the “growing from right” reveal
+        status.interruptMarker:SetClipsChildren(false)
+    end
+
+    if not status.interruptPositioner then
+        status.interruptPositioner = CreateFrame("StatusBar", nil, status)
+        status.interruptPositioner:SetStatusBarTexture(helperTex)
+        status.interruptPositioner:SetPoint("CENTER")
+        status.interruptPositioner:SetAllPoints()
+    end
+
+    if not status.kickTickClip then
+        status.kickTickClip = CreateFrame("Frame", nil, status)
+        status.kickTickClip:SetAllPoints(status)
+        status.kickTickClip:SetClipsChildren(true)
+    end
+
+    if not status.interruptMarkerPoint then
+        -- Parent the tick to the BAR so it’s never clipped by marker fills
+        status.interruptMarkerPoint = status.kickTickClip:CreateTexture(nil, "ARTWORK")
+        status.interruptMarkerPoint:SetPoint("CENTER")
+        -- Anchor tick X position to the marker texture’s RIGHT edge
+        status.interruptMarkerPoint:ClearAllPoints()
+        status.interruptMarkerPoint:SetPoint("LEFT", status.interruptMarker:GetStatusBarTexture(), "RIGHT", 0, 0)
+
+        status.interruptMarker:SetPoint("LEFT", status.interruptPositioner:GetStatusBarTexture(), "RIGHT")
+    end
+
+    -- Hide helper bar textures
+    local posTex = status.interruptPositioner:GetStatusBarTexture()
+    local markerTex = status.interruptMarker:GetStatusBarTexture()
+    if posTex then posTex:SetAlpha(0) end
+    if markerTex then markerTex:SetAlpha(0) end
+
+    if cfg.showKickTick then
+        -- IMPORTANT: make it a thin vertical tick, not bar-sized
+        status.interruptMarkerPoint:SetWidth(cfg.kickTickWidth)
+        status.interruptMarkerPoint:SetHeight(bar:GetHeight())
+
+        local color = cfg.kickTickColour
+        if cfg.kickTickUseTexture then
+            status.interruptMarkerPoint:SetTexture(cfg.kickTickTexture)
+            status.interruptMarkerPoint:SetVertexColor(color.r, color.g, color.b, color.a)
+        else
+            status.interruptMarkerPoint:SetTexture(nil)
+            status.interruptMarkerPoint:SetVertexColor(1, 1, 1, 1)
+            status.interruptMarkerPoint:SetColorTexture(color.r, color.g, color.b, color.a)
+        end
+        status.interruptMarkerPoint:Show()
+    else
+        status.interruptMarkerPoint:Hide()
+    end
+
+    status.interruptMarker:Hide()
+    status.interruptPositioner:Hide()
+end
+
 
 function BarUpdate_API:UpdateUninterruptable(unit)
     local bar = UCB.castBar[unit]
     if not bar then return end
-    local cfg = CFG_API.GetValueConfig(unit).uninterruptable
+    local cfg = CFG_API.GetValueConfig(unit).uninterruptible
     local unint_frame = bar.unInterruptedFrame
 
     if not bar._mirrorUintTex then
@@ -272,7 +342,7 @@ function BarUpdate_API:UpdateUninterruptable(unit)
     bar._mirrorUintTex:SetAllPoints(bar)
     bar._mirrorUintTex:SetTexCoord(1, 0, 0, 1)
 
-    if cfg.showUninterruptableFill and cfg.showUninterruptable then
+    if cfg.showUninterruptibleFill and cfg.showUninterruptible then
         if not unint_frame.status then
             unint_frame.status = CreateFrame("StatusBar", nil, unint_frame)
             unint_frame.status:SetAllPoints()
@@ -288,7 +358,7 @@ function BarUpdate_API:UpdateUninterruptable(unit)
         end
     end
 
-    if cfg.showUninterruptableBackground and cfg.showUninterruptable then
+    if cfg.showUninterruptibleBackground and cfg.showUninterruptible then
         if not unint_frame.bg then
             unint_frame.bg = unint_frame:CreateTexture(nil, "BACKGROUND", nil, 3)
             unint_frame.bg:SetAllPoints()

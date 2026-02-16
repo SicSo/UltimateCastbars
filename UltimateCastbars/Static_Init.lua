@@ -11,6 +11,7 @@ UCB.ADBO = LibStub("AceDBOptions-3.0")
 UCB.LDB = LibStub("LibDataBroker-1.1")
 UCB.ADDON_NAME = C_AddOns.GetAddOnMetadata("UltimateCastbars", "Title")
 
+--------------------------------------------------------------- UI ------------------------------------------------------------
 UCB.UI = UCB.UI or {}
 
 UCB.UI.icons = {
@@ -44,6 +45,7 @@ UCB.specs =  {
       [73] = "Protection",
       [1446] = "Initial (below level 10)",
     },
+    kick = {6552}
   },
 
   PALADIN = {
@@ -54,6 +56,7 @@ UCB.specs =  {
       [70] = "Retribution",
       [1451] = "Initial (below level 10)",
     },
+    kick = {31935, 96231},
   },
 
   HUNTER = {
@@ -64,6 +67,7 @@ UCB.specs =  {
       [255] = "Survival",
       [1448] = "Initial (below level 10)",
     },
+    kick = {187707, 147362},
   },
 
   ROGUE = {
@@ -74,6 +78,7 @@ UCB.specs =  {
       [261] = "Subtlety",
       [1453] = "Initial (below level 10)",
     },
+    kick = {1766},
   },
 
   PRIEST = {
@@ -84,6 +89,7 @@ UCB.specs =  {
       [258] = "Shadow",
       [1452] = "Initial (below level 10)",
     },
+    kick = {15487},
   },
 
   DEATHKNIGHT = {
@@ -94,6 +100,7 @@ UCB.specs =  {
       [252] = "Unholy",
       [1455] = "Initial (below level 10)",
     },
+    kick = {47528},
   },
 
   SHAMAN = {
@@ -104,6 +111,7 @@ UCB.specs =  {
       [264] = "Restoration",
       [1444] = "Initial (below level 10)",
     },
+    kick = {57994},
   },
 
   MAGE = {
@@ -114,6 +122,7 @@ UCB.specs =  {
       [64] = "Frost",
       [1449] = "Initial (below level 10)",
     },
+    kick = {2139},
   },
 
   WARLOCK = {
@@ -124,6 +133,7 @@ UCB.specs =  {
       [267] = "Destruction",
       [1454] = "Initial (below level 10)",
     },
+    kick = {19647, 89766, 119910, 1276467, 132409},
   },
 
   MONK = {
@@ -134,6 +144,7 @@ UCB.specs =  {
       [270] = "Mistweaver",
       [1450] = "Initial (below level 10)",
     },
+    kick = {116705},
   },
 
   DRUID = {
@@ -145,6 +156,7 @@ UCB.specs =  {
       [105] = "Restoration",
       [1447] = "Initial (below level 10)",
     },
+    kick = {38675, 78675, 106839},
   },
 
   DEMONHUNTER = {
@@ -155,6 +167,7 @@ UCB.specs =  {
       [1480] = "Devourer",
       [1456] = "Initial (below level 10)",
     },
+    kick  = {183752},
   },
 
   EVOKER = {
@@ -165,6 +178,7 @@ UCB.specs =  {
       [1473] = "Augmentation",
       [1465] = "Initial (below level 10)",
     },
+    kick = {351338},
   },
 }
 

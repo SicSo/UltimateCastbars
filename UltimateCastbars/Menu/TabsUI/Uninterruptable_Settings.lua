@@ -13,45 +13,46 @@ local UIOptions = UCB.UIOptions
 local LSM  = UCB.LSM
 
 local function BuildUninterruptableArgs(args, unit)
-    local cfg = GetCfg(unit).uninterruptable
+    local cfg = GetCfg(unit).uninterruptible
 
-    args.uninterruptableGroup = {
+    args.uninterruptibleGroup = {
         type   = "group",
-        name   = "Uninterruptable cast bar options",
+        name   = "Uninterruptible options",
         inline = true,
         order  = 2,
         args = {
-            uninterruptableEnabled = {
+            uninterruptibleEnabled = {
                 type  = "toggle",
-                name  = "Enable uninterruptable cast bars",
-                desc  = "Show a separate cast bar for uninterruptable casts.",
+                name  = "Enable uninterruptible effects",
                 order = 1,
-                width = 1,
-                get = function() return cfg.showUninterruptable end,
+                width = 1.3,
+                get = function() return cfg.showUninterruptible end,
                 set = function(_, val)
-                    cfg.showUninterruptable = val
+                    cfg.showUninterruptible = val
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
             },
-            uninterruptableFill = {
+            uninterruptibleFill = {
                 type  = "toggle",
-                name  = "Show uninterruptable fill",
-                desc  = "Fill the uninterruptable cast bar to show progress.",
+                name  = "Show uninterruptible fill",
+                desc  = "Fill the uninterruptible cast bar to show progress.",
                 order = 2,
-                get = function() return cfg.showUninterruptableFill end,
+                width = 1.3,
+                get = function() return cfg.showUninterruptibleFill end,
                 set = function(_, val)
-                    cfg.showUninterruptableFill = val
+                    cfg.showUninterruptibleFill = val
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
             },
-            uninterruptableBackground = {
+            uninterruptibleBackground = {
                 type  = "toggle",
-                name  = "Show uninterruptable background",
-                desc  = "Show a background for the uninterruptable cast bar.",
+                name  = "Show uninterruptible background",
+                desc  = "Show a background for the uninterruptible cast bar.",
                 order = 3,
-                get = function() return cfg.showUninterruptableBackground end,
+                width = 1.3,
+                get = function() return cfg.showUninterruptibleBackground end,
                 set = function(_, val)
-                    cfg.showUninterruptableBackground = val
+                    cfg.showUninterruptibleBackground = val
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
             },
@@ -60,7 +61,7 @@ local function BuildUninterruptableArgs(args, unit)
                 name = "Fill options",
                 inline = true,
                 order = 4,
-                hidden = function() return not cfg.showUninterruptableFill end,
+                hidden = function() return not cfg.showUninterruptibleFill end,
                 args = {
                     fillTexture = {
                         type          = "select",
@@ -74,6 +75,12 @@ local function BuildUninterruptableArgs(args, unit)
                             cfg.fillTexture = LSM:Fetch(LSM.MediaType.STATUSBAR, val)
                             CASTBAR_API:UpdateCastbar(unit)
                         end,
+                    },
+                    gap = {
+                        type = "description",
+                        name = " ",
+                        order = 1.5,
+                        width = 0.2,
                     },
                     fillColour = {
                         type = "color",
@@ -97,7 +104,7 @@ local function BuildUninterruptableArgs(args, unit)
                 name = "Background options",
                 inline = true,
                 order = 5,
-                hidden = function() return not cfg.showUninterruptableBackground end,
+                hidden = function() return not cfg.showUninterruptibleBackground end,
                 args = {
                     backgroundUseTexture = {
                         type = "toggle",
@@ -109,6 +116,12 @@ local function BuildUninterruptableArgs(args, unit)
                             cfg.backgroundUseTexture = val
                             CASTBAR_API:UpdateCastbar(unit)
                         end,
+                    },
+                    gap = {
+                        type = "description",
+                        name = " ",
+                        order = 1.5,
+                        width = 0.2,
                     },
                     backgroundTexture = {
                         type          = "select",
@@ -124,10 +137,16 @@ local function BuildUninterruptableArgs(args, unit)
                             CASTBAR_API:UpdateCastbar(unit)
                         end,
                     },
+                    gap2 = {
+                        type = "description",
+                        name = " ",
+                        order = 2.5,
+                        width = 0.2,
+                    },
                     backgroundColour = {
                         type = "color",
                         name = "Background colour",
-                        desc = "Colour of the uninterruptable cast bar background.",
+                        desc = "Colour of the uninterruptible cast bar background.",
                         order = 3,
                         hasAlpha = true,
                         get = function()
@@ -142,6 +161,111 @@ local function BuildUninterruptableArgs(args, unit)
                 },
             }
         },
+    }
+    args.unKickable = {
+        type   = "group",
+        name   = "Kick/Interrupt options",
+        inline = true,
+        order  = 3,
+        args ={
+            kickTickGrp = {
+                type = "group",
+                name = "Kick/Interrupt tick options",
+                inline = true,
+                order = 1,
+                args = {
+                    kickTickEnabled = {
+                        type  = "toggle",
+                        name  = "Show kick/interrupt tick",
+                        desc  = "Show ticks on the cast bar for when a cast can be kicked or interrupted.",
+                        order = 1,
+                        width = "full",
+                        get = function() return cfg.showKickTick end,
+                        set = function(_, val)
+                            cfg.showKickTick = val
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                    },
+                    kickTickOptionsGrp = {
+                        type = "group",
+                        name = "",
+                        inline = true,
+                        order = 2,
+                        hidden = function() return not cfg.showKickTick end,
+                        args = {
+                            kickTickUseTexture = {
+                                type = "toggle",
+                                name = "Use texture for kick/interrupt tick",
+                                desc = "If enabled, the kick/interrupt tick will use a texture. If disabled, it will use a solid colour.",
+                                order = 1,
+                                width = 1.3,
+                                get = function() return cfg.kickTickUseTexture end,
+                                set = function(_, val)
+                                    cfg.kickTickUseTexture = val
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
+                            gap = {
+                                type = "description",
+                                name = " ",
+                                order = 1.5,
+                                width = 0.2,
+                            },
+                            kickTickTexture = {
+                                type          = "select",
+                                dialogControl = "LSM30_Statusbar",
+                                name          = "Kick/Interrupt tick texture",
+                                order         = 2,
+                                disabled     = function() return not cfg.kickTickUseTexture end,
+                                values        = function() return LSM:HashTable(LSM.MediaType.STATUSBAR) end,
+                                get           = function() return cfg.kickTickTextureName end,
+                                set           = function(_, val)
+                                    cfg.kickTickTextureName = val
+                                    cfg.kickTickTexture = LSM:Fetch(LSM.MediaType.STATUSBAR, val)
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
+                            gap2 = {
+                                type = "description",
+                                name = " ",
+                                order = 2.5,
+                                width = 0.2,
+                            },
+                            kickTickColour = {
+                                type = "color",
+                                name = "Kick/Interrupt tick colour",
+                                desc = "Colour of the kick/interrupt ticks.",
+                                order = 3,
+                                hasAlpha = true,
+                                get = function()
+                                    local c = cfg.kickTickColour
+                                    return c.r, c.g, c.b, c.a
+                                end,
+                                set = function(_, r, g, b, a)
+                                    cfg.kickTickColour = {r=r, g=g, b=b, a=a}
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
+                            kickTickWidth = {
+                                type = "range",
+                                name = "Kick/Interrupt tick width",
+                                desc = "Width of the kick/interrupt tick in pixels.",
+                                order = 4,
+                                width = 1.3,
+                                min = UIOptions.channelTickWidthMin,
+                                max = UIOptions.channelTickWidthMax,
+                                step = 0.5,
+                                get = function() return cfg.kickTickWidth end,
+                                set = function(_, val)
+                                    cfg.kickTickWidth = val
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
+                        }
+                    }
+                },
+            }
+        }
     }
 end
 

@@ -56,8 +56,6 @@ UCB.events = {
   UNIT_SPELLCAST_EMPOWER_UPDATE = "OnUnitSpellcastEmpowerUpdate",
   UNIT_SPELLCAST_EMPOWER_STOP   = "OnUnitSpellcastEmpowerStop",
 
-  --PLAYER_TARGET_CHANGED 
-  
   --UNIT_SPELLCAST_DELAYED = CastUpdate,
 	--UNIT_SPELLCAST_FAILED = CastFail,
 	--UNIT_SPELLCAST_INTERRUPTED = CastFail,
@@ -393,6 +391,17 @@ local function ResolveFrames()
   end
 end
 
+local function GetKickID()
+    local class = UCB.className
+    local kickList = UCB.specs[class].kick
+    for _, s in ipairs(kickList) do
+      if C_SpellBook.IsSpellKnownOrInSpellBook(s) or C_SpellBook.IsSpellKnownOrInSpellBook(s, Enum.SpellBookSpellBank.Pet) then
+        UCB.kickID = s
+        return
+      end
+    end
+end
+
 local function GatherInfo()
     SetUpPlayerInfo()
 
@@ -408,6 +417,13 @@ local function GatherInfo()
         C_Timer.After(0.1, function()
             SetUpSpellTypes()
         end)
+    end)
+
+    local f2 = CreateFrame("Frame")
+    f2:RegisterEvent("PLAYER_LOGIN")
+    f2:RegisterEvent("SPELLS_CHANGED")
+    f2:SetScript("OnEvent", function()
+        GetKickID()
     end)
 end
 

@@ -22,6 +22,7 @@ local function UpdateSequence(unit)
     BarUpdate_API:UpdateStyle(unit)
     BarUpdate_API:UpdateText(unit)
     BarUpdate_API:UpdateUninterruptable(unit)
+    BarUpdate_API:UpdateUnkickable(unit)
     BarUpdate_API:UpdateOtherFeatures(unit)
     BarUpdate_API:UpdateOthers(unit)
 
@@ -246,10 +247,10 @@ local function StopPrevCast(unit, bar, castGUID, spellID)
 end
 
 function CASTBAR_API:MirrorBar(cfg, bar, castType)
-    local mirror = cfg.mirrorBar[castType]
+    local mirror = cfg.otherFeatures.mirrorBar[castType]
     bar._mirrored = mirror
     bar.mirrorFrame:SetShown(bar._mirrored)
-    bar.unInterruptedMirrorFrame:SetShown(bar._mirrored and cfg.uninterruptable.showUninterruptable and cfg.uninterruptable.showUninterruptableFill)
+    bar.unInterruptedMirrorFrame:SetShown(bar._mirrored and cfg.uninterruptible.showUninterruptible and cfg.uninterruptible.showUninterruptibleFill)
     local status = bar.status and bar.status --bar.status:GetStatusBarTexture()
     local unint_status = bar.unInterruptedFrame and bar.unInterruptedFrame.status
     if status then status:SetAlphaFromBoolean(not bar._mirrored) end
@@ -267,14 +268,86 @@ function CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
     status:SetValue(bar_status:GetValue())
 end
 
-function CASTBAR_API:InterruptibleTick(bar, bar_status, vars)
-    local spellID, kickRemaining, kickReady = UNINTERRUPTIBLE:GetKickTimer()
-    if not spellID then
-        bar.interruptMarker:Hide()
-        bar.interruptPositioner:Hide()
+local function KickTickAlpha(notInterruptibleSecretBool, kickReadySecretBool)
+    if C_CurveUtil then
+        local alphaWhenIntr = C_CurveUtil.EvaluateColorValueFromBoolean(kickReadySecretBool, 0, 1)
+        return C_CurveUtil.EvaluateColorValueFromBoolean(notInterruptibleSecretBool, 0, alphaWhenIntr)
+    end
+    -- fallback: just show (can't safely evaluate secrets without C_CurveUtil)
+    return 1
+end
+
+function CASTBAR_API:InterruptibleTick(bar, vars, cfg, castType)
+    local status = bar
+    local unIntCFG = cfg.uninterruptible
+    local otherCFG = cfg.otherFeatures
+
+    if not (unIntCFG and unIntCFG.showKickTick) then
+        if status.interruptMarkerPoint then status.interruptMarkerPoint:Hide() end
+        if status.interruptMarker then status.interruptMarker:Hide() end
+        if status.interruptPositioner then status.interruptPositioner:Hide() end
         return
     end
-    
+
+    local castDuration = vars and vars.durationObject
+    if not castDuration then
+        if status.interruptMarkerPoint then status.interruptMarkerPoint:Hide() end
+        status.interruptMarker:Hide()
+        status.interruptPositioner:Hide()
+        return
+    end
+
+    local spellID, kickDur = UNINTERRUPTIBLE:GetKickTimer()
+    if not spellID or not kickDur then
+        if status.interruptMarkerPoint then status.interruptMarkerPoint:Hide() end
+        status.interruptMarker:Hide()
+        status.interruptPositioner:Hide()
+        return
+    end
+
+    -- Ensure your UpdateUnkickable created:
+    -- status.interruptMarker (StatusBar), status.kickTickClip (Frame, clips), status.interruptMarkerPoint (Texture)
+    -- and sized them with SetAllPoints(status)
+    -- (Call it here if needed)
+    -- BarUpdate_API:UpdateUnkickable(unitOrBarUnit)
+
+    local total = castDuration:GetTotalDuration()
+    bar.kickTickFrozen = kickDur:GetRemainingDuration()
+
+    status.interruptMarker:SetMinMaxValues(0, total)
+    status.interruptMarker:SetValue(bar.kickTickFrozen)
+
+    local inverted = otherCFG.invertBar[castType]
+    local mirrored = otherCFG.mirrorBar[castType]
+    local switch = (inverted or mirrored) and not (inverted and mirrored) -- XOR
+
+    status.interruptMarker:SetOrientation("HORIZONTAL")
+    status.interruptMarker:SetRotatesTexture(false)
+
+    local markerTex = status.interruptMarker:GetStatusBarTexture()
+
+    status.interruptMarkerPoint:ClearAllPoints()
+
+    if switch then
+        -- RIGHT -> LEFT
+        status.interruptMarker:SetReverseFill(true)
+        status.interruptMarkerPoint:SetPoint("RIGHT", markerTex, "LEFT", 0, 0)
+    else
+        -- LEFT -> RIGHT
+        status.interruptMarker:SetReverseFill(false)
+        status.interruptMarkerPoint:SetPoint("LEFT", markerTex, "RIGHT", 0, 0)
+    end
+
+    status.interruptMarker:Show()
+    status.interruptMarkerPoint:Show()
+    if status.interruptPositioner then status.interruptPositioner:Hide() end
+
+    local notIntr   = vars and vars.nIntr
+    local kickReady = kickDur:IsZero()
+    local alpha = KickTickAlpha(notIntr, kickReady)
+
+    status.interruptMarker:SetAlpha(alpha)
+    status.interruptMarkerPoint:SetAlpha(alpha)
 end
 
 
@@ -334,10 +407,12 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
     local bar_status = bar.status
     bar_status:SetMinMaxValues(0, vars.dTime)
     local otherCFG = cfg.otherFeatures
-    CASTBAR_API:MirrorBar(otherCFG, bar, castType)
+    CASTBAR_API:MirrorBar(cfg, bar, castType)
     InitCastbarVal(bar_status, castType, resumeCast, vars, otherCFG)
 
     CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
+
+    CASTBAR_API:InterruptibleTick(bar, vars, cfg, castType)
 
     return cfg, bar, vars
 end

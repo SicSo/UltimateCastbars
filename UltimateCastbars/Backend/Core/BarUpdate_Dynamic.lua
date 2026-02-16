@@ -1,8 +1,10 @@
 local _, UCB = ...
 
 UCB.BarUpdate_API = UCB.BarUpdate_API or {}
+UCB.UNINTERRUPTIBLE = UCB.UNINTERRUPTIBLE or {}
 
 local BarUpdate_API = UCB.BarUpdate_API
+local UNINTERRUPTIBLE = UCB.UNINTERRUPTIBLE
 
 local OMBRE_STOPS = {
     {p=0.10, r=1,   g=0,   b=0},   -- Red

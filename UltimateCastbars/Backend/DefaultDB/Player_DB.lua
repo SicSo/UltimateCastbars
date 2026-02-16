@@ -251,20 +251,29 @@ UCB.Default_DB.Player = {
         frameLevel = 20,
     },
 
-    uninterruptable = {
+    uninterruptible = {
 
-        showUninterruptable = true,
+        showUninterruptible = true,
 
-        showUninterruptableFill = true,
+        showUninterruptibleFill = true,
         fillColour = {r=1, g=0, b=0, a=1}, -- red, semi-transparent
         fillTexture = "Interface\\TargetingFrame\\UI-StatusBar",
         fillTextureName = "Blizzard",
 
-        showUninterruptableBackground = true,
+        showUninterruptibleBackground = true,
         backgroundColour = {r=1, g=0, b=0, a=0.5}, -- red, semi-transparent
         backgroundUseTexture = false,
         backgroundTexture = "Interface\\DialogFrame\\UI-DialogBox-Background",
         backgroundTextureName = "Blizzard Dialog Background",
+
+        showKickTick = false,
+        kickTickColour = {r=1, g=1, b=0, a=1}, -- yellow
+        kickTickUseTexture = false,
+        kickTickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+        kickTickTextureName = "Blizzard",
+        kickTickWidth = 2,
+
+
 
         showUninterruptableBorder = false,
         borderColour = {r=1, g=0, b=0, a=1},

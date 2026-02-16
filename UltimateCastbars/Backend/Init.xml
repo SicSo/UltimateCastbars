@@ -15,6 +15,7 @@
 	<!-- Core -->
 	<Script file="Core/BarUpdate_BarIcon.lua"/>
 	<Script file="Core/BarUpdate_Helpers.lua"/>
+	<Script file="Core/BarUpdate_Dynamic.lua"/>
 	<Script file="Core/Base.lua"/>
 	<Script file="Core/Channel.lua"/>
 	<Script file="Core/Empower.lua"/>
