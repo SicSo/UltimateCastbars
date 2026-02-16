@@ -73,6 +73,7 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
     if unit == "player" then
         CASTBAR_API:AssignQueueWindow(castType)
     end
+    CASTBAR_API:MirrorBar(cfg.otherFeatures, bar, castType)
 
     if castType == "normal" then
         NormalCast(unit, bar)

@@ -5,11 +5,7 @@ UCB.tags     = UCB.tags     or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.Preview_API = UCB.Preview_API or {}
 
-local CFG_API = UCB.CFG_API
-local tags = UCB.tags
 local CASTBAR_API = UCB.CASTBAR_API
-local Preview_API = UCB.Preview_API
-
 local castType = "normal"
 
 local function CastbarOnUpdate(bar, elapsed)
@@ -28,64 +24,10 @@ local function CastbarOnUpdate(bar, elapsed)
 end
 
 function CASTBAR_API:OnUnitSpellcastStart(unit, castGUID, spellID, resumeCast)
-    if Preview_API.previewActive and Preview_API.previewActive[unit] then
-        Preview_API:HidePreviewCastBar(unit)
-    end
-
-    local cfg = CFG_API.GetValueConfig(unit)
-    local bar = UCB.castBar[unit]
-    CASTBAR_API:StopPrevCast(unit, bar, castGUID, spellID)
-
-    -- Update internal vars with spellInfo
-    local icon_texture = tags:updateVars(unit, castType, spellID, cfg)
-    local vars = tags.var[unit]
-
-    -- Failsafe
-    if not vars.durationObject then
-        return
-    end
-
-    -- Set text, icon, queue window
-    local textCFG = cfg.text
-    tags:setTextSameState(textCFG, bar, "semiDynamic", unit, castType, false)
-    tags:setTextSameState(textCFG, bar, "dynamic", unit, castType, true)
-    
-    bar.icon:SetTexture(icon_texture)
-
-    if unit == "player" then
-        CASTBAR_API:AssignQueueWindow(castType)
-    end
-
-   
-    bar.status:SetMinMaxValues(0, vars.dTime)
-    local otherCFG = cfg.otherFeatures
-    CASTBAR_API:MirrorBar(otherCFG, bar, castType)
-    local inverted = otherCFG.invertBar[castType]
-    if resumeCast then
-        if inverted then
-            bar.status:SetValue(vars.durationObject:GetRemainingDuration())
-        else
-            bar.status:SetValue(vars.durationObject:GetElapsedDuration())
-        end
-    else
-        if inverted then
-            bar.status:SetValue(vars.dTime)
-        else
-            bar.status:SetValue(0)
-        end
-    end
-
+     local cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
     -- Set colours
     CASTBAR_API:SemiColourUpdate(unit, bar)
-
-    bar._ucbUnit = unit
-    bar._ucbCfg = cfg
-    bar._ucbCastType = castType
-    bar._ucbVars = vars
-    bar:SetScript("OnUpdate", CastbarOnUpdate)
-    bar.group:Show()
-    bar._prevType = castType
-    bar.castActive = true
+    CASTBAR_API:CastOnUpdateSetup(bar, unit, cfg, vars, castType, spellID, CastbarOnUpdate)
 end
 
 function CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID)
@@ -100,6 +42,6 @@ function CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID)
         bar:SetScript("OnUpdate", nil)
         bar.castActive = false
         bar._prevType = nil
-        bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars = nil, nil, nil, nil
+        bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars,  bar._ucbSpellID = nil, nil, nil, nil, nil
      end
 end

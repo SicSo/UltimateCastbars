@@ -443,7 +443,6 @@ function tags:ApplyTextState(bar, state, unit, remaining, elapsed)
             --t.fs:SetShown(showText)
             t.fs:SetAlphaFromBoolean(showText)
         end
-
     end
 end
 

@@ -11,7 +11,6 @@ local CFG_API = UCB.CFG_API
 local tags = UCB.tags
 local CASTBAR_API = UCB.CASTBAR_API
 local Evoker_API = UCB.CLASS_API.Evoker
-local Preview_API = UCB.Preview_API
 
 local castType = "channel"
 
@@ -175,91 +174,16 @@ function CASTBAR_API:AssignChannelTicks(unit, spellID, event)
 end
 
 function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID, resumeCast)
-    if Preview_API.previewActive and Preview_API.previewActive[unit] then
-        Preview_API:HidePreviewCastBar(unit)
-    end
-
-    local cfg = CFG_API.GetValueConfig(unit)
-    local bar = UCB.castBar[unit]
-    CASTBAR_API:StopPrevCast(unit, bar, castGUID, spellID)
-
-    local icon_texture = tags:updateVars(unit, castType, spellID, cfg)
-    local vars = tags.var[unit]
-    
-    -- Failsafe
-    if not vars.durationObject then
-        return
-    end
-
-    -- Set text, icon, queue window
-    local textCFG = cfg.text
-    tags:setTextSameState(textCFG, bar, "semiDynamic", unit, castType, false)
-    tags:setTextSameState(textCFG, bar, "dynamic", unit, castType, true)
-
-    bar.icon:SetTexture(icon_texture)
-
-    if unit == "player" then
-        CASTBAR_API:AssignQueueWindow(castType)
-    end
+    local cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
     CASTBAR_API:AssignChannelTicks(unit, spellID, "START")
-
-    bar.status:SetMinMaxValues(0, vars.dTime)
-    local otherCFG = cfg.otherFeatures
-    CASTBAR_API:MirrorBar(otherCFG, bar, castType)
-    local inverted = otherCFG.invertBar[castType]
-    if inverted then
-        bar.status:SetValue(0)
-    else
-        bar.status:SetValue(vars.dTime)
-    end
-
     -- Set colours
     CASTBAR_API:SemiColourUpdate(unit, bar)
-
-    bar._ucbUnit = unit
-    bar._ucbCfg = cfg
-    bar._ucbCastType = castType
-    bar._ucbVars = vars
-    bar._ucbSpellID = spellID
-    bar:SetScript("OnUpdate", CastbarOnUpdate)
-    bar.group:Show()
-    bar.castActive = true
-    bar._prevType = castType
+    CASTBAR_API:CastOnUpdateSetup(bar, unit, cfg, vars, castType, spellID, CastbarOnUpdate)
 end
 
 function CASTBAR_API:OnUnitSpellcastChannelUpdate(unit, castGUID, spellID)
-    local cfg = CFG_API.GetValueConfig(unit)
-    local bar = UCB.castBar[unit]
-
-    local icon_texture = tags:updateVars(unit, castType, spellID, cfg)
-    local vars = tags.var[unit]
-
-    -- Failsafe
-    if not vars.durationObject then
-        return
-    end
-
-    -- Set text, icon, queue window
-    local textCFG = cfg.text
-    tags:setTextSameState(textCFG, bar, "semiDynamic", unit, castType, false)
-    tags:setTextSameState(textCFG, bar, "dynamic", unit, castType, true)
-
-    bar.icon:SetTexture(icon_texture)
-
-    if unit == "player" then
-        CASTBAR_API:AssignQueueWindow(castType)
-    end
+    CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType)
     CASTBAR_API:AssignChannelTicks(unit, spellID, "UPDATE")
-
-    bar.status:SetMinMaxValues(0, vars.dTime)
-    local otherCFG = cfg.otherFeatures
-    CASTBAR_API:MirrorBar(otherCFG, bar, castType)
-    local inverted = otherCFG.invertBar[castType]
-    if inverted then
-        bar.status:SetValue(0)
-    else
-        bar.status:SetValue(vars.dTime)
-    end
 end
 
 function CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID)

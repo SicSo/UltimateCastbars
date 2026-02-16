@@ -7,6 +7,7 @@ UCB.Options = UCB.Options or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.BarUpdate_API = UCB.BarUpdate_API or {}
 UCB.tags     = UCB.tags     or {}
+UCB.Preview_API = UCB.Preview_API or {}
 
 local CFG_API = UCB.CFG_API
 local CASTBAR_API = UCB.CASTBAR_API
@@ -15,6 +16,21 @@ local Util = UCB.Util
 local Opt  = UCB.Options
 local tags = UCB.tags
 local BarUpdate_API = UCB.BarUpdate_API
+local Preview_API = UCB.Preview_API
+
+
+local function UpdateSequence(unit)
+
+    BarUpdate_API:UpdateBarIcon(unit)
+    BarUpdate_API:UpdateVisibility(unit)
+    BarUpdate_API:UpdateColours(unit)
+    BarUpdate_API:UpdateStyle(unit)
+    BarUpdate_API:UpdateText(unit)
+    --BarUpdate_API:UpdateUninterruptable(unit)
+    BarUpdate_API:UpdateOtherFeatures(unit)
+    BarUpdate_API:UpdateOthers(unit)
+
+end
 
 
 local function CreateCastBar(unit)
@@ -55,18 +71,16 @@ local function CreateCastBar(unit)
     bar.mirrorFrame:SetClipsChildren(true)
     bar.mirrorFrame:Hide()
 
+    --bar.unInterruptedFrame = CreateFrame("Frame", nil, bar, "BackdropTemplate")
+   -- bar.unInterruptedFrame:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
+   -- bar.unInterruptedFrame:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 0, 0)
+
     bar.iconFrame = CreateFrame("Frame", nil, group, "BackdropTemplate")
     bar.icon = bar.iconFrame:CreateTexture(nil, "ARTWORK")
     bar.icon:SetAllPoints()
     bar.icon:SetTexCoord(0.06, 0.94, 0.06, 0.94)
 
-    BarUpdate_API:UpdateBarIcon(unit)
-    BarUpdate_API:UpdateVisibility(unit)
-    BarUpdate_API:UpdateColours(unit)
-    BarUpdate_API:UpdateStyle(unit)
-    BarUpdate_API:UpdateText(unit)
-    BarUpdate_API:UpdateOtherFeatures(unit)
-    BarUpdate_API:UpdateOthers(unit)
+    UpdateSequence(unit)
 
     bar.group:Hide()
 end
@@ -138,14 +152,7 @@ function CASTBAR_API:UpdateCastbar(unit)
                 end
                 return
             end
-
-            BarUpdate_API:UpdateBarIcon(unit)
-            BarUpdate_API:UpdateVisibility(unit)
-            BarUpdate_API:UpdateColours(unit)
-            BarUpdate_API:UpdateStyle(unit)
-            BarUpdate_API:UpdateText(unit)
-            BarUpdate_API:UpdateOtherFeatures(unit)
-            BarUpdate_API:UpdateOthers(unit)
+            UpdateSequence(unit)
         end
     end
 end
@@ -225,7 +232,7 @@ function CASTBAR_API:SemiColourUpdate(unit, bar)
 end
 
 -- Tries to stop previous casts
-function CASTBAR_API:StopPrevCast(unit, bar, castGUID, spellID)
+local function StopPrevCast(unit, bar, castGUID, spellID)
     if bar.activeCast then
         if bar._prevType == "normal" then
             CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID)
@@ -246,6 +253,121 @@ function CASTBAR_API:MirrorBar(cfg, bar, castType)
 end
 
 function CASTBAR_API:UninterruptibleCast(unit, unInt)
+end
+
+
+local function InitCastbarVal(status, castType, resumeCast, vars, cfg)
+    local minVal = 0
+    local maxVal = vars.dTime
+    -- Resume sets value to current point
+    if resumeCast then
+        minVal = vars.durationObject:GetElapsedDuration()
+        maxVal = vars.durationObject:GetRemainingDuration()
+    end
+    -- Channels are inverted, so flip min and max
+    if castType == "channel" then
+        minVal, maxVal = maxVal, minVal
+    end
+
+    -- Set initial value based on invert
+    local inverted = cfg.invertBar[castType]
+    if inverted then
+        status:SetValue(maxVal)
+    else
+        status:SetValue(minVal)
+    end
+end
+
+
+function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
+    if Preview_API.previewActive and Preview_API.previewActive[unit] then
+        Preview_API:HidePreviewCastBar(unit)
+    end
+
+    local cfg = CFG_API.GetValueConfig(unit)
+    local bar = UCB.castBar[unit]
+    StopPrevCast(unit, bar, castGUID, spellID)
+
+    -- Update internal vars with spellInfo
+    local icon_texture = tags:updateVars(unit, castType, spellID, cfg)
+    local vars = tags.var[unit]
+
+    -- Failsafe
+    if not vars.durationObject then
+        return
+    end
+
+    -- Set text, icon, queue window
+    local textCFG = cfg.text
+    tags:setTextSameState(textCFG, bar, "semiDynamic", unit, castType, false)
+    tags:setTextSameState(textCFG, bar, "dynamic", unit, castType, true)
+    
+    bar.icon:SetTexture(icon_texture)
+
+    if unit == "player" then
+        CASTBAR_API:AssignQueueWindow(castType)
+    end
+
+    bar.status:SetMinMaxValues(0, vars.dTime)
+    local otherCFG = cfg.otherFeatures
+    CASTBAR_API:MirrorBar(otherCFG, bar, castType)
+    InitCastbarVal(bar.status, castType, resumeCast, vars, otherCFG)
+
+    return cfg, bar, vars
+end
+
+function CASTBAR_API:CastOnUpdateSetup(bar, unit, cfg, vars, castType, spellID, CastbarOnUpdate)
+    bar._ucbUnit = unit
+    bar._ucbCfg = cfg
+    bar._ucbCastType = castType
+    bar._ucbVars = vars
+    bar._ucbSpellID = spellID
+    bar:SetScript("OnUpdate", CastbarOnUpdate)
+    bar.group:Show()
+    bar._prevType = castType
+    bar.castActive = true
+end
+
+
+function CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType)
+    local cfg = CFG_API.GetValueConfig(unit)
+    local bar = UCB.castBar[unit]
+
+    local icon_texture = tags:updateVars(unit, castType, spellID, cfg)
+    local vars = tags.var[unit]
+
+    -- Failsafe
+    if not vars.durationObject then
+        return
+    end
+
+    -- Set text, icon, queue window
+    local textCFG = cfg.text
+    tags:setTextSameState(textCFG, bar, "semiDynamic", unit, castType, false)
+    tags:setTextSameState(textCFG, bar, "dynamic", unit, castType, true)
+
+    bar.icon:SetTexture(icon_texture)
+
+    if unit == "player" then
+        CASTBAR_API:AssignQueueWindow(castType)
+    end
+
+    bar.status:SetMinMaxValues(0, vars.dTime)
+    local otherCFG = cfg.otherFeatures
+    CASTBAR_API:MirrorBar(otherCFG, bar, castType)
+    
+    -- Set value based on invert and cast type (channel or not)
+    local minVal = 0
+    local maxVal = vars.dTime
+    if castType == "channel" then
+        minVal, maxVal = maxVal, minVal
+    end
+    local inverted = otherCFG.invertBar[castType]
+    if inverted then
+        bar.status:SetValue(maxVal)
+    else
+        bar.status:SetValue(minVal)
+    end
 end
 
 -- !!!!!!!!!!!!!!!!!!!!!!! DYNAMIC UPDATE FUNCTION !!!!!!!!!!!!!!!!!!!!!!!!

@@ -3,12 +3,10 @@ local ADDON_NAME, UCB = ...
 UCB.CFG_API  = UCB.CFG_API  or {}
 UCB.tags     = UCB.tags     or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
-UCB.Preview_API = UCB.Preview_API or {}
 
 local CFG_API = UCB.CFG_API
 local tags = UCB.tags
 local CASTBAR_API = UCB.CASTBAR_API
-local Preview_API = UCB.Preview_API
 
 local castType = "empowered"
 
@@ -215,94 +213,21 @@ function CASTBAR_API:InitializeEmpoweredStages(unit)
     end
 end
 
-function CASTBAR_API:OnUnitSpellcastEmpowerStart(unit, castGUID, spellID)
-    if Preview_API.previewActive and Preview_API.previewActive[unit] then
-        Preview_API:HidePreviewCastBar(unit)
-    end
+function CASTBAR_API:OnUnitSpellcastEmpowerStart(unit, castGUID, spellID, resumeCast)
     -- Prevent Font of Magic (spellID 411212) from showing empower stages ???
     if unit == "player" and spellID == 411212 then return end
-
-    local cfg = CFG_API.GetValueConfig(unit)
-    local bar = UCB.castBar[unit]
-    CASTBAR_API:StopPrevCast(unit, bar, castGUID, spellID)
-
-    local icon_texture = tags:updateVars(unit, castType, spellID, cfg)
-    local vars = tags.var[unit]
-    
-    -- Failsafe
-    if not vars.durationObject then
-        return
-    end
-    
-    -- Set text, icon, queue window
-    local textCFG = cfg.text
-    tags:setTextSameState(textCFG, bar, "semiDynamic", unit, castType, false)
-    tags:setTextSameState(textCFG, bar, "dynamic", unit, castType, true)
-
-    bar.icon:SetTexture(icon_texture)
-
-    if unit == "player" then
-        CASTBAR_API:AssignQueueWindow(castType)
-    end
-
-    bar.status:SetMinMaxValues(0, vars.dTime)
-    local otherCFG = cfg.otherFeatures
-    CASTBAR_API:MirrorBar(otherCFG, bar, castType)
-    local inverted = otherCFG.invertBar[castType]
-    if inverted then
-        bar.status:SetValue(vars.dTime)
-    else
-        bar.status:SetValue(0)
-    end
-
+    local cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
     -- Set colours and other empower stage visuals
     if cfg.CLASSES.EVOKER.enableEmpowerEffects and UnitIsPlayer(unit) then
         CASTBAR_API:InitializeEmpoweredStages(unit)
     else
         CASTBAR_API:SemiColourUpdate(unit, bar)
     end
-
-    bar._ucbUnit = unit
-    bar._ucbCfg = cfg
-    bar._ucbCastType = castType
-    bar._ucbVars = vars
-    bar:SetScript("OnUpdate", CastbarOnUpdate)
-    bar.group:Show()
-    bar.castActive = true
-    bar._prevType = castType
+    CASTBAR_API:CastOnUpdateSetup(bar, unit, cfg, vars, castType, spellID, CastbarOnUpdate)
 end
 
 function CASTBAR_API:OnUnitSpellcastEmpowerUpdate(unit, castGUID, spellID)
-    local cfg = CFG_API.GetValueConfig(unit)
-    local bar = UCB.castBar[unit]
-
-    local icon_texture = tags:updateVars(unit, castType, spellID, cfg)
-    local vars = tags.var[unit]
-
-    -- Failsafe
-    if not vars.durationObject then
-        return
-    end
-
-    local textCFG = cfg.text
-    tags:setTextSameState(textCFG, bar, "semiDynamic", unit, castType, false)
-    tags:setTextSameState(textCFG, bar, "dynamic", unit, castType, true)
-    
-    bar.icon:SetTexture(icon_texture)
-
-    if unit=="player" then 
-        CASTBAR_API:AssignQueueWindow(castType)
-    end
-
-    bar.status:SetMinMaxValues(0, vars.dTime)
-    local otherCFG = cfg.otherFeatures
-    CASTBAR_API:MirrorBar(otherCFG, bar, castType)
-    local inverted = otherCFG.invertBar[castType]
-    if inverted then
-        bar.status:SetValue(vars.dTime)
-    else
-        bar.status:SetValue(0)
-    end
+    CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType)
 end
 
 function CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID)
@@ -312,7 +237,7 @@ function CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID)
         bar:SetScript("OnUpdate", nil)
         bar.castActive = false
         bar._prevType = nil
-        bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars = nil, nil, nil, nil
+        bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars, bar._ucbSpellID = nil, nil, nil, nil, nil
         local cfg = CFG_API.GetValueConfig(unit)
         if cfg.CLASSES.EVOKER.enableEmpowerEffects and UnitIsPlayer(unit) then
             CASTBAR_API:HideStages(unit)
