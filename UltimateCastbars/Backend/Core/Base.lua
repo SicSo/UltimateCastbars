@@ -1,9 +1,6 @@
 local ADDON_NAME, UCB = ...
 
-
-UCB.Util = UCB.Util or {}
 UCB.CFG_API  = UCB.CFG_API  or {}
-UCB.Options = UCB.Options or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.BarUpdate_API = UCB.BarUpdate_API or {}
 UCB.tags     = UCB.tags     or {}
@@ -12,12 +9,9 @@ UCB.Preview_API = UCB.Preview_API or {}
 local CFG_API = UCB.CFG_API
 local CASTBAR_API = UCB.CASTBAR_API
 
-local Util = UCB.Util
-local Opt  = UCB.Options
 local tags = UCB.tags
 local BarUpdate_API = UCB.BarUpdate_API
 local Preview_API = UCB.Preview_API
-
 
 local function UpdateSequence(unit)
 
@@ -26,12 +20,11 @@ local function UpdateSequence(unit)
     BarUpdate_API:UpdateColours(unit)
     BarUpdate_API:UpdateStyle(unit)
     BarUpdate_API:UpdateText(unit)
-    --BarUpdate_API:UpdateUninterruptable(unit)
+    BarUpdate_API:UpdateUninterruptable(unit)
     BarUpdate_API:UpdateOtherFeatures(unit)
     BarUpdate_API:UpdateOthers(unit)
 
 end
-
 
 local function CreateCastBar(unit)
     -- Create castbar
@@ -71,9 +64,9 @@ local function CreateCastBar(unit)
     bar.mirrorFrame:SetClipsChildren(true)
     bar.mirrorFrame:Hide()
 
-    --bar.unInterruptedFrame = CreateFrame("Frame", nil, bar, "BackdropTemplate")
-   -- bar.unInterruptedFrame:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
-   -- bar.unInterruptedFrame:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 0, 0)
+    bar.unInterruptedFrame = CreateFrame("Frame", nil, bar, "BackdropTemplate")
+    bar.unInterruptedFrame:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
+    bar.unInterruptedFrame:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 0, 0)
 
     bar.iconFrame = CreateFrame("Frame", nil, group, "BackdropTemplate")
     bar.icon = bar.iconFrame:CreateTexture(nil, "ARTWORK")
@@ -252,7 +245,13 @@ function CASTBAR_API:MirrorBar(cfg, bar, castType)
     if status then status:SetAlphaFromBoolean(not bar._mirrored) end
 end
 
-function CASTBAR_API:UninterruptibleCast(unit, unInt)
+function CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
+    local uint = vars.nIntr
+    local frame = bar.unInterruptedFrame
+    local status = frame.status
+    frame:SetAlphaFromBoolean(uint)
+    status:SetMinMaxValues(bar_status:GetMinMaxValues())
+    status:SetValue(bar_status:GetValue())
 end
 
 
@@ -308,10 +307,13 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
         CASTBAR_API:AssignQueueWindow(castType)
     end
 
-    bar.status:SetMinMaxValues(0, vars.dTime)
+    local bar_status = bar.status
+    bar_status:SetMinMaxValues(0, vars.dTime)
     local otherCFG = cfg.otherFeatures
     CASTBAR_API:MirrorBar(otherCFG, bar, castType)
-    InitCastbarVal(bar.status, castType, resumeCast, vars, otherCFG)
+    InitCastbarVal(bar_status, castType, resumeCast, vars, otherCFG)
+
+    CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
 
     return cfg, bar, vars
 end
@@ -376,6 +378,7 @@ function CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
     if not durationObject then return end
 
     local status = bar.status
+    local status_uint = bar.unInterruptedFrame.status
     local inverted = cfg.otherFeatures.invertBar[castType]
 
     local progress
@@ -389,6 +392,7 @@ function CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
         progress = remaining
     end
     status:SetValue(progress)
+    status_uint:SetValue(progress)
 
     -- Set dynamic texts
     UCB.tags:ApplyTextState(bar, "dynamic", unit, remaining, elapsedTime)

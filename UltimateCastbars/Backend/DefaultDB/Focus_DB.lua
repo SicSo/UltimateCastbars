@@ -252,19 +252,25 @@ local focus_db = {
         frameLevel = 20,
     },
 
-    unintreruptable = {
-        showColour = false,
-        colour = {r=0.5, g=0.5, b=0.5, a=1}, -- grey
+    uninterruptable = {
+        showUninterruptable = true,
 
-        showBackground = false,
-        bgColour = {r=0, g=0, b=0, a=1},
-       
-        showBorder = false,
-        borderTexture = "Interface\\Buttons\\WHITE8X8",
-        borderTextureName = "1 Pixel",
-        borderColour = {r=0.5, g=0.5, b=0.5, a=1}, -- grey
-        borderThickness = 5,
-        
+        showUninterruptableFill = true,
+        fillColour = {r=1, g=0, b=0, a=1}, -- red, semi-transparent
+        fillTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+        fillTextureName = "Blizzard",
+
+        showUninterruptableBackground = true,
+        backgroundColour = {r=1, g=0, b=0, a=0.5}, -- red, semi-transparent
+        backgroundUseTexture = false,
+        backgroundTexture = "Interface\\DialogFrame\\UI-DialogBox-Background",
+        backgroundTextureName = "Blizzard Dialog Background",
+
+        showUninterruptableBorder = false,
+        borderColour = {r=1, g=0, b=0, a=1},
+        borderTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+        borderTextureName = "Blizzard",
+        borderThickness = 1,
         borderOffsetTop = 0,
         borderOffsetBottom = 0,
         borderOffsetLeft = 0,

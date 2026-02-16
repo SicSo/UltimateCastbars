@@ -15,6 +15,7 @@
 	<Script file="BackendUI/Text_Backend.lua"/>
 	<Script file="BackendUI/General_Backend.lua"/>
 	<Script file="BackendUI/Style_Backend.lua"/>
+	<Script file="BackendUI/Uninterruptable_Backend.lua"/>
 	
 	<!-- UI Settings -->
 	<Script file="TabsUI/BlizzCast_Settings.lua"/>
@@ -24,6 +25,7 @@
 	<Script file="TabsUI/Style_Settings.lua"/>
 	<Script file="TabsUI/Text_Settings.lua"/>
 	<Script file="TabsUI/Visibility_Settings.lua"/>
+	<Script file="TabsUI/Uninterruptable_Settings.lua"/>
 
 	<!-- Class Settings -->
 	<Script file="TabsUI/ClassOptions/GeneralClass_Settings.lua"/>

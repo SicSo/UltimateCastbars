@@ -274,6 +274,7 @@ local function ComputeSize(bar, genCfg, styleCfg, syncedW, syncedH)
     bar.textFrame:SetAllPoints(bar)
     bar.overlayFrame:SetAllPoints(bar)
     bar.underlayFrame:SetAllPoints(bar)
+    bar.unInterruptedFrame:SetAllPoints(bar)
     bar.group:SetSize(genCfg.fullBarWidth, genCfg.fullBarHeight)
 end
 
@@ -311,6 +312,7 @@ local function LayoutIconAndBar2(bar, cfg)
         bar.textFrame:SetAllPoints(bar)
         bar.overlayFrame:SetAllPoints(bar)
         bar.underlayFrame:SetAllPoints(bar)
+        bar.unInterruptedFrame:SetAllPoints(bar)
         return
     end
 
@@ -354,6 +356,7 @@ local function LayoutIconAndBar2(bar, cfg)
     bar.textFrame:SetAllPoints(bar)
     bar.overlayFrame:SetAllPoints(bar)
     bar.underlayFrame:SetAllPoints(bar)
+    bar.unInterruptedFrame:SetAllPoints(bar)
 end
 
 local function SizeWhenReady(bar, genCfg, styleCfg, opts)

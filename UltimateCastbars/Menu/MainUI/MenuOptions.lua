@@ -291,10 +291,18 @@ function UCB:BuildUnitOptionsArgs(unit)
             args = UCB.Options.BuildGeneralSettingsStyleArgs(unit, { includePerTabEnable = false }),
         },
 
+        uninterruptable = {
+            type = "group",
+            name = "Uninterruptable",
+            order = 4,
+            disabled = IsDisabled,
+            args = UCB.Options.BuildGeneralSettingsUninterruptableArgs(unit, { includePerTabEnable = false }),
+        },
+
         visibility = {
             type = "group",
             name = "Visibility",
-            order = 4,
+            order = 5,
             disabled = IsDisabled,
             args = UCB.Options.BuildGeneralSettingsVisibilityArgs(unit, { includePerTabEnable = false }),
         },
@@ -302,7 +310,7 @@ function UCB:BuildUnitOptionsArgs(unit)
         otherFeatures = {
             type = "group",
             name = "Other Features",
-            order = 5,
+            order = 6,
             disabled = IsDisabled,
             args = UCB.Options.BuildGeneralSettingsOtherFeaturesArgs(unit, { includePerTabEnable = false }),
         },
@@ -310,7 +318,7 @@ function UCB:BuildUnitOptionsArgs(unit)
         classSettings = {
             type = "group",
             name = "Class Specific Settings",
-            order = 6,
+            order = 7,
             childGroups = "tree",
             disabled = IsDisabled,
             args = UCB.Options.BuildClassSettingsArgs(unit, { includePerTabEnable = false }),
@@ -319,7 +327,7 @@ function UCB:BuildUnitOptionsArgs(unit)
         defaultCastbar = {
             type = "group",
             name = "Default Blizzard Castbar",
-            order = 7,
+            order = 8,
             args = UCB.Options.BuildGeneralSettingsDefaultBarArgs(unit, { includePerTabEnable = false }),
         },
     }

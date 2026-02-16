@@ -261,9 +261,49 @@ function BarUpdate_API:UpdateVisibility(unit)
     bar.textFrame:SetFrameLevel(cfg.frameLevel + 10)    -- text above all
     bar.underlayFrame:SetFrameLevel(cfg.frameLevel) -- underlay below all
     bar.mirrorFrame:SetFrameLevel(cfg.frameLevel + 1) -- same as status, but only shown when mirrored
+    bar.unInterruptedFrame:SetFrameLevel(cfg.frameLevel + 2) -- same as status, but only shown when uninterruptible
 end
 
 
+function BarUpdate_API:UpdateUninterruptable(unit)
+    local bar = UCB.castBar[unit]
+    if not bar then return end
+    local cfg = CFG_API.GetValueConfig(unit).uninterruptable
+    local unint_frame = bar.unInterruptedFrame
+
+    if cfg.showUninterruptableFill and cfg.showUninterruptable then
+        if not unint_frame.status then
+            unint_frame.status = CreateFrame("StatusBar", nil, unint_frame)
+            unint_frame.status:SetAllPoints()
+        end
+        unint_frame.status:SetStatusBarTexture(cfg.fillTexture)
+        unint_frame.status:SetStatusBarColor(cfg.fillColour.r, cfg.fillColour.g, cfg.fillColour.b, cfg.fillColour.a)
+        unint_frame.status:Show()
+    else
+        if unint_frame.status then
+            unint_frame.status:Hide()
+        end
+    end
+
+    if cfg.showUninterruptableBackground and cfg.showUninterruptable then
+        if not unint_frame.bg then
+            unint_frame.bg = unint_frame:CreateTexture(nil, "BACKGROUND", nil, 3)
+            unint_frame.bg:SetAllPoints()
+        end
+        local bg = unint_frame.bg
+        --print("I am here")
+        if cfg.backgroundUseTexture then
+            bg:SetTexture(cfg.backgroundTexture)
+            bg:SetVertexColor(cfg.backgroundColour.r, cfg.backgroundColour.g, cfg.backgroundColour.b, cfg.backgroundColour.a)
+        else
+             bg:SetVertexColor(1, 1, 1, 1) -- white tint to show texture clearly
+             bg:SetColorTexture(cfg.backgroundColour.r, cfg.backgroundColour.g, cfg.backgroundColour.b, cfg.backgroundColour.a)
+        end
+        bg:Show()
+    elseif unint_frame.bg then
+        unint_frame.bg:Hide()
+    end
+end
 
 local function ClampNonNeg(x)
     return (x and x > 0) and x or 0

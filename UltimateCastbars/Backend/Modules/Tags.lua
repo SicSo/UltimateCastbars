@@ -281,7 +281,7 @@ function tags:updateVars(unit, type, spellID, cfg)
             name, _, texture, _, _, _, notInterruptible = UnitChannelInfo(unit)
         end
     else
-        name, _, texture, _, _, _, _, notInterruptible = UnitChannelInfo(unit)
+        name, _, texture, _, _, _, notInterruptible = UnitChannelInfo(unit)
         durationObject = UnitEmpoweredChannelDuration(unit)
         local stages = UnitEmpoweredStagePercentages(unit, true)
         if unit == "player" then
