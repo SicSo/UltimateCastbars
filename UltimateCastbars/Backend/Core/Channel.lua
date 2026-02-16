@@ -24,9 +24,6 @@ local function CastbarOnUpdate(bar, elapsed)
     if unit == "player" and remainig < -0.001 then
         CASTBAR_API:OnUnitSpellcastChannelStop(unit, nil, spellID)
     end
-    --if unit ~= "player" and vars.durationObject:IsZero() then
-    --    CASTBAR_API:OnUnitSpellcastChannelStop(unit)
-    --end
 end
 
 local function GetChannelTickNumber(spellID, cfg)
@@ -77,7 +74,6 @@ function CASTBAR_API:HideChannelTicks(unit)
     end
     cfg._prevChannelNumTicks = 0
 end
-
 
 -- Draw channel ticks on the cast bar
 local function ShowChannelTicks(unit, numTicks, pos)
@@ -173,6 +169,7 @@ function CASTBAR_API:AssignChannelTicks(unit, spellID, event)
     end
 end
 
+---------------------------------------------------- MAIN -------------------------------------------------
 function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID, resumeCast)
     local cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
     CASTBAR_API:AssignChannelTicks(unit, spellID, "START")

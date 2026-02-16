@@ -8,11 +8,7 @@ UCB.OtherFeatures_API = UCB.OtherFeatures_API or {}
 UCB.tags = UCB.tags or {}
 UCB.Text_API = UCB.Text_API or {}
 
-local CASTBAR_API = UCB.CASTBAR_API
-local Opt = UCB.Options
 local CFG_API = UCB.CFG_API
---local CFG_API.GetValueConfig = CFG_API.GetValueConfig
-local UIOptions = UCB.UIOptions
 local BarUpdate_API = UCB.BarUpdate_API
 local OtherFeatures_API = UCB.OtherFeatures_API
 local Text_API = UCB.Text_API
@@ -20,165 +16,163 @@ local Text_API = UCB.Text_API
 local LSM  = UCB.LSM
 
 ----------------------------------------HELPER----------------------------------------
-local floor = math.floor
+local function ClampNonNeg(x)
+    return (x and x > 0) and x or 0
+end
 
-local OMBRE_STOPS = {
-    {p=0.10, r=1,   g=0,   b=0},   -- Red
-    {p=0.20, r=1,   g=0.5, b=0},   -- Orange
-    {p=0.30, r=1,   g=1,   b=0},   -- Yellow
-    {p=0.40, r=0,   g=1,   b=0},   -- Green
-    {p=0.60, r=0,   g=0.5, b=1},   -- Blue
-    {p=0.80, r=0.5, g=0,   b=1},   -- Purple
-    {p=1.00, r=1,   g=1,   b=1},   -- Class color (patched)
-}
+local function EnsureRectBorder(holder, key, frameLevelDelta)
+    holder[key] = holder[key] or CreateFrame("Frame", nil, holder)
+    local f = holder[key]
+    f:SetFrameLevel(holder:GetFrameLevel() + frameLevelDelta)
+    f:ClearAllPoints()
+    f:SetAllPoints(holder)
 
--- !!!!!!!!!!!!!!!!!!!!!!! DYNAMIC UPDATE FUNCTION !!!!!!!!!!!!!!!!!!!!!!!!
-local function ombreColours_Legacy(bar, percent)
-    local status = bar.status
-    local tex = bar._tex or status:GetStatusBarTexture()
-    bar._tex = tex
+    if not f.top then
+        f.top    = f:CreateTexture(nil, "OVERLAY")
+        f.bottom = f:CreateTexture(nil, "OVERLAY")
+        f.left   = f:CreateTexture(nil, "OVERLAY")
+        f.right  = f:CreateTexture(nil, "OVERLAY")
+    end
+    return f
+end
 
-    -- Patch last stop only if class colour changed
-    local cc = UCB.classColour.RGBA
-    if bar._ombreCCr ~= cc.r or bar._ombreCCg ~= cc.g or bar._ombreCCb ~= cc.b then
-        bar._ombreCCr, bar._ombreCCg, bar._ombreCCb = cc.r, cc.g, cc.b
-        local last = OMBRE_STOPS[#OMBRE_STOPS]
-        last.r, last.g, last.b = cc.r, cc.g, cc.b
+local function ApplyRectBorder(holder, key, target, texture, colour, baseThickness, offsets, frameLevelDelta)
+    local f = EnsureRectBorder(holder, key, frameLevelDelta)
+
+    local t = baseThickness or 0
+    -- Visible thickness per side = baseThickness - offsetSide (clamped)
+    local tL = ClampNonNeg(t + offsets.left)
+    local tR = ClampNonNeg(t + offsets.right)
+    local tT = ClampNonNeg(t + offsets.top)
+    local tB = ClampNonNeg(t + offsets.bottom)
+
+    local function setup(tex)
+        tex:SetTexture(texture)
+        tex:SetVertexColor(colour.r, colour.g, colour.b, colour.a)
+        tex:SetHorizTile(true)
+        tex:SetVertTile(true)
+        tex:Show()
     end
 
-    -- Clamp percent just in case
-    if percent <= 0.10 then
-        -- before first stop, treat as first stop colour
-        percent = 0.10
-    elseif percent >= 1.0 then
-        percent = 1.0
+    if tT <= 0 then f.top:Hide() else setup(f.top) end
+    if tB <= 0 then f.bottom:Hide() else setup(f.bottom) end
+    if tL <= 0 then f.left:Hide() else setup(f.left) end
+    if tR <= 0 then f.right:Hide() else setup(f.right) end
+
+    -- LEFT: outside, full height of target (not part of outside corner squares)
+    if tL > 0 then
+        f.left:ClearAllPoints()
+        f.left:SetPoint("TOPRIGHT",    target, "TOPLEFT",    0, 0)
+        f.left:SetPoint("BOTTOMRIGHT", target, "BOTTOMLEFT", 0, 0)
+        f.left:SetWidth(tL)
     end
 
-    -- Find interval (linear scan is fine for 7 stops; branchy but cheap)
-    local stops = OMBRE_STOPS
-    local prev = stops[1]
-    local next = stops[2]
-
-    for i = 2, #stops do
-        next = stops[i]
-        if percent <= next.p then
-            prev = stops[i - 1]
-            break
-        end
+    -- RIGHT: outside, full height of target
+    if tR > 0 then
+        f.right:ClearAllPoints()
+        f.right:SetPoint("TOPLEFT",    target, "TOPRIGHT",    0, 0)
+        f.right:SetPoint("BOTTOMLEFT", target, "BOTTOMRIGHT", 0, 0)
+        f.right:SetWidth(tR)
     end
 
-    local range = next.p - prev.p
-    local rel = (percent - prev.p) / (range ~= 0 and range or 1)
+    -- TOP: outside, full width INCLUDING side thickness (fills corners)
+    if tT > 0 then
+        f.top:ClearAllPoints()
+        f.top:SetPoint("BOTTOMLEFT",  target, "TOPLEFT",  -tL, 0)
+        f.top:SetPoint("BOTTOMRIGHT", target, "TOPRIGHT",  tR, 0)
+        f.top:SetHeight(tT)
+    end
 
-    local r = prev.r + (next.r - prev.r) * rel
-    local g = prev.g + (next.g - prev.g) * rel
-    local b = prev.b + (next.b - prev.b) * rel
+    -- BOTTOM: outside, full width INCLUDING side thickness (fills corners)
+    if tB > 0 then
+        f.bottom:ClearAllPoints()
+        f.bottom:SetPoint("TOPLEFT",  target, "BOTTOMLEFT",  -tL, 0)
+        f.bottom:SetPoint("TOPRIGHT", target, "BOTTOMRIGHT",  tR, 0)
+        f.bottom:SetHeight(tB)
+    end
 
-    -- Quantize to 0..255 so we can early-out if visually identical
-    local ri = floor(r * 255 + 0.5)
-    local gi = floor(g * 255 + 0.5)
-    local bi = floor(b * 255 + 0.5)
+    f:Show()
+end
 
-    if bar._ombreRi == ri and bar._ombreGi == gi and bar._ombreBi == bi then
+
+local function HideRectBorder(holder, key)
+    local f = holder[key]
+    if f then f:Hide() end
+end
+
+local function UpdateBorderBar(unit)
+    local bar = UCB.castBar[unit]
+    local cfg = CFG_API.GetValueConfig(unit).style
+    if not bar then return end
+
+    if not cfg.showBorder then
+        HideRectBorder(bar, "_rectBorder")
         return
     end
-    bar._ombreRi, bar._ombreGi, bar._ombreBi = ri, gi, bi
 
-    -- Convert back to 0..1 floats
-    r, g, b = ri / 255, gi / 255, bi / 255
-
-    status:SetStatusBarColor(r, g, b, 1)
-
-    if tex and tex.SetGradient then
-        -- Reuse CreateColor object(s) instead of allocating every call
-        local c1 = bar._ombreC1
-        if not c1 then
-            c1 = CreateColor(r, g, b, 1)
-            bar._ombreC1 = c1
-        elseif c1.SetRGBA then
-            c1:SetRGBA(r, g, b, 1)
-        else
-            -- If no SetRGBA, recreate only when colour changed (we're already in "changed" path)
-            c1 = CreateColor(r, g, b, 1)
-            bar._ombreC1 = c1
-        end
-
-        tex:SetGradient("HORIZONTAL", c1, c1)
-    end
+    ApplyRectBorder(
+        bar,
+        "_rectBorder",
+        bar,                 -- target region to border
+        cfg.textureBorder,   -- strip texture
+        cfg.borderColour,
+        cfg.borderThickness,
+        {
+            left   = cfg.borderOffsetLeft,
+            right  = cfg.borderOffsetRight,
+            top    = cfg.borderOffsetTop,
+            bottom = cfg.borderOffsetBottom,
+        },
+        -1
+    )
 end
 
-local function EnsureOmbreCurve(unit, bar, cfg)
-    local cc
-    if UnitIsPlayer(unit) then
-        local _, classFile = UnitClass(unit)
-        local classColourVal = UCB.UIOptions.classColoursList[classFile]
-        cc = classColourVal.RGBA
+local function UpdateIconBorder(unit)
+    local bar = UCB.castBar[unit]
+    local cfg = CFG_API.GetValueConfig(unit).style
+    if not bar or not bar.iconFrame then return end
+
+    if not cfg.showBorderIcon then
+        HideRectBorder(bar.iconFrame, "_rectBorder")
+        return
+    end
+
+    local texture, colour, thickness, offs
+    if cfg.syncBorderIcon then
+        texture   = cfg.textureBorder
+        colour    = cfg.borderColour
+        thickness = cfg.borderThickness
+        -- if you want icon to use icon offsets even when synced, keep these:
+        offs = {
+            left   = cfg.borderOffsetLeftIcon,
+            right  = cfg.borderOffsetRightIcon,
+            top    = cfg.borderOffsetTopIcon,
+            bottom = cfg.borderOffsetBottomIcon,
+        }
+        -- If instead you want synced to use the BAR offsets, swap to cfg.borderOffsetLeft/Right/Top/Bottom
     else
-        cc = cfg.style.enemyColour
-    end
-    local needsRebuild = false
-
-    if bar._ombreCCr ~= cc.r or bar._ombreCCg ~= cc.g or bar._ombreCCb ~= cc.b then
-        bar._ombreCCr, bar._ombreCCg, bar._ombreCCb = cc.r, cc.g, cc.b
-        local last = OMBRE_STOPS[#OMBRE_STOPS]
-        last.r, last.g, last.b = cc.r, cc.g, cc.b
-        needsRebuild = true
-    end
-
-    local curve = bar._ombreCurve
-    if not curve then
-        curve = C_CurveUtil.CreateColorCurve()
-        curve:SetType(Enum.LuaCurveType.Linear)
-        bar._ombreCurve = curve
-        needsRebuild = true
+        texture   = cfg.textureBorderIcon
+        colour    = cfg.borderColourIcon
+        thickness = cfg.borderThicknessIcon
+        offs = {
+            left   = cfg.borderOffsetLeftIcon,
+            right  = cfg.borderOffsetRightIcon,
+            top    = cfg.borderOffsetTopIcon,
+            bottom = cfg.borderOffsetBottomIcon,
+        }
     end
 
-    if needsRebuild then
-        curve:ClearPoints()
-        for i = 1, #OMBRE_STOPS do
-            local stop = OMBRE_STOPS[i]
-            curve:AddPoint(stop.p, CreateColor(stop.r, stop.g, stop.b, 1)) -- 0..1
-        end
-    end
-
-    return curve
+    ApplyRectBorder(
+        bar.iconFrame,
+        "_rectBorder",
+        bar.iconFrame,
+        texture,
+        colour,
+        thickness,
+        offs,
+        -3
+    )
 end
-
-local function ombreColours(unit, bar, cfg, durationObject, inverted)
-    local status = bar.status
-    local tex = bar._tex or status:GetStatusBarTexture()
-    bar._tex = tex
-    local mtex = bar._mirrorTex
-    local doMirror = bar._mirrored and mtex
-
-    local curve = EnsureOmbreCurve(unit, bar, cfg)
-
-    local colour
-    if durationObject and durationObject.EvaluateElapsedPercent and durationObject.EvaluateRemainingPercent then
-        colour = inverted and durationObject:EvaluateRemainingPercent(curve) or durationObject:EvaluateElapsedPercent(curve)
-    --else
-    --    local percent = 1
-    --    if duration and duration > 0 then
-    --        percent = (elapsedSinceStart or 0) / duration
-    --    end
-    --    if percent <= 0.10 then percent = 0.10 end
-    --    if percent >= 1.00 then percent = 1.00 end
-    --    colour = curve:Evaluate(percent)
-    end
-
-    if not colour then return end
-    local r, g, b, a = colour:GetRGBA()
-    if not a then a = 1 end
-
-    -- no arithmetic on secret values
-    status:SetStatusBarColor(r, g, b, a)
-    if tex and tex.SetVertexColor then
-        tex:SetVertexColor(r, g, b, a)
-        if doMirror then mtex:SetVertexColor(r, g, b, a) end
-    end
-end
-
-
 ----------------------------------------MAIN----------------------------------------
 function BarUpdate_API:UpdateText(unit)
     local bar = UCB.castBar[unit]
@@ -271,7 +265,7 @@ function BarUpdate_API:UpdateUninterruptable(unit)
     if not bar then return end
     local cfg = CFG_API.GetValueConfig(unit).uninterruptable
     local unint_frame = bar.unInterruptedFrame
-    
+
     if not bar._mirrorUintTex then
         bar._mirrorUintTex = bar.unInterruptedMirrorFrame:CreateTexture(nil, "ARTWORK", nil, -8)
     end
@@ -314,165 +308,6 @@ function BarUpdate_API:UpdateUninterruptable(unit)
     end
 end
 
-local function ClampNonNeg(x)
-    return (x and x > 0) and x or 0
-end
-
-local function EnsureRectBorder(holder, key, frameLevelDelta)
-    holder[key] = holder[key] or CreateFrame("Frame", nil, holder)
-    local f = holder[key]
-    f:SetFrameLevel(holder:GetFrameLevel() + frameLevelDelta)
-    f:ClearAllPoints()
-    f:SetAllPoints(holder)
-
-    if not f.top then
-        f.top    = f:CreateTexture(nil, "OVERLAY")
-        f.bottom = f:CreateTexture(nil, "OVERLAY")
-        f.left   = f:CreateTexture(nil, "OVERLAY")
-        f.right  = f:CreateTexture(nil, "OVERLAY")
-    end
-    return f
-end
-
-local function ApplyRectBorder(holder, key, target, texture, colour, baseThickness, offsets, frameLevelDelta)
-    local f = EnsureRectBorder(holder, key, frameLevelDelta)
-
-    local t = baseThickness or 0
-    -- Visible thickness per side = baseThickness - offsetSide (clamped)
-    local tL = ClampNonNeg(t + offsets.left)
-    local tR = ClampNonNeg(t + offsets.right)
-    local tT = ClampNonNeg(t + offsets.top)
-    local tB = ClampNonNeg(t + offsets.bottom)
-
-    local function setup(tex)
-        tex:SetTexture(texture)
-        tex:SetVertexColor(colour.r, colour.g, colour.b, colour.a)
-        tex:SetHorizTile(true)
-        tex:SetVertTile(true)
-        tex:Show()
-    end
-
-    if tT <= 0 then f.top:Hide() else setup(f.top) end
-    if tB <= 0 then f.bottom:Hide() else setup(f.bottom) end
-    if tL <= 0 then f.left:Hide() else setup(f.left) end
-    if tR <= 0 then f.right:Hide() else setup(f.right) end
-
-    -- LEFT: outside, full height of target (not part of outside corner squares)
-    if tL > 0 then
-        f.left:ClearAllPoints()
-        f.left:SetPoint("TOPRIGHT",    target, "TOPLEFT",    0, 0)
-        f.left:SetPoint("BOTTOMRIGHT", target, "BOTTOMLEFT", 0, 0)
-        f.left:SetWidth(tL)
-    end
-
-    -- RIGHT: outside, full height of target
-    if tR > 0 then
-        f.right:ClearAllPoints()
-        f.right:SetPoint("TOPLEFT",    target, "TOPRIGHT",    0, 0)
-        f.right:SetPoint("BOTTOMLEFT", target, "BOTTOMRIGHT", 0, 0)
-        f.right:SetWidth(tR)
-    end
-
-    -- TOP: outside, full width INCLUDING side thickness (fills corners)
-    if tT > 0 then
-        f.top:ClearAllPoints()
-        f.top:SetPoint("BOTTOMLEFT",  target, "TOPLEFT",  -tL, 0)
-        f.top:SetPoint("BOTTOMRIGHT", target, "TOPRIGHT",  tR, 0)
-        f.top:SetHeight(tT)
-    end
-
-    -- BOTTOM: outside, full width INCLUDING side thickness (fills corners)
-    if tB > 0 then
-        f.bottom:ClearAllPoints()
-        f.bottom:SetPoint("TOPLEFT",  target, "BOTTOMLEFT",  -tL, 0)
-        f.bottom:SetPoint("TOPRIGHT", target, "BOTTOMRIGHT",  tR, 0)
-        f.bottom:SetHeight(tB)
-    end
-
-    f:Show()
-end
-
-
-local function HideRectBorder(holder, key)
-    local f = holder[key]
-    if f then f:Hide() end
-end
-
-function BarUpdate_API:UpdateBorderBar(unit)
-    local bar = UCB.castBar[unit]
-    local cfg = CFG_API.GetValueConfig(unit).style
-    if not bar then return end
-
-    if not cfg.showBorder then
-        HideRectBorder(bar, "_rectBorder")
-        return
-    end
-
-    ApplyRectBorder(
-        bar,
-        "_rectBorder",
-        bar,                 -- target region to border
-        cfg.textureBorder,   -- strip texture
-        cfg.borderColour,
-        cfg.borderThickness,
-        {
-            left   = cfg.borderOffsetLeft,
-            right  = cfg.borderOffsetRight,
-            top    = cfg.borderOffsetTop,
-            bottom = cfg.borderOffsetBottom,
-        },
-        -1
-    )
-end
-
-
-function BarUpdate_API:UpdateIconBorder(unit)
-    local bar = UCB.castBar[unit]
-    local cfg = CFG_API.GetValueConfig(unit).style
-    if not bar or not bar.iconFrame then return end
-
-    if not cfg.showBorderIcon then
-        HideRectBorder(bar.iconFrame, "_rectBorder")
-        return
-    end
-
-    local texture, colour, thickness, offs
-    if cfg.syncBorderIcon then
-        texture   = cfg.textureBorder
-        colour    = cfg.borderColour
-        thickness = cfg.borderThickness
-        -- if you want icon to use icon offsets even when synced, keep these:
-        offs = {
-            left   = cfg.borderOffsetLeftIcon,
-            right  = cfg.borderOffsetRightIcon,
-            top    = cfg.borderOffsetTopIcon,
-            bottom = cfg.borderOffsetBottomIcon,
-        }
-        -- If instead you want synced to use the BAR offsets, swap to cfg.borderOffsetLeft/Right/Top/Bottom
-    else
-        texture   = cfg.textureBorderIcon
-        colour    = cfg.borderColourIcon
-        thickness = cfg.borderThicknessIcon
-        offs = {
-            left   = cfg.borderOffsetLeftIcon,
-            right  = cfg.borderOffsetRightIcon,
-            top    = cfg.borderOffsetTopIcon,
-            bottom = cfg.borderOffsetBottomIcon,
-        }
-    end
-
-    ApplyRectBorder(
-        bar.iconFrame,
-        "_rectBorder",
-        bar.iconFrame,
-        texture,
-        colour,
-        thickness,
-        offs,
-        -3
-    )
-end
-
 function BarUpdate_API:UpdateStyle(unit)
     local bar = UCB.castBar[unit]
     local bigCFG = CFG_API.GetValueConfig(unit)
@@ -501,12 +336,10 @@ function BarUpdate_API:UpdateStyle(unit)
     elseif bar.bg then
         bar.bg:Hide()
     end
-
     --Bar border
-    BarUpdate_API:UpdateBorderBar(unit)
-
+    UpdateBorderBar(unit)
     -- Icon border
-    BarUpdate_API:UpdateIconBorder(unit)
+    UpdateIconBorder(unit)
 end
 
 
@@ -585,9 +418,7 @@ function BarUpdate_API:UpdateColours(unit)
         elseif col1.SetRGBA then
             col1:SetRGBA(r, g, b, a)
         end
-
         bar._c1 = col1
-
         return
     end
 
@@ -633,7 +464,7 @@ function BarUpdate_API:UpdateOthers(unit)
         end
     end
 
-    -- Predecide tick settings her
+    -- Predecide tick settings here
     local otherCFG = cfg.otherFeatures
     if not classCFG.useMainSettingsChannel then
         otherCFG._tickWidth  = classCFG.channelTickWidth
@@ -645,74 +476,5 @@ function BarUpdate_API:UpdateOthers(unit)
         otherCFG._tickColour = otherCFG.channelTickColour
         otherCFG._useTickTexture = otherCFG.useTickTexture
         otherCFG._tickTexture = otherCFG.tickTexture
-    end
-
-end
-
-
--- !!!!!!!!!!!!!!!!!!!!!!! DYNAMIC UPDATE FUNCTION !!!!!!!!!!!!!!!!!!!!!!!!
-function BarUpdate_API:AssignColours_Legacy(unit, bar, cfg, colourMode, castType, colourProgress, vars, inverted)
-    if castType == "empowered" and cfg.CLASSES.EVOKER.enableEmpowerEffects then
-        if unit == "player" then
-            local tex = bar._tex or bar.status:GetStatusBarTexture()
-            bar._tex = tex
-            local colour = bar.empoweredColourCurve:Evaluate(colourProgress)
-            local r, g, b, a = colour:GetRGBA()
-            tex:SetVertexColor(r, g, b, a)
-        else
-            local tex = bar._tex or bar.status:GetStatusBarTexture()
-            bar._tex = tex
-
-            local curve = bar.empoweredColourCurve
-            if not curve then return end
-
-            local durObj = vars and vars.durationObject
-            local colour
-            if durObj and durObj.EvaluateElapsedPercent and durObj.EvaluateRemainingPercent then
-                colour = inverted and durObj:EvaluateRemainingPercent(curve)
-                                or durObj:EvaluateElapsedPercent(curve)
-            else
-                -- fallback expects colourProgress already normalized 0..1
-                colour = curve:Evaluate(colourProgress)
-            end
-
-            if not colour then return end
-            local r, g, b, a = colour:GetRGBA()
-            tex:SetVertexColor(r, g, b, a)
-        end
-    elseif colourMode == "ombre" then
-        if unit == "player" then 
-            return ombreColours_Legacy(bar, colourProgress)
-        else
-            local durationObject = vars and vars.durationObject or nil
-            return ombreColours(unit, bar, cfg, durationObject, inverted)
-        end
-    end
-end
-
-function BarUpdate_API:SyncMirror(bar)
-    if not bar._mirrored then return end
-    local status = bar.status and bar.status:GetStatusBarTexture()
-    if not status then return end
-    bar.mirrorFrame:SetWidth(status:GetWidth())
-    bar.unInterruptedMirrorFrame:SetWidth(status:GetWidth())
-end
-
-function BarUpdate_API:AssignColours(unit, bar, cfg, colourMode, castType, durationObject, inverted)
-    if castType == "empowered" and cfg.CLASSES.EVOKER.enableEmpowerEffects then
-        local tex = bar._tex or bar.status:GetStatusBarTexture()
-        bar._tex = tex
-        local mtex = bar._mirrorTex or bar.mirrorFrame:GetStatusBarTexture()
-        bar._mirrorTex = mtex
-        local doMirror = bar._mirrored and mtex
-        local curve = bar.empoweredColourCurve
-        if not curve then return end
-
-        local colour = inverted and durationObject:EvaluateRemainingPercent(curve) or durationObject:EvaluateElapsedPercent(curve)
-        local r, g, b, a = colour:GetRGBA()
-        tex:SetVertexColor(r, g, b, a)
-        if doMirror then mtex:SetVertexColor(r, g, b, a) end
-    elseif colourMode == "ombre" then
-        return ombreColours(unit, bar, cfg, durationObject, inverted)
     end
 end

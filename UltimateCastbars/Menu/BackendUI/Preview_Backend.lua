@@ -61,7 +61,7 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
         end
     end
 
-    local icon_texture = tags:updateVarsPreview(unit, castType, previewCFG.previewSpellID[castType], duration, previewCFG.previewNotIntrerruptible, previewCFG.previewEmpowerStages)
+    local icon_texture = tags:updateVarsPreview(unit, cfg, castType, previewCFG.previewSpellID[castType], duration, previewCFG.previewNotIntrerruptible, previewCFG.previewEmpowerStages)
     local vars = tags.var[unit]
 
     local textCFG = cfg.text

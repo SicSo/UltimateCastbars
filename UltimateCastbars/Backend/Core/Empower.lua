@@ -19,9 +19,6 @@ local function CastbarOnUpdate(bar, elapsed)
     if unit == "player" and remainig < -0.001 then
         CASTBAR_API:OnUnitSpellcastEmpowerStop(unit)
     end
-    --if unit ~= "player" and vars.durationObject:IsZero() then
-    --    CASTBAR_API:OnUnitSpellcastEmpowerStop(unit)
-    --end
 end
 
 function CASTBAR_API:HideStages(unit)
@@ -62,8 +59,6 @@ local function CreateTick(bar, barWidth, invert, useTex, tick, colour, texture, 
     tick:Show()
 end
 
-
---local function CreateSegment(unit, segment, colour, texture, startPos, endPos)
 local function CreateSegment(bar, barWidth, invert, useTex, segment, colour, texture, startPos, endPos, barHeight)
     -- startPos/endPos are normalized 0..1, startPos < endPos
     local underlayFrame = bar.underlayFrame
@@ -96,32 +91,6 @@ local function CreateSegment(bar, barWidth, invert, useTex, segment, colour, tex
     segment:Show()
 end
 
-local function CreateColourCurve_Legacy(unit, tickPositions, colours, invert, duration)
-    local cfg = CFG_API.GetValueConfig(unit)
-    local bar = UCB.castBar[unit]
-    local curve = bar.empoweredColourCurve
-
-    if not curve then
-        curve = C_CurveUtil.CreateColorCurve()
-        curve:SetType(Enum.LuaCurveType.Step)
-        bar.empoweredColourCurve = curve
-    else
-        curve:ClearPoints()
-    end
-
-    if invert then
-        curve:AddPoint(0, CreateColor(colours[#colours].r, colours[#colours].g, colours[#colours].b, colours[#colours].a))
-        for i = #tickPositions, 1, -1 do
-            curve:AddPoint((1 - tickPositions[i]) * duration, CreateColor(colours[i].r, colours[i].g, colours[i].b, colours[i].a))
-        end
-    else
-        curve:AddPoint(0, CreateColor(colours[1].r, colours[1].g, colours[1].b, colours[1].a))
-        for i = 1, #tickPositions-1 do
-            curve:AddPoint(tickPositions[i] * duration, CreateColor(colours[i+1].r, colours[i+1].g, colours[i+1].b, colours[i+1].a))
-        end
-    end
-end
-
 local function CreateColourCurve(unit, tickPositions, colours, inverted)
     local bar = UCB.castBar[unit]
     local curve = bar.empoweredColourCurve
@@ -147,8 +116,6 @@ local function CreateColourCurve(unit, tickPositions, colours, inverted)
         end
     end
 end
-
-
 
 -- Empowered Cast Stage Markers
 function CASTBAR_API:InitializeEmpoweredStages(unit)
@@ -190,7 +157,6 @@ function CASTBAR_API:InitializeEmpoweredStages(unit)
     -- Create ticks, segments and bar curve
     local prevX = 0
     for i = 1, numStages do
-
         -- There is n-1 ticks for n stages
         if i < numStages then
             -- Create tick
@@ -201,7 +167,6 @@ function CASTBAR_API:InitializeEmpoweredStages(unit)
             end
             CreateTick(bar, barWidth, switch, useTexTick, stage, tickColours[i], tickTextures[i],  tickPositions[i], tickWidth, barHeight)
         end
-        
         -- Create segment
         local seg = empoweredSegments[i]
         if not seg then
@@ -213,6 +178,7 @@ function CASTBAR_API:InitializeEmpoweredStages(unit)
     end
 end
 
+---------------------------------------------------- MAIN -------------------------------------------------
 function CASTBAR_API:OnUnitSpellcastEmpowerStart(unit, castGUID, spellID, resumeCast)
     -- Prevent Font of Magic (spellID 411212) from showing empower stages ???
     if unit == "player" and spellID == 411212 then return end

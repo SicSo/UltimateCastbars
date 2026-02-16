@@ -5,13 +5,14 @@ UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.BarUpdate_API = UCB.BarUpdate_API or {}
 UCB.tags     = UCB.tags     or {}
 UCB.Preview_API = UCB.Preview_API or {}
+UCB.UNINTERRUPTIBLE = UCB.UNINTERRUPTIBLE or {}
 
 local CFG_API = UCB.CFG_API
 local CASTBAR_API = UCB.CASTBAR_API
-
 local tags = UCB.tags
 local BarUpdate_API = UCB.BarUpdate_API
 local Preview_API = UCB.Preview_API
+local UNINTERRUPTIBLE = UCB.UNINTERRUPTIBLE
 
 local function UpdateSequence(unit)
 
@@ -266,6 +267,17 @@ function CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
     status:SetValue(bar_status:GetValue())
 end
 
+function CASTBAR_API:InterruptibleTick(bar, bar_status, vars)
+    local spellID, kickRemaining, kickReady = UNINTERRUPTIBLE:GetKickTimer()
+    if not spellID then
+        bar.interruptMarker:Hide()
+        bar.interruptPositioner:Hide()
+        return
+    end
+    
+end
+
+
 
 local function InitCastbarVal(status, castType, resumeCast, vars, cfg)
     local minVal = 0
@@ -289,7 +301,7 @@ local function InitCastbarVal(status, castType, resumeCast, vars, cfg)
     end
 end
 
-
+----------------------------------------------------------------- CASTBAR UPDATE FUNCTIONS -----------------------------------------------------------------
 function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
     if Preview_API.previewActive and Preview_API.previewActive[unit] then
         Preview_API:HidePreviewCastBar(unit)

@@ -1,9 +1,6 @@
 local ADDON_NAME, UCB = ...
 
-UCB.CFG_API  = UCB.CFG_API  or {}
-UCB.tags     = UCB.tags     or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
-UCB.Preview_API = UCB.Preview_API or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
 local castType = "normal"
@@ -17,12 +14,9 @@ local function CastbarOnUpdate(bar, elapsed)
     if unit == "player" and remainig < -0.001 then
         CASTBAR_API:OnUnitSpellcastStop(unit)
     end
-    --if unit ~= "player" and vars.durationObject:IsZero() then
-    --    print("Here")
-    --    CASTBAR_API:OnUnitSpellcastStop(unit)
-    --end
 end
 
+---------------------------------------------------- MAIN -------------------------------------------------
 function CASTBAR_API:OnUnitSpellcastStart(unit, castGUID, spellID, resumeCast)
      local cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
     -- Set colours

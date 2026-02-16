@@ -293,16 +293,11 @@ function tags:updateVars(unit, type, spellID, cfg)
         else
             -- Generic ticks for non-player units
             local numStages = #stages
-            if numStages == 5 then
+            if numStages == 5 or numStages == 4 then
                 for i = 1, numStages-1 do
                     vars.empStages[i] = cfg.CLASSES.EVOKER.empowerManualTicks[i] --{0.19, 0.33, 0.47, 0.60, 0.999}
                 end
-                vars.empStages[5] = 0.999
-            elseif numStages == 4 then
-                for i = 1, numStages-1 do
-                    vars.empStages[i] = cfg.CLASSES.EVOKER.empowerManualTicks[i] --{0.24, 0.42, 0.60, 0.999}
-                end
-                vars.empStages[4] = 0.999
+                vars.empStages[numStages] = 0.999
             else
                 for i = 1, numStages do
                     vars.empStages[i] = i / (numStages + 1)
@@ -329,7 +324,7 @@ function tags:updateVars(unit, type, spellID, cfg)
 end
 
 
-function tags:updateVarsPreview(unit, type, spellID, duration, notInterruptible, stageCount)
+function tags:updateVarsPreview(unit, cfg, type, spellID, duration, notInterruptible, stageCount)
     local now = GetTime()
     local spellInfo = C_Spell.GetSpellInfo(spellID)
     local texture = spellInfo and spellInfo.originalIconID or 136243 -- default icon (question mark)
@@ -343,10 +338,10 @@ function tags:updateVarsPreview(unit, type, spellID, duration, notInterruptible,
     durationObject:SetTimeFromStart(now, duration)
     vars.durationObject = durationObject
     if type == "empowered" then
-        local totalDuration = duration
-        for i = 1, stageCount do
-            vars.empStages[i] = (((totalDuration / stageCount) * 100) / totalDuration) / 100  * i
+        for i = 1, stageCount-1 do
+            vars.empStages[i] = cfg.CLASSES.EVOKER.empowerManualTicks[i] --{0.19, 0.33, 0.47, 0.60, 0.999}
         end
+        vars.empStages[stageCount] = 0.999
     end
     return texture
 end

@@ -1,15 +1,8 @@
 local ADDON_NAME, UCB = ...
 
-UCB.CFG_API  = UCB.CFG_API  or {}
-UCB.tags     = UCB.tags     or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
-UCB.Preview_API = UCB.Preview_API or {}
 
-local CFG_API = UCB.CFG_API
-local tags = UCB.tags
 local CASTBAR_API = UCB.CASTBAR_API
-local Preview_API = UCB.Preview_API
-
 
 function CASTBAR_API:OnUnitChange(unit)
     if unit == "player" then return end
@@ -27,7 +20,7 @@ function CASTBAR_API:OnUnitChange(unit)
             CASTBAR_API:OnUnitSpellcastEmpowerStop(unit)
         end
     end
-
+    
     -- Look for current casts
     local name, _, _, _, _, _, _, _ = UnitCastingInfo(unit)
 	if(name) then
