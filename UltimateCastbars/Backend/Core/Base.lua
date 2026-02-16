@@ -77,6 +77,17 @@ local function CreateCastBar(unit)
     bar.unInterruptedMirrorFrame:SetClipsChildren(true)
     bar.unInterruptedMirrorFrame:Hide()
 
+    bar.untilKickFrame = CreateFrame("Frame", nil, bar)
+    bar.untilKickFrame:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
+    bar.untilKickFrame:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 0, 0)
+
+    bar.untilKickMirrorFrame = CreateFrame("Frame", nil, bar)
+    bar.untilKickMirrorFrame:SetPoint("TOPRIGHT", bar, "TOPRIGHT", 0, 0)
+    bar.untilKickMirrorFrame:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 0, 0)
+    bar.untilKickMirrorFrame:SetWidth(0)
+    bar.untilKickMirrorFrame:SetClipsChildren(true)
+    bar.untilKickMirrorFrame:Hide()
+
     bar.iconFrame = CreateFrame("Frame", nil, group, "BackdropTemplate")
     bar.icon = bar.iconFrame:CreateTexture(nil, "ARTWORK")
     bar.icon:SetAllPoints()
@@ -251,10 +262,13 @@ function CASTBAR_API:MirrorBar(cfg, bar, castType)
     bar._mirrored = mirror
     bar.mirrorFrame:SetShown(bar._mirrored)
     bar.unInterruptedMirrorFrame:SetShown(bar._mirrored and cfg.uninterruptible.showUninterruptible and cfg.uninterruptible.showUninterruptibleFill)
+    bar.untilKickMirrorFrame:SetShown(bar._mirrored and cfg.uninterruptible.showUntilKickTick)
     local status = bar.status and bar.status --bar.status:GetStatusBarTexture()
     local unint_status = bar.unInterruptedFrame and bar.unInterruptedFrame.status
+    local untilKick_status = bar.untilKickFrame and bar.untilKickFrame.status
     if status then status:SetAlphaFromBoolean(not bar._mirrored) end
     if unint_status then unint_status:SetAlphaFromBoolean(not bar._mirrored) end
+    if untilKick_status then untilKick_status:SetAlphaFromBoolean(not bar._mirrored) end
 end
 
 function CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
@@ -277,7 +291,7 @@ local function KickTickAlpha(notInterruptibleSecretBool, kickReadySecretBool)
     return 1
 end
 
-function CASTBAR_API:InterruptibleTick(bar, vars, cfg, castType)
+function CASTBAR_API:InterruptibleTick(bar, bar_status, vars, cfg, castType)
     local status = bar
     local unIntCFG = cfg.uninterruptible
     local otherCFG = cfg.otherFeatures
@@ -286,6 +300,7 @@ function CASTBAR_API:InterruptibleTick(bar, vars, cfg, castType)
         if status.interruptMarkerPoint then status.interruptMarkerPoint:Hide() end
         if status.interruptMarker then status.interruptMarker:Hide() end
         if status.interruptPositioner then status.interruptPositioner:Hide() end
+        if status.untilKickBar then status.untilKickBar:Hide() end
         return
     end
 
@@ -294,6 +309,7 @@ function CASTBAR_API:InterruptibleTick(bar, vars, cfg, castType)
         if status.interruptMarkerPoint then status.interruptMarkerPoint:Hide() end
         status.interruptMarker:Hide()
         status.interruptPositioner:Hide()
+        if status.untilKickBar then status.untilKickBar:Hide() end
         return
     end
 
@@ -302,24 +318,46 @@ function CASTBAR_API:InterruptibleTick(bar, vars, cfg, castType)
         if status.interruptMarkerPoint then status.interruptMarkerPoint:Hide() end
         status.interruptMarker:Hide()
         status.interruptPositioner:Hide()
+        if status.untilKickBar then status.untilKickBar:Hide() end
         return
     end
 
-    -- Ensure your UpdateUnkickable created:
-    -- status.interruptMarker (StatusBar), status.kickTickClip (Frame, clips), status.interruptMarkerPoint (Texture)
-    -- and sized them with SetAllPoints(status)
-    -- (Call it here if needed)
-    -- BarUpdate_API:UpdateUnkickable(unitOrBarUnit)
+    local notIntr   = vars and vars.nIntr
+    local kickReady = kickDur:IsZero()
+    local alpha = KickTickAlpha(notIntr, kickReady)
 
-    local total = castDuration:GetTotalDuration()
+    local minVal, maxVal = bar_status:GetMinMaxValues()
     bar.kickTickFrozen = kickDur:GetRemainingDuration()
 
-    status.interruptMarker:SetMinMaxValues(0, total)
+    status.interruptMarker:SetMinMaxValues(minVal, maxVal)
     status.interruptMarker:SetValue(bar.kickTickFrozen)
 
     local inverted = otherCFG.invertBar[castType]
     local mirrored = otherCFG.mirrorBar[castType]
     local switch = (inverted or mirrored) and not (inverted and mirrored) -- XOR
+
+    -- UNTIL-KICK BAR: moves like cast, but only visible up to frozen kick point
+    local frame = bar.untilKickFrame
+    local mirrorFrame = bar.untilKickMirrorFrame
+    if frame.status and unIntCFG.showUntilKickTick then
+        frame.status:SetMinMaxValues(minVal, maxVal)
+        frame.status:SetValue(bar_status:GetValue())
+        --kick_frame.status:SetReverseFill(switch and true or false)
+        frame.status:Show()
+        mirrorFrame:Show()
+    else
+        if frame.status then frame.status:Hide() end
+        mirrorFrame:Hide()
+    end
+    frame:SetAlpha(alpha)
+    mirrorFrame:SetAlpha(alpha)
+
+    if frame.bg and unIntCFG.showUntilKickTickBackground then
+        frame.bg:Show()
+    elseif 
+        frame.bg then frame.bg:Hide() 
+    end
+    frame.bg:SetAlpha(alpha)
 
     status.interruptMarker:SetOrientation("HORIZONTAL")
     status.interruptMarker:SetRotatesTexture(false)
@@ -341,10 +379,6 @@ function CASTBAR_API:InterruptibleTick(bar, vars, cfg, castType)
     status.interruptMarker:Show()
     status.interruptMarkerPoint:Show()
     if status.interruptPositioner then status.interruptPositioner:Hide() end
-
-    local notIntr   = vars and vars.nIntr
-    local kickReady = kickDur:IsZero()
-    local alpha = KickTickAlpha(notIntr, kickReady)
 
     status.interruptMarker:SetAlpha(alpha)
     status.interruptMarkerPoint:SetAlpha(alpha)
@@ -373,6 +407,65 @@ local function InitCastbarVal(status, castType, resumeCast, vars, cfg)
         status:SetValue(minVal)
     end
 end
+
+local function Alpha_ShowOnlyWhenKickReady(notInterruptibleSecretBool, kickReadySecretBool)
+    if not C_CurveUtil then
+        return 1 -- safest fallback if curve util isn't available
+    end
+    -- kickReady=true -> 1, false -> 0
+    local aKick = C_CurveUtil.EvaluateColorValueFromBoolean(kickReadySecretBool, 1, 0)
+    -- notInterruptible=true -> 0, false -> aKick
+    return C_CurveUtil.EvaluateColorValueFromBoolean(notInterruptibleSecretBool, 0, aKick)
+end
+
+local function HideCastbar(bar, vars, cfg)
+    local notIntr = vars and vars.nIntr  -- secret boolean
+    local a = 1
+    if C_CurveUtil then
+        a = C_CurveUtil.EvaluateColorValueFromBoolean(notIntr, 0, 1)
+    end
+    if cfg.uninterruptible.disableBarUnInt then
+        bar.group:SetAlpha(a)
+    end
+
+    local spellID, kickDur = UNINTERRUPTIBLE:GetKickTimer()
+    if not spellID or not kickDur then
+        return
+    end
+    local kickReady = kickDur:IsZero()   -- secret boolean
+    a = Alpha_ShowOnlyWhenKickReady(notIntr, kickReady)
+    if cfg.uninterruptible.disableBarUnKick then
+        bar.group:SetAlpha(a)
+    end
+end
+
+-- Shows bar ONLY when: cast is interruptible AND kick is ready.
+-- Call this from your per-frame update while a cast is active.
+local function UpdateShowWhenKickAvailable(bar, vars, cfg, castType)
+    local unIntCFG = cfg.uninterruptible
+    if not unIntCFG.disableBarUnKick and not unIntCFG.showUntilKickTick then
+        return
+    end
+    if not bar or not vars then return end
+
+    local _, kickDur = UNINTERRUPTIBLE:GetKickTimer()
+    local notIntr   = vars and vars.nIntr
+    local kickReady = kickDur:IsZero()
+    local alpha = KickTickAlpha(notIntr, kickReady)
+
+    if unIntCFG.disableBarUnKick then
+         bar.group:SetAlpha(alpha)
+         return
+    end
+    if unIntCFG.showUntilKickTick then
+        if cfg.otherFeatures.mirrorBar[castType] then
+            bar.untilKickMirrorFrame:SetAlpha(alpha)
+        else
+            bar.untilKickFrame.status:SetAlpha(alpha)
+        end
+     end
+end
+
 
 ----------------------------------------------------------------- CASTBAR UPDATE FUNCTIONS -----------------------------------------------------------------
 function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
@@ -412,12 +505,13 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
 
     CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
 
-    CASTBAR_API:InterruptibleTick(bar, vars, cfg, castType)
+    CASTBAR_API:InterruptibleTick(bar, bar_status, vars, cfg, castType)
 
     return cfg, bar, vars
 end
 
 function CASTBAR_API:CastOnUpdateSetup(bar, unit, cfg, vars, castType, spellID, CastbarOnUpdate)
+    bar.group:SetAlpha(1)
     bar._ucbUnit = unit
     bar._ucbCfg = cfg
     bar._ucbCastType = castType
@@ -427,6 +521,8 @@ function CASTBAR_API:CastOnUpdateSetup(bar, unit, cfg, vars, castType, spellID, 
     bar.group:Show()
     bar._prevType = castType
     bar.castActive = true
+
+    HideCastbar(bar, vars, cfg)
 end
 
 
@@ -455,7 +551,7 @@ function CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType)
 
     bar.status:SetMinMaxValues(0, vars.dTime)
     local otherCFG = cfg.otherFeatures
-    CASTBAR_API:MirrorBar(otherCFG, bar, castType)
+    CASTBAR_API:MirrorBar(cfg, bar, castType)
     
     -- Set value based on invert and cast type (channel or not)
     local minVal = 0
@@ -478,6 +574,7 @@ function CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
 
     local status = bar.status
     local status_uint = bar.unInterruptedFrame.status
+    local status_untilKick = bar.untilKickFrame.status
     local inverted = cfg.otherFeatures.invertBar[castType]
 
     local progress
@@ -490,9 +587,10 @@ function CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
     else
         progress = remaining
     end
-    status:SetValue(progress)
-    status_uint:SetValue(progress)
 
+    status_uint:SetValue(progress)
+    status_untilKick:SetValue(progress)
+    status:SetValue(progress)
     -- Set dynamic texts
     UCB.tags:ApplyTextState(bar, "dynamic", unit, remaining, elapsedTime)
 
@@ -506,6 +604,8 @@ function CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
         local switch = (inverted or mirror) and not (inverted and mirror)  -- if either is true, but not both
         BarUpdate_API:AssignColours(unit, bar, cfg, colourMode, castType, durationObject, switch)
     end
-    
+
+    -- Show bar if kick is ready
+    UpdateShowWhenKickAvailable(bar, vars, cfg, castType)
     return remaining
 end

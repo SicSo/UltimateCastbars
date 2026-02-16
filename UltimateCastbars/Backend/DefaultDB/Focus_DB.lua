@@ -254,7 +254,7 @@ local focus_db = {
 
     uninterruptible = {
         showUninterruptible = true,
-
+        disableBarUnInt = false,
         showUninterruptibleFill = true,
         fillColour = {r=1, g=0, b=0, a=1}, -- red, semi-transparent
         fillTexture = "Interface\\TargetingFrame\\UI-StatusBar",
@@ -267,12 +267,23 @@ local focus_db = {
         backgroundTextureName = "Blizzard Dialog Background",
 
 
+        disableBarUnKick = false,
         showKickTick = true,
         kickTickColour = {r=1, g=1, b=0, a=1}, -- yellow
         kickTickUseTexture = false,
         kickTickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
         kickTickTextureName = "Blizzard",
         kickTickWidth = 2,
+
+        showUntilKickTick = false,
+        untilKickTickColour = {r=1, g=0.5, b=0, a=1}, -- orange
+        untilKickTickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+        untilKickTickTextureName = "Blizzard",
+        showUntilKickTickBackground = false,
+        untilKickTickBackColour = {r=1, g=0.5, b=0, a=0.5}, -- orange, semi-transparent
+        untilKickTickBackUseTexture = false,
+        untilKickTickBackTexture = "Interface\\DialogFrame\\UI-DialogBox-Background",
+        untilKickTickBackTextureName = "Blizzard Dialog Background",
 
         showUninterruptableBorder = false,
         borderColour = {r=1, g=0, b=0, a=1},
@@ -322,7 +333,7 @@ local focus_db = {
         previewDuration = 30,
         previewNormalDefaultDuration = false,
         previewEmpowerStages = 5,
-        previewNotIntrerruptible = true,
+        previewNotIntrerruptible = false,
         previewSpellID = {
             normal = 585,
             channel = 356995,

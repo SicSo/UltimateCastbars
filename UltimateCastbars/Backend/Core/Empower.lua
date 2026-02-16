@@ -105,7 +105,7 @@ local function CreateColourCurve(unit, tickPositions, colours, inverted)
 
     if inverted then
         -- Start from last stage color, then walk boundaries mirrored across 1.0
-        curve:AddPoint(0, CreateColor(colours[#colours].r, colours[#colours].g, colours[#colours].b, colours[#colours].a))
+        curve:AddPoint(0, CreateColor(colours[#tickPositions].r, colours[#tickPositions].g, colours[#tickPositions].b, colours[#tickPositions].a))
         for i = #tickPositions - 1, 1, -1 do
             curve:AddPoint(1 - tickPositions[i], CreateColor(colours[i].r, colours[i].g, colours[i].b, colours[i].a))
         end

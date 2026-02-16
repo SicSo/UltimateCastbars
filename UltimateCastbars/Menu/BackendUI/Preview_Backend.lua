@@ -73,7 +73,9 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
     if unit == "player" then
         CASTBAR_API:AssignQueueWindow(castType)
     end
-    CASTBAR_API:MirrorBar(cfg.otherFeatures, bar, castType)
+    CASTBAR_API:MirrorBar(cfg, bar, castType)
+
+    CASTBAR_API:UninterruptibleCast(bar, bar.status, vars)
 
     if castType == "normal" then
         NormalCast(unit, bar)
@@ -83,7 +85,7 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
         EmpowerCast(unit, bar, cfg)
     end
 
-    bar.status:SetMinMaxValues(0, math.max(tags.var[unit].dTime, 0.001))
+    bar.status:SetMinMaxValues(0,tags.var[unit].dTime)
     bar._ucbUnit = unit
     bar._ucbCfg = cfg
     bar._ucbCastType = castType

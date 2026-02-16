@@ -95,6 +95,7 @@ function BarUpdate_API:SyncMirror(bar)
     if not status then return end
     bar.mirrorFrame:SetWidth(status:GetWidth())
     bar.unInterruptedMirrorFrame:SetWidth(status:GetWidth())
+    bar.untilKickMirrorFrame:SetWidth(status:GetWidth())
 end
 
 function BarUpdate_API:AssignColours(unit, bar, cfg, colourMode, castType, durationObject, inverted)
