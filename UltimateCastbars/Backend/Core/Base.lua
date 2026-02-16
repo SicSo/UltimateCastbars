@@ -68,6 +68,13 @@ local function CreateCastBar(unit)
     bar.unInterruptedFrame:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
     bar.unInterruptedFrame:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 0, 0)
 
+    bar.unInterruptedMirrorFrame = CreateFrame("Frame", nil, bar)
+    bar.unInterruptedMirrorFrame:SetPoint("TOPRIGHT", bar, "TOPRIGHT", 0, 0)
+    bar.unInterruptedMirrorFrame:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 0, 0)
+    bar.unInterruptedMirrorFrame:SetWidth(0)
+    bar.unInterruptedMirrorFrame:SetClipsChildren(true)
+    bar.unInterruptedMirrorFrame:Hide()
+
     bar.iconFrame = CreateFrame("Frame", nil, group, "BackdropTemplate")
     bar.icon = bar.iconFrame:CreateTexture(nil, "ARTWORK")
     bar.icon:SetAllPoints()
@@ -241,14 +248,19 @@ function CASTBAR_API:MirrorBar(cfg, bar, castType)
     local mirror = cfg.mirrorBar[castType]
     bar._mirrored = mirror
     bar.mirrorFrame:SetShown(bar._mirrored)
+    bar.unInterruptedMirrorFrame:SetShown(bar._mirrored)
     local status = bar.status and bar.status --bar.status:GetStatusBarTexture()
+    local unint_status = bar.unInterruptedFrame and bar.unInterruptedFrame.status
     if status then status:SetAlphaFromBoolean(not bar._mirrored) end
+    if unint_status then unint_status:SetAlphaFromBoolean(not bar._mirrored) end
 end
 
 function CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
-    local uint = vars.nIntr
+    local uint = not vars.nIntr
     local frame = bar.unInterruptedFrame
+    local mirrorFrame = bar.unInterruptedMirrorFrame
     local status = frame.status
+    mirrorFrame:SetAlphaFromBoolean(uint)
     frame:SetAlphaFromBoolean(uint)
     status:SetMinMaxValues(bar_status:GetMinMaxValues())
     status:SetValue(bar_status:GetValue())

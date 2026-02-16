@@ -262,6 +262,7 @@ function BarUpdate_API:UpdateVisibility(unit)
     bar.underlayFrame:SetFrameLevel(cfg.frameLevel) -- underlay below all
     bar.mirrorFrame:SetFrameLevel(cfg.frameLevel + 1) -- same as status, but only shown when mirrored
     bar.unInterruptedFrame:SetFrameLevel(cfg.frameLevel + 2) -- same as status, but only shown when uninterruptible
+    bar.unInterruptedMirrorFrame:SetFrameLevel(cfg.frameLevel + 2) -- same as status, but only shown when uninterruptible and mirrored
 end
 
 
@@ -270,6 +271,12 @@ function BarUpdate_API:UpdateUninterruptable(unit)
     if not bar then return end
     local cfg = CFG_API.GetValueConfig(unit).uninterruptable
     local unint_frame = bar.unInterruptedFrame
+    
+    if not bar._mirrorUintTex then
+        bar._mirrorUintTex = bar.unInterruptedMirrorFrame:CreateTexture(nil, "ARTWORK", nil, -8)
+    end
+    bar._mirrorUintTex:SetAllPoints(bar)
+    bar._mirrorUintTex:SetTexCoord(1, 0, 0, 1)
 
     if cfg.showUninterruptableFill and cfg.showUninterruptable then
         if not unint_frame.status then
@@ -278,6 +285,8 @@ function BarUpdate_API:UpdateUninterruptable(unit)
         end
         unint_frame.status:SetStatusBarTexture(cfg.fillTexture)
         unint_frame.status:SetStatusBarColor(cfg.fillColour.r, cfg.fillColour.g, cfg.fillColour.b, cfg.fillColour.a)
+        bar._mirrorUintTex:SetTexture(cfg.fillTexture)
+        bar._mirrorUintTex:SetVertexColor(cfg.fillColour.r, cfg.fillColour.g, cfg.fillColour.b, cfg.fillColour.a)
         unint_frame.status:Show()
     else
         if unint_frame.status then
@@ -686,6 +695,7 @@ function BarUpdate_API:SyncMirror(bar)
     local status = bar.status and bar.status:GetStatusBarTexture()
     if not status then return end
     bar.mirrorFrame:SetWidth(status:GetWidth())
+    bar.unInterruptedMirrorFrame:SetWidth(status:GetWidth())
 end
 
 function BarUpdate_API:AssignColours(unit, bar, cfg, colourMode, castType, durationObject, inverted)

@@ -440,7 +440,6 @@ function tags:ApplyTextState(bar, state, unit, remaining, elapsed)
         t.fs:SetText(text)
         local secret = issecretvalue(showText)
         if secret or (not secret and showText ~= nil) then
-            --t.fs:SetShown(showText)
             t.fs:SetAlphaFromBoolean(showText)
         end
     end
