@@ -15,7 +15,7 @@ local function FormatDecimals(n, x)
     return string.format("%." .. x .. "f", n)
 end
 
-local function FirstNChars(s, x)
+local function FirstNChars_Legacy(s, x)
     if x == -1 then return s end
     if type(s) ~= "string" then return "" end
     x = tonumber(x) or 0
@@ -24,6 +24,18 @@ local function FirstNChars(s, x)
 
     if #s <= x then return res end
     return res.."..."
+end
+
+local function FirstNChars(s, x)
+    if x == -1 then return s end
+    if type(s) ~= "string" then return "" end
+    x = tonumber(x) or 0
+    if x <= 0 then return "" end
+    local res = string.format("%." .. x .. "s", s)
+
+    --if #s <= x then return res end
+    --return res.."..."
+    return res
 end
 
 local TAG_FN = {}

@@ -193,6 +193,7 @@ UCB.tags.var = {
 }
 
 function UCB.UIOptions.ColorText(hex, text)
+    if not text then return "" end
     return ("|c%s%s|r"):format(hex, text)
 end
 
