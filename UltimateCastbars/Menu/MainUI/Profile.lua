@@ -1,25 +1,11 @@
 local _, UCB = ...
-UCB.Options = UCB.Options or {}
-UCB.CASTBAR_API = UCB.CASTBAR_API or {}
-UCB.UIOptions = UCB.UIOptions or {}
-UCB.CFG_API = UCB.CFG_API or {}
-UCB.BarUpdate_API = UCB.BarUpdate_API or {}
-UCB.OtherFeatures_API = UCB.OtherFeatures_API or {}
 
+UCB.UIOptions = UCB.UIOptions or {}
 UCB.Profiles = UCB.Profiles or {}
+UCB.GUI = UCB.GUI or {}
 
 local Profiles = UCB.Profiles
-
-local CASTBAR_API = UCB.CASTBAR_API
-local Opt = UCB.Options
-local CFG_API = UCB.CFG_API
-local UIOptions = UCB.UIOptions
-local BarUpdate_API = UCB.BarUpdate_API
-local OtherFeatures_API = UCB.OtherFeatures_API
-
-local LSM  = UCB.LSM
-
-
+local GUI = UCB.GUI
 
 local function DeepCopySerializable(src, seen)
     local t = type(src)
@@ -366,7 +352,7 @@ end
 -- Builds the Profiles page with:
 --  - "Profile Management" (AceDBOptions-3.0)
 --  - "Import / Export" (AceSerializer-3.0 string)
-function UCB:BuildProfilesOptions()
+function GUI:BuildProfilesOptions()
     -- Base profile management (choose/copy/reset/delete)
     local profilesMgmt = UCB.ADBO:GetOptionsTable(UCB.db)
     profilesMgmt.order = 1
@@ -649,48 +635,6 @@ function UCB:BuildProfilesOptions()
             },
         }
 end
-
-local function EnsureProfilesOptionsRegistered()
-    if UCB._profilesOptionsRegistered then return end
-
-    -- Make the Profiles group the ROOT table for this AceConfig app
-    local profilesRoot = {
-        type = "group",
-        name = "Profiles",
-        order = 100,
-        childGroups = "tab",
-        args = UCB:BuildProfilesOptions()
-    }
-
-    -- Important: this must be a "group" root table, which it already is
-    UCB.AC:RegisterOptionsTable("UCB_Profiles", profilesRoot)
-
-    UCB._profilesOptionsRegistered = true
-end
-
-
-function UCB:OpenProfilesInContainer(parentWidget)
-    EnsureProfilesOptionsRegistered()
-
-    if UCB.ACD and UCB.ACD.Close then
-        UCB.ACD:Close("UCB")          -- close main options if open
-        UCB.ACD:Close("UCB_Profiles") -- close profiles if open elsewhere
-    end
-
-    if parentWidget.SetLayout then parentWidget:SetLayout("Fill") end
-    if parentWidget.SetFullWidth then parentWidget:SetFullWidth(true) end
-    if parentWidget.SetFullHeight then parentWidget:SetFullHeight(true) end
-
-    UCB.ACD:Open("UCB_Profiles", parentWidget)
-
-    -- optional: select the "profiles" group so it shows immediately
-    C_Timer.After(0, function()
-        if UCB.ACD and UCB.ACD.SelectGroup then
-            UCB.ACD:SelectGroup("UCB_Profiles", "management") -- or "transfer"
-        end
-    end)
-end
-
 
 function UCB:NormalizeCurrentProfileToSchema()
     local defaults = UCB:GetDefaultDB()

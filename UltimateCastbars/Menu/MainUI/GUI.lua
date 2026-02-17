@@ -1,45 +1,40 @@
-local _, UCB = ...
-
-if not UCB then return end
-
-UCB.AG = UCB.AG or (LibStub and LibStub("AceGUI-3.0", true))
-local AG = UCB.AG
-if not AG then return end
+local ADDON_NAME, UCB = ...
 
 UCB.GUIWidgets = UCB.GUIWidgets or {}
+UCB.GUI = UCB.GUI or {}
+UCB.UI = UCB.UI or {}
+UCB.CFG_API = UCB.CFG_API or {}
+UCB.GUI.Helpers = UCB.GUI.Helpers or {}
 
 -- GUIWidgets should be loaded before this file (or you can require it first)
 local GUIWidgets = UCB.GUIWidgets
-
-local UCBGUI = UCB.GUI or {}
-UCB.GUI = UCBGUI
-
-UCB.UI = UCB.UI or {}
 local UI = UCB.UI
+local GUI = UCB.GUI
+local GUI_Helpers = UCB.GUI.Helpers
+
+GUI.optionsTable = GUI.optionsTable or {}
+GUI._optionsRegistered = GUI._optionsRegistered or {}
 
 local Container
-
-local ROOT_APP = "UCB_ROOT"
-
 -- ============================================================================
 --  Root invalidation / rebuild helpers
 -- ============================================================================
 
-function UCB:InvalidateRootOptions()
+function GUI:InvalidateRootOptions()
     -- allow RegisterRootOptions() to rebuild + re-register
     self._rootOptionsRegistered = nil
     self.optionsTable = nil
 
     -- if you cache built args anywhere, clear them too (safe even if nil)
-    if self.Options then
-        self.Options._textTreeArgs  = self.Options._textTreeArgs  or {}
-        self.Options._classTreeArgs = self.Options._classTreeArgs or {}
-        wipe(self.Options._textTreeArgs)
-        wipe(self.Options._classTreeArgs)
+    if UCB.Options then
+        UCB.Options._textTreeArgs  = UCB.Options._textTreeArgs  or {}
+        UCB.Options._classTreeArgs = UCB.Options._classTreeArgs or {}
+        wipe(UCB.Options._textTreeArgs)
+        wipe(UCB.Options._classTreeArgs)
     end
 end
 
-function UCB:BuildRootOptionsTable()
+function GUI:BuildRootOptionsTable()
     -- stable tables (important!)
     self._rootOptions = self._rootOptions or {}
     self._rootArgs    = self._rootArgs    or {}
@@ -99,26 +94,25 @@ function UCB:BuildRootOptionsTable()
 end
 
 -- force=true will rebuild + re-register even if already registered before
-function UCB:RegisterRootOptions(force)
+function GUI:RegisterRootOptions(force)
     if self._rootOptionsRegistered and not force then return end
     self._rootOptionsRegistered = true
 
     self.optionsTable = self:BuildRootOptionsTable()
 
-    self.AC:RegisterOptionsTable(ROOT_APP, self.optionsTable)
+    UCB.AC:RegisterOptionsTable(self.appName, self.optionsTable)
 end
 
-function UCB:FullRebuildRootUI()
+function GUI:FullRebuildRootUI(path)
     -- preserve current selection path in ROOT if open somewhere
-    local lastGroups
-    if self.ACD and self.ACD.GetStatus then
-        local st = self.ACD:GetStatus(ROOT_APP)
-        lastGroups = st and st.groups -- example: {"player","text","someNode"}
+    local lastGroups = path
+    if not path then
+        lastGroups = GUI_Helpers:GetCurrentPath(self.appName)
     end
 
     -- close existing ROOT instance (standalone or embedded)
-    if self.ACD and self.ACD.Close then
-        self.ACD:Close(ROOT_APP)
+    if UCB.ACD and UCB.ACD.Close then
+        UCB.ACD:Close(self.appName)
     end
 
     -- fully rebuild + re-register the ROOT options table (fresh closures/args)
@@ -126,46 +120,44 @@ function UCB:FullRebuildRootUI()
     self:RegisterRootOptions(true)
 
     -- reopen into the SAME holder if your custom GUI is open
-    local parent = self.GUI and self.GUI._rootHolder
+    local parent = self._rootHolder
     if parent then
         parent:ReleaseChildren()
         if parent.SetLayout then parent:SetLayout("Fill") end
         if parent.SetFullWidth then parent:SetFullWidth(true) end
         if parent.SetFullHeight then parent:SetFullHeight(true) end
 
-        self.ACD:Open(ROOT_APP, parent)
+        UCB.ACD:Open(self.appName, parent)
     end
 
     -- notify + restore selection (next frame)
     C_Timer.After(0, function()
-        if self.ACR then
-            self.ACR:NotifyChange(ROOT_APP)
+        UCB:NotifyChange()
+
+      
+        if lastGroups and #lastGroups > 0 then
+            UCB:SelectGroup(lastGroups)
+        else
+            UCB:SelectGroup({"player", "general"})
         end
 
-        if self.ACD and self.ACD.SelectGroup then
-            if lastGroups and #lastGroups > 0 then
-                self.ACD:SelectGroup(ROOT_APP, unpack(lastGroups))
-            else
-                self.ACD:SelectGroup(ROOT_APP, "player", "general")
-            end
-        end
     end)
 end
 
-function UCB:QueueFullRebuildRootUI()
+function GUI:QueueFullRebuildRootUI()
     self._rebuildQueued = self._rebuildQueued or {}
-    if self._rebuildQueued[ROOT_APP] then return end
-    self._rebuildQueued[ROOT_APP] = true
+    if self._rebuildQueued[self.appName] then return end
+    self._rebuildQueued[self.appName] = true
 
     C_Timer.After(0, function()
-        self._rebuildQueued[ROOT_APP] = nil
+        self._rebuildQueued[self.appName] = nil
         self:FullRebuildRootUI()
     end)
 end
 
-function UCB:OnProfileSwapRefreshUI()
+function GUI:OnProfileSwapRefreshUI()
     -- If GUI is open, do a full rebuild so all closures/args rebind to the new DB
-    if self.GUI and self.GUI._rootHolder then
+    if self._rootHolder then
         self:QueueFullRebuildRootUI()
         return
     end
@@ -183,57 +175,65 @@ local function PathKey(path)
   return table.concat(path, "\001")
 end
 
-function UCB:CloseGUI()
-    if not self.GUI or not self.GUI.isGUIOpen then return end
+function GUI:CloseGUI()
+    if not self.isGUIOpen then return end
 
-    if self.ACD and self.ACD.Close then
-        self.ACD:Close(ROOT_APP)
+    if UCB.ACD and UCB.ACD.Close then
+        UCB.ACD:Close(self.appName)
     end
 
     if Container then
         if GUIWidgets and GUIWidgets.DetachFooterBar then
             GUIWidgets:DetachFooterBar(Container)
         end
-        AG:Release(Container)
+        UCB.AG:Release(Container)
         Container = nil
     end
 
-    self.GUI._rootHolder = nil
-    self.GUI.isGUIOpen = false
-    self.GUI._currentSelectedTab = nil
+    self._rootHolder = nil
+    self.isGUIOpen = false
+    self._currentSelectedTab = nil
 end
 
-function UCB:OpenGUI(selectPath)
+function GUI:OpenGUI(selectPath)
     collectgarbage("collect")
     self:RegisterRootOptions()
     self.GUI = self.GUI or {}
 
     if InCombatLockdown and InCombatLockdown() then return end
 
-    local path = selectPath or {"player","general"}
+    local cfg = UCB.CFG_API.GetValueConfig()
+    if not selectPath then
+        selectPath = cfg.misc.lastUIPath
+        local ok, valid, badAt, reason = GUI_Helpers:ValidateGroupPath(selectPath)
+        if not ok or not valid or #valid == 0 or selectPath == {} then
+            selectPath = {"player","general"}
+            cfg.misc.lastUIPath = selectPath
+        end
+    end
+
+    local path = selectPath
     local wantedKey = PathKey(path)
 
     -- if already open: toggle or switch
-    if self.GUI.isGUIOpen and Container then
-        if self.GUI._currentSelectedKey == wantedKey then
-        self:CloseGUI()
-        return
+    if self.isGUIOpen and Container then
+        if self._currentSelectedKey == wantedKey then
+            self:CloseGUI()
+            return
         end
-
-        if self.ACD and self.ACD.SelectGroup then
         -- ensure any changes are reflected before switching
-        self.ACD:SelectGroup(ROOT_APP, unpack(path))
-        UCB:RefreshGUI(path)
-        self.GUI._currentSelectedKey = wantedKey
-        end
+        cfg.misc.lastUIPath = path
+        UCB:SelectGroup(path)
+        GUI:RefreshGUI(true, path)
+        self._currentSelectedKey = wantedKey
         return
     end
 
     -- Otherwise: open fresh
-    self.GUI.isGUIOpen = true
-    self.GUI._currentSelectedTab = nil
+    self.isGUIOpen = true
+    self._currentSelectedTab = nil
 
-    Container = AG:Create("Frame")
+    Container = UCB.AG:Create("Frame")
     Container:SetTitle(UI.text.name.." - v"..UI.text.version)
     Container:SetLayout("Fill")
     Container:SetWidth(1000)
@@ -261,9 +261,13 @@ function UCB:OpenGUI(selectPath)
     HookSizer(Container.sizer_s)
 
     Container:SetCallback("OnClose", function(widget)
+        local cfg = UCB.CFG_API.GetValueConfig()
+        if cfg and cfg.misc then
+            cfg.misc.lastUIPath = GUI_Helpers:GetCurrentPath(self.appName)
+        end
         -- close the ACD app too (matches CloseGUI)
-        if self.ACD and self.ACD.Close then
-            self.ACD:Close(ROOT_APP)
+        if UCB.ACD and UCB.ACD.Close then
+            UCB.ACD:Close(self.appName)
         end
 
         --if GUIWidgets and GUIWidgets.DetachBottomLeftLinks then
@@ -273,12 +277,12 @@ function UCB:OpenGUI(selectPath)
 
         end
 
-        AG:Release(widget)
+        UCB.AG:Release(widget)
         Container = nil
 
-        self.GUI._rootHolder = nil
-        self.GUI.isGUIOpen = false
-        self.GUI._currentSelectedTab = nil
+        self._rootHolder = nil
+        self.isGUIOpen = false
+        self._currentSelectedTab = nil
     end)
 
     GUIWidgets:AttachFooterBar(Container, {
@@ -313,37 +317,37 @@ function UCB:OpenGUI(selectPath)
         }
     })
 
-    local holder = AG:Create("SimpleGroup")
+    local holder = UCB.AG:Create("SimpleGroup")
     holder:SetFullWidth(true)
     holder:SetFullHeight(true)
     holder:SetLayout("Fill")
     Container:AddChild(holder)
 
-    self.GUI._rootHolder = holder
+    self._rootHolder = holder
 
     -- make sure old instance is closed before opening into holder
-    if self.ACD and self.ACD.Close then
-        self.ACD:Close(ROOT_APP)
+    if UCB.ACD and UCB.ACD.Close then
+        UCB.ACD:Close(self.appName)
     end
-    self.ACD:Open(ROOT_APP, holder)
+    UCB.ACD:Open(self.appName, holder)
 
-    self:NotifyChange()
+    UCB:NotifyChange()
 
     C_Timer.After(0, function()
-        if self.ACD and self.ACD.SelectGroup and self.GUI and self.GUI.isGUIOpen then
-            self.ACD:SelectGroup(ROOT_APP, unpack(path))
-            UCB:RefreshGUI(path)
-            self.GUI._currentSelectedKey = wantedKey
+        if self.isGUIOpen then
+            UCB:SelectGroup(path)
+            GUI:RefreshGUI(true, path)
+            self._currentSelectedKey = wantedKey
         end
     end)
 end
 
 
-function UCB:RefreshGUI(hard, path)
-    if not (self.GUI and self.GUI.isGUIOpen and self.ACD) then return end
+function GUI:RefreshGUI(hard, path)
+    if not (self.isGUIOpen and UCB.ACD) then return end
 
-    local st = self.ACD.GetStatus and self.ACD:GetStatus(ROOT_APP)
-    local groups = path or (st and st.groups) or { "player", "general" }
+    local st = GUI_Helpers:GetCurrentPath(self.appName)
+    local groups = path or st
 
     -- If an editbox is focused, Ace may not repaint that field value.
     local focused = GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus()
@@ -353,26 +357,19 @@ function UCB:RefreshGUI(hard, path)
 
     -- Hard refresh: rebuild options + reopen + restore selected path.
     if hard then
-        self:FullRebuildRootUI() -- your existing function already preserves/restores selection
-        C_Timer.After(0, function()
-            if self.ACD and self.ACD.SelectGroup and self.GUI and self.GUI.isGUIOpen then
-                self.ACD:SelectGroup(ROOT_APP, unpack(groups))
-            end
-        end)
+        self:FullRebuildRootUI(groups) -- your existing function already preserves/restores selection
         return
     end
 
     -- Soft refresh: notify + reselect twice (next frames)
-    if self.ACR then
-        self.ACR:NotifyChange(ROOT_APP)
-    end
+    UCB:NotifyChange()
 
     C_Timer.After(0, function()
-        if not (self.ACD and self.ACD.SelectGroup and self.GUI and self.GUI.isGUIOpen) then return end
-        self.ACD:SelectGroup(ROOT_APP, unpack(groups))
+        if not self.isGUIOpen then return end
+        UCB:SelectGroup(groups)
         C_Timer.After(0, function()
-            if not (self.ACD and self.ACD.SelectGroup and self.GUI and self.GUI.isGUIOpen) then return end
-            self.ACD:SelectGroup(ROOT_APP, unpack(groups))
+            if not self.isGUIOpen then return end
+            UCB:SelectGroup(groups)
         end)
     end)
 end

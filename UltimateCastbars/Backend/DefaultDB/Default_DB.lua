@@ -2,10 +2,6 @@ local _, UCB = ...
 UCB.Default_DB = UCB.Default_DB or {}
 
 
---iconInternalOffsetMltiplier = {player = -1, target = 1, focus = 1},
---iconAnchors = {player = "LEFT", target = "RIGHT", focus = "RIGHT"},
-
-
 local Default_Values = {
     global = {
         UseGlobalProfile = false,
@@ -19,6 +15,9 @@ local Default_Values = {
             enabled = false,
             _addonList = {}
         },
+        misc = {
+            lastUIPath = {},
+        }
     }
 }
 

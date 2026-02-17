@@ -166,8 +166,8 @@ end
 
 local function OpenYourConfig()
     -- Change this to your real opener if different
-    if UCB and UCB.OpenGUI then
-        UCB:OpenGUI()
+    if UCB and UCB.GUI and UCB.GUI.OpenGUI then
+        UCB.GUI:OpenGUI()
         return
     end
 

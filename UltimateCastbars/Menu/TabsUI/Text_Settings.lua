@@ -16,7 +16,7 @@ UCB.Options._textTreeArgs = UCB.Options._textTreeArgs or {}
 
 
 local function GoToTag(unit, tagKey)
-    UCB:SelectGroup(unit, {"text", tagKey})
+    UCB:SelectGroup({"text", tagKey}, unit)
 end
 
 local function BuildTagButtons(unit)
@@ -73,7 +73,7 @@ local function tagUI(key, tagType, unit)
 
             UCB:NotifyChange(unit)
 
-            UCB:SelectGroup(unit, {"text"})
+            UCB:SelectGroup({"text"}, unit)
 
             CASTBAR_API:UpdateCastbar(unit)
         end,
@@ -435,7 +435,7 @@ local function addTagUI(unit)
                         newName = ""
                         RefreshTagPickerButtons(unit)
                         UCB:NotifyChange(unit)
-                        UCB:SelectGroup(unit, {"text", key})
+                        UCB:SelectGroup({"text", key}, unit)
                     end
                 end,
             },

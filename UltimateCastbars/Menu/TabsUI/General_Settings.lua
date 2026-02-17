@@ -49,7 +49,7 @@ local function BuildFramePickerArgs(args, unit)
                             UCB.SimpleFramePickerObj:Start(
                                 function(frameName)
                                     g.frameLastClicked = frameName
-                                    UCB:RefreshGUI({ unit, "general"})
+                                    UCB.GUI:RefreshGUI(true, { unit, "general"})
                                 end,
                                 function()
                                     --print("Picker cancelled.")

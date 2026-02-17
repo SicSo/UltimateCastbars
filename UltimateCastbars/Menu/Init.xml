@@ -2,6 +2,7 @@
 	
 	
 	<!-- UI Main -->
+	<Script file="MainUI/GUI_Helpers.lua"/>
 	<Script file="MainUI/GUIWidgets.lua"/>
 	<Script file="MainUI/GUI.lua"/>
 	<Script file="MainUI/MenuOptions.lua"/>

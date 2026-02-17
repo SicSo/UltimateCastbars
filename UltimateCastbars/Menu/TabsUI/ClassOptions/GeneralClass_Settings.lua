@@ -35,9 +35,9 @@ end
 local function GoToClassChannel(unit, ct)
     -- adjust these paths if your tree differs
     if ct ~= UCB.className then
-        UCB:SelectGroup(unit, {"classSettings", "otherClasses", "class_" .. ct, "channelSection"})
+        UCB:SelectGroup({"classSettings", "otherClasses", "class_" .. ct, "channelSection"}, unit)
     else
-        UCB:SelectGroup(unit, {"classSettings", "class_" .. ct, "channelSection"})
+        UCB:SelectGroup({"classSettings", "class_" .. ct, "channelSection"}, unit)
     end
 end
 
@@ -158,9 +158,9 @@ end
 
 local function GoToClass(unit, ct)
     if ct ~= UCB.className then
-        UCB:SelectGroup(unit, {"classSettings", "otherClasses", "class_" .. ct})
+        UCB:SelectGroup({"classSettings", "otherClasses", "class_" .. ct}, unit)
     else
-        UCB:SelectGroup(unit, {"classSettings", "class_" .. ct})
+        UCB:SelectGroup({"classSettings", "class_" .. ct}, unit)
     end
 end
 

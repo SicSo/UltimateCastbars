@@ -11,7 +11,11 @@ UCB.ADBO = LibStub("AceDBOptions-3.0")
 UCB.LDB = LibStub("LibDataBroker-1.1")
 UCB.ADDON_NAME = C_AddOns.GetAddOnMetadata("UltimateCastbars", "Title")
 
---------------------------------------------------------------- UI ------------------------------------------------------------
+--------------------------------------------------------------- UI/GUI ------------------------------------------------------------
+UCB.GUI = UCB.GUI or {}
+
+UCB.GUI.appName = "UCB_ROOT"
+
 UCB.UI = UCB.UI or {}
 
 UCB.UI.icons = {

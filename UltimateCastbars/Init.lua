@@ -17,6 +17,7 @@ UCB.Profiles = UCB.Profiles or {}
 UCB.Debug = UCB.Debug or {}
 UCB.UIOptions = UCB.UIOptions or {}
 UCB.UI = UCB.UI or {}
+UCB.GUI = UCB.GUI or {}
 
 -- Sub APIs
 UCB.CLASS_API.Evoker = UCB.CLASS_API.Evoker or {}
@@ -27,9 +28,6 @@ UCB.CASTBAR_API.CreateCastbar = UCB.CASTBAR_API.UpdateCastbar -- for backward co
 -- Used to hide the default castbar
 UCB.defaultCastbarFrame = CreateFrame("Frame")
 UCB.defaultCastbarFrame:Hide()
-
-UCB.optionsTable = UCB.optionsTable or {}
-UCB._optionsRegistered = UCB._optionsRegistered or {}
 
 UCB.castBar = {} -- The cast bars
 UCB.castBarGroup = {} -- The cast bar groups (for anchoring)
@@ -200,23 +198,20 @@ end
 function UCB:PrintAddonMsg(msg)  print(self.ADDON_NAME .. ":|r " .. msg) end
 
 function UCB:NotifyChange(unit)
-  local apps = {"UCB_ROOT"}
   if UCB.ACR then
-    for _, app in ipairs(apps) do
-      UCB.ACR:NotifyChange(app)
-    end
+      UCB.ACR:NotifyChange(UCB.GUI.appName)
   end
 end
 
-function UCB:SelectGroup(unit, path)
-  local apps = {"UCB_ROOT"}
+function UCB:SelectGroup(path, unit)
   if UCB.ACD then
-    for _, app in ipairs(apps) do
-      UCB.ACD:SelectGroup(app, unit, unpack(path))
+    if path == nil then
+      UCB.ACD:SelectGroup(UCB.GUI.appName, unpack(path))
+    else
+      UCB.ACD:SelectGroup(UCB.GUI.appName, unit, unpack(path))
     end
   end
 end
-
 
 local function GetPathValue(root, key)
     if root == nil then return nil end
@@ -431,10 +426,9 @@ end
 
 local function RegisterGUIPathCommands(cmds, path)
     if type(cmds) ~= "table" or #cmds == 0 then return end
-    if type(path) ~= "table" or #path == 0 then return end
 
     -- Build a unique SlashCmdList key from the first command + path
-    local key = "UCB_GUI_" .. tostring(cmds[1]):gsub("[^%w]", "") .. "_" .. table.concat(path, "_"):upper()
+    local key = "UCB_GUI_" .. tostring(cmds[1]):gsub("[^%w]", "")
 
     -- Register the slashes
     for i, slash in ipairs(cmds) do
@@ -443,7 +437,7 @@ local function RegisterGUIPathCommands(cmds, path)
 
     -- Handler: ONLY OpenGUI with the path
     SlashCmdList[key] = function()
-        UCB:OpenGUI(path)
+        UCB.GUI:OpenGUI(path)
     end
 end
 
@@ -460,9 +454,15 @@ local function RegisterDebug(slashStart, funcStart, slashStop, funcStop)
 end
 
 local function SetupSlashCommands()
+  --Last tab
+   RegisterGUIPathCommands(
+        { "/ucb" , "/ultimatecastbars", "/uc" },
+       nil
+    )
+
     -- Player tab
     RegisterGUIPathCommands(
-        { "/ucb", "/ultimatecastbars", "/uc" },
+        { "/pcb" },
         { "player", "general" }
     )
 
@@ -501,7 +501,7 @@ function UCB:InitSequence()
   self:EnsureSpellcastEventFrame() -- Ensure the spellcast event frame exists
   self:SaveDefaultCastbarFrames() -- Save the default blizz castbar frames for tracked units
   self:UpdateCastbarTrackedUnits() -- Create cast bars for tracked units
-  self:RegisterRootOptions() -- Create UI
+  UCB.GUI:RegisterRootOptions() -- Create UI
   self.UCB_RegisterLandingPanel() -- Attach Blizzard Landing
   UCB.firstBuild = false
 end
@@ -509,7 +509,7 @@ end
 function UCB:UpdateAllCastBars()
   self:SetUpConfig()
   self:UpdateCastbarTrackedUnits() -- Upadate cast bars for tracked units
-  UCB:OnProfileSwapRefreshUI() -- Refresh UI elements for CFG
+  UCB.GUI:OnProfileSwapRefreshUI() -- Refresh UI elements for CFG
   ResolveFrames() -- Resolve frame acnhors for all units
 end
 
