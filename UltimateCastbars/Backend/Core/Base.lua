@@ -5,14 +5,14 @@ UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.BarUpdate_API = UCB.BarUpdate_API or {}
 UCB.tags     = UCB.tags     or {}
 UCB.Preview_API = UCB.Preview_API or {}
-UCB.UNINTERRUPTIBLE = UCB.UNINTERRUPTIBLE or {}
+UCB.UNINTERRUPTIBLE_API = UCB.UNINTERRUPTIBLE_API or {}
 
 local CFG_API = UCB.CFG_API
 local CASTBAR_API = UCB.CASTBAR_API
 local tags = UCB.tags
 local BarUpdate_API = UCB.BarUpdate_API
 local Preview_API = UCB.Preview_API
-local UNINTERRUPTIBLE = UCB.UNINTERRUPTIBLE
+local UNINTERRUPTIBLE_API = UCB.UNINTERRUPTIBLE_API
 
 local function UpdateSequence(unit)
 
@@ -274,10 +274,12 @@ end
 function CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
     local uint = vars.nIntr
     local frame = bar.unInterruptedFrame
+    local iconFrame = bar.unintIconFrame
     local mirrorFrame = bar.unInterruptedMirrorFrame
     local status = frame.status
     mirrorFrame:SetAlphaFromBoolean(uint)
     frame:SetAlphaFromBoolean(uint)
+    iconFrame:SetAlphaFromBoolean(uint)
     status:SetMinMaxValues(bar_status:GetMinMaxValues())
     status:SetValue(bar_status:GetValue())
 end
@@ -318,7 +320,7 @@ function CASTBAR_API:InterruptibleTick(bar, bar_status, vars, cfg, castType)
         return
     end
 
-    local spellID, kickDur = UNINTERRUPTIBLE:GetKickTimer()
+    local spellID, kickDur = UNINTERRUPTIBLE_API:GetKickTimer()
     if not spellID or not kickDur then
         if status.interruptMarkerPoint then status.interruptMarkerPoint:Hide() end
         status.interruptMarker:Hide()
@@ -433,7 +435,7 @@ local function HideCastbar(bar, vars, cfg)
         bar.group:SetAlpha(a)
     end
 
-    local spellID, kickDur = UNINTERRUPTIBLE:GetKickTimer()
+    local spellID, kickDur = UNINTERRUPTIBLE_API:GetKickTimer()
     if not spellID or not kickDur then
         return
     end
@@ -453,7 +455,7 @@ local function UpdateShowWhenKickAvailable(bar, vars, cfg, castType)
     end
     if not bar or not vars then return end
 
-    local _, kickDur = UNINTERRUPTIBLE:GetKickTimer()
+    local _, kickDur = UNINTERRUPTIBLE_API:GetKickTimer()
     local notIntr   = vars and vars.nIntr
     local kickReady = kickDur:IsZero()
     local alpha = KickAlpha(notIntr, kickReady, true)

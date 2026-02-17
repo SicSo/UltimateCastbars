@@ -268,6 +268,26 @@ local focus_db = {
         backgroundTexture = "Interface\\DialogFrame\\UI-DialogBox-Background",
         backgroundTextureName = "Blizzard Dialog Background",
 
+        showUninterruptibleBorder = true,
+        borderColour = {r=1, g=1, b=1, a=1},
+        textureBorder = "Interface\\TargetingFrame\\UI-StatusBar",
+        textureNameBorder = "Blizzard",
+        borderThickness = 1,
+        borderOffsetTop = 0,
+        borderOffsetBottom = 0,
+        borderOffsetLeft = 0,
+        borderOffsetRight = 0,
+
+        showUninterruptibleBorderIcon = true,
+        syncBorderIcon = true,
+        textureBorderIcon = "Interface\\TargetingFrame\\UI-StatusBar",
+        textureNameBorderIcon = "Blizzard",
+        borderColourIcon = {r=1, g=1, b=1, a=1},
+        borderThicknessIcon = 1,
+        borderOffsetTopIcon = 0,
+        borderOffsetBottomIcon = 0,
+        borderOffsetLeftIcon = 0,
+        borderOffsetRightIcon = 0,
 
         disableBarUnKick = false,
         showKickTick = true,
@@ -286,27 +306,6 @@ local focus_db = {
         untilKickTickBackUseTexture = false,
         untilKickTickBackTexture = "Interface\\DialogFrame\\UI-DialogBox-Background",
         untilKickTickBackTextureName = "Blizzard Dialog Background",
-
-        showUninterruptableBorder = false,
-        borderColour = {r=1, g=0, b=0, a=1},
-        borderTexture = "Interface\\TargetingFrame\\UI-StatusBar",
-        borderTextureName = "Blizzard",
-        borderThickness = 1,
-        borderOffsetTop = 0,
-        borderOffsetBottom = 0,
-        borderOffsetLeft = 0,
-        borderOffsetRight = 0,
-
-        showBorderIcon = false,
-        borderTextureIcon = "Interface\\Buttons\\WHITE8X8",
-        borderTextureNameIcon = "1 Pixel",
-        borderColourIcon = {r=0.5, g=0.5, b=0.5, a=1}, -- grey
-        borderThicknessIcon = 5,
-        borderOffsetTopIcon = 0,
-        borderOffsetBottomIcon = 0,
-        borderOffsetLeftIcon = 0,
-        borderOffsetRightIcon = 0,
-
     },
 
     otherFeatures = {

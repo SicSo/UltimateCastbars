@@ -3,12 +3,14 @@ UCB.Options = UCB.Options or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.UIOptions = UCB.UIOptions or {}
 UCB.CFG_API = UCB.CFG_API or {}
+UCB.UNINTERRUPTIBLE_API = UCB.UNINTERRUPTIBLE_API or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
 local Opt = UCB.Options
 local CFG_API = UCB.CFG_API
 local GetCfg = CFG_API.GetValueConfig
 local UIOptions = UCB.UIOptions
+local UNINTERRUPTIBLE = UCB.UNINTERRUPTIBLE_API
 
 local LSM  = UCB.LSM
 
@@ -70,11 +72,24 @@ local function BuildUninterruptableArgs(args, unit)
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
             },
+            uninterruptibleBorder = {
+                type  = "toggle",
+                name  = "Show uninterruptible border",
+                desc  = "Show a border for uninterruptible casts.",
+                order = 4,
+                width = 1.3,
+                disabled = function() return cfg.disableBarUnInt or not cfg.showUninterruptible end,
+                get = function() return cfg.showUninterruptibleBorder end,
+                set = function(_, val)
+                    cfg.showUninterruptibleBorder = val
+                    CASTBAR_API:UpdateCastbar(unit)
+                end,
+            },
             fillOptionsGrp = {
                 type = "group",
                 name = "Fill options",
                 inline = true,
-                order = 4,
+                order = 5,
                 hidden = function() return not cfg.showUninterruptibleFill or cfg.disableBarUnInt end,
                 args = {
                     fillTexture = {
@@ -117,7 +132,7 @@ local function BuildUninterruptableArgs(args, unit)
                 type = "group",
                 name = "Overlay options",
                 inline = true,
-                order = 5,
+                order = 6,
                 hidden = function() return not cfg.showUninterruptibleBackground or cfg.disableBarUnInt end,
                 args = {
                     backgroundUseTexture = {
@@ -173,6 +188,187 @@ local function BuildUninterruptableArgs(args, unit)
                         end,
                     },
                 },
+            },
+            grpBorder = {
+                type   = "group",
+                name   = "Castbar border options",
+                inline = true,
+                order  = 7,
+                hidden = function() return not cfg.showUninterruptibleBorder or cfg.disableBarUnInt end,
+                args   = {
+                    textureNameBord = {
+                        type          = "select",
+                        dialogControl = "LSM30_Statusbar",
+                        name          = "Border Castbar Texture",
+                        order         = 1,
+                        values        = function() return LSM:HashTable(LSM.MediaType.STATUSBAR) end,
+                        get           = function() return cfg.textureNameBorder end,
+                        set           = function(_, val)
+                            cfg.textureNameBorder = val
+                            cfg.textureBorder = LSM:Fetch(LSM.MediaType.STATUSBAR, val)
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                    },
+                    borderColour = {
+                        type = "color",
+                        name = "Border Colour",
+                        order = 2,
+                        hasAlpha = true,
+                        get = function()
+                            local c = cfg.borderColour
+                            return c.r, c.g, c.b, c.a
+                        end,
+                        set = function(_, r,g,b,a)
+                            cfg.borderColour = {r=r,g=g,b=b,a=a}
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                    },
+                    borderAlpha = {
+                        type = "range",
+                        name = "Transparency",
+                        min = UIOptions.alphaMin, max = UIOptions.alphaMax, step = 0.01,
+                        order = 3,
+                        width = 1.5,
+                        get = function()
+                            local c = cfg.borderColour
+                            return c.a
+                        end,
+                        set = function(_, val)
+                            local c = cfg.borderColour 
+                            c.a = val
+                            cfg.borderColour = c
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                    },
+                    borderThickness = {
+                        type = "range",
+                        name = "Thickness",
+                        min = UIOptions.borderThicknessMin, max = UIOptions.borderThicknessMax, step = 0.5,
+                        order = 4,
+                        width = 1.5,
+                        get = function() return cfg.borderThickness end,
+                        set = function(_, val)
+                            local oldThickness = cfg.borderThickness
+                            cfg.borderThickness = val
+                            UNINTERRUPTIBLE:RebuildOffsets(args, cfg, unit, oldThickness, cfg.borderThicknessIcon)
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                        disabled = function() return cfg.showBorder == false end,
+                    },
+                    borderOffsetGrp = {
+                        type   = "group",
+                        name   = "Border Offsets",
+                        order  = 5,
+                        disabled = function() return cfg.showBorder == false end,
+                        args = UNINTERRUPTIBLE:BuildBorderOffsetArgs(cfg, unit, cfg.borderThickness)
+                    },
+                }
+            },
+            grpBorderIcon = {
+                type   = "group",
+                name   = "Icon Border options",
+                inline = true,
+                order  = 8,
+                hidden = function() return not cfg.showUninterruptibleBorder or cfg.disableBarUnInt end,
+                args   = {
+                    showBorderIcon = {
+                        type  = "toggle",
+                        name  = "Show Border Icon",
+                        order = 1,
+                        get   = function() return cfg.showUninterruptibleBorderIcon end,
+                        set   = function(_, val)
+                            cfg.showUninterruptibleBorderIcon = val
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                    },
+                    iconBorderOptionGrp = {
+                        type = "group",
+                        name = "",
+                        inline = true,
+                        order = 2,
+                        hidden = function() return not cfg.showUninterruptibleBorderIcon end,
+                        args = {
+                            syncBorderIcon = {
+                                type  = "toggle",
+                                name  = "Sync with Castbar Border",
+                                order = 2,
+                                get   = function() return cfg.syncBorderIcon end,
+                                set   = function(_, val)
+                                    cfg.syncBorderIcon = val
+                                    UNINTERRUPTIBLE:RebuildOffsets(args, cfg, unit, cfg.borderThickness, cfg.borderThicknessIcon)
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
+                            textureNameBordIcon = {
+                                type          = "select",
+                                dialogControl = "LSM30_Statusbar",
+                                name          = "Border Icon Texture",
+                                order         = 2.4,
+                                disabled     = function() return cfg.syncBorderIcon == true end,
+                                values        = function() return LSM:HashTable(LSM.MediaType.STATUSBAR) end,
+                                get           = function() return cfg.textureNameBorderIcon end,
+                                set           = function(_, val)
+                                    cfg.textureNameBorderIcon = val
+                                    cfg.textureBorderIcon = LSM:Fetch(LSM.MediaType.STATUSBAR, val)
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
+                            borderColourIcon = {
+                                type = "color",
+                                name = "Colour",
+                                order = 2.5,
+                                hasAlpha = true,
+                                get = function()
+                                    local c = cfg.borderColourIcon
+                                    return c.r, c.g, c.b, c.a
+                                end,
+                                set = function(_, r,g,b,a)
+                                    cfg.borderColourIcon = {r=r,g=g,b=b,a=a}
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                                disabled = function() return cfg.syncBorderIcon == true  end,
+                            },
+                            borderAlphaIcon = {
+                                type = "range",
+                                name = "Transparency",
+                                min = UIOptions.alphaMin, max = UIOptions.alphaMax, step = 0.01,
+                                order = 3,
+                                get = function()
+                                    local c = cfg.borderColourIcon
+                                    return c.a
+                                end,
+                                set = function(_, val)
+                                    local c = cfg.borderColourIcon 
+                                    c.a = val
+                                    cfg.borderColourIcon = c
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                                disabled = function() return cfg.syncBorderIcon == true end,
+                            },
+                            borderThicknessIcon = {
+                                type = "range",
+                                name = "Thickness",
+                                min = UIOptions.borderThicknessMin, max = UIOptions.borderThicknessMax, step = 0.5,
+                                order = 4,
+                                width = 1.5,
+                                get = function() return cfg.borderThicknessIcon end,
+                                set = function(_, val)
+                                    local oldThicknessIcon = cfg.borderThicknessIcon
+                                    cfg.borderThicknessIcon = val
+                                    UNINTERRUPTIBLE:RebuildOffsets(args, cfg, unit, cfg.borderThickness, oldThicknessIcon)
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                                disabled = function() return cfg.syncBorderIcon == true end,
+                            },
+                            borderOffsetGrp = {
+                                type   = "group",
+                                name   = "Border Offsets",
+                                order  = 5,
+                                args = UNINTERRUPTIBLE:BuildBorderOffsetIconArgs(cfg, unit, cfg.borderThickness, cfg.borderThicknessIcon)
+                            },
+                        }
+                    }
+                }
             }
         },
     }

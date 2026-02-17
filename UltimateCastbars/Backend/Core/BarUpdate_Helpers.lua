@@ -173,6 +173,146 @@ local function UpdateIconBorder(unit)
         -3
     )
 end
+
+local function UpdateRectBorderFromCfg(holder, target, holderKey, cfgBlock, frameLevelDelta)
+    if not holder or not target or not cfgBlock then return end
+
+    if not cfgBlock.show then
+        HideRectBorder(holder, holderKey)
+        return
+    end
+
+    ApplyRectBorder(
+        holder,
+        holderKey,
+        target,
+        cfgBlock.texture,
+        cfgBlock.colour,
+        cfgBlock.thickness,
+        cfgBlock.offsets,
+        frameLevelDelta or -1
+    )
+end
+
+local function UpdateUninterruptibleBorder(unit)
+    local bar = UCB.castBar[unit]
+    if not bar then return end
+
+    local cfg = CFG_API.GetValueConfig(unit).uninterruptible
+    local unint_frame = bar.unInterruptedFrame
+    if not unint_frame then return end
+
+    -- If you want border to be conditional on showUninterruptible too:
+    local show = cfg.showUninterruptibleBorder and cfg.showUninterruptible
+
+    local borderBlock = {
+        show      = show,
+        texture   = cfg.textureBorder,
+        colour    = cfg.borderColour,
+        thickness = cfg.borderThickness,
+        offsets   = {
+            left   = cfg.borderOffsetLeft,
+            right  = cfg.borderOffsetRight,
+            top    = cfg.borderOffsetTop,
+            bottom = cfg.borderOffsetBottom,
+        },
+    }
+
+    -- Use the same holder/target = unint_frame so it borders that region.
+    -- Frame level: pick something that renders above background, below text.
+    -- unInterruptedFrame level is set in UpdateVisibility; border frameLevelDelta can be small negative/positive.
+    UpdateRectBorderFromCfg(unint_frame, unint_frame, "_rectBorder", borderBlock, -1)
+
+    -- OPTIONAL: mirror border (if you want the mirrored uninterruptible to also have border)
+    if bar.unInterruptedMirrorFrame and cfg.showUninterruptibleMirrorBorder then
+        local mirrorShow = cfg.showUninterruptibleBorder and cfg.showUninterruptible
+        local mirrorBlock = {
+            show      = mirrorShow,
+            texture   = cfg.textureBorder,
+            colour    = cfg.borderColour,
+            thickness = cfg.borderThickness,
+            offsets   = {
+                left   = cfg.borderOffsetLeft,
+                right  = cfg.borderOffsetRight,
+                top    = cfg.borderOffsetTop,
+                bottom = cfg.borderOffsetBottom,
+            },
+        }
+        UpdateRectBorderFromCfg(bar.unInterruptedMirrorFrame, bar.unInterruptedMirrorFrame, "_rectBorder", mirrorBlock, -1)
+    elseif bar.unInterruptedMirrorFrame then
+        HideRectBorder(bar.unInterruptedMirrorFrame, "_rectBorder")
+    end
+end
+
+local function UpdateUninterruptibleIconBorder(unit)
+    local bar = UCB.castBar[unit]
+    if not bar or not bar.unintIconFrame then return end
+
+    local cfg = CFG_API.GetValueConfig(unit).uninterruptible
+
+    -- Gate: only show when uninterruptible feature is enabled (and optionally when currently shown)
+    local show = cfg.showUninterruptibleBorderIcon and cfg.showUninterruptible and cfg.showUninterruptibleBorder
+    print(show)
+
+    local borderBlock
+    if cfg.syncBorderIcon then
+        borderBlock = {
+            show      = show,
+            texture   = cfg.textureBorder,   -- or reuse same texture as bar border
+            colour    = cfg.borderColour,
+            thickness = cfg.borderThickness,
+            offsets   = {
+                left   = cfg.borderOffsetLeftIcon,
+                right  = cfg.borderOffsetRightIcon,
+                top    = cfg.borderOffsetTopIcon,
+                bottom = cfg.borderOffsetBottomIcon,
+            },
+        }
+    else
+        borderBlock = {
+            show      = show,
+            texture   = cfg.textureBorderIcon,
+            colour    = cfg.borderColourIcon,
+            thickness = cfg.borderThicknessIcon,
+            offsets   = {
+                left   = cfg.borderOffsetLeftIcon,
+                right  = cfg.borderOffsetRightIcon,
+                top    = cfg.borderOffsetTopIcon,
+                bottom = cfg.borderOffsetBottomIcon,
+            },
+        }
+    end
+
+    print("unintIconFrame lvl", bar.unintIconFrame:GetFrameLevel(), "iconFrame lvl", bar.iconFrame:GetFrameLevel())
+    print("show", show, "thick", borderBlock.thickness, "tex", borderBlock.texture)
+
+
+    -- icon border frame level often needs to be higher than bar border
+    UpdateRectBorderFromCfg(bar.unintIconFrame, bar.unintIconFrame, "_rectBorderUnintIcon", borderBlock, -3)
+end
+
+local function CopyFrameLayoutRelativeToBar(dst, src, bar)
+    if not dst or not src or not bar then return end
+
+    dst:SetParent(bar)
+    dst:ClearAllPoints()
+
+    local num = src:GetNumPoints()
+    for i = 1, num do
+        local point, relativeTo, relativePoint, xOfs, yOfs = src:GetPoint(i)
+
+        -- Force the same relativeTo to be bar if the original was bar/iconFrame itself
+        if relativeTo == src or relativeTo == nil then
+            relativeTo = bar
+        end
+
+        dst:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
+    end
+
+    dst:SetSize(src:GetSize())
+end
+
+
 ----------------------------------------MAIN----------------------------------------
 function BarUpdate_API:UpdateText(unit)
     local bar = UCB.castBar[unit]
@@ -403,7 +543,7 @@ function BarUpdate_API:UpdateUninterruptable(unit)
         end
     end
 
-     if not unint_frame.bg then
+    if not unint_frame.bg then
         unint_frame.bg = unint_frame:CreateTexture(nil, "BACKGROUND", nil, 3)
         unint_frame.bg:SetAllPoints()
     end
@@ -421,6 +561,27 @@ function BarUpdate_API:UpdateUninterruptable(unit)
     elseif unint_frame.bg then
         unint_frame.bg:Hide()
     end
+
+    -- Castbar border
+    UpdateUninterruptibleBorder(unit)
+
+    -- Icon border
+    -- Icon border overlay frame (tracks iconFrame exactly)
+    if not bar.unintIconFrame then
+        bar.unintIconFrame = CreateFrame("Frame", nil, bar.iconFrame)
+        bar.unintIconFrame:SetAllPoints(bar.iconFrame)
+
+        -- ensure it draws above iconFrame contents
+        bar.unintIconFrame:SetFrameStrata(bar.iconFrame:GetFrameStrata())
+        bar.unintIconFrame:SetFrameLevel(bar.iconFrame:GetFrameLevel() + 10)
+    else
+        -- keep it in sync if visibility/frame levels change later
+        bar.unintIconFrame:SetParent(bar.iconFrame)
+        bar.unintIconFrame:SetAllPoints(bar.iconFrame)
+        bar.unintIconFrame:SetFrameStrata(bar.iconFrame:GetFrameStrata())
+        bar.unintIconFrame:SetFrameLevel(bar.iconFrame:GetFrameLevel() + 10)
+    end
+    UpdateUninterruptibleIconBorder(unit)
 end
 
 function BarUpdate_API:UpdateStyle(unit)

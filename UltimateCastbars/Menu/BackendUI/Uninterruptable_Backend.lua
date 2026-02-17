@@ -3,14 +3,15 @@ UCB.Options = UCB.Options or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.UIOptions = UCB.UIOptions or {}
 UCB.CFG_API = UCB.CFG_API or {}
-UCB.UNINTERRUPTIBLE = UCB.UNINTERRUPTIBLE or {}
+UCB.UNINTERRUPTIBLE_API = UCB.UNINTERRUPTIBLE_API or {}
+UCB.STYLE_API = UCB.STYLE_API or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
 local Opt = UCB.Options
 local CFG_API = UCB.CFG_API
 local GetCfg = CFG_API.GetValueConfig
 local UIOptions = UCB.UIOptions
-local UNINTERRUPTIBLE = UCB.UNINTERRUPTIBLE
+local UNINTERRUPTIBLE = UCB.UNINTERRUPTIBLE_API
 
 
 function UNINTERRUPTIBLE:GetKickTimer()
@@ -38,4 +39,12 @@ function UNINTERRUPTIBLE:GetKickTimer()
 
     return spellID, remaining, isReady
   end
+end
+
+UNINTERRUPTIBLE.BuildBorderOffsetArgs = UCB.STYLE_API.BuildBorderOffsetArgs
+UNINTERRUPTIBLE.BuildBorderOffsetIconArgs = UCB.STYLE_API.BuildBorderOffsetIconArgs
+
+function UNINTERRUPTIBLE:RebuildOffsets(args, cfg, unit, oldThickness, oldThicknessIcon)
+    args.uninterruptibleGroup.args.grpBorder.args.borderOffsetGrp.args = self:BuildBorderOffsetArgs(cfg, unit, oldThickness)
+    args.uninterruptibleGroup.args.grpBorderIcon.args.iconBorderOptionGrp.args.borderOffsetGrp.args = self:BuildBorderOffsetIconArgs(cfg, unit, oldThickness, oldThicknessIcon)
 end

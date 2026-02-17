@@ -269,7 +269,7 @@ local function BuildCustomisationArgs(args, unit)
                 set = function(_, val)
                     local oldThickness = cfg.borderThickness
                     cfg.borderThickness = val
-                    STYLE_API:RebuildOffsets(args, cfg, UIOptions, unit, oldThickness, cfg.borderThicknessIcon)
+                    STYLE_API:RebuildOffsets(args, cfg, unit, oldThickness, cfg.borderThicknessIcon)
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
                 disabled = function() return cfg.showBorder == false end,
@@ -279,7 +279,7 @@ local function BuildCustomisationArgs(args, unit)
                 name   = "Border Offsets",
                 order  = 5,
                 disabled = function() return cfg.showBorder == false end,
-                args = STYLE_API:BuildBorderOffsetArgs(cfg, UIOptions, unit, cfg.borderThickness)
+                args = STYLE_API:BuildBorderOffsetArgs(cfg, unit, cfg.borderThickness)
             },
         }
     }
@@ -306,7 +306,7 @@ local function BuildCustomisationArgs(args, unit)
                 get   = function() return cfg.syncBorderIcon end,
                 set   = function(_, val)
                     cfg.syncBorderIcon = val
-                    STYLE_API:RebuildOffsets(args, cfg, UIOptions, unit, cfg.borderThickness, cfg.borderThicknessIcon)
+                    STYLE_API:RebuildOffsets(args, cfg, unit, cfg.borderThickness, cfg.borderThicknessIcon)
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
                 disabled = function() return cfg.showBorderIcon == false end,
@@ -353,7 +353,7 @@ local function BuildCustomisationArgs(args, unit)
                 set = function(_, val)
                     local oldThicknessIcon = cfg.borderThicknessIcon
                     cfg.borderThicknessIcon = val
-                    STYLE_API:RebuildOffsets(args, cfg, UIOptions, unit, cfg.borderThickness, oldThicknessIcon)
+                    STYLE_API:RebuildOffsets(args, cfg, unit, cfg.borderThickness, oldThicknessIcon)
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
                 disabled = function() return cfg.showBorderIcon == false or cfg.syncBorderIcon == true end,
@@ -363,7 +363,7 @@ local function BuildCustomisationArgs(args, unit)
                 name   = "Border Offsets",
                 order  = 5,
                 disabled = function() return cfg.showBorderIcon == false  end,
-                args = STYLE_API:BuildBorderOffsetIconArgs(cfg, UIOptions, unit, cfg.borderThickness, cfg.borderThicknessIcon)
+                args = STYLE_API:BuildBorderOffsetIconArgs(cfg, unit, cfg.borderThickness, cfg.borderThicknessIcon)
             },
         }
     }

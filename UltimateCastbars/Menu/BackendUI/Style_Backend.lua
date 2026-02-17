@@ -1,27 +1,20 @@
 
 local _, UCB = ...
-UCB.Options = UCB.Options or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.UIOptions = UCB.UIOptions or {}
-UCB.CFG_API = UCB.CFG_API or {}
 UCB.STYLE_API = UCB.STYLE_API or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
-local Opt = UCB.Options
-local CFG_API = UCB.CFG_API
-local GetCfg = CFG_API.GetValueConfig
 local UIOptions = UCB.UIOptions
 local STYLE_API = UCB.STYLE_API
 
-local LSM  = UCB.LSM
-
-function STYLE_API:RebuildOffsets(args, cfg, UIOptions, unit, oldThickness, oldThicknessIcon)
-    args.grpBorder.args.borderOffsetGrp.args = self:BuildBorderOffsetArgs(cfg, UIOptions, unit, oldThickness)
-    args.grpBorderIcon.args.borderOffsetGrp.args = self:BuildBorderOffsetIconArgs(cfg, UIOptions, unit, oldThickness, oldThicknessIcon)
+function STYLE_API:RebuildOffsets(args, cfg, unit, oldThickness, oldThicknessIcon)
+    args.grpBorder.args.borderOffsetGrp.args = self:BuildBorderOffsetArgs(cfg, unit, oldThickness)
+    args.grpBorderIcon.args.borderOffsetGrp.args = self:BuildBorderOffsetIconArgs(cfg, unit, oldThickness, oldThicknessIcon)
 end
 
 
-function STYLE_API:BuildBorderOffsetArgs(cfg, UIOptions, unit, oldThickness)
+function STYLE_API:BuildBorderOffsetArgs(cfg, unit, oldThickness)
     local thickness = tonumber(cfg.borderThickness) or 0
     local minV = -thickness
     local maxV = UIOptions.borderOffsetMax  -- keep your existing max
@@ -106,7 +99,7 @@ function STYLE_API:BuildBorderOffsetArgs(cfg, UIOptions, unit, oldThickness)
     }
 end
 
-function STYLE_API:BuildBorderOffsetIconArgs(cfg, UIOptions, unit, oldThickness, oldThicknessIcon)
+function STYLE_API:BuildBorderOffsetIconArgs(cfg, unit, oldThickness, oldThicknessIcon)
     local thickness = cfg.borderThickness
     local thicknessIcon = cfg.borderThicknessIcon
     local actualOldThicknessIcon = oldThicknessIcon
