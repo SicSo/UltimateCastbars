@@ -367,23 +367,25 @@ local function SetUpSpellTypes()
 end
 
 local function ResolveFrames()
-  local cfg = UCB.CFG_API.GetValueConfig("player").general
-  local delayAcnhor = cfg.anchorDelay
-  local delaySync = cfg.syncDelay
-  if not UCB.firstBuild then
-    delayAcnhor = 0
-    delaySync = 0
-  end
+  for unit, use in pairs(UCB.menuUnits) do
+    if use then
+      local cfg = UCB.CFG_API.GetValueConfig(unit).general
+      local delayAcnhor = cfg.anchorDelay
+      local delaySync = cfg.syncDelay
+      if not UCB.firstBuild then
+        delayAcnhor = 0
+        delaySync = 0
+      end
 
-  if UCB.GeneralSettings_API and UCB.GeneralSettings_API.ResolveAllFramesOnLogin then
-    UCB.GeneralSettings_API:ResolveAllFramesOnLogin({
-      anchorTries = cfg.anchorFrameTries,
-      anchorInterval = cfg.anchorFrameInterval,
-      syncTries = cfg.syncFrameTries,
-      syncInterval = cfg.syncFrameInterval,
-      syncDelay = delaySync,
-      anchorDelay = delayAcnhor,
-    })
+      UCB.GeneralSettings_API:ResolveFramesOnLogin(unit, {
+        anchorTries = cfg.anchorFrameTries,
+        anchorInterval = cfg.anchorFrameInterval,
+        syncTries = cfg.syncFrameTries,
+        syncInterval = cfg.syncFrameInterval,
+        syncDelay = delaySync,
+        anchorDelay = delayAcnhor,
+      })
+    end
   end
 end
 

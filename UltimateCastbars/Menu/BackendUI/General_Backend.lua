@@ -169,7 +169,7 @@ end
 
 
 
-function GeneralSettings_API:ResolveAllFramesOnLogin(opts)
+function GeneralSettings_API:ResolveFramesOnLogin(unit, opts)
     opts = opts or {}
     local anchorTries = tonumber(opts.anchorTries) or 50
     local anchorInterval = tonumber(opts.anchorInterval) or 0.1
@@ -178,8 +178,8 @@ function GeneralSettings_API:ResolveAllFramesOnLogin(opts)
     local syncDelay = tonumber(opts.syncDelay) or 0.1
     local anchorDelay = tonumber(opts.anchorDelay) or 0.1
 
-    local function notify(unit)
-        UCB:NotifyChange(unit)
+    local function notify()
+        UCB:NotifyChange()
     end
 
     local function resolveWidthHeight(unit, g)
@@ -213,14 +213,8 @@ function GeneralSettings_API:ResolveAllFramesOnLogin(opts)
         end
     end
 
-    -- Resolve all units you support
-    for _, unit in ipairs({ "player", "target", "focus" }) do
-        local big = (CFG_API and CFG_API.GetValueConfig) and CFG_API.GetValueConfig(unit)
-        local g = big and big.general
-        if g then
-            resolveAnchor(unit, g)
-            resolveWidthHeight(unit, g)
-        end
-        notify(unit)
-    end
+    local g = CFG_API.GetValueConfig(unit).general
+    resolveAnchor(unit, g)
+    resolveWidthHeight(unit, g)
+    notify()
 end

@@ -447,7 +447,8 @@ function tags:ApplyTextState(bar, state, unit, remaining, elapsed)
         t.fs:SetText(text)
         local secret = issecretvalue(showText)
         if secret or (not secret and showText ~= nil) then
-            t.fs:SetAlphaFromBoolean(showText)
+           local alpha = C_CurveUtil.EvaluateColorValueFromBoolean(showText, t.colour.a, 0)
+            t.fs:SetAlphaFromBoolean(alpha)
         end
     end
 end
