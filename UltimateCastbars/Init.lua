@@ -205,7 +205,7 @@ end
 
 function UCB:SelectGroup(path, unit)
   if UCB.ACD then
-    if path == nil then
+    if unit == nil then
       UCB.ACD:SelectGroup(UCB.GUI.appName, unpack(path))
     else
       UCB.ACD:SelectGroup(UCB.GUI.appName, unit, unpack(path))

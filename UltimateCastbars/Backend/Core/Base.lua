@@ -282,10 +282,15 @@ function CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
     status:SetValue(bar_status:GetValue())
 end
 
-local function KickTickAlpha(notInterruptibleSecretBool, kickReadySecretBool)
+local function KickAlpha(notInterruptibleSecretBool, kickReadySecretBool, whenKickReady)
     if C_CurveUtil then
-        local alphaWhenIntr = C_CurveUtil.EvaluateColorValueFromBoolean(kickReadySecretBool, 0, 1)
-        return C_CurveUtil.EvaluateColorValueFromBoolean(notInterruptibleSecretBool, 0, alphaWhenIntr)
+         local kickMatchesWhen = C_CurveUtil.EvaluateColorValueFromBoolean(
+            kickReadySecretBool,
+            whenKickReady and 1 or 0,  -- value when kickReady is false
+            whenKickReady and 0 or 1   -- value when kickReady is true
+        )
+        --local kickMatchesWhen = C_CurveUtil.EvaluateColorValueFromBoolean(kickReadySecretBool, 0, 1)
+        return C_CurveUtil.EvaluateColorValueFromBoolean(notInterruptibleSecretBool, 0, kickMatchesWhen)
     end
     -- fallback: just show (can't safely evaluate secrets without C_CurveUtil)
     return 1
@@ -324,7 +329,7 @@ function CASTBAR_API:InterruptibleTick(bar, bar_status, vars, cfg, castType)
 
     local notIntr   = vars and vars.nIntr
     local kickReady = kickDur:IsZero()
-    local alpha = KickTickAlpha(notIntr, kickReady)
+    local alpha = KickAlpha(notIntr, kickReady, false)
 
     local minVal, maxVal = bar_status:GetMinMaxValues()
     bar.kickTickFrozen = kickDur:GetRemainingDuration()
@@ -451,7 +456,7 @@ local function UpdateShowWhenKickAvailable(bar, vars, cfg, castType)
     local _, kickDur = UNINTERRUPTIBLE:GetKickTimer()
     local notIntr   = vars and vars.nIntr
     local kickReady = kickDur:IsZero()
-    local alpha = KickTickAlpha(notIntr, kickReady)
+    local alpha = KickAlpha(notIntr, kickReady, true)
 
     if unIntCFG.disableBarUnKick then
          bar.group:SetAlpha(alpha)
