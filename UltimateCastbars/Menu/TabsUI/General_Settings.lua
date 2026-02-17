@@ -120,7 +120,7 @@ local function BuildPositionArgs(args, unit)
                             },
                             toggleDefault = {
                                 type = "toggle",
-                                name = "Use Default Anchor (UIParent)",
+                                name = "Use Default Anchor - UIParent (anchorFrom and anchorTo will use different values between default/custom)",
                                 order = 2,
                                 width = "full",
                                 get = function() return g.useDefaultAnchor end,
@@ -279,15 +279,29 @@ local function BuildPositionArgs(args, unit)
                         order = 2,
                         inline = true,
                         args = {
+                            anchorDesc = {
+                                type = "description",
+                                name = "Anchor point on the castbar to the anchor point on the anchoring frame. Default and custom modes have different values for these settings. IF USING DEFAULT U DONT SEE THE CASTBAR, SET THESE TO "..UIOptions.ColorText(UIOptions.turquoise ,"CENTER CENTER!"),
+                                order = 0.5,
+                            },
                             anchorFrom = {
                                 type  = "select",
                                 name  = "Anchor From (point on the castbar)",
                                 order = 1,
                                 width = 1.5,
                                 values = UIOptions.anchors,
-                                get = function() return g.anchorFrom end,
+                                get = function() 
+                                    if g.useDefaultAnchor then
+                                        return g.anchorFromDefault
+                                    end
+                                    return g.anchorFrom
+                                    end,
                                 set = function(_, v)
-                                    g.anchorFrom = v
+                                    if g.useDefaultAnchor then
+                                        g.anchorFromDefault = v
+                                    else
+                                        g.anchorFrom = v
+                                    end
                                     CASTBAR_API:UpdateCastbar(unit)
                                 end,
                             },
@@ -297,9 +311,18 @@ local function BuildPositionArgs(args, unit)
                                 order = 2,
                                 width = 1.5,
                                 values = UIOptions.anchors,
-                                get = function() return g.anchorTo end,
+                                get = function() 
+                                    if g.useDefaultAnchor then
+                                        return g.anchorToDefault
+                                    end
+                                    return g.anchorTo 
+                                    end,
                                 set = function(_, v)
-                                    g.anchorTo = v
+                                    if g.useDefaultAnchor then
+                                        g.anchorToDefault = v
+                                    else
+                                        g.anchorTo = v
+                                    end
                                     CASTBAR_API:UpdateCastbar(unit)
                                 end,
                             },

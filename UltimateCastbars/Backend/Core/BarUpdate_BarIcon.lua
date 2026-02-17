@@ -38,6 +38,15 @@ local function AnchorWhenReady(frameToAnchor, cfg, opts)
         if not anchor then anchor = _G[cfg._defaultAnchor] end
         end
 
+        local anchorTo, anchorFrom
+        if cfg.useDefaultAnchor then
+            anchorTo = cfg.anchorToDefault or "CENTER"
+            anchorFrom = cfg.anchorFromDefault or "CENTER"
+        else
+            anchorTo = cfg.anchorTo or "CENTER"
+            anchorFrom = cfg.anchorFrom or "CENTER"
+        end
+
         -- If user wants a specific anchor but it isn't available yet, keep waiting
         if (not cfg.useDefaultAnchor) and cfg.anchorName and cfg.anchorName ~= "" and _G[cfg.anchorName] == nil then
         if tries < maxTries then
@@ -47,13 +56,13 @@ local function AnchorWhenReady(frameToAnchor, cfg, opts)
             cfg._anchorCustomError = true
             anchor = _G[cfg._defaultAnchor]
             frameToAnchor:ClearAllPoints()
-            frameToAnchor:SetPoint(cfg.anchorFrom, anchor, cfg.anchorTo, cfg.offsetX, cfg.offsetY or 0)
+            frameToAnchor:SetPoint(anchorFrom, anchor, anchorTo, cfg.offsetX, cfg.offsetY or 0)
         end
         return
         end
 
         frameToAnchor:ClearAllPoints()
-        frameToAnchor:SetPoint(cfg.anchorFrom, anchor, cfg.anchorTo, cfg.offsetX or 0, cfg.offsetY or 0)
+        frameToAnchor:SetPoint(anchorFrom, anchor, anchorTo, cfg.offsetX or 0, cfg.offsetY or 0)
     end
 
     if delay > 0 then

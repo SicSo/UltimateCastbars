@@ -10,6 +10,8 @@ UCB.Default_DB.Player = {
         offsetY = 0,
         anchorFrom = "CENTER", --"TOP" "BOTTOM" "LEFT" "RIGHT" "CENTER" "TOPLEFT" "TOPRIGHT" "BOTTOMLEFT" "BOTTOMRIGHT"
         anchorTo = "CENTER",
+        anchorFromDefault = "CENTER",
+        anchorToDefault = "CENTER",
         anchorName = "", -- Name of frame to anchor to
         useDefaultAnchor = true,
         frameLastClicked = "",
@@ -286,7 +288,7 @@ UCB.Default_DB.Player = {
 
 
         showUninterruptableBorder = false,
-        borderColour = {r=1, g=0, b=0, a=1},
+        borderColour = {r=1, g=1, b=1, a=1},
         borderTexture = "Interface\\TargetingFrame\\UI-StatusBar",
         borderTextureName = "Blizzard",
         borderThickness = 1,
@@ -295,11 +297,11 @@ UCB.Default_DB.Player = {
         borderOffsetLeft = 0,
         borderOffsetRight = 0,
 
-        showBorderIcon = false,
-        borderTextureIcon = "Interface\\Buttons\\WHITE8X8",
-        borderTextureNameIcon = "1 Pixel",
-        borderColourIcon = {r=0.5, g=0.5, b=0.5, a=1}, -- grey
-        borderThicknessIcon = 5,
+        showUninterruptableBorderIcon = false,
+        textureBorderIcon = "Interface\\TargetingFrame\\UI-StatusBar",
+        textureNameBorderIcon = "Blizzard",
+        borderColourIcon = {r=1, g=1, b=1, a=1},
+        borderThicknessIcon = 1,
         borderOffsetTopIcon = 0,
         borderOffsetBottomIcon = 0,
         borderOffsetLeftIcon = 0,
