@@ -211,40 +211,90 @@ end
 -- ============================================================
 -- Hide
 -- ============================================================
-local function ApplyHideState(f, shouldHide, dontForceShow)
-    if not f then return end
-    CacheFrameState(f)
+local function ApplyHideState_Legacy(f, shouldHide, dontForceShow)
+	if not f then return end
+	CacheFrameState(f)
 
-    -- Cache original "showCastbar" once (Blizzard uses this in layout)
-    if f.__ucbOrigShowCastbar == nil then
-        f.__ucbOrigShowCastbar = f.showCastbar
-    end
+	if shouldHide then
+		if f.SetParent then f:SetParent(UCB.defaultCastbarFrame) end
+		if f.SetAlpha then pcall(function() f:SetAlpha(0) end) end
+		if f.Hide then f:Hide() end
+	else
+		-- Don’t restore points here. Only prep visibility.
+		local o = f.__pcbOrig
+		if f.SetParent and o and o.parent then f:SetParent(o.parent) end
+		if f.SetAlpha then pcall(function() f:SetAlpha((o and o.alpha) or 1) end) end
 
-    if shouldHide then
-        -- DO NOT reparent TargetFrameSpellBar (or any Blizzard castbar) away from its normal parent
-        -- Just hide it and make Blizzard layout ignore it.
-        f.showCastbar = false
-        if f.SetAlpha then pcall(function() f:SetAlpha(0) end) end
-        if f.Hide then f:Hide() end
-        return
-    end
-
-    -- Not hidden: restore the showCastbar flag baseline
-    f.showCastbar = (f.__ucbOrigShowCastbar ~= nil) and f.__ucbOrigShowCastbar or true
-
-    local o = f.__pcbOrig
-    if f.SetAlpha then pcall(function() f:SetAlpha((o and o.alpha) or 1) end) end
-
-    -- If we're intentionally not forcing Show at init, also tell Blizzard layout not to use it
-    if dontForceShow then
-        f.showCastbar = false
-        return
-    end
-
-    if f.Show then
-        f:Show()
-    end
+		-- If dontForceShow==true, DO NOT call Show().
+		if not dontForceShow and f.Show then
+			f:Show()
+		end
+	end
 end
+
+local function ApplyHideState(f, shouldHide, dontForceShow, unit)
+	if not f then return end
+	CacheFrameState(f)
+
+	-- Only UnitFrame spellbars should get showCastbar toggles.
+	local isUnitFrameSpellbar = (unit == "target" or unit == "focus")
+
+	-- Cache original showCastbar only for unitframe spellbars
+	if isUnitFrameSpellbar and f.__ucbOrigShowCastbar == nil then
+		f.__ucbOrigShowCastbar = f.showCastbar
+	end
+
+	if shouldHide then
+		-- TARGET/FOCUS: keep parent, just hide, and tell Blizzard layout to ignore it.
+		if isUnitFrameSpellbar then
+			f.showCastbar = false
+			if f.SetAlpha then pcall(function() f:SetAlpha(0) end) end
+			if f.Hide then f:Hide() end
+			return
+		end
+
+		-- PLAYER: do NOT touch showCastbar (taint risk).
+		-- Also avoid SetParent if this is the global CastingBarFrame.
+		if f == _G.CastingBarFrame then
+			-- safest: just hide/alpha; no reparent
+			if f.SetAlpha then pcall(function() f:SetAlpha(0) end) end
+			if f.Hide then f:Hide() end
+			return
+		end
+
+		-- If it's PlayerCastingBarFrame and you're ok with it:
+		-- avoid reparent; just hide/alpha (reparenting is also a taint magnet)
+		if f.SetAlpha then pcall(function() f:SetAlpha(0) end) end
+		if f.Hide then f:Hide() end
+		return
+	end
+
+	-- UNHIDE
+	if isUnitFrameSpellbar then
+		f.showCastbar = (f.__ucbOrigShowCastbar ~= nil) and f.__ucbOrigShowCastbar or true
+	end
+
+	local o = f.__pcbOrig
+	-- For unitframe spellbars, restoring parent is fine; for player bars keep it conservative
+	if isUnitFrameSpellbar then
+		if f.SetParent and o and o.parent then f:SetParent(o.parent) end
+	end
+
+	if f.SetAlpha then pcall(function() f:SetAlpha((o and o.alpha) or 1) end) end
+
+	-- If not forcing Show at init:
+	-- - unitframe spellbars: also keep Blizzard layout from using it
+	-- - player bars: just don't show it (but don't touch showCastbar)
+	if dontForceShow then
+		if isUnitFrameSpellbar then
+			f.showCastbar = false
+		end
+		return
+	end
+
+	if f.Show then f:Show() end
+end
+
 
 
 function DefBlizzCast:RefreshBlizzardCastbarHide(unit, showBar)
@@ -271,7 +321,7 @@ function DefBlizzCast:RefreshBlizzardCastbarHide(unit, showBar)
                     if not owner then return end
                     local c = GetCfg(owner)
                     if c and c.defaultBar and c.defaultBar.enabled == false then
-                        ApplyHideState(self, true)
+                        ApplyHideState(self, true, nil, unit)
                     end
                 end)
 
@@ -281,13 +331,13 @@ function DefBlizzCast:RefreshBlizzardCastbarHide(unit, showBar)
                         if not owner then return end
                         local c = GetCfg(owner)
                         if c and c.defaultBar and c.defaultBar.enabled == false then
-                            ApplyHideState(self, true)
+                            ApplyHideState(self, true, nil, unit)
                         end
                     end)
                 end
             end
 
-            ApplyHideState(f, shouldHide, dontForceShow)
+            ApplyHideState(f, shouldHide, dontForceShow, unit)
         end
     end
 end
