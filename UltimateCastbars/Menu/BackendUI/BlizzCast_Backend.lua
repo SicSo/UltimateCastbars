@@ -50,6 +50,26 @@ local function GetBlizzFrames(unit)
         end
 
         return out
+    elseif unit == "focus" then
+        local out = {}
+
+        -- Retail focus frame spellbar (common)
+        if _G.FocusFrame and _G.FocusFrame.spellbar then
+            out[#out + 1] = _G.FocusFrame.spellbar
+        end
+
+        -- Fallback global
+        if _G.FocusFrameSpellBar then
+            local same = (_G.FocusFrame and _G.FocusFrame.spellbar == _G.FocusFrameSpellBar)
+            if not same then out[#out + 1] = _G.FocusFrameSpellBar end
+        end
+
+        -- Some builds have a separate casting bar frame
+        if _G.FocusCastingBarFrame then
+            out[#out + 1] = _G.FocusCastingBarFrame
+        end
+
+        return out
     end
 
     return {}
@@ -351,7 +371,7 @@ local function EnsureBaselineEventFrame()
     RegisterEventSafe(ef, "EDIT_MODE_LAYOUTS_RESET")
 
     ef:SetScript("OnEvent", function()
-        for _, unit in ipairs({ "player", "target" }) do
+        for _, unit in ipairs({ "player", "target" , "focus"}) do
             local u = unit
             local cfg = GetCfg(u)
             if cfg and cfg.defaultBar and cfg.defaultBar.useBlizzardDefaults and cfg.defaultBar.enabled ~= false then
