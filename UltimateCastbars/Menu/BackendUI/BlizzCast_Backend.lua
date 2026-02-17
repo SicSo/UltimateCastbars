@@ -195,20 +195,34 @@ local function ApplyHideState(f, shouldHide, dontForceShow)
     if not f then return end
     CacheFrameState(f)
 
+    -- Cache original "showCastbar" once (Blizzard uses this in layout)
+    if f.__ucbOrigShowCastbar == nil then
+        f.__ucbOrigShowCastbar = f.showCastbar
+    end
+
     if shouldHide then
-        if f.SetParent then f:SetParent(UCB.defaultCastbarFrame) end
+        -- DO NOT reparent TargetFrameSpellBar (or any Blizzard castbar) away from its normal parent
+        -- Just hide it and make Blizzard layout ignore it.
+        f.showCastbar = false
         if f.SetAlpha then pcall(function() f:SetAlpha(0) end) end
         if f.Hide then f:Hide() end
-    else
-        -- Don’t restore points here. Only prep visibility.
-        local o = f.__pcbOrig
-        if f.SetParent and o and o.parent then f:SetParent(o.parent) end
-        if f.SetAlpha then pcall(function() f:SetAlpha((o and o.alpha) or 1) end) end
+        return
+    end
 
-        -- If dontForceShow==true, DO NOT call Show().
-        if not dontForceShow and f.Show then
-            f:Show()
-        end
+    -- Not hidden: restore the showCastbar flag baseline
+    f.showCastbar = (f.__ucbOrigShowCastbar ~= nil) and f.__ucbOrigShowCastbar or true
+
+    local o = f.__pcbOrig
+    if f.SetAlpha then pcall(function() f:SetAlpha((o and o.alpha) or 1) end) end
+
+    -- If we're intentionally not forcing Show at init, also tell Blizzard layout not to use it
+    if dontForceShow then
+        f.showCastbar = false
+        return
+    end
+
+    if f.Show then
+        f:Show()
     end
 end
 
