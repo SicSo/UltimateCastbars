@@ -129,13 +129,15 @@ local function UpdateShowWhenKickAvailable(bar, vars, cfg, castType)
     if not kickDur then return end
     local notIntr   = vars and vars.nIntr
     local kickReady = kickDur:IsZero()
-    local alpha = GeneralHelpers:KickAlpha(notIntr, kickReady, false)
 
     if unIntCFG.disableBarUnKick then
+        local alpha = GeneralHelpers:KickAlpha(notIntr, kickReady, true)
+        --print(alpha)
          bar.group:SetAlpha(alpha)
          return
     end
     if unIntCFG.showUntilKickTick then
+        local alpha = GeneralHelpers:KickAlpha(notIntr, kickReady, false)
         if cfg.otherFeatures.mirrorBar[castType] then
             bar.mirror_frames.untilKick:SetAlpha(alpha)
         else
