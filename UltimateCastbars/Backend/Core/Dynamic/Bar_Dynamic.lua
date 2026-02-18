@@ -1,10 +1,10 @@
 local _, UCB = ...
 
-UCB.BarUpdate_API = UCB.BarUpdate_API or {}
-UCB.UNINTERRUPTIBLE = UCB.UNINTERRUPTIBLE or {}
+UCB.CASTBAR_API = UCB.CASTBAR_API or {}
+UCB.GeneralCore_Helpers = UCB.GeneralCore_Helpers or {}
 
-local BarUpdate_API = UCB.BarUpdate_API
-local UNINTERRUPTIBLE = UCB.UNINTERRUPTIBLE
+local CASTBAR_API = UCB.CASTBAR_API
+local GeneralHelpers = UCB.GeneralCore_Helpers
 
 local OMBRE_STOPS = {
     {p=0.10, r=1,   g=0,   b=0},   -- Red
@@ -58,8 +58,8 @@ local function ombreColours(unit, bar, cfg, durationObject, inverted)
     local status = bar.status
     local tex = bar._tex or status:GetStatusBarTexture()
     bar._tex = tex
-    local mtex = bar._mirrorTex
-    local doMirror = bar._mirrored and mtex
+    local mtex = bar.mirrorStatus.tex
+    local doMirror = bar.flags.mirrored
 
     local curve = EnsureOmbreCurve(unit, bar, cfg)
 
@@ -89,22 +89,20 @@ local function ombreColours(unit, bar, cfg, durationObject, inverted)
 end
 
 -- !!!!!!!!!!!!!!!!!!!!!!! DYNAMIC UPDATE FUNCTION !!!!!!!!!!!!!!!!!!!!!!!!
-function BarUpdate_API:SyncMirror(bar)
-    if not bar._mirrored then return end
-    local status = bar.status and bar.status:GetStatusBarTexture()
-    if not status then return end
-    bar.mirrorFrame:SetWidth(status:GetWidth())
-    bar.unInterruptedMirrorFrame:SetWidth(status:GetWidth())
-    bar.untilKickMirrorFrame:SetWidth(status:GetWidth())
+local function SyncMirror(bar)
+    if not bar.flags.mirrored then return end
+    local status = bar.status:GetStatusBarTexture()
+    bar.mirrorStatus:SetWidth(status:GetWidth())
+    bar.mirror_frames.unInterrupted:SetWidth(status:GetWidth())
+    bar.mirror_frames.untilKick:SetWidth(status:GetWidth())
 end
 
-function BarUpdate_API:AssignColours(unit, bar, cfg, colourMode, castType, durationObject, inverted)
+local function AssignColours(unit, bar, cfg, colourMode, castType, durationObject, inverted)
     if castType == "empowered" and cfg.CLASSES.EVOKER.enableEmpowerEffects then
         local tex = bar._tex or bar.status:GetStatusBarTexture()
         bar._tex = tex
-        local mtex = bar._mirrorTex or bar.mirrorFrame:GetStatusBarTexture()
-        bar._mirrorTex = mtex
-        local doMirror = bar._mirrored and mtex
+        local mtex = bar.mirrorStatus.tex
+        local doMirror = bar.flags.mirrored
         local curve = bar.empoweredColourCurve
         if not curve then return end
 
@@ -115,4 +113,76 @@ function BarUpdate_API:AssignColours(unit, bar, cfg, colourMode, castType, durat
     elseif colourMode == "ombre" then
         return ombreColours(unit, bar, cfg, durationObject, inverted)
     end
+end
+
+
+-- Shows bar ONLY when: cast is interruptible AND kick is ready.
+-- Call this from your per-frame update while a cast is active.
+local function UpdateShowWhenKickAvailable(bar, vars, cfg, castType)
+    local unIntCFG = cfg.uninterruptible
+    if not unIntCFG.disableBarUnKick and not unIntCFG.showUntilKickTick then
+        return
+    end
+    if not bar or not vars then return end
+
+    local _, kickDur = GeneralHelpers:GetKickTimer()
+    if not kickDur then return end
+    local notIntr   = vars and vars.nIntr
+    local kickReady = kickDur:IsZero()
+    local alpha = GeneralHelpers:KickAlpha(notIntr, kickReady, false)
+
+    if unIntCFG.disableBarUnKick then
+         bar.group:SetAlpha(alpha)
+         return
+    end
+    if unIntCFG.showUntilKickTick then
+        if cfg.otherFeatures.mirrorBar[castType] then
+            bar.mirror_frames.untilKick:SetAlpha(alpha)
+        else
+            bar.frames.untilKick.status:SetAlpha(alpha)
+        end
+     end
+end
+
+-- !!!!!!!!!!!!!!!!!!!!!!! DYNAMIC UPDATE FUNCTION !!!!!!!!!!!!!!!!!!!!!!!!
+function CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
+    local durationObject = vars.durationObject
+    if not durationObject then return end
+
+    local status = bar.status
+    local status_uint = bar.frames.unInterrupted.status
+    local status_untilKick = bar.frames.untilKick.status
+    local inverted = cfg.otherFeatures.invertBar[castType]
+
+    local progress
+    local remaining = durationObject:GetRemainingDuration()
+    local elapsedTime = durationObject:GetElapsedDuration()
+    -- progress for the bar fill
+    local isChannel = (castType == "channel")
+    if (not inverted and not isChannel) or (inverted and isChannel) then
+        progress = elapsedTime
+    else
+        progress = remaining
+    end
+
+    status_uint:SetValue(progress)
+    status_untilKick:SetValue(progress)
+    status:SetValue(progress)
+    -- Set dynamic texts
+    UCB.tags:ApplyTextState(bar, "dynamic", unit, remaining, elapsedTime)
+
+    -- Look for mirror bar updates
+    SyncMirror(bar)
+
+    -- Set dynamic colours
+    local colourMode = cfg.style.colourMode
+    if castType == "empowered" or colourMode == "ombre" then
+        local mirror = cfg.otherFeatures.mirrorBar[castType]
+        local switch = (inverted or mirror) and not (inverted and mirror)  -- if either is true, but not both
+        AssignColours(unit, bar, cfg, colourMode, castType, durationObject, switch)
+    end
+
+    -- Show bar if kick is ready
+    UpdateShowWhenKickAvailable(bar, vars, cfg, castType)
+    return remaining
 end

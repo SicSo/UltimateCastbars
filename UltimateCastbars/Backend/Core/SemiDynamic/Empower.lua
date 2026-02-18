@@ -40,7 +40,7 @@ end
 local function CreateTick(bar, barWidth, invert, useTex, tick, colour, texture, pos, tickWidth, barHeight)
     local xNorm = invert and (1 - pos) or pos
     local x = xNorm * barWidth
-    local overlayFrame = bar.overlayFrame
+    local overlayFrame = bar.frames.overlay
 
     if useTex then
         tick:SetTexture(texture)
@@ -61,7 +61,7 @@ end
 
 local function CreateSegment(bar, barWidth, invert, useTex, segment, colour, texture, startPos, endPos, barHeight)
     -- startPos/endPos are normalized 0..1, startPos < endPos
-    local underlayFrame = bar.underlayFrame
+    local underlayFrame = bar.frames.underlay
     local s, e
     if invert then
         -- mirror interval
@@ -94,14 +94,7 @@ end
 local function CreateColourCurve(unit, tickPositions, colours, inverted)
     local bar = UCB.castBar[unit]
     local curve = bar.empoweredColourCurve
-
-    if not curve then
-        curve = C_CurveUtil.CreateColorCurve()
-        curve:SetType(Enum.LuaCurveType.Step)
-        bar.empoweredColourCurve = curve
-    else
-        curve:ClearPoints()
-    end
+    curve:ClearPoints()
 
     if inverted then
         -- Start from last stage color, then walk boundaries mirrored across 1.0
@@ -147,13 +140,14 @@ function CASTBAR_API:InitializeEmpoweredStages(unit)
     local tickWidth = classCFG.empowerTickWidth
 
     -- Initialise ticks and background segments
-    if not bar.empoweredSegments then bar.empoweredSegments = {} end
-    if not bar.empoweredStages then bar.empoweredStages = {} end
     local empoweredSegments = bar.empoweredSegments
     local empoweredStages = bar.empoweredStages
 
     CreateColourCurve(unit, tickPositions, barColours, switch)
 
+    -- Frames
+    local overlayFrame = bar.frames.overlay
+    local underlayFrame = bar.frames.underlay
     -- Create ticks, segments and bar curve
     local prevX = 0
     for i = 1, numStages do
@@ -162,7 +156,7 @@ function CASTBAR_API:InitializeEmpoweredStages(unit)
             -- Create tick
             local stage = empoweredStages[i]
             if not stage then
-                stage = bar.overlayFrame:CreateTexture(nil, "OVERLAY")
+                stage = overlayFrame:CreateTexture(nil, "OVERLAY")
                 empoweredStages[i] = stage
             end
             CreateTick(bar, barWidth, switch, useTexTick, stage, tickColours[i], tickTextures[i],  tickPositions[i], tickWidth, barHeight)
@@ -170,7 +164,7 @@ function CASTBAR_API:InitializeEmpoweredStages(unit)
         -- Create segment
         local seg = empoweredSegments[i]
         if not seg then
-            seg = bar.underlayFrame:CreateTexture(nil, "BACKGROUND", nil, 2)
+            seg = underlayFrame:CreateTexture(nil, "BACKGROUND", nil, 2)
             empoweredSegments[i] = seg
         end
         CreateSegment(bar, barWidth, switch, useTexSeg, seg, segColours[i], segTextures[i], prevX, tickPositions[i], barHeight)
@@ -198,11 +192,11 @@ end
 
 function CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID)
     local bar = UCB.castBar[unit]
-    if bar and bar.castActive then
+    if bar and bar.flags.castActive then
         bar.group:Hide()
         bar:SetScript("OnUpdate", nil)
-        bar.castActive = false
-        bar._prevType = nil
+        bar.flags.castActive = false
+        bar.flags.prevType = nil
         bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars, bar._ucbSpellID = nil, nil, nil, nil, nil
         local cfg = CFG_API.GetValueConfig(unit)
         if cfg.CLASSES.EVOKER.enableEmpowerEffects and UnitIsPlayer(unit) then

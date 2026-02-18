@@ -11,12 +11,12 @@ function CASTBAR_API:OnUnitChange(unit)
     local resumeCast = true
 
     -- Hide any previous casts
-    if bar._prevType ~= nil and bar.castActive then
-        if bar._prevType == "normal" then
+    if bar.flags.prevType ~= nil and bar.flags.castActive then
+        if bar.flags.prevType == "normal" then
             CASTBAR_API:OnUnitSpellcastStop(unit)
-        elseif bar._prevType == "channel" then
+        elseif bar.flags.prevType == "channel" then
             CASTBAR_API:OnUnitSpellcastChannelStop(unit)
-        elseif bar._prevType == "empowered" then
+        elseif bar.flags.prevType == "empowered" then
             CASTBAR_API:OnUnitSpellcastEmpowerStop(unit)
         end
     end
@@ -36,6 +36,3 @@ function CASTBAR_API:OnUnitChange(unit)
         end
 	end
 end
-
-
-

@@ -8,7 +8,7 @@ local focus_db = {
     general = {
         offsetX = 0,
         offsetY = 0,
-        anchorFrom = "CENTER", --"TOP" "BOTTOM" "LEFT" "RIGHT" "CENTER" "TOPLEFT" "TOPRIGHT" "BOTTOMLEFT" "BOTTOMRIGHT"
+        anchorFrom = "CENTER", 
         anchorTo = "CENTER",
         anchorFromDefault = "CENTER",
         anchorToDefault = "CENTER",
@@ -304,8 +304,8 @@ local focus_db = {
         showUntilKickTickBackground = false,
         untilKickTickBackColour = {r=1, g=0.5, b=0, a=0.5}, -- orange, semi-transparent
         untilKickTickBackUseTexture = false,
-        untilKickTickBackTexture = "Interface\\DialogFrame\\UI-DialogBox-Background",
-        untilKickTickBackTextureName = "Blizzard Dialog Background",
+        untilKickTickBackTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+        untilKickTickBackTextureName = "Blizzard",
     },
 
     otherFeatures = {

@@ -199,7 +199,7 @@ local function UpdateUninterruptibleBorder(unit)
     if not bar then return end
 
     local cfg = CFG_API.GetValueConfig(unit).uninterruptible
-    local unint_frame = bar.unInterruptedFrame
+    local unint_frame = bar.frames.unInterrupted
     if not unint_frame then return end
 
     -- If you want border to be conditional on showUninterruptible too:
@@ -223,8 +223,9 @@ local function UpdateUninterruptibleBorder(unit)
     -- unInterruptedFrame level is set in UpdateVisibility; border frameLevelDelta can be small negative/positive.
     UpdateRectBorderFromCfg(unint_frame, unint_frame, "_rectBorder", borderBlock, -1)
 
+    local mirror_frame = bar.mirror_frames.unInterruptedMirrorFrame
     -- OPTIONAL: mirror border (if you want the mirrored uninterruptible to also have border)
-    if bar.unInterruptedMirrorFrame and cfg.showUninterruptibleMirrorBorder then
+    if mirror_frame and cfg.showUninterruptibleMirrorBorder then
         local mirrorShow = cfg.showUninterruptibleBorder and cfg.showUninterruptible
         local mirrorBlock = {
             show      = mirrorShow,
@@ -238,9 +239,9 @@ local function UpdateUninterruptibleBorder(unit)
                 bottom = cfg.borderOffsetBottom,
             },
         }
-        UpdateRectBorderFromCfg(bar.unInterruptedMirrorFrame, bar.unInterruptedMirrorFrame, "_rectBorder", mirrorBlock, -1)
-    elseif bar.unInterruptedMirrorFrame then
-        HideRectBorder(bar.unInterruptedMirrorFrame, "_rectBorder")
+        UpdateRectBorderFromCfg(mirror_frame, mirror_frame, "_rectBorder", mirrorBlock, -1)
+    elseif mirror_frame then
+        HideRectBorder(mirror_frame, "_rectBorder")
     end
 end
 
@@ -252,7 +253,6 @@ local function UpdateUninterruptibleIconBorder(unit)
 
     -- Gate: only show when uninterruptible feature is enabled (and optionally when currently shown)
     local show = cfg.showUninterruptibleBorderIcon and cfg.showUninterruptible and cfg.showUninterruptibleBorder
-    print(show)
 
     local borderBlock
     if cfg.syncBorderIcon then
@@ -283,35 +283,9 @@ local function UpdateUninterruptibleIconBorder(unit)
         }
     end
 
-    print("unintIconFrame lvl", bar.unintIconFrame:GetFrameLevel(), "iconFrame lvl", bar.iconFrame:GetFrameLevel())
-    print("show", show, "thick", borderBlock.thickness, "tex", borderBlock.texture)
-
-
     -- icon border frame level often needs to be higher than bar border
     UpdateRectBorderFromCfg(bar.unintIconFrame, bar.unintIconFrame, "_rectBorderUnintIcon", borderBlock, -3)
 end
-
-local function CopyFrameLayoutRelativeToBar(dst, src, bar)
-    if not dst or not src or not bar then return end
-
-    dst:SetParent(bar)
-    dst:ClearAllPoints()
-
-    local num = src:GetNumPoints()
-    for i = 1, num do
-        local point, relativeTo, relativePoint, xOfs, yOfs = src:GetPoint(i)
-
-        -- Force the same relativeTo to be bar if the original was bar/iconFrame itself
-        if relativeTo == src or relativeTo == nil then
-            relativeTo = bar
-        end
-
-        dst:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
-    end
-
-    dst:SetSize(src:GetSize())
-end
-
 
 ----------------------------------------MAIN----------------------------------------
 function BarUpdate_API:UpdateText(unit)
@@ -323,19 +297,16 @@ function BarUpdate_API:UpdateText(unit)
     local generalShadowOffset, generalShadowColour = generalCFG.shadowOffset, generalCFG.shadowColour
     local globalFont = LSM:GetDefault("font") or GameFontHighlightSmall:GetFont()
 
-    --if not bar.texts then bar.texts = {} end
-    if bar.texts then
-        for k, v in pairs(bar.texts) do
-            v:Hide()
-        end
+    for k, v in pairs(bar.texts) do
+        v:Hide()
     end
-    bar.texts = {}
 
+    local textFrame = bar.frames.text
     for _, tagStates in pairs(cfg.tagList) do
         for key, tagOptions in pairs(tagStates) do
             if tagOptions.show then
                 if not bar.texts[key] then
-                    bar.texts[key] = bar.textFrame:CreateFontString(nil, tagOptions.frameStrata, "GameFontHighlightSmall")
+                    bar.texts[key] = textFrame:CreateFontString(nil, tagOptions.frameStrata, "GameFontHighlightSmall")
                 end
                 UCB.tags:updateTagText(key, tagOptions, cfg)
 
@@ -360,7 +331,7 @@ function BarUpdate_API:UpdateText(unit)
 
                 local fs = bar.texts[key]
                 fs:SetJustifyH(tagOptions.justify)
-                fs:SetPoint(tagOptions.anchorFrom, bar.textFrame, tagOptions.anchorTo, tagOptions.textOffsetX, tagOptions.textOffsetY)
+                fs:SetPoint(tagOptions.anchorFrom, textFrame, tagOptions.anchorTo, tagOptions.textOffsetX, tagOptions.textOffsetY)
                 fs:SetFont(usedFont, usedFontSize, unpack(usedOutline))
                 if usedShadow then
                     fs:SetShadowColor(usedShadowColour.r, usedShadowColour.g, usedShadowColour.b, usedShadowColour.a)
@@ -381,7 +352,6 @@ function BarUpdate_API:UpdateText(unit)
     UCB.tags:setTextSameState(cfg, bar, "static", unit)
 end
 
-
 function BarUpdate_API:UpdateVisibility(unit)
     local bar = UCB.castBar[unit]
     local cfg = CFG_API.GetValueConfig(unit).visibility
@@ -390,15 +360,15 @@ function BarUpdate_API:UpdateVisibility(unit)
     bar.iconFrame:SetFrameStrata(cfg.frameStrata)
     bar.iconFrame:SetFrameLevel(cfg.frameLevel + 1)  -- icon above bar
 
-    bar.status:SetFrameLevel(cfg.frameLevel + 1)
-    bar.overlayFrame:SetFrameLevel(cfg.frameLevel + 9) -- below text
-    bar.textFrame:SetFrameLevel(cfg.frameLevel + 10)    -- text above all
-    bar.underlayFrame:SetFrameLevel(cfg.frameLevel) -- underlay below all
-    bar.mirrorFrame:SetFrameLevel(cfg.frameLevel + 1) -- same as status, but only shown when mirrored
-    bar.unInterruptedFrame:SetFrameLevel(cfg.frameLevel + 3) -- same as status, but only shown when uninterruptible
-    bar.unInterruptedMirrorFrame:SetFrameLevel(cfg.frameLevel + 3) -- same as status, but only shown when uninterruptible and mirrored
-    bar.untilKickFrame:SetFrameLevel(cfg.frameLevel + 2)
-    bar.untilKickMirrorFrame:SetFrameLevel(cfg.frameLevel + 2)
+    bar.frames.underlay:SetFrameLevel(cfg.frameLevel + 1) -- underlay below all
+    bar.status:SetFrameLevel(cfg.frameLevel + 2)
+    bar.mirrorStatus:SetFrameLevel(cfg.frameLevel + 2) -- same as status, but only shown when mirrored
+    bar.frames.untilKick:SetFrameLevel(cfg.frameLevel + 3)
+    bar.mirror_frames.untilKick:SetFrameLevel(cfg.frameLevel + 3)
+    bar.frames.unInterrupted:SetFrameLevel(cfg.frameLevel + 4) -- same as status, but only shown when uninterruptible
+    bar.mirror_frames.unInterrupted:SetFrameLevel(cfg.frameLevel + 4) -- same as status, but only shown when uninterruptible and mirrored
+    bar.frames.overlay:SetFrameLevel(cfg.frameLevel + 9) -- below text
+    bar.frames.text:SetFrameLevel(cfg.frameLevel + 10) -- text above all
 end
 
 function BarUpdate_API:UpdateUnkickable(unit)
@@ -406,40 +376,6 @@ function BarUpdate_API:UpdateUnkickable(unit)
     if not bar then return end
 
     local cfg = CFG_API.GetValueConfig(unit).uninterruptible
-    local helperTex = "Interface\\TARGETINGFRAME\\UI-StatusBar"
-
-    if not bar.interruptMarker then
-        bar.interruptMarker = CreateFrame("StatusBar", nil, bar)
-        bar.interruptMarker:SetStatusBarTexture(helperTex)
-        bar.interruptMarker:SetPoint("CENTER")
-        bar.interruptMarker:SetAllPoints()
-        -- IMPORTANT: do NOT clip children, it causes the “growing from right” reveal
-        bar.interruptMarker:SetClipsChildren(false)
-    end
-
-    if not bar.interruptPositioner then
-        bar.interruptPositioner = CreateFrame("StatusBar", nil, bar)
-        bar.interruptPositioner:SetStatusBarTexture(helperTex)
-        bar.interruptPositioner:SetPoint("CENTER")
-        bar.interruptPositioner:SetAllPoints()
-    end
-
-    if not bar.kickTickClip then
-        bar.kickTickClip = CreateFrame("Frame", nil, bar)
-        bar.kickTickClip:SetAllPoints(bar)
-        bar.kickTickClip:SetClipsChildren(true)
-    end
-
-    if not bar.interruptMarkerPoint then
-        -- Parent the tick to the BAR so it’s never clipped by marker fills
-        bar.interruptMarkerPoint = bar.kickTickClip:CreateTexture(nil, "ARTWORK")
-        bar.interruptMarkerPoint:SetPoint("CENTER")
-        -- Anchor tick X position to the marker texture’s RIGHT edge
-        bar.interruptMarkerPoint:ClearAllPoints()
-        bar.interruptMarkerPoint:SetPoint("LEFT", bar.interruptMarker:GetStatusBarTexture(), "RIGHT", 0, 0)
-
-        bar.interruptMarker:SetPoint("LEFT", bar.interruptPositioner:GetStatusBarTexture(), "RIGHT")
-    end
 
     -- Hide helper bar textures
     local posTex = bar.interruptPositioner:GetStatusBarTexture()
@@ -470,46 +406,35 @@ function BarUpdate_API:UpdateUnkickable(unit)
     bar.interruptPositioner:Hide()
 
     -- Visible bar "until kick"
-    local kick_frame = bar.untilKickFrame
-    if not bar._mirroruntilKickTex then
-        bar._mirroruntilKickTex = bar.untilKickMirrorFrame:CreateTexture(nil, "ARTWORK", nil, -8)
-    end
-    bar._mirroruntilKickTex:SetAllPoints(bar)
-    bar._mirroruntilKickTex:SetTexCoord(1, 0, 0, 1)
-
-
-    -- A clip frame that will represent "until kick" region (static width/position)
-    if not kick_frame.status then
-        kick_frame.status = CreateFrame("StatusBar", nil, kick_frame)
-        kick_frame.status:SetAllPoints()
-    end
+    local kick_frame = bar.frames.untilKick
+    local mirror_frame = bar.mirror_frames.untilKick
 
     -- Style it (texture + color)
     if cfg.showUntilKickTick then
         local c = cfg.untilKickTickColour
         local tex = cfg.untilKickTickTexture
         kick_frame.status:SetStatusBarTexture(tex)
-        bar._mirroruntilKickTex:SetTexture(tex)
+        mirror_frame.tex:SetTexture(tex)
         kick_frame.status:SetStatusBarColor(c.r, c.g, c.b, c.a)
-        bar._mirroruntilKickTex:SetVertexColor(c.r, c.g, c.b, c.a)
+        mirror_frame.tex:SetVertexColor(c.r, c.g, c.b, c.a)
         kick_frame.status:Show()
     else
         kick_frame.status:Hide()
     end
 
-    if not kick_frame.bg then
-        kick_frame.bg = kick_frame:CreateTexture(nil, "BACKGROUND", nil, 3)
-        kick_frame.bg:SetAllPoints(kick_frame)
-    end
     if cfg.showUntilKickTickBackground and cfg.untilKickTickBackUseTexture then
-        kick_frame.bg:SetTexture(cfg.untilKickTickBackTexture)
-        kick_frame.bg:SetVertexColor(cfg.untilKickTickBackColour.r, cfg.untilKickTickBackColour.g, cfg.untilKickTickBackColour.b, cfg.untilKickTickBackColour.a)
+        local c = cfg.untilKickTickBackColour
+        local tex = cfg.untilKickTickBackTexture
+        kick_frame.bg:SetStatusBarTexture(tex)
+        kick_frame.bg:SetStatusBarColor(c.r, c.g, c.b, c.a)
         kick_frame.bg:Show()
     elseif cfg.showUntilKickTickBackground then
-        kick_frame.bg:SetVertexColor(1, 1, 1, 1)
-        kick_frame.bg:SetColorTexture(cfg.untilKickTickBackColour.r, cfg.untilKickTickBackColour.g, cfg.untilKickTickBackColour.b, cfg.untilKickTickBackColour.a)
+        local c = cfg.untilKickTickBackColour
+        local tex = "Interface\\Buttons\\WHITE8X8"
+        kick_frame.bg:SetStatusBarTexture(tex)
+        kick_frame.bg:SetStatusBarColor(c.r, c.g, c.b, c.a)
         kick_frame.bg:Show()
-    elseif kick_frame.bg then
+    else
         kick_frame.bg:Hide()
     end
 end
@@ -519,34 +444,20 @@ function BarUpdate_API:UpdateUninterruptable(unit)
     local bar = UCB.castBar[unit]
     if not bar then return end
     local cfg = CFG_API.GetValueConfig(unit).uninterruptible
-    local unint_frame = bar.unInterruptedFrame
-
-    if not bar._mirrorUintTex then
-        bar._mirrorUintTex = bar.unInterruptedMirrorFrame:CreateTexture(nil, "ARTWORK", nil, -8)
-    end
-    bar._mirrorUintTex:SetAllPoints(bar)
-    bar._mirrorUintTex:SetTexCoord(1, 0, 0, 1)
-
-    if not unint_frame.status then
-        unint_frame.status = CreateFrame("StatusBar", nil, unint_frame)
-        unint_frame.status:SetAllPoints()
-    end
+    local unint_frame = bar.frames.unInterrupted
+    local mirror_frame = bar.mirror_frames.unInterrupted
+    
     if cfg.showUninterruptibleFill and cfg.showUninterruptible then
         unint_frame.status:SetStatusBarTexture(cfg.fillTexture)
         unint_frame.status:SetStatusBarColor(cfg.fillColour.r, cfg.fillColour.g, cfg.fillColour.b, cfg.fillColour.a)
-        bar._mirrorUintTex:SetTexture(cfg.fillTexture)
-        bar._mirrorUintTex:SetVertexColor(cfg.fillColour.r, cfg.fillColour.g, cfg.fillColour.b, cfg.fillColour.a)
+        mirror_frame.tex:SetTexture(cfg.fillTexture)
+        mirror_frame.tex:SetVertexColor(cfg.fillColour.r, cfg.fillColour.g, cfg.fillColour.b, cfg.fillColour.a)
         unint_frame.status:Show()
     else
-        if unint_frame.status then
-            unint_frame.status:Hide()
-        end
+        bar.status:SetAlpha(1)
+        unint_frame.status:Hide()
     end
 
-    if not unint_frame.bg then
-        unint_frame.bg = unint_frame:CreateTexture(nil, "BACKGROUND", nil, 3)
-        unint_frame.bg:SetAllPoints()
-    end
     if cfg.showUninterruptibleBackground and cfg.showUninterruptible then
         local bg = unint_frame.bg
         --print("I am here")
@@ -558,7 +469,7 @@ function BarUpdate_API:UpdateUninterruptable(unit)
              bg:SetColorTexture(cfg.backgroundColour.r, cfg.backgroundColour.g, cfg.backgroundColour.b, cfg.backgroundColour.a)
         end
         bg:Show()
-    elseif unint_frame.bg then
+    else
         unint_frame.bg:Hide()
     end
 
@@ -592,24 +503,16 @@ function BarUpdate_API:UpdateStyle(unit)
     -- Bar style
     bar.status:SetStatusBarTexture(cfg.texture)
 
-    if not bar._mirrorTex then
-        bar._mirrorTex = bar.mirrorFrame:CreateTexture(nil, "ARTWORK", nil, -8)
-    end
-    bar._mirrorTex:SetAllPoints(bar)
-    bar._mirrorTex:SetTexture(cfg.texture)
-    bar._mirrorTex:SetTexCoord(1, 0, 0, 1)
+    -- Mirror style
+    bar.mirrorStatus.tex:SetTexture(cfg.texture)
 
     -- Background
-    if not bar.bg then
-        bar.bg = bar:CreateTexture(nil, "BACKGROUND", nil, 1)
-        bar.bg:SetAllPoints()
-    end
     if cfg.showBackground then
         bar.bg:SetTexture(cfg.textureBack)
         bar.bg:SetVertexColor(cfg.bgColour.r, cfg.bgColour.g, cfg.bgColour.b, cfg.bgColour.a)
         --bar.bg:SetColorTexture(cfg.bgColour.r, cfg.bgColour.g, cfg.bgColour.b, cfg.bgColour.a)
         bar.bg:Show()
-    elseif bar.bg then
+    else
         bar.bg:Hide()
     end
     --Bar border
@@ -626,7 +529,7 @@ function BarUpdate_API:UpdateOtherFeatures(unit)
     if unit == "player" then
         if cfg.showQueueWindow.normal or  cfg.showQueueWindow.channel or cfg.showQueueWindow.empowered then
             if not bar.queueWindowOverlay then
-                bar.queueWindowOverlay = bar.overlayFrame:CreateTexture(nil, "OVERLAY", nil, 7)
+                bar.queueWindowOverlay = bar.frames.overlay:CreateTexture(nil, "OVERLAY", nil, 7)
             end
             -- CVAR
             if cfg.queueMatchCVAR then
@@ -725,7 +628,6 @@ function BarUpdate_API:UpdateColours(unit)
     end
     bar._c2 = col2
 end
-
 
 function BarUpdate_API:UpdateOthers(unit)
     local cfg = CFG_API.GetValueConfig(unit)

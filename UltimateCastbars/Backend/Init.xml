@@ -13,12 +13,17 @@
 	<Script file="Modules/Debug.lua"/>
 
 	<!-- Core -->
-	<Script file="Core/BarUpdate_BarIcon.lua"/>
-	<Script file="Core/BarUpdate_Helpers.lua"/>
-	<Script file="Core/BarUpdate_Dynamic.lua"/>
-	<Script file="Core/Base.lua"/>
-	<Script file="Core/Channel.lua"/>
-	<Script file="Core/Empower.lua"/>
-	<Script file="Core/Normal.lua"/>
-	<Script file="Core/UnitChange.lua"/>
+	<Script file="Core/GeneralCore_Helpers.lua"/>
+	
+	<Script file="Core/Dynamic/Bar_Dynamic.lua"/>
+
+	<Script file="Core/SemiDynamic/Bar_SemiDynamic.lua"/>
+	<Script file="Core/SemiDynamic/Channel.lua"/>
+	<Script file="Core/SemiDynamic/Empower.lua"/>
+	<Script file="Core/SemiDynamic/Normal.lua"/>
+	<Script file="Core/SemiDynamic/UnitChange.lua"/>
+
+	<Script file="Core/Static/Bar_Static.lua"/>
+	<Script file="Core/Static/BarUpdate_BarIcon.lua"/>
+	<Script file="Core/Static/BarUpdate_Helpers.lua"/>	
 </Ui>

@@ -378,9 +378,15 @@ local function BuildUninterruptableArgs(args, unit)
         inline = true,
         order  = 3,
         args ={
+            descKick = {
+                type = "description",
+                name = function() return UIOptions.ColorText(UIOptions.turquoise,"These options are for casts that can be kicked or interrupted. They will not have any effect on uninterruptible casts or if you do not have a Kick/Interrupt.") end,
+                order = 0,
+                width = "full",
+            },
             disableBarUnKick = {
                 type = "toggle",
-                name  = "Disable bar for kickable/interruptible casts if you can't kick/interrupt "..UIOptions.ColorText(UIOptions.red,"(Per frame updates)"),
+                name  = "Disable bar for kickable/interruptible casts if you can't kick/interrupt. It will show the castbar ONLY when the kick is available. "..UIOptions.ColorText(UIOptions.red,"(Per frame updates)"),
                 desc  = "If enabled, the cast bar will not be shown for casts that can be kicked or interrupted. Only the kick/interrupt tick and until kick/interrupt tick (if enabled) will be shown.",
                 order = 1,
                 width = "full",
@@ -584,11 +590,11 @@ local function BuildUninterruptableArgs(args, unit)
                                 name          = "Until kick/interrupt tick overlay texture",
                                 order         = 2,
                                 disabled     = function() return not cfg.untilKickTickBackUseTexture end,
-                                values        = function() return LSM:HashTable(LSM.MediaType.BACKGROUND) end,
+                                values        = function() return LSM:HashTable(LSM.MediaType.STATUSBAR) end,
                                 get           = function() return cfg.untilKickTickBackTextureName end,
                                 set           = function(_, val)
                                     cfg.untilKickTickBackTextureName = val
-                                    cfg.untilKickTickBackTexture = LSM:Fetch(LSM.MediaType.BACKGROUND, val)
+                                    cfg.untilKickTickBackTexture = LSM:Fetch(LSM.MediaType.STATUSBAR, val)
                                     CASTBAR_API:UpdateCastbar(unit)
                                 end,
                             },

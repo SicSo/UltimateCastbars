@@ -18,6 +18,7 @@ UCB.Debug = UCB.Debug or {}
 UCB.UIOptions = UCB.UIOptions or {}
 UCB.UI = UCB.UI or {}
 UCB.GUI = UCB.GUI or {}
+UCB.GeneralCore_Helpers = UCB.GeneralCore_Helpers or {}
 
 -- Sub APIs
 UCB.CLASS_API.Evoker = UCB.CLASS_API.Evoker or {}

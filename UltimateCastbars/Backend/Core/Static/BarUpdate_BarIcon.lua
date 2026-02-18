@@ -279,12 +279,7 @@ local function ComputeSize(bar, genCfg, styleCfg, syncedW, syncedH)
 
     -- Apply
     bar:SetSize(barW, barH)
-    bar.status:SetAllPoints(bar)
-    bar.textFrame:SetAllPoints(bar)
-    bar.overlayFrame:SetAllPoints(bar)
-    bar.underlayFrame:SetAllPoints(bar)
-    bar.unInterruptedFrame:SetAllPoints(bar)
-    bar.untilKickFrame:SetAllPoints(bar)
+    --bar.status:SetAllPoints(bar)
     bar.group:SetSize(genCfg.fullBarWidth, genCfg.fullBarHeight)
 end
 
@@ -318,12 +313,7 @@ local function LayoutIconAndBar2(bar, cfg)
         -- place bar so its OUTSIDE border fits in group
         bar:SetPoint("TOPLEFT", group, "TOPLEFT", bL, -bT)
         bar:SetSize(barW, barH)
-        bar.status:SetAllPoints(bar)
-        bar.textFrame:SetAllPoints(bar)
-        bar.overlayFrame:SetAllPoints(bar)
-        bar.underlayFrame:SetAllPoints(bar)
-        bar.unInterruptedFrame:SetAllPoints(bar)
-        bar.untilKickFrame:SetAllPoints(bar)
+        --bar.status:SetAllPoints(bar)
         return
     end
 
@@ -363,12 +353,7 @@ local function LayoutIconAndBar2(bar, cfg)
     end
 
     bar:SetSize(barW, barH)
-    bar.status:SetAllPoints(bar)
-    bar.textFrame:SetAllPoints(bar)
-    bar.overlayFrame:SetAllPoints(bar)
-    bar.underlayFrame:SetAllPoints(bar)
-    bar.unInterruptedFrame:SetAllPoints(bar)
-    bar.untilKickFrame:SetAllPoints(bar)
+    --bar.status:SetAllPoints(bar)
 end
 
 local function SizeWhenReady(bar, genCfg, styleCfg, opts)

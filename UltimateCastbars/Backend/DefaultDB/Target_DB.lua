@@ -308,8 +308,8 @@ local target_db = {
         showUntilKickTickBackground = false,
         untilKickTickBackColour = {r=1, g=0.5, b=0, a=0.5}, -- orange, semi-transparent
         untilKickTickBackUseTexture = false,
-        untilKickTickBackTexture = "Interface\\DialogFrame\\UI-DialogBox-Background",
-        untilKickTickBackTextureName = "Blizzard Dialog Background",
+        untilKickTickBackTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+        untilKickTickBackTextureName = "Blizzard",
     },
 
     otherFeatures = {

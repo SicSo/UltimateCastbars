@@ -37,9 +37,15 @@ local function GetChannelTickNumber(spellID, cfg)
     return 0
 end
 
-local function CreateTick(unit, tick, position, anchor)
-    local cfg = CFG_API.GetValueConfig(unit)
+local function CreateTick(cfg, bar, index, position)
     local otherCFG = cfg.otherFeatures
+    local anchor = bar.frames.overlay
+
+    local tick = bar.channelTicks[index]
+    if not tick then
+        tick = anchor:CreateTexture(nil, "OVERLAY")
+        bar.channelTicks[index] = tick
+    end
 
     -- Useful tick variables
 	local tickHeight = cfg.general.barHeight
@@ -68,7 +74,7 @@ function CASTBAR_API:HideChannelTicks(unit)
     if cfg._prevChannelNumTicks == 0 then return end
 
     for i = 1, cfg._prevChannelNumTicks do
-        if bar.channelTicks and bar.channelTicks[i] then
+        if bar.channelTicks[i] then
             bar.channelTicks[i]:Hide()
         end
     end
@@ -78,7 +84,6 @@ end
 -- Draw channel ticks on the cast bar
 local function ShowChannelTicks(unit, numTicks, pos)
     local bar = UCB.castBar[unit]
-    if not bar.channelTicks then bar.channelTicks = {} end
     local cfg = CFG_API.GetValueConfig(unit)
     local otherCFG = cfg.otherFeatures
 
@@ -86,24 +91,14 @@ local function ShowChannelTicks(unit, numTicks, pos)
         -- CASE 1: no explicit positions table -> classic evenly-spaced ticks using numTicks
         local barWidth = cfg.general.actualBarWidth
 		for i = 1, numTicks - 1 do
-			local tick = bar.channelTicks[i]
-			if not tick then
-				tick = bar.overlayFrame:CreateTexture(nil, "OVERLAY")
-				bar.channelTicks[i] = tick
-			end
-            CreateTick(unit, tick, (i / numTicks) * barWidth, bar.overlayFrame)
+            CreateTick(cfg, bar, i, (i / numTicks) * barWidth)
 		end
     else
         -- CASE 2: positions provided -> pos is an array of x offsets FROM THE LEFT
         local positions = pos
         local count = #positions
         for i = 1, count do
-            local tick = bar.channelTicks[i]
-            if not tick then
-                tick = bar.overlayFrame:CreateTexture(nil, "OVERLAY")
-                bar.channelTicks[i] = tick
-            end
-            CreateTick(unit, tick, positions[i], bar.overlayFrame)
+            CreateTick(cfg, bar, i, positions[i])
         end
         numTicks = count -- Update numTicks to reflect actual number of ticks shown based on positions table
 	end
@@ -188,11 +183,11 @@ function CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID)
     if UnitChannelInfo(unit) then return end
     
     local bar = UCB.castBar[unit]
-    if bar and bar.castActive == true then
+    if bar and bar.flags.castActive == true then
         bar.group:Hide()
         bar:SetScript("OnUpdate", nil)
-        bar.castActive = false
-        bar._prevType = nil
+        bar.flags.castActive = false
+        bar.flags.prevType = nil
         bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars, bar._ucbSpellID = nil, nil, nil, nil, nil
 
         local cfg = CFG_API.GetValueConfig(unit)

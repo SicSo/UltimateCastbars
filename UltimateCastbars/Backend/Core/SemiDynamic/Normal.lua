@@ -31,11 +31,11 @@ function CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID)
     if nameCast or nameChannel then return end
 
     local bar = UCB.castBar[unit]
-    if bar and bar.castActive then
+    if bar and bar.flags.castActive then
         bar.group:Hide()
         bar:SetScript("OnUpdate", nil)
-        bar.castActive = false
-        bar._prevType = nil
+        bar.flags.castActive = false
+        bar.flags.prevType = nil
         bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars,  bar._ucbSpellID = nil, nil, nil, nil, nil
      end
 end
