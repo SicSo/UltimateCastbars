@@ -3,123 +3,11 @@ local _, UCB = ...
 UCB.UIOptions = UCB.UIOptions or {}
 UCB.Profiles = UCB.Profiles or {}
 UCB.GUI = UCB.GUI or {}
+UCB.Normiliser = UCB.Normiliser or {}
 
 local Profiles = UCB.Profiles
 local GUI = UCB.GUI
-
-local function DeepCopySerializable(src, seen)
-    local t = type(src)
-    if t == "nil" or t == "boolean" or t == "number" or t == "string" then
-        return src
-    end
-    if t ~= "table" then
-        return nil -- drop function/userdata/thread
-    end
-
-    seen = seen or {}
-    if seen[src] then return nil end -- avoid cycles
-    seen[src] = true
-
-    local out = {}
-    for k, v in pairs(src) do
-        local kt = type(k)
-        if kt == "string" or kt == "number" then
-            local vv = DeepCopySerializable(v, seen)
-            if vv ~= nil then
-                out[k] = vv
-            end
-        end
-    end
-    return out
-end
-
--- Deep copy but only serializable primitives/tables
-local function CopyPrimitive(v)
-    local t = type(v)
-    if t == "nil" or t == "boolean" or t == "number" or t == "string" then
-        return v
-    end
-    return nil
-end
-
--- Filters `src` by the "shape" of `schema` (defaults).
--- Only keys existing in schema are copied.
--- Special handling:
---  - arrays are copied index-wise up to schema length (if schema is an array)
---  - maps with "template entries" can be whitelisted using `mapTemplates`
-local function FilterBySchema(src, schema, mapTemplates)
-    local st = type(schema)
-    if st ~= "table" then
-        -- leaf: copy primitive only, otherwise fall back to schema
-        local pv = CopyPrimitive(src)
-        if pv ~= nil then return pv end
-        return schema
-    end
-
-    if type(src) ~= "table" then
-        -- schema expects table but src isn't: return schema defaults
-        return schema
-    end
-
-    -- If schema table is empty, treat as "freeform container": copy everything serializable
-    if next(schema) == nil then
-        local t = DeepCopySerializable(src)
-        return t or {}
-    end
-
-
-    local out = {}
-
-    -- detect array-like schema (1..n)
-    local schemaIsArray = (schema[1] ~= nil)
-    if schemaIsArray then
-        for i = 1, #schema do
-            out[i] = FilterBySchema(src[i], schema[i], mapTemplates)
-        end
-        return out
-    end
-
-    -- normal keyed schema
-    for k, vSchema in pairs(schema) do
-        local vSrc = src[k]
-        out[k] = FilterBySchema(vSrc, vSchema, mapTemplates)
-    end
-
-    -- Optional: handle "map tables" where keys aren't fixed, but each entry has a template
-    -- mapTemplates is a table of paths -> template schema
-    -- e.g. mapTemplates["text.tagList.dynamic"] = schema.text.tagList.dynamic.tag2 (template)
-    if mapTemplates then
-        for path, template in pairs(mapTemplates) do
-            -- path walker that returns outTable and srcTable at that path
-            local function GetAtPath(root, p)
-                local t = root
-                for seg in string.gmatch(p, "[^%.]+") do
-                    if type(t) ~= "table" then return nil end
-                    t = t[seg]
-                end
-                return t
-            end
-
-            local outMap = GetAtPath(out, path)
-            local srcMap = GetAtPath(src, path)
-
-            if type(outMap) == "table" and type(srcMap) == "table" then
-                -- copy ALL entries from srcMap, but filter each entry by template
-                -- IMPORTANT: we still keep existing schema keys too.
-                for entryKey, entryVal in pairs(srcMap) do
-                    if type(entryKey) == "string" then
-                        outMap[entryKey] = FilterBySchema(entryVal, template, mapTemplates)
-                    end
-                end
-            end
-        end
-    end
-
-    return out
-end
-
-
-
+local Normiliser = UCB.Normiliser
 
 local function EncodeExportString(serialized)
     local LD = LibStub("LibDeflate", true)
@@ -177,7 +65,7 @@ local function ExportFilteredProfile(profileName)
         srcProfile = UCB.db.profile -- current
     end
 
-    local filtered = FilterBySchema(srcProfile, schemaProfile)
+    local filtered = Normiliser:FilterBySchema(srcProfile, schemaProfile)
 
     local function ExpandTagLists(unitKey)
         local srcUnit = srcProfile[unitKey]
@@ -203,7 +91,7 @@ local function ExportFilteredProfile(profileName)
                 local outMap = {}
                 for tagKey, tagTable in pairs(srcTagList[cat]) do
                     if type(tagKey) == "string" and type(tagTable) == "table" then
-                        outMap[tagKey] = FilterBySchema(tagTable, template)
+                        outMap[tagKey] = Normiliser:FilterBySchema(tagTable, template)
                     end
                 end
                 dstText.tagList[cat] = outMap
@@ -219,31 +107,6 @@ local function ExportFilteredProfile(profileName)
     return EncodeExportString(s)
 end
 
-
-local function DeepCopyTable(src, seen)
-    if type(src) ~= "table" then return src end
-    seen = seen or {}
-    if seen[src] then return seen[src] end
-    local out = {}
-    seen[src] = out
-    for k, v in pairs(src) do
-        if type(v) ~= "function" and type(v) ~= "userdata" and type(v) ~= "thread" then
-            out[k] = DeepCopyTable(v, seen)
-        end
-    end
-    return out
-end
-
-local function Overlay(dst, src)
-    if type(dst) ~= "table" or type(src) ~= "table" then return end
-    for k, v in pairs(src) do
-        if type(v) == "table" and type(dst[k]) == "table" then
-            Overlay(dst[k], v)
-        else
-            dst[k] = v
-        end
-    end
-end
 
 local function ImportFilteredProfile(targetProfileName, serialized)
     local Serializer = LibStub("AceSerializer-3.0", true)
@@ -267,7 +130,7 @@ local function ImportFilteredProfile(targetProfileName, serialized)
         return false, "No default schema found."
     end
 
-    local filtered = FilterBySchema(data, schemaProfile)
+    local filtered = Normiliser:FilterBySchema(data, schemaProfile)
 
     local function ExpandTagLists(unitKey)
         local srcUnit = data[unitKey]
@@ -293,7 +156,7 @@ local function ImportFilteredProfile(targetProfileName, serialized)
                 local outMap = {}
                 for tagKey, tagTable in pairs(srcTagList[cat]) do
                     if type(tagKey) == "string" and type(tagTable) == "table" then
-                        outMap[tagKey] = FilterBySchema(tagTable, template)
+                        outMap[tagKey] = Normiliser:FilterBySchema(tagTable, template)
                     end
                 end
                 dstText.tagList[cat] = outMap
@@ -305,8 +168,10 @@ local function ImportFilteredProfile(targetProfileName, serialized)
     ExpandTagLists("target")
     ExpandTagLists("focus")
 
-    local rebuilt = DeepCopyTable(schemaProfile)
-    Overlay(rebuilt, filtered)
+    local rebuilt = Normiliser:DeepCopyTable(schemaProfile)
+    Normiliser:Overlay(rebuilt, filtered)
+
+    Normiliser:NormalizeAllUnitTextures(rebuilt)
 
     -- Choose destination without switching
     local destTable
@@ -634,61 +499,6 @@ function GUI:BuildProfilesOptions()
                 }
             },
         }
-end
-
-function UCB:NormalizeCurrentProfileToSchema()
-    local defaults = UCB:GetDefaultDB()
-    local schemaProfile = defaults and defaults.profile
-    if not schemaProfile then return false, "No default schema found." end
-
-    -- Take what you currently have, but only keys in schema
-    local filtered = FilterBySchema(UCB.db.profile, schemaProfile)
-
-    -- IMPORTANT: also preserve extra tags, clamped, like you do on import/export
-    local function ExpandTagListsFromCurrent(unitKey)
-        local srcUnit = UCB.db.profile[unitKey]
-        local dstUnit = filtered[unitKey]
-        if type(srcUnit) ~= "table" or type(dstUnit) ~= "table" then return end
-
-        local schemaUnit = schemaProfile[unitKey]
-        local template   = schemaUnit and schemaUnit.text and schemaUnit.text.defaultValues
-        if type(template) ~= "table" then return end
-
-        local srcText = srcUnit.text
-        local dstText = dstUnit.text
-        if type(srcText) ~= "table" or type(dstText) ~= "table" then return end
-
-        local srcTagList = srcText.tagList
-        if type(srcTagList) ~= "table" then return end
-
-        dstText.tagList = dstText.tagList or {}
-        for _, cat in ipairs({ "dynamic", "semiDynamic", "static", "unk" }) do
-            if type(srcTagList[cat]) == "table" then
-                local outMap = {}
-                for tagKey, tagTable in pairs(srcTagList[cat]) do
-                    if type(tagKey) == "string" and type(tagTable) == "table" then
-                        outMap[tagKey] = FilterBySchema(tagTable, template)
-                    end
-                end
-                dstText.tagList[cat] = outMap
-            end
-        end
-    end
-
-    ExpandTagListsFromCurrent("player")
-    ExpandTagListsFromCurrent("target")
-    ExpandTagListsFromCurrent("focus")
-
-    -- Rebuild full schema with defaults, then overlay what you have
-    local rebuilt = DeepCopyTable(schemaProfile)
-    Overlay(rebuilt, filtered)
-
-    wipe(UCB.db.profile)
-    for k, v in pairs(rebuilt) do
-        UCB.db.profile[k] = v
-    end
-
-    return true
 end
 
 

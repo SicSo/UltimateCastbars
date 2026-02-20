@@ -415,69 +415,46 @@ UCB.UIOptions.classColoursList = BuildClassColorLookup(1)
 ------------------------------------------------------------ Profiles ------------------------------------------------------------
 UCB.profiles = UCB.profiles or {}
 
-UCB.profiles.texture_keys = {
-  "style.texture",
-  "style.textureName",
-  "style.textureBack",
-  "style.textureNameBack",
-  "style.textureBorder",
-  "style.textureNameBorder",
-  "style.textureBorderIcon",
-  "style.textureNameBorderIcon",
-
-  "uninterruptible.fillTexture",
-  "uninterruptible.fillTextureName",
-  "uninterruptible.backgroundTexture",
-  "uninterruptible.backgroundTextureName",
-  "uninterruptible.textureBorder",
-  "uninterruptible.textureNameBorder",
-  "uninterruptible.textureBorderIcon",
-  "uninterruptible.textureNameBorderIcon",
-  "uninterruptible.kickTickTexture",
-  "uninterruptible.kickTickTextureName",
-  "uninterruptible.untilKickTickTexture",
-  "uninterruptible.untilKickTickTextureName",
-  "uninterruptible.untilKickTickBackTexture",
-  "uninterruptible.untilKickTickBackTextureName",
-
-  "otherFeatures.tickTexture",
-  "otherFeatures.tickTextureName",
-  "otherFeatures.queueTexture",
-  "otherFeatures.queueTextureName",
-
-  "CLASSES.WARRIOR.tickTexture",
-  "CLASSES.WARRIOR.tickTextureName",
-  "CLASSES.PALADIN.tickTexture",
-  "CLASSES.PALADIN.tickTextureName",
-  "CLASSES.HUNTER.tickTexture",
-  "CLASSES.HUNTER.tickTextureName",
-  "CLASSES.ROGUE.tickTexture",
-  "CLASSES.ROGUE.tickTextureName",
-  "CLASSES.PRIEST.tickTexture",
-  "CLASSES.PRIEST.tickTextureName",
-  "CLASSES.DEATHKNIGHT.tickTexture",
-  "CLASSES.DEATHKNIGHT.tickTextureName",
-  "CLASSES.SHAMAN.tickTexture",
-  "CLASSES.SHAMAN.tickTextureName",
-  "CLASSES.MAGE.tickTexture",
-  "CLASSES.MAGE.tickTextureName",
-  "CLASSES.WARLOCK.tickTexture",
-  "CLASSES.WARLOCK.tickTextureName",
-  "CLASSES.MONK.tickTexture",
-  "CLASSES.MONK.tickTextureName",
-  "CLASSES.DRUID.tickTexture",
-  "CLASSES.DRUID.tickTextureName",
-  "CLASSES.DEMONHUNTER.tickTexture",
-  "CLASSES.DEMONHUNTER.tickTextureName",
-  "CLASSES.EVOKER.tickTexture",
-  "CLASSES.EVOKER.tickTextureName",
-
-  "CLASSES.EVOKER.empowerTickTextures",
-  "CLASSES.EVOKER.empowerTickTexturesNames",
-  "CLASSES.EVOKER.empowerSegmentTextures",
-  "CLASSES.EVOKER.empowerSegmentTexturesNames",
+UCB.profiles.textureFallbacks = {
+  statusbar  = "Blizzard",
+  background = "Blizzard Dialog Background",
 }
 
+UCB.profiles.texture_map = {
+  ["style.textureName"]                     = { path = "style.texture",                         type = "statusbar" },
+  ["style.textureNameBack"]                 = { path = "style.textureBack",                     type = "background" },
+  ["style.textureNameBorder"]               = { path = "style.textureBorder",                   type = "statusbar" },
+  ["style.textureNameBorderIcon"]           = { path = "style.textureBorderIcon",               type = "statusbar" },
+
+  ["uninterruptible.fillTextureName"]       = { path = "uninterruptible.fillTexture",           type = "statusbar" },
+  ["uninterruptible.backgroundTextureName"] = { path = "uninterruptible.backgroundTexture",     type = "background" },
+  ["uninterruptible.textureNameBorder"]     = { path = "uninterruptible.textureBorder",         type = "statusbar" },
+  ["uninterruptible.textureNameBorderIcon"] = { path = "uninterruptible.textureBorderIcon",     type = "statusbar" },
+  ["uninterruptible.kickTickTextureName"]   = { path = "uninterruptible.kickTickTexture",       type = "statusbar" },
+  ["uninterruptible.untilKickTickTextureName"]     = { path = "uninterruptible.untilKickTickTexture",     type = "statusbar" },
+  ["uninterruptible.untilKickTickBackTextureName"] = { path = "uninterruptible.untilKickTickBackTexture", type = "statusbar" },
+
+  ["otherFeatures.tickTextureName"]         = { path = "otherFeatures.tickTexture",             type = "statusbar" },
+  ["otherFeatures.queueTextureName"]        = { path = "otherFeatures.queueTexture",            type = "statusbar" },
+
+  ["CLASSES.WARRIOR.tickTextureName"]       = { path = "CLASSES.WARRIOR.tickTexture",           type = "statusbar" },
+  ["CLASSES.PALADIN.tickTextureName"]       = { path = "CLASSES.PALADIN.tickTexture",           type = "statusbar" },
+  ["CLASSES.HUNTER.tickTextureName"]        = { path = "CLASSES.HUNTER.tickTexture",            type = "statusbar" },
+  ["CLASSES.ROGUE.tickTextureName"]         = { path = "CLASSES.ROGUE.tickTexture",             type = "statusbar" },
+  ["CLASSES.PRIEST.tickTextureName"]        = { path = "CLASSES.PRIEST.tickTexture",            type = "statusbar" },
+  ["CLASSES.DEATHKNIGHT.tickTextureName"]   = { path = "CLASSES.DEATHKNIGHT.tickTexture",       type = "statusbar" },
+  ["CLASSES.SHAMAN.tickTextureName"]        = { path = "CLASSES.SHAMAN.tickTexture",            type = "statusbar" },
+  ["CLASSES.MAGE.tickTextureName"]          = { path = "CLASSES.MAGE.tickTexture",              type = "statusbar" },
+  ["CLASSES.WARLOCK.tickTextureName"]       = { path = "CLASSES.WARLOCK.tickTexture",           type = "statusbar" },
+  ["CLASSES.MONK.tickTextureName"]          = { path = "CLASSES.MONK.tickTexture",              type = "statusbar" },
+  ["CLASSES.DRUID.tickTextureName"]         = { path = "CLASSES.DRUID.tickTexture",             type = "statusbar" },
+  ["CLASSES.DEMONHUNTER.tickTextureName"]   = { path = "CLASSES.DEMONHUNTER.tickTexture",       type = "statusbar" },
+  ["CLASSES.EVOKER.tickTextureName"]        = { path = "CLASSES.EVOKER.tickTexture",            type = "statusbar" },
+
+  -- Array/list pairs (names list is the key)
+  ["CLASSES.EVOKER.empowerTickTexturesNames"]    = { path = "CLASSES.EVOKER.empowerTickTextures",    type = "statusbar" },
+  ["CLASSES.EVOKER.empowerSegmentTexturesNames"] = { path = "CLASSES.EVOKER.empowerSegmentTextures", type = "background" },
+}
 
 UCB.profiles.textfont_keys = {
   "text.generalValues.font",
