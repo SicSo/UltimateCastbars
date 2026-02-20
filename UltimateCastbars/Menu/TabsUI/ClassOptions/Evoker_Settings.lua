@@ -1,19 +1,12 @@
 local _, UCB = ...
+
 UCB.Options = UCB.Options or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.UIOptions = UCB.UIOptions or {}
-UCB.CFG_API = UCB.CFG_API or {}
-UCB.BarUpdate_API = UCB.BarUpdate_API or {}
-UCB.OtherFeatures_API = UCB.OtherFeatures_API or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
 local Opt = UCB.Options
-local CFG_API = UCB.CFG_API
-local GetCfg = CFG_API.GetValueConfig
-local UIOptions = UCB.UIOptions
-local BarUpdate_API = UCB.BarUpdate_API
-local OtherFeatures_API = UCB.OtherFeatures_API
-
+local GetCFG = UCB.GetValueConfig
 local LSM  = UCB.LSM
 
 -- Registry: classToken -> function(cfgGetter) -> argsTable
@@ -39,7 +32,7 @@ end
 -- Build Empower Colours rows (3 columns) as its own inline group args
 -------------------------------------------------------------------
 local function BuildEmpowerColoursArgs(unit)
-    local cfg = GetCfg(unit).CLASSES.EVOKER
+    local cfg = GetCFG(unit, {"CLASSES", "EVOKER"})
 
     local out = {
         header = {
@@ -318,7 +311,7 @@ local function CreateTicksEmpowered(args, unit, cfg)
 end
 
 Opt.ClassExtraBuilders.EVOKER = function(unit, args)
-    local cfg = GetCfg(unit).CLASSES.EVOKER
+    local cfg = GetCFG(unit, {"CLASSES", "EVOKER"})
 
     local warpperGrp = {}
 
@@ -354,7 +347,7 @@ Opt.ClassExtraBuilders.EVOKER = function(unit, args)
                             set = function(_, val)
                                 cfg.enableEmpowerEffects = val
                                 if not val then
-                                    CASTBAR_API:HideStages(unit)
+                                    CASTBAR_API:HideStages(nil, unit)
                                 end
                                 CASTBAR_API:UpdateCastbar(unit)
                             end,

@@ -2,15 +2,11 @@ local _, UCB = ...
 UCB.Options = UCB.Options or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.UIOptions = UCB.UIOptions or {}
-UCB.CFG_API = UCB.CFG_API or {}
 UCB.Preview_API = UCB.Preview_API or {}
 UCB.tags = UCB.tags or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
-local Opt = UCB.Options
-local CFG_API = UCB.CFG_API
-local GetCfg = CFG_API.GetValueConfig
-local UIOptions = UCB.UIOptions
+local GetCFG = UCB.GetValueConfig
 local Preview_API = UCB.Preview_API
 local tags = UCB.tags
 
@@ -38,16 +34,16 @@ local function ChannelCast(unit, spellID, bar)
     CASTBAR_API:SemiColourUpdate(unit, bar)
 end
 
-local function EmpowerCast(unit, bar, cfg)
+local function EmpowerCast(unit, bar, cfg, vars)
     if cfg.CLASSES.EVOKER.enableEmpowerEffects then
-        CASTBAR_API:InitializeEmpoweredStages(unit)
+        CASTBAR_API:InitializeEmpoweredStages(bar, cfg, vars)
     else
         CASTBAR_API:SemiColourUpdate(unit, bar)
     end
 end
 
 function Preview_API:ShowPreviewCastBar(unit, castType)
-    local cfg = GetCfg(unit)
+    local cfg = GetCFG(unit)
     local previewCFG = cfg.previewSettings
     local bar = UCB.castBar[unit]
     Preview_API.previewActive[unit] = true
@@ -71,7 +67,7 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
     bar.icon:SetTexture(icon_texture)
 
     if unit == "player" then
-        CASTBAR_API:AssignQueueWindow(castType)
+        CASTBAR_API:AssignQueueWindow(cfg, castType)
     end
     CASTBAR_API:MirrorBar(cfg, bar, castType)
 
@@ -82,7 +78,7 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
     elseif castType == "channel" then
         ChannelCast(unit, previewCFG.previewSpellID[castType], bar)
     elseif castType == "empowered" then
-        EmpowerCast(unit, bar, cfg)
+        EmpowerCast(unit, bar, cfg, vars)
     end
 
     bar.status:SetMinMaxValues(0,tags.var[unit].dTime)
@@ -99,14 +95,16 @@ function Preview_API:HidePreviewCastBar(unit)
         Preview_API.previewActive[unit] = false
     end
 
+    local cfg = GetCFG(unit)
+
     local bar = UCB.castBar[unit]
     bar.group:Hide()
     bar:SetScript("OnUpdate", nil)
     bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars = nil, nil, nil, nil
 
     -- Player main, targets, focus,
-    CASTBAR_API:HideChannelTicks(unit)
-    CASTBAR_API:HideStages(unit)
+    CASTBAR_API:HideChannelTicks(bar, cfg.otherFeatures)
+    CASTBAR_API:HideStages(bar)
 
 end
 

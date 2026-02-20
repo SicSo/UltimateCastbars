@@ -342,6 +342,18 @@ local focus_db = {
         }
     },
 
+     copySettings = {
+        paths = {
+            general = true,
+            text = true,
+            style = true,
+            visibility = true,
+            uninterruptible = true,
+            otherFeatures = true,
+            CLASSES = true,
+        }
+    },
+
     CLASSES = {
 
         WARRIOR = {
@@ -647,4 +659,4 @@ local focus_db = {
     },
 }
 
-UCB.Default_DB.Focus = focus_db
+UCB.Default_DB.focus = focus_db

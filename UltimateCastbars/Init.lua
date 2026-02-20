@@ -19,6 +19,7 @@ UCB.UIOptions = UCB.UIOptions or {}
 UCB.UI = UCB.UI or {}
 UCB.GUI = UCB.GUI or {}
 UCB.GeneralCore_Helpers = UCB.GeneralCore_Helpers or {}
+UCB.Copy = UCB.Copy or {}
 
 -- Sub APIs
 UCB.CLASS_API.Evoker = UCB.CLASS_API.Evoker or {}
@@ -26,55 +27,6 @@ UCB.Options.ClassExtraBuilders = UCB.Options.ClassExtraBuilders or {}
 
 UCB.CASTBAR_API.CreateCastbar = UCB.CASTBAR_API.UpdateCastbar -- for backward compatibility
 
--- Used to hide the default castbar
-UCB.defaultCastbarFrame = CreateFrame("Frame")
-UCB.defaultCastbarFrame:Hide()
-
-UCB.castBar = {} -- The cast bars
-UCB.castBarGroup = {} -- The cast bar groups (for anchoring)
-UCB.defaultBar = {} -- The default blizz cast bars
-UCB.previewActive = {} -- Preview active flags
-UCB.eventFrame = {} -- Event frames per unit
-
-
-UCB.firstBuild = true
-
-UCB.units = {
-    "player",
-    "target",
-    "focus"
-}
-
-UCB.events = {
-  UNIT_SPELLCAST_START          = "OnUnitSpellcastStart",
-  UNIT_SPELLCAST_STOP           = "OnUnitSpellcastStop",
-  UNIT_SPELLCAST_CHANNEL_START  = "OnUnitSpellcastChannelStart",
-  UNIT_SPELLCAST_CHANNEL_UPDATE = "OnUnitSpellcastChannelUpdate",
-  UNIT_SPELLCAST_CHANNEL_STOP   = "OnUnitSpellcastChannelStop",
-  UNIT_SPELLCAST_EMPOWER_START  = "OnUnitSpellcastEmpowerStart",
-  UNIT_SPELLCAST_EMPOWER_UPDATE = "OnUnitSpellcastEmpowerUpdate",
-  UNIT_SPELLCAST_EMPOWER_STOP   = "OnUnitSpellcastEmpowerStop",
-
-  --UNIT_SPELLCAST_DELAYED = CastUpdate,
-	--UNIT_SPELLCAST_FAILED = CastFail,
-	--UNIT_SPELLCAST_INTERRUPTED = CastFail,
-	--UNIT_SPELLCAST_INTERRUPTIBLE = CastInterruptible,
-	--UNIT_SPELLCAST_NOT_INTERRUPTIBLE = CastInterruptible,
-}
-
-UCB.swapEvents = {
-    PLAYER_TARGET_CHANGED = {"OnUnitChange", "target"},
-    PLAYER_FOCUS_CHANGED = {"OnUnitChange", "focus"},
-}
-
-UCB.menuUnits = {
-    player = true,
-    target = true,
-    focus = true
-}
-
-
-UCB.trackedUnits = {}
 
 function UCB:EnsureSpellcastEventFrame()
   if UCB.eventFrame.spellcast and UCB.eventFrame.swap then return end
@@ -152,7 +104,7 @@ function UCB:UntrackUnit(unit)
 end
 
 function UCB:SetUpTrackedUnit()
-  local cfg = self.CFG_API.GetValueConfig()
+  local cfg = UCB.GetValueConfig()
   if not cfg then return end
   for unit, shown in pairs(self.menuUnits) do
     local shouldTrack = cfg[unit] and cfg[unit].enabled
@@ -164,124 +116,9 @@ function UCB:SetUpTrackedUnit()
   end
 end
 
-UCB.tags.var = {
-    player = {
-        sName = "",
-        sTime = 0,
-        eTime = 0,
-        dTime = 0,
-        nIntr = false,
-        empStages = {}
-    },
-    target = {
-        sName = "",
-        sTime = 0,
-        eTime = 0,
-        dTime = 0,
-        nIntr = false,
-        empStages = {}
-    },
-    focus = {
-        sName = "",
-        sTime = 0,
-        eTime = 0,
-        dTime = 0,
-        nIntr = false,
-        empStages = {}
-    },
-}
-
-function UCB.UIOptions.ColorText(hex, text)
-    if not text then return "" end
-    return ("|c%s%s|r"):format(hex, text)
-end
-
-function UCB:PrintAddonMsg(msg)  print(self.ADDON_NAME .. ":|r " .. msg) end
-
-function UCB:NotifyChange(unit)
-  if UCB.ACR then
-      UCB.ACR:NotifyChange(UCB.GUI.appName)
-  end
-end
-
-function UCB:SelectGroup(path, unit)
-  if UCB.ACD then
-    if unit == nil then
-      UCB.ACD:SelectGroup(UCB.GUI.appName, unpack(path))
-    else
-      UCB.ACD:SelectGroup(UCB.GUI.appName, unit, unpack(path))
-    end
-  end
-end
-
-local function GetPathValue(root, key)
-    if root == nil then return nil end
-
-    -- single key
-    if type(key) ~= "table" then
-        return root[key]
-    end
-
-    -- path table
-    local t = root
-    for i = 1, #key do
-        if type(t) ~= "table" then return nil end
-            t = t[key[i]]
-        if t == nil then return nil end
-    end
-    return t
-end
-
-local function SetPath(root, path, value)
-  if type(root) ~= "table" or type(path) ~= "table" or #path == 0 then
-    return false
-  end
-
-  local t = root
-  for i = 1, #path - 1 do
-    local k = path[i]
-    if type(t[k]) ~= "table" then
-      return false -- or: t[k] = {} to auto-create
-    end
-    t = t[k]
-  end
-
-  t[path[#path]] = value
-  return true
-end
-
-
 function UCB:SetUpConfig()
     UCB.cfg = UCB.db.profile
 end
-
-
--- Update a single variable in the PASSIVE config
-function UCB.CFG_API.SetValueConfig(unit, key, value)
-    local profile = UCB.db and UCB.db.profile
-    if not profile then return end -- DB not ready yet
-
-    local root = profile[unit] 
-    if not root then return end
-    if type(key) == "table" then
-        SetPath(root, key, value)
-    else
-        root[key] = value
-    end
-end
-
--- Get a single variable from the config
-function UCB.CFG_API.GetValueConfig(unit, key)
-    local profile = UCB.db and UCB.db.profile
-    if not profile then return nil end -- DB not ready yet
-    if not unit then return profile end
-    local root = profile[unit]
-    --local root = UCB.db.profile[unit]
-    if key == nil then return root end
-    if not root then return nil end
-    return GetPathValue(root, key)
-end
-
 
 local function createPicker()
     UCB.SimpleFramePickerObj = UCB.SimpleFramePicker:New()
@@ -318,8 +155,6 @@ local function GetSpellType(spellID)
     end
     return nil
 end
-
-
 
 local function SetUpSpellTypes()
   local out = { normal = {}, channel = {}, empowered = {} }
@@ -370,7 +205,7 @@ end
 local function ResolveFrames()
   for unit, use in pairs(UCB.menuUnits) do
     if use then
-      local cfg = UCB.CFG_API.GetValueConfig(unit).general
+      local cfg = UCB.GetValueConfig(unit, "general")
       local delayAcnhor = cfg.anchorDelay
       local delaySync = cfg.syncDelay
       if not UCB.firstBuild then
@@ -426,6 +261,14 @@ local function GatherInfo()
     end)
 end
 
+
+local function HideCurrentBars()
+  for unit, bar in pairs(UCB.castBar) do
+    if UCB.menuUnits[unit] and bar then
+      UCB.CASTBAR_API:StopPrevCast(unit, bar, nil, nil)
+    end
+  end
+end
 
 local function RegisterGUIPathCommands(cmds, path)
     if type(cmds) ~= "table" or #cmds == 0 then return end
@@ -510,6 +353,7 @@ function UCB:InitSequence()
 end
 
 function UCB:UpdateAllCastBars()
+  HideCurrentBars() -- Stop all current bars first to avoid issues with event handling and bars being active when they shouldn't be
   self:SetUpConfig()
   self:UpdateCastbarTrackedUnits() -- Upadate cast bars for tracked units
   UCB.GUI:OnProfileSwapRefreshUI() -- Refresh UI elements for CFG

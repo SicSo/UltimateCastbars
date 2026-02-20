@@ -1,23 +1,18 @@
 local _, UCB = ...
+
 UCB.Options = UCB.Options or {}
-UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.UIOptions = UCB.UIOptions or {}
-UCB.CFG_API = UCB.CFG_API or {}
 UCB.DefBlizzCast = UCB.DefBlizzCast or {}
 
-local CASTBAR_API = UCB.CASTBAR_API
 local Opt = UCB.Options
-local CFG_API = UCB.CFG_API
-local GetCfg = CFG_API.GetValueConfig
 local UIOptions = UCB.UIOptions
 local DefBlizzCast = UCB.DefBlizzCast
-
-
+local GetCFG = UCB.GetValueConfig
 
 local function BuildDefaultBarArgs(args, unit, opts)
-    local bigCFG = GetCfg(unit)
+    local bigCFG = GetCFG(unit)
     local cfg = bigCFG.defaultBar
-    local debugCFG = GetCfg("debug")
+    local debugCFG = GetCFG("debug")
 
     args.hideDefaultBargrp = {
         type = "group",

@@ -1,11 +1,8 @@
 local ADDON_NAME, UCB = ...
 
-UCB.CFG_API  = UCB.CFG_API  or {}
 UCB.Debug = UCB.Debug or {}
 
-local CFG_API = UCB.CFG_API
 local Debug = UCB.Debug
-
 
 -- Returns an array (list) of addon folder names that are currently enabled.
 function Debug:GetEnabledAddons(includeItself, playerName)
@@ -60,14 +57,14 @@ end
 function Debug:StartDebug()
   local playerName = UCB.charName
   local addonList = self:GetEnabledAddons(false, playerName) -- get all enabled addons except itself
-  local cfg = CFG_API.GetValueConfig("debug")
+  local cfg = UCB.GetValueConfig("debug")
   cfg.enabled = true
   cfg._addonList = addonList
   DisableAddonList(addonList, UCB.charName)
 end
 
 function Debug:StopDebug()
-    local cfg = CFG_API.GetValueConfig("debug")
+    local cfg = UCB.GetValueConfig("debug")
     local addonList = cfg._addonList or {}
     if #addonList > 0 and cfg.enabled then
         EnableAddonList(addonList, UCB.charName)

@@ -1,17 +1,8 @@
 local _, UCB = ...
-UCB.Options = UCB.Options or {}
-UCB.CASTBAR_API = UCB.CASTBAR_API or {}
-UCB.UIOptions = UCB.UIOptions or {}
-UCB.CFG_API = UCB.CFG_API or {}
 UCB.GeneralSettings_API = UCB.GeneralSettings_API or {}
 
-local CASTBAR_API = UCB.CASTBAR_API
-local Opt = UCB.Options
-local CFG_API = UCB.CFG_API
-local GetCfg = CFG_API.GetValueConfig
-local UIOptions = UCB.UIOptions
+local GetCFG = UCB.GetValueConfig
 local GeneralSettings_API = UCB.GeneralSettings_API
-
 
 function GeneralSettings_API:addNewItemList(tbl, item)
     for _, v in ipairs(tbl) do
@@ -51,7 +42,7 @@ function GeneralSettings_API:ResolveFrameWithRetry(unit, g, which, frameName, op
     if not frameName or frameName == "" then
         g[refKey] = UIParent
         g[errKey] = false
-        UCB:NotifyChange(unit)
+        UCB:NotifyChange()
         return
     end
 
@@ -63,14 +54,14 @@ function GeneralSettings_API:ResolveFrameWithRetry(unit, g, which, frameName, op
         if f then
             g[refKey] = f
             g[errKey] = false
-            UCB:NotifyChange(unit)
+            UCB:NotifyChange()
             return
         end
 
         if attempt >= tries then
             g[refKey] = UIParent
             g[errKey] = true
-            UCB:NotifyChange(unit)
+            UCB:NotifyChange()
             return
         end
 
@@ -136,7 +127,7 @@ function GeneralSettings_API:ResolveAnchorWithRetry(unit, g, opts)
     if g.useDefaultAnchor or not g.anchorName or g.anchorName == "" then
         g._anchorFrameRef = _G[defaultName] or UIParent
         g._anchorCustomError = false
-        UCB:NotifyChange(unit)
+        UCB:NotifyChange()
         return
     end
 
@@ -150,14 +141,14 @@ function GeneralSettings_API:ResolveAnchorWithRetry(unit, g, opts)
         if f then
             g._anchorFrameRef = f
             g._anchorCustomError = false
-            UCB:NotifyChange(unit)
+            UCB:NotifyChange()
             return
         end
 
         if attempt >= tries then
             g._anchorCustomError = true
             g._anchorFrameRef = _G[defaultName] or UIParent
-            UCB:NotifyChange(unit)
+            UCB:NotifyChange()
             return
         end
 
@@ -213,7 +204,7 @@ function GeneralSettings_API:ResolveFramesOnLogin(unit, opts)
         end
     end
 
-    local g = CFG_API.GetValueConfig(unit).general
+    local g = GetCFG(unit, "general")
     resolveAnchor(unit, g)
     resolveWidthHeight(unit, g)
     notify()

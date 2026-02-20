@@ -33,7 +33,9 @@ Libs\LibDeflate\LibDeflate.lua
 # Load AceGUI-3.0-SharedMediaWidgets XML (for LSM30_Statusbar)
 PlayersCastbars_AceGUISharedMediaWidgets.xml
 
-Static_Init.lua
+Global_StaticVars.lua
+Global_Functions.lua
+Global_Vars.lua
 Init.lua
 Core.lua
 Misc.lua

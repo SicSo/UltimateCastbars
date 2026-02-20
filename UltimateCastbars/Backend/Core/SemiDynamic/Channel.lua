@@ -1,13 +1,11 @@
 local ADDON_NAME, UCB = ...
 
-UCB.CFG_API  = UCB.CFG_API  or {}
 UCB.tags     = UCB.tags     or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.CLASS_API = UCB.CLASS_API or {}
 UCB.CLASS_API.Evoker = UCB.CLASS_API.Evoker or {}
 UCB.Preview_API = UCB.Preview_API or {}
 
-local CFG_API = UCB.CFG_API
 local tags = UCB.tags
 local CASTBAR_API = UCB.CASTBAR_API
 local Evoker_API = UCB.CLASS_API.Evoker
@@ -68,10 +66,12 @@ local function CreateTick(cfg, bar, index, position)
     tick:Show()
 end
 
-function CASTBAR_API:HideChannelTicks(unit)
-    local bar = UCB.castBar[unit]
-    local cfg = CFG_API.GetValueConfig(unit).otherFeatures
+function CASTBAR_API:HideChannelTicks(bar, cfg)
     if cfg._prevChannelNumTicks == 0 then return end
+
+    if bar.channelTicks and cfg._prevChannelNumTicks > #bar.channelTicks then
+        cfg._prevChannelNumTicks = #bar.channelTicks
+    end
 
     for i = 1, cfg._prevChannelNumTicks do
         if bar.channelTicks[i] then
@@ -82,9 +82,7 @@ function CASTBAR_API:HideChannelTicks(unit)
 end
 
 -- Draw channel ticks on the cast bar
-local function ShowChannelTicks(unit, numTicks, pos)
-    local bar = UCB.castBar[unit]
-    local cfg = CFG_API.GetValueConfig(unit)
+local function ShowChannelTicks(bar, cfg, numTicks, pos)
     local otherCFG = cfg.otherFeatures
 
 	if pos == nil then
@@ -114,7 +112,8 @@ end
 
 -- Assign channel ticks based on spellID and event type
 function CASTBAR_API:AssignChannelTicks(unit, spellID, event)
-    local cfg = CFG_API.GetValueConfig(unit)
+    local cfg = UCB.GetValueConfig(unit)
+    local bar = UCB.castBar[unit]
 
     -- Player main, targets, focus,
     if UnitIsPlayer(unit) then
@@ -131,14 +130,14 @@ function CASTBAR_API:AssignChannelTicks(unit, spellID, event)
                 local barWidth = cfg.general.actualBarWidth
                 local startMS, endMS = vars.sTime * 1000, vars.eTime * 1000
                 local mode, positions = Evoker_API:OnChannelEvent(event, barWidth, spellID, startMS, endMS)
-                ShowChannelTicks(unit, nil, positions)
+                ShowChannelTicks(bar, cfg, nil, positions)
             -- Normal ticks based on spellID -> numTicks
             else
                 local numTicks = GetChannelTickNumber(spellIDD, classCFG)
                 if numTicks and numTicks > 0 then
-                    ShowChannelTicks(unit, numTicks, nil)
+                    ShowChannelTicks(bar, cfg, numTicks, nil)
                 else
-                    CASTBAR_API:HideChannelTicks(unit)
+                    CASTBAR_API:HideChannelTicks(bar, cfg.otherFeatures)
                 end
             end
         else
@@ -158,7 +157,7 @@ function CASTBAR_API:AssignChannelTicks(unit, spellID, event)
             --else
                 numTicks = classCFG.tickNumber
             --end
-            ShowChannelTicks(unit, numTicks, nil)
+            ShowChannelTicks(bar, cfg, numTicks, nil)
         end
 
     end
@@ -189,16 +188,17 @@ function CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID)
         bar.flags.castActive = false
         bar.flags.prevType = nil
         bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars, bar._ucbSpellID = nil, nil, nil, nil, nil
-
-        local cfg = CFG_API.GetValueConfig(unit)
-        local classCFG = CFG_API.GetValueConfig(unit).CLASSES[UCB.className]
+        local cfg = UCB.GetValueConfig(unit)
+        local classCFG = cfg.CLASSES[UCB.className]
         -- Player main, targets, focus,
         if unit == "player" then
+            if not spellID then spellID = bar.current_spellID end
             if UCB.specID == 1467 and spellID == 356995 and classCFG.disintegrateDynamicTicks then
                 local barWidth = cfg.general.actualBarWidth
                 Evoker_API:OnChannelEvent("STOP", barWidth, spellID)
             end
         end
-        CASTBAR_API:HideChannelTicks(unit)
+        bar.current_spellID = nil
+        CASTBAR_API:HideChannelTicks(bar, cfg.otherFeatures)
     end
 end

@@ -2,20 +2,18 @@ local _, UCB = ...
 UCB.Options = UCB.Options or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.UIOptions = UCB.UIOptions or {}
-UCB.CFG_API = UCB.CFG_API or {}
 UCB.UNINTERRUPTIBLE_API = UCB.UNINTERRUPTIBLE_API or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
 local Opt = UCB.Options
-local CFG_API = UCB.CFG_API
-local GetCfg = CFG_API.GetValueConfig
+local GetCFG = UCB.GetValueConfig
 local UIOptions = UCB.UIOptions
 local UNINTERRUPTIBLE = UCB.UNINTERRUPTIBLE_API
 
 local LSM  = UCB.LSM
 
 local function BuildUninterruptableArgs(args, unit)
-    local cfg = GetCfg(unit).uninterruptible
+    local cfg = GetCFG(unit, "uninterruptible")
 
     args.uninterruptibleGroup = {
         type   = "group",

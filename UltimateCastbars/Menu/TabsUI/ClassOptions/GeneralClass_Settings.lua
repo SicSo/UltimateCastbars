@@ -1,18 +1,8 @@
 local _, UCB = ...
-UCB.Options = UCB.Options or {}
-UCB.CASTBAR_API = UCB.CASTBAR_API or {}
-UCB.UIOptions = UCB.UIOptions or {}
-UCB.CFG_API = UCB.CFG_API or {}
-UCB.BarUpdate_API = UCB.BarUpdate_API or {}
-UCB.OtherFeatures_API = UCB.OtherFeatures_API or {}
 
-local CASTBAR_API = UCB.CASTBAR_API
+UCB.Options = UCB.Options or {}
+
 local Opt = UCB.Options
-local CFG_API = UCB.CFG_API
-local GetCfg = CFG_API.GetValueConfig
-local UIOptions = UCB.UIOptions
-local BarUpdate_API = UCB.BarUpdate_API
-local OtherFeatures_API = UCB.OtherFeatures_API
 
 Opt._classTreeArgs = Opt._classTreeArgs or {}
 

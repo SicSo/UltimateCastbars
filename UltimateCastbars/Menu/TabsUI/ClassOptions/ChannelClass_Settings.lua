@@ -1,28 +1,21 @@
 local _, UCB = ...
+
 UCB.Options = UCB.Options or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.UIOptions = UCB.UIOptions or {}
-UCB.CFG_API = UCB.CFG_API or {}
-UCB.BarUpdate_API = UCB.BarUpdate_API or {}
-UCB.OtherFeatures_API = UCB.OtherFeatures_API or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
 local Opt = UCB.Options
-local CFG_API = UCB.CFG_API
-local GetCfg = CFG_API.GetValueConfig
+local GetCFG = UCB.GetValueConfig
 local UIOptions = UCB.UIOptions
-local BarUpdate_API = UCB.BarUpdate_API
-local OtherFeatures_API = UCB.OtherFeatures_API
 
 local LSM  = UCB.LSM
 
 -- Registry: classToken -> function(cfgGetter) -> argsTable
 Opt.ClassExtraBuilders = Opt.ClassExtraBuilders or {}
 
-
-
 local function BuildChannelSettings(unit, class)
-    local bigCFG = GetCfg(unit)
+    local bigCFG = GetCFG(unit)
     local cfg = bigCFG.CLASSES[class]
 
 
@@ -152,7 +145,10 @@ local function BuildRows(channelTable, cfg, unit)
                     width = 0.90,
                     min = UCB.UIOptions.channelTickNumMin, max = UCB.UIOptions.channelTickNumMax, step = 1,
                     get = function() return tonumber(cfg.channeledSpels[i].ticks or 1) end,
-                    set = function(_, v) cfg.channeledSpels[i].ticks = v end,
+                    set = function(_, v) 
+                        cfg.channeledSpels[i].ticks = v
+                        CASTBAR_API:UpdateCastbar(unit)
+                    end,
                 },
                 v4 = { type = "description", name = "|", order = 8, width = 0.05 },
 
@@ -162,7 +158,10 @@ local function BuildRows(channelTable, cfg, unit)
                     order = 9,
                     width = 0.30,
                     get = function() return cfg.channeledSpels[i].enable ~= false end,
-                    set = function(_, v) cfg.channeledSpels[i].enable = v end,
+                    set = function(_, v) 
+                        cfg.channeledSpels[i].enable = v
+                        CASTBAR_API:UpdateCastbar(unit)
+                    end,
                 },
                 v5 = { type = "description", name = "|", order = 10, width = 0.05 },
 
@@ -183,7 +182,7 @@ local function BuildRows(channelTable, cfg, unit)
 end
 
 local function BuildChannelTable(args, unit, class)
-    local bigCFG = GetCfg(unit)
+    local bigCFG = GetCFG(unit)
     local cfg = bigCFG.CLASSES[class]
 
     -- temp fields for the "add" row
@@ -363,7 +362,7 @@ local function BuildChannelTable(args, unit, class)
 end
 
 local function BuildChannelSectionPlayer(args, unit, class)
-    local bigCFG = GetCfg(unit)
+    local bigCFG = GetCFG(unit)
     local cfg = bigCFG.CLASSES[class]
     
 
@@ -410,7 +409,7 @@ local function BuildChannelSectionPlayer(args, unit, class)
 end
 
 local function BuildChannelSpecSettings(args, unit, class)
-    local bigCFG = GetCfg(unit)
+    local bigCFG = GetCFG(unit)
     local cfg = bigCFG.CLASSES[class]
     local specs = cfg.specs
     local spec_data = UCB.specs[class].specs
@@ -515,7 +514,7 @@ local function BuildChannelSpecSettings(args, unit, class)
 end
 
 local function BuildChannelSectionNonPlayer(args, unit, class)
-    local bigCFG = GetCfg(unit)
+    local bigCFG = GetCFG(unit)
     local cfg = bigCFG.CLASSES[class]
 
     args.channelSection = {

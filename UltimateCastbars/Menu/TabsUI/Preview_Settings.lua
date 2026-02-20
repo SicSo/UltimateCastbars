@@ -1,19 +1,12 @@
 local _, UCB = ...
+
 UCB.Options = UCB.Options or {}
-UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.UIOptions = UCB.UIOptions or {}
-UCB.CFG_API = UCB.CFG_API or {}
 UCB.Preview_API = UCB.Preview_API or {}
 
-local CASTBAR_API = UCB.CASTBAR_API
 local Opt = UCB.Options
-local CFG_API = UCB.CFG_API
-local GetCfg = CFG_API.GetValueConfig
-local UIOptions = UCB.UIOptions
+local GetCFG = UCB.GetValueConfig
 local Preview_API = UCB.Preview_API
-
-
-
 
 local function PreviewSpells(cfg)
     if not Preview_API.showSettings then
@@ -149,7 +142,7 @@ local function PreviewSettings(cfg)
 end
 
 local function BuildPreviewArgs(args, unit, opts)
-    local cfg = GetCfg(unit)
+    local cfg = GetCFG(unit)
     Preview_API.showSettings = false
 
     args.previewRow = {
@@ -162,7 +155,7 @@ local function BuildPreviewArgs(args, unit, opts)
                 type  = "execute",
                 name  = "Preview Cast",
                 order = 1,
-                width = 1.3,
+                width = 1,
                 func  = function()
                     if not Preview_API.previewActive then Preview_API.previewActive = {} end
                     if not Preview_API.lastCastType then Preview_API.lastCastType = {} end
@@ -198,12 +191,18 @@ local function BuildPreviewArgs(args, unit, opts)
                     end
                 end,
             },
+            gap = {
+                type = "description",
+                name = "",
+                order = 1.5,
+                width = 0.3
+            },
 
             previewbuttonChannel = {
                 type  = "execute",
                 name  = "Preview Channel",
                 order = 2,
-                width = 1.3,
+                width = 1,
                 func  = function()
                     if not Preview_API.previewActive then Preview_API.previewActive = {} end
                     if not Preview_API.lastCastType then Preview_API.lastCastType = {} end
@@ -244,12 +243,18 @@ local function BuildPreviewArgs(args, unit, opts)
                     return false
                     end,
             },
+            gap2 = {
+                type = "description",
+                name = "",
+                order = 2.5,
+                width = 0.3
+             },
 
             previewbuttonEmpower = {
                 type  = "execute",
                 name  = "Preview Empower",
                 order = 3,
-                width = 1.3,
+                width = 1,
                 func  = function()
                     if not Preview_API.previewActive then Preview_API.previewActive = {} end
                     if not Preview_API.lastCastType then Preview_API.lastCastType = {} end
@@ -290,13 +295,19 @@ local function BuildPreviewArgs(args, unit, opts)
                     return false
                     end,
             },
+            gap3 = {
+                type = "description",
+                name = "",
+                order = 3.5,
+                width = 0.3
+            },
             showSettings = {
                 type  = "execute",
                 name  = function() 
                     if Preview_API.showSettings then
-                        return "Hide Preview Settings"
+                        return UCB.UIOptions.ColorText(UCB.UIOptions.red, "Hide").." Preview Settings"
                     else
-                        return "Show Preview Settings"
+                        return UCB.UIOptions.ColorText(UCB.UIOptions.green, "Show").." Preview Settings"
                     end
                 end,
                 order = 4,

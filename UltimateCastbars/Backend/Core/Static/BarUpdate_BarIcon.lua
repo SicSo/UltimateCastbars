@@ -1,19 +1,7 @@
 local _, UCB = ...
-UCB.Options = UCB.Options or {}
-UCB.CASTBAR_API = UCB.CASTBAR_API or {}
-UCB.UIOptions = UCB.UIOptions or {}
-UCB.CFG_API = UCB.CFG_API or {}
 UCB.BarUpdate_API = UCB.BarUpdate_API or {}
-UCB.OtherFeatures_API = UCB.OtherFeatures_API or {}
 
-local CASTBAR_API = UCB.CASTBAR_API
-local Opt = UCB.Options
-local CFG_API = UCB.CFG_API
-local UIOptions = UCB.UIOptions
 local BarUpdate_API = UCB.BarUpdate_API
-local OtherFeatures_API = UCB.OtherFeatures_API
-
-local LSM  = UCB.LSM
 
 ----------------------------------------HELPER----------------------------------------
 local function AnchorWhenReady(frameToAnchor, cfg, opts)
@@ -462,7 +450,7 @@ end
 ----------------------------------------MAIN----------------------------------------
 function BarUpdate_API:UpdateBarIcon(unit)
     local bar = UCB.castBar[unit]
-    local bigCFG = CFG_API.GetValueConfig(unit)
+    local bigCFG = UCB.GetValueConfig(unit)
     local genCfg = bigCFG.general
     local styleCfg = bigCFG.style
 

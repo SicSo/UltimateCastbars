@@ -346,6 +346,18 @@ local target_db = {
         }
     },
 
+     copySettings = {
+        paths = {
+            general = true,
+            text = true,
+            style = true,
+            visibility = true,
+            uninterruptible = true,
+            otherFeatures = true,
+            CLASSES = true,
+        }
+    },
+
     CLASSES = {
 
         WARRIOR = {
@@ -651,4 +663,4 @@ local target_db = {
     },
 }
 
-UCB.Default_DB.Target = target_db
+UCB.Default_DB.target = target_db

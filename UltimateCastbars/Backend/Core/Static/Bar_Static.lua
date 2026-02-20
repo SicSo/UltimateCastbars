@@ -1,10 +1,8 @@
 local ADDON_NAME, UCB = ...
 
-UCB.CFG_API  = UCB.CFG_API  or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.BarUpdate_API = UCB.BarUpdate_API or {}
 
-local CFG_API = UCB.CFG_API
 local CASTBAR_API = UCB.CASTBAR_API
 local BarUpdate_API = UCB.BarUpdate_API
 
@@ -133,6 +131,9 @@ local function CreateCastBar(unit)
         prevType = nil -- Type of previous cast (normal/channel/empowered)
     }
 
+    -- Cast info
+    bar.current_spellID = nil
+
     -- Channel properties
     bar.channelTicks = {}
 
@@ -161,7 +162,7 @@ end
 function CASTBAR_API:UpdateCastbar(unit)
     --print("Castbar update")
     if not UCB.castBar then return end
-    local cfg = CFG_API.GetValueConfig(unit)
+    local cfg = UCB.GetValueConfig(unit)
     -- Castbar should be disabled
     if cfg.enabled == false then
         if UCB.castBar[unit] ~= nil then

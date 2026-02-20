@@ -132,7 +132,6 @@ local function UpdateShowWhenKickAvailable(bar, vars, cfg, castType)
 
     if unIntCFG.disableBarUnKick then
         local alpha = GeneralHelpers:KickAlpha(notIntr, kickReady, true)
-        --print(alpha)
          bar.group:SetAlpha(alpha)
          return
     end

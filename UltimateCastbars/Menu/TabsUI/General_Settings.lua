@@ -2,20 +2,16 @@ local _, UCB = ...
 UCB.Options = UCB.Options or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.UIOptions = UCB.UIOptions or {}
-UCB.CFG_API = UCB.CFG_API or {}
 UCB.GeneralSettings_API = UCB.GeneralSettings_API or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
 local Opt = UCB.Options
-local CFG_API = UCB.CFG_API
-local GetCfg = CFG_API.GetValueConfig
+local GetCFG = UCB.GetValueConfig
 local UIOptions = UCB.UIOptions
 local GeneralSettings_API = UCB.GeneralSettings_API
 
-
-
 local function BuildFramePickerArgs(args, unit)
-    local g = GetCfg(unit).general
+    local g = GetCFG(unit, "general")
 
     args.framePickerGrp = {
         type = "group",
@@ -76,7 +72,7 @@ local function BuildFramePickerArgs(args, unit)
         }
 end
 local function BuildPositionArgs(args, unit)
-    local g = GetCfg(unit).general
+    local g = GetCFG(unit, "general")
 
     args.positionGrp = {
         type = "group",
@@ -367,7 +363,7 @@ local function BuildPositionArgs(args, unit)
 end
 
 local function BuildSizeArgs(args, unit)
-    local g = GetCfg(unit).general
+    local g = GetCFG(unit, "general")
 
     args.sizeGrp = {
         type = "group",
@@ -824,7 +820,7 @@ end
 
 
 local function createOffsetX(unit, args)
-    local g = GetCfg(unit).general
+    local g = GetCFG(unit, "general")
 
     if g.iconAnchor == "LEFT" then
         return {
@@ -876,7 +872,7 @@ end
 
 
 local function createOffsetY(unit, args)
-    local g = GetCfg(unit).general
+    local g = GetCFG(unit, "general")
 
     if g.iconAnchor == "TOP" then
         return {
@@ -926,7 +922,7 @@ end
 
 
 local function BuildIconArgs(args, unit)
-    local g = GetCfg(unit).general
+    local g = GetCFG(unit, "general")
 
     args.iconGrp = {
         type = "group",

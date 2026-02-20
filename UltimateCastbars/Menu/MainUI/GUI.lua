@@ -3,7 +3,6 @@ local ADDON_NAME, UCB = ...
 UCB.GUIWidgets = UCB.GUIWidgets or {}
 UCB.GUI = UCB.GUI or {}
 UCB.UI = UCB.UI or {}
-UCB.CFG_API = UCB.CFG_API or {}
 UCB.GUI.Helpers = UCB.GUI.Helpers or {}
 
 -- GUIWidgets should be loaded before this file (or you can require it first)
@@ -34,6 +33,38 @@ function GUI:InvalidateRootOptions()
     end
 end
 
+function GUI:InvalidateUnitOptions(unit)
+    if not unit then return end
+
+    if UCB.Options then
+        UCB.Options._textTreeArgs  = UCB.Options._textTreeArgs  or {}
+        UCB.Options._classTreeArgs = UCB.Options._classTreeArgs or {}
+
+        -- Prefer unit-keyed caches:
+        if type(UCB.Options._textTreeArgs) == "table" then
+            UCB.Options._textTreeArgs[unit] = nil
+        end
+        if type(UCB.Options._classTreeArgs) == "table" then
+            UCB.Options._classTreeArgs[unit] = nil
+        end
+    end
+end
+
+function GUI:_EnsureUnitGroup(unit, order, displayName)
+    self._unitGroups = self._unitGroups or {}
+
+    if not self._unitGroups[unit] then
+        self._unitGroups[unit] = {
+            type  = "group",
+            name  = displayName or unit,
+            order = order or 1,
+            args  = {}, -- swapped during unit rebuilds
+        }
+    end
+
+    return self._unitGroups[unit]
+end
+
 function GUI:BuildRootOptionsTable()
     -- stable tables (important!)
     self._rootOptions = self._rootOptions or {}
@@ -44,7 +75,7 @@ function GUI:BuildRootOptionsTable()
     -- Build / rebuild sub-args (MUST return tables)
     for unit, shown in pairs(UCB.menuUnits) do
         if shown then
-            treeArgs[unit] = self:BuildUnitOptionsArgs(unit)
+            treeArgs[unit] = self:BuildUnitOptionsArgs(unit) or {}
         else
             treeArgs[unit] = {}
         end
@@ -55,26 +86,19 @@ function GUI:BuildRootOptionsTable()
 
     wipe(self._rootArgs)
 
-    self._rootArgs.player = {
-        type  = "group",
-        name  = "Player",
-        order = 1,
-        args  = treeArgs["player"],
-    }
+    -- Stable unit group tables (so we can rebuild only one unit later)
+    local playerGroup = self:_EnsureUnitGroup("player", 1, "Player")
+    playerGroup.args = treeArgs["player"] or {}
 
-    self._rootArgs.target = {
-        type  = "group",
-        name  = "Target",
-        order = 2,
-        args  = treeArgs["target"],
-    }
+    local targetGroup = self:_EnsureUnitGroup("target", 2, "Target")
+    targetGroup.args = treeArgs["target"] or {}
 
-    self._rootArgs.focus = {
-        type  = "group",
-        name  = "Focus",
-        order = 3,
-        args  = treeArgs["focus"],
-    }
+    local focusGroup = self:_EnsureUnitGroup("focus", 3, "Focus")
+    focusGroup.args = treeArgs["focus"] or {}
+
+    self._rootArgs.player = playerGroup
+    self._rootArgs.target = targetGroup
+    self._rootArgs.focus  = focusGroup
 
     self._rootArgs.profiles = {
         type        = "group",
@@ -202,7 +226,7 @@ function GUI:OpenGUI(selectPath)
 
     if InCombatLockdown and InCombatLockdown() then return end
 
-    local cfg = UCB.CFG_API.GetValueConfig()
+    local cfg = UCB.GetValueConfig()
     if not selectPath then
         selectPath = cfg.misc.lastUIPath
         local ok, valid, badAt, reason = GUI_Helpers:ValidateGroupPath(selectPath)
@@ -261,7 +285,7 @@ function GUI:OpenGUI(selectPath)
     HookSizer(Container.sizer_s)
 
     Container:SetCallback("OnClose", function(widget)
-        local cfg = UCB.CFG_API.GetValueConfig()
+        local cfg = UCB.GetValueConfig()
         if cfg and cfg.misc then
             cfg.misc.lastUIPath = GUI_Helpers:GetCurrentPath(self.appName)
         end
@@ -371,5 +395,83 @@ function GUI:RefreshGUI(hard, path)
             if not self.isGUIOpen then return end
             UCB:SelectGroup(groups)
         end)
+    end)
+end
+
+-- ============================================================================
+-- NEW: Unit-only rebuild / refresh helpers
+-- ============================================================================
+function GUI:RebuildUnitOptions(unit)
+    if not unit then return end
+
+    -- Ensure ROOT exists (so unit group tables exist)
+    self:RegisterRootOptions()
+
+    local shown = UCB.menuUnits and UCB.menuUnits[unit]
+    local newArgs = {}
+
+    if shown then
+        self:InvalidateUnitOptions(unit)
+        newArgs = self:BuildUnitOptionsArgs(unit) or {}
+    end
+
+    -- Swap only the unit args (stable group table)
+    local grp = self._unitGroups and self._unitGroups[unit]
+    if grp then
+        grp.args = newArgs
+        return
+    end
+
+    -- Fallback (if _unitGroups wasn't wired)
+    if self._rootArgs and self._rootArgs[unit] then
+        self._rootArgs[unit].args = newArgs
+    end
+end
+
+function GUI:RefreshUnitUI(unit, path)
+    if not unit then return end
+
+    self:RebuildUnitOptions(unit)
+
+    -- If not open, just leave it rebuilt/invalidated for next open
+    if not (self.isGUIOpen and UCB.ACD) then
+        return
+    end
+
+    local groups = path or GUI_Helpers:GetCurrentPath(self.appName)
+
+    -- If an editbox is focused, Ace may not repaint that field value.
+    local focused = GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus()
+    if focused and focused.ClearFocus then
+        focused:ClearFocus()
+    end
+
+    UCB:NotifyChange()
+    print(unpack(groups))
+
+    UCB:SelectGroup(groups)
+
+    -- AceConfigDialog sometimes needs a double select to repaint reliably
+    C_Timer.After(0, function()
+        if not self.isGUIOpen then return end
+        UCB:SelectGroup(groups)
+        C_Timer.After(0, function()
+            if not self.isGUIOpen then return end
+            UCB:SelectGroup(groups)
+        end)
+    end)
+end
+
+function GUI:QueueUnitRebuild(unit, path)
+    if not unit then return end
+
+    self._unitRebuildQueued = self._unitRebuildQueued or {}
+    local key = tostring(self.appName) .. ":" .. tostring(unit)
+    if self._unitRebuildQueued[key] then return end
+    self._unitRebuildQueued[key] = true
+
+    C_Timer.After(0, function()
+        self._unitRebuildQueued[key] = nil
+        self:RefreshUnitUI(unit, path)
     end)
 end

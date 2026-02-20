@@ -1,15 +1,8 @@
 local _, UCB = ...
-UCB.Options = UCB.Options or {}
-UCB.CASTBAR_API = UCB.CASTBAR_API or {}
-UCB.UIOptions = UCB.UIOptions or {}
-UCB.CFG_API = UCB.CFG_API or {}
+
 UCB.DefBlizzCast = UCB.DefBlizzCast or {}
 
-local CASTBAR_API = UCB.CASTBAR_API
-local Opt = UCB.Options
-local CFG_API = UCB.CFG_API
-local GetCfg = CFG_API.GetValueConfig
-local UIOptions = UCB.UIOptions
+local GetCFG = UCB.GetValueConfig
 local DefBlizzCast = UCB.DefBlizzCast
 
 local function RegisterEventSafe(frame, eventName)
@@ -73,16 +66,6 @@ local function GetBlizzFrames(unit)
     end
 
     return {}
-end
-
-
--- Try to pick a sane default unit for event-driven refresh
-local function GetPrimaryUnit()
-    -- Most addons store player config under "player"
-    if GetCfg and GetCfg("player") then return "player" end
-    -- Fallback: some store under "PLAYER"
-    if GetCfg and GetCfg("PLAYER") then return "PLAYER" end
-    return "player"
 end
 
 -- ============================================================
@@ -196,7 +179,7 @@ local function ApplyScaleState(f, scale)
 end
 
 function DefBlizzCast:RefreshBlizzardCastbarScale(unit)
-    local cfg = GetCfg(unit)
+    local cfg = GetCFG(unit)
     if not cfg or not cfg.defaultBar then return end
 
     local scale = cfg.defaultBar.blizzBarScale or 1
@@ -298,7 +281,7 @@ end
 
 
 function DefBlizzCast:RefreshBlizzardCastbarHide(unit, showBar)
-    local cfg = GetCfg(unit)
+    local cfg = GetCFG(unit)
     if not cfg then return end
     cfg.defaultBar = cfg.defaultBar or {}
 
@@ -319,7 +302,7 @@ function DefBlizzCast:RefreshBlizzardCastbarHide(unit, showBar)
                 f:HookScript("OnShow", function(self)
                     local owner = self.__ucbOwnerUnit
                     if not owner then return end
-                    local c = GetCfg(owner)
+                    local c = GetCFG(owner)
                     if c and c.defaultBar and c.defaultBar.enabled == false then
                         ApplyHideState(self, true, nil, unit)
                     end
@@ -329,7 +312,7 @@ function DefBlizzCast:RefreshBlizzardCastbarHide(unit, showBar)
                     hooksecurefunc(f, "Show", function(self)
                         local owner = self.__ucbOwnerUnit
                         if not owner then return end
-                        local c = GetCfg(owner)
+                        local c = GetCFG(owner)
                         if c and c.defaultBar and c.defaultBar.enabled == false then
                             ApplyHideState(self, true, nil, unit)
                         end
@@ -359,7 +342,7 @@ local function ApplyFrameXY(frame, cfg)
 end
 
 function DefBlizzCast:UpdateDefaultCastbarPosition(x, y, point, unit)
-    local cfg = GetCfg(unit)
+    local cfg = GetCFG(unit)
     if not cfg then return end
     cfg.defaultBar = cfg.defaultBar or {}
 
@@ -373,14 +356,14 @@ function DefBlizzCast:UpdateDefaultCastbarPosition(x, y, point, unit)
         end
     end
 
-    UCB:NotifyChange(unit)
+    UCB:NotifyChange()
 end
 
 -- ============================================================
 -- Defaults
 -- ============================================================
 function DefBlizzCast:EnsureDefaultBarKeys(unit)
-    local cfg = GetCfg(unit)
+    local cfg = GetCFG(unit)
     if not cfg then return end
 
     cfg.defaultBar = cfg.defaultBar or {}
@@ -423,12 +406,12 @@ local function EnsureBaselineEventFrame()
     ef:SetScript("OnEvent", function()
         for _, unit in ipairs({ "player", "target" , "focus"}) do
             local u = unit
-            local cfg = GetCfg(u)
+            local cfg = GetCFG(u)
             if cfg and cfg.defaultBar and cfg.defaultBar.useBlizzardDefaults and cfg.defaultBar.enabled ~= false then
                 SnapshotBlizzBaseline(u)
                 if C_Timer and C_Timer.After then
                     C_Timer.After(0, function()
-                        local c = GetCfg(u)
+                        local c = GetCFG(u)
                         if c and c.defaultBar and c.defaultBar.useBlizzardDefaults and c.defaultBar.enabled ~= false then
                             SnapshotBlizzBaseline(u)
                         end
@@ -450,7 +433,7 @@ end
 function DefBlizzCast:RefreshBlizzardCastbarLayoutMode(unit, showBar)
     EnsureBaselineEventFrame()
 
-    local cfg = GetCfg(unit)
+    local cfg = GetCFG(unit)
     if not cfg then return end
     DefBlizzCast:EnsureDefaultBarKeys(unit)
 
@@ -471,7 +454,7 @@ function DefBlizzCast:RefreshBlizzardCastbarLayoutMode(unit, showBar)
         -- (especially if Blizzard adjusts between frames).
         if C_Timer and C_Timer.After then
             C_Timer.After(0, function()
-                local c = GetCfg(unit)
+                local c = GetCFG(unit)
                 if c and c.defaultBar and c.defaultBar.useBlizzardDefaults and c.defaultBar.enabled ~= false then
                     SnapshotBlizzBaseline(unit)
                 end
@@ -502,7 +485,7 @@ end
 
 
 local function ApplyCustomNowAndNextFrame(unit)
-    local cfg = GetCfg(unit)
+    local cfg = GetCFG(unit)
     if not cfg or not cfg.defaultBar then return end
     local db = cfg.defaultBar
 
@@ -515,7 +498,7 @@ local function ApplyCustomNowAndNextFrame(unit)
 
     if C_Timer and C_Timer.After then
         C_Timer.After(0, function()
-            local c = GetCfg(unit)
+            local c = GetCFG(unit)
             if not c or not c.defaultBar then return end
             local d = c.defaultBar
             if d.enabled == false then return end
@@ -533,7 +516,7 @@ end
 
 
 function DefBlizzCast:ApplyDefaultBlizzCastbar(unit, showBar)
-    local cfg = GetCfg(unit)
+    local cfg = GetCFG(unit)
     if not cfg then return end
     DefBlizzCast:EnsureDefaultBarKeys(unit)
 

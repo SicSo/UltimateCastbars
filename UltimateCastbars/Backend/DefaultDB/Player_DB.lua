@@ -2,7 +2,7 @@ local _, UCB = ...
 
 UCB.Default_DB = UCB.Default_DB or {}
 
-UCB.Default_DB.Player = {
+UCB.Default_DB.player = {
      enabled = true,
 
     general = {
@@ -352,7 +352,18 @@ UCB.Default_DB.Player = {
             channel = 356995,
             empowered = 359073,
         }
-        
+    },
+
+    copySettings = {
+        paths = {
+            general = true,
+            text = true,
+            style = true,
+            visibility = true,
+            uninterruptible = true,
+            otherFeatures = true,
+            CLASSES = true,
+        }
     },
 
     CLASSES = {

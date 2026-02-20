@@ -1,11 +1,7 @@
 local ADDON_NAME, UCB = ...
 
-UCB.CFG_API  = UCB.CFG_API  or {}
-UCB.tags     = UCB.tags     or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 
-local CFG_API = UCB.CFG_API
-local tags = UCB.tags
 local CASTBAR_API = UCB.CASTBAR_API
 
 local castType = "empowered"
@@ -21,8 +17,11 @@ local function CastbarOnUpdate(bar, elapsed)
     end
 end
 
-function CASTBAR_API:HideStages(unit)
-    local bar = UCB.castBar[unit]
+function CASTBAR_API:HideStages(bar, unit)
+    if not bar then
+        if not unit then return end
+        bar = UCB.castBar[unit]
+    end
     local empoweredStages = bar.empoweredStages
     local empoweredSegments = bar.empoweredSegments
     if empoweredStages then
@@ -91,8 +90,7 @@ local function CreateSegment(bar, barWidth, invert, useTex, segment, colour, tex
     segment:Show()
 end
 
-local function CreateColourCurve(unit, tickPositions, colours, inverted)
-    local bar = UCB.castBar[unit]
+local function CreateColourCurve(bar, tickPositions, colours, inverted)
     local curve = bar.empoweredColourCurve
     curve:ClearPoints()
 
@@ -111,13 +109,10 @@ local function CreateColourCurve(unit, tickPositions, colours, inverted)
 end
 
 -- Empowered Cast Stage Markers
-function CASTBAR_API:InitializeEmpoweredStages(unit)
+function CASTBAR_API:InitializeEmpoweredStages(bar, cfg, vars)
     -- Hide previous stages
-    CASTBAR_API:HideStages(unit)
+    CASTBAR_API:HideStages(bar)
 
-    local bar = UCB.castBar[unit]
-    local cfg = CFG_API.GetValueConfig(unit)
-    local vars = tags.var[unit]
     local classCFG = cfg.CLASSES.EVOKER
 
     local numStages = #vars.empStages
@@ -143,7 +138,7 @@ function CASTBAR_API:InitializeEmpoweredStages(unit)
     local empoweredSegments = bar.empoweredSegments
     local empoweredStages = bar.empoweredStages
 
-    CreateColourCurve(unit, tickPositions, barColours, switch)
+    CreateColourCurve(bar, tickPositions, barColours, switch)
 
     -- Frames
     local overlayFrame = bar.frames.overlay
@@ -179,7 +174,7 @@ function CASTBAR_API:OnUnitSpellcastEmpowerStart(unit, castGUID, spellID, resume
     local cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
     -- Set colours and other empower stage visuals
     if cfg.CLASSES.EVOKER.enableEmpowerEffects and UnitIsPlayer(unit) then
-        CASTBAR_API:InitializeEmpoweredStages(unit)
+        CASTBAR_API:InitializeEmpoweredStages(bar, cfg,  vars)
     else
         CASTBAR_API:SemiColourUpdate(unit, bar)
     end
@@ -197,10 +192,11 @@ function CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID)
         bar:SetScript("OnUpdate", nil)
         bar.flags.castActive = false
         bar.flags.prevType = nil
+        bar.current_spellID = nil
         bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars, bar._ucbSpellID = nil, nil, nil, nil, nil
-        local cfg = CFG_API.GetValueConfig(unit)
+        local cfg = UCB.GetValueConfig(unit)
         if cfg.CLASSES.EVOKER.enableEmpowerEffects and UnitIsPlayer(unit) then
-            CASTBAR_API:HideStages(unit)
+            CASTBAR_API:HideStages(bar)
         end
     end
 end

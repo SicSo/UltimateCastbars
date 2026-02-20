@@ -39,6 +39,29 @@ UCB.UI.text = {
     name = "Ultimate Castbars",
 }
 
+--------------------------------------------------------------- Copy ------------------------------------------------------------
+UCB.Copy = UCB.Copy or {}
+
+UCB.Copy.categories = {
+    general = "General",
+    text = "Text",
+    style = "Style",
+    visibility = "Visibility",
+    uninterruptible = "Uninterruptible",
+    otherFeatures = "Other Features",
+    CLASSES = "Class-specific settings"
+}
+
+UCB.Copy.categoriesOrder = {
+    "general",
+    "text",
+    "style",
+    "visibility",
+    "uninterruptible",
+    "otherFeatures",
+    "CLASSES"
+}
+
 --------------------------------------------------------------- General ------------------------------------------------------------
 UCB.specs =  {
   WARRIOR = {
@@ -185,7 +208,6 @@ UCB.specs =  {
     kick = {351338},
   },
 }
-
 
 ------------------------------------------------------------ Tags ------------------------------------------------------------
 UCB.tags = UCB.tags or {}
@@ -388,3 +410,92 @@ local function BuildClassColorLookup(alpha)
 end
 
 UCB.UIOptions.classColoursList = BuildClassColorLookup(1)
+
+
+------------------------------------------------------------ Profiles ------------------------------------------------------------
+UCB.profiles = UCB.profiles or {}
+
+UCB.profiles.texture_keys = {
+  "style.texture",
+  "style.textureName",
+  "style.textureBack",
+  "style.textureNameBack",
+  "style.textureBorder",
+  "style.textureNameBorder",
+  "style.textureBorderIcon",
+  "style.textureNameBorderIcon",
+
+  "uninterruptible.fillTexture",
+  "uninterruptible.fillTextureName",
+  "uninterruptible.backgroundTexture",
+  "uninterruptible.backgroundTextureName",
+  "uninterruptible.textureBorder",
+  "uninterruptible.textureNameBorder",
+  "uninterruptible.textureBorderIcon",
+  "uninterruptible.textureNameBorderIcon",
+  "uninterruptible.kickTickTexture",
+  "uninterruptible.kickTickTextureName",
+  "uninterruptible.untilKickTickTexture",
+  "uninterruptible.untilKickTickTextureName",
+  "uninterruptible.untilKickTickBackTexture",
+  "uninterruptible.untilKickTickBackTextureName",
+
+  "otherFeatures.tickTexture",
+  "otherFeatures.tickTextureName",
+  "otherFeatures.queueTexture",
+  "otherFeatures.queueTextureName",
+
+  "CLASSES.WARRIOR.tickTexture",
+  "CLASSES.WARRIOR.tickTextureName",
+  "CLASSES.PALADIN.tickTexture",
+  "CLASSES.PALADIN.tickTextureName",
+  "CLASSES.HUNTER.tickTexture",
+  "CLASSES.HUNTER.tickTextureName",
+  "CLASSES.ROGUE.tickTexture",
+  "CLASSES.ROGUE.tickTextureName",
+  "CLASSES.PRIEST.tickTexture",
+  "CLASSES.PRIEST.tickTextureName",
+  "CLASSES.DEATHKNIGHT.tickTexture",
+  "CLASSES.DEATHKNIGHT.tickTextureName",
+  "CLASSES.SHAMAN.tickTexture",
+  "CLASSES.SHAMAN.tickTextureName",
+  "CLASSES.MAGE.tickTexture",
+  "CLASSES.MAGE.tickTextureName",
+  "CLASSES.WARLOCK.tickTexture",
+  "CLASSES.WARLOCK.tickTextureName",
+  "CLASSES.MONK.tickTexture",
+  "CLASSES.MONK.tickTextureName",
+  "CLASSES.DRUID.tickTexture",
+  "CLASSES.DRUID.tickTextureName",
+  "CLASSES.DEMONHUNTER.tickTexture",
+  "CLASSES.DEMONHUNTER.tickTextureName",
+  "CLASSES.EVOKER.tickTexture",
+  "CLASSES.EVOKER.tickTextureName",
+
+  "CLASSES.EVOKER.empowerTickTextures",
+  "CLASSES.EVOKER.empowerTickTexturesNames",
+  "CLASSES.EVOKER.empowerSegmentTextures",
+  "CLASSES.EVOKER.empowerSegmentTexturesNames",
+}
+
+
+UCB.profiles.textfont_keys = {
+  "text.generalValues.font",
+  "text.generalValues.fontName",
+
+  "text.defaultValues.font",
+  "text.defaultValues.fontName",
+
+  "text.tagList.dynamic.*",
+  "text.tagList.semiDynamic.*",
+  "text.tagList.static.*",
+  "text.tagList.unk.*",
+  
+  --"text.tagList.dynamic.tag2.font",
+  --"text.tagList.dynamic.tag2.fontName",
+  --"text.tagList.dynamic.tag3.font",
+  --"text.tagList.dynamic.tag3.fontName",
+
+  --"text.tagList.semiDynamic.tag1.font",
+ -- "text.tagList.semiDynamic.tag1.fontName",
+}

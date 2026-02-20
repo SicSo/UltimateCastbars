@@ -1,15 +1,10 @@
 local _, UCB = ...
 UCB.Options = UCB.Options or {}
-UCB.CFG_API = UCB.CFG_API or {}
-UCB.UIOptions = UCB.UIOptions or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.tags = UCB.tags or {}
 UCB.Text_API = UCB.Text_API or {}
 
-local Opt = UCB.Options
 local CASTBAR_API = UCB.CASTBAR_API
-local CFG_API = UCB.CFG_API
-local GetCfg = CFG_API.GetValueConfig
 local tags = UCB.tags
 local Text_API = UCB.Text_API
 

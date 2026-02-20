@@ -1,14 +1,10 @@
 local ADDON_NAME, UCB = ...
 
-UCB.GUIWidgets = UCB.GUIWidgets or {}
 UCB.GUI = UCB.GUI or {}
 UCB.UI = UCB.UI or {}
-UCB.CFG_API = UCB.CFG_API or {}
 UCB.GUI.Helpers = UCB.GUI.Helpers or {}
 
 -- GUIWidgets should be loaded before this file (or you can require it first)
-local GUIWidgets = UCB.GUIWidgets
-local AG = UCB.AG
 local UI = UCB.UI
 local GUI = UCB.GUI
 local GUI_Helpers = UCB.GUI.Helpers

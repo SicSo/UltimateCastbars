@@ -11,6 +11,7 @@
 	<Script file="Modules/Tags.lua"/>
 	<Script file="Modules/EvokerDisintegrateTick.lua"/>
 	<Script file="Modules/Debug.lua"/>
+	<Script file="Modules/Copy.lua"/>
 
 	<!-- Core -->
 	<Script file="Core/GeneralCore_Helpers.lua"/>

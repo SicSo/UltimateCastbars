@@ -2,13 +2,12 @@ local _, UCB = ...
 UCB.Options = UCB.Options or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.UIOptions = UCB.UIOptions or {}
-UCB.CFG_API = UCB.CFG_API or {}
 UCB.BarUpdate_API = UCB.BarUpdate_API or {}
 UCB.OtherFeatures_API = UCB.OtherFeatures_API or {}
 UCB.tags = UCB.tags or {}
 UCB.Text_API = UCB.Text_API or {}
 
-local CFG_API = UCB.CFG_API
+local GetCFG = UCB.GetValueConfig
 local BarUpdate_API = UCB.BarUpdate_API
 local OtherFeatures_API = UCB.OtherFeatures_API
 local Text_API = UCB.Text_API
@@ -102,7 +101,7 @@ end
 
 local function UpdateBorderBar(unit)
     local bar = UCB.castBar[unit]
-    local cfg = CFG_API.GetValueConfig(unit).style
+    local cfg = GetCFG(unit, "style")
     if not bar then return end
 
     if not cfg.showBorder then
@@ -129,7 +128,7 @@ end
 
 local function UpdateIconBorder(unit)
     local bar = UCB.castBar[unit]
-    local cfg = CFG_API.GetValueConfig(unit).style
+    local cfg = GetCFG(unit, "style")
     if not bar or not bar.iconFrame then return end
 
     if not cfg.showBorderIcon then
@@ -198,7 +197,7 @@ local function UpdateUninterruptibleBorder(unit)
     local bar = UCB.castBar[unit]
     if not bar then return end
 
-    local cfg = CFG_API.GetValueConfig(unit).uninterruptible
+    local cfg = GetCFG(unit, "uninterruptible")
     local unint_frame = bar.frames.unInterrupted
     if not unint_frame then return end
 
@@ -249,7 +248,7 @@ local function UpdateUninterruptibleIconBorder(unit)
     local bar = UCB.castBar[unit]
     if not bar or not bar.unintIconFrame then return end
 
-    local cfg = CFG_API.GetValueConfig(unit).uninterruptible
+    local cfg = GetCFG(unit, "uninterruptible")
 
     -- Gate: only show when uninterruptible feature is enabled (and optionally when currently shown)
     local show = cfg.showUninterruptibleBorderIcon and cfg.showUninterruptible and cfg.showUninterruptibleBorder
@@ -290,7 +289,7 @@ end
 ----------------------------------------MAIN----------------------------------------
 function BarUpdate_API:UpdateText(unit)
     local bar = UCB.castBar[unit]
-    local cfg = CFG_API.GetValueConfig(unit).text
+    local cfg = GetCFG(unit, "text")
     local generalCFG = cfg.generalValues
     local generalFont, generalFontSize, generalColour = generalCFG.font, generalCFG.textSize, generalCFG.colour
     local generalOutlineTags, generalShadow = Text_API:OutlineFlags(generalCFG.outline)
@@ -354,7 +353,7 @@ end
 
 function BarUpdate_API:UpdateVisibility(unit)
     local bar = UCB.castBar[unit]
-    local cfg = CFG_API.GetValueConfig(unit).visibility
+    local cfg = GetCFG(unit, "visibility")
     bar:SetFrameStrata(cfg.frameStrata)
     bar:SetFrameLevel(cfg.frameLevel)
     bar.iconFrame:SetFrameStrata(cfg.frameStrata)
@@ -375,7 +374,7 @@ function BarUpdate_API:UpdateUnkickable(unit)
     local bar = UCB.castBar[unit]
     if not bar then return end
 
-    local cfg = CFG_API.GetValueConfig(unit).uninterruptible
+    local cfg = GetCFG(unit, "uninterruptible")
 
     -- Hide helper bar textures
     local posTex = bar.interruptPositioner:GetStatusBarTexture()
@@ -443,7 +442,7 @@ end
 function BarUpdate_API:UpdateUninterruptable(unit)
     local bar = UCB.castBar[unit]
     if not bar then return end
-    local cfg = CFG_API.GetValueConfig(unit).uninterruptible
+    local cfg = GetCFG(unit, "uninterruptible")
     local unint_frame = bar.frames.unInterrupted
     local mirror_frame = bar.mirror_frames.unInterrupted
     
@@ -497,7 +496,7 @@ end
 
 function BarUpdate_API:UpdateStyle(unit)
     local bar = UCB.castBar[unit]
-    local bigCFG = CFG_API.GetValueConfig(unit)
+    local bigCFG = GetCFG(unit)
     local cfg = bigCFG.style
 
     -- Bar style
@@ -524,7 +523,7 @@ end
 
 function BarUpdate_API:UpdateOtherFeatures(unit)
     local bar = UCB.castBar[unit]
-    local cfg = CFG_API.GetValueConfig(unit).otherFeatures
+    local cfg = GetCFG(unit, "otherFeatures")
 
     if unit == "player" then
         if cfg.showQueueWindow.normal or  cfg.showQueueWindow.channel or cfg.showQueueWindow.empowered then
@@ -556,7 +555,7 @@ end
 function BarUpdate_API:UpdateColours(unit)
     local bar = UCB.castBar[unit]
 
-    local cfg = CFG_API.GetValueConfig(unit).style
+    local cfg = GetCFG(unit, "style")
 
     if unit ~= "player" then
         local rgba = cfg.enemyColour
@@ -630,7 +629,7 @@ function BarUpdate_API:UpdateColours(unit)
 end
 
 function BarUpdate_API:UpdateOthers(unit)
-    local cfg = CFG_API.GetValueConfig(unit)
+    local cfg = GetCFG(unit)
 
     local classCFG = cfg.CLASSES[UCB.className]
     classCFG._channelingSpellIDs = {}

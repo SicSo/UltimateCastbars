@@ -1,37 +1,31 @@
 local _, UCB = ...
 
-
-UCB.Util = UCB.Util or {}
-UCB.CFG_API  = UCB.CFG_API  or {}
 UCB.Options = UCB.Options or {}
-UCB.GUI = UCB.GUI or {}
-
-local Util = UCB.Util
-local CFG_API  = UCB.CFG_API
-local Opt  = UCB.Options
-local GUI = UCB.GUI
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
-local CASTBAR_API = UCB.CASTBAR_API
+UCB.DefBlizzCast = UCB.DefBlizzCast or {}
+UCB.GUI = UCB.GUI or {}
+UCB.UIOptions = UCB.UIOptions or {}
 
-
-local function GetCfg(unit) return UCB.CFG_API.GetValueConfig(unit) end
+local GUI = UCB.GUI
+local GetCFG = UCB.GetValueConfig
+local UIOptions = UCB.UIOptions
 
 local function EnsureEnabledKey(cfg)
     if cfg and cfg.enabled == nil then cfg.enabled = true end
 end
 
 local function IsDisabled(unit)
-    local cfg = GetCfg(unit); EnsureEnabledKey(cfg)
+    local cfg = GetCFG(unit); EnsureEnabledKey(cfg)
     return cfg and cfg.enabled == false
 end
 
 local function GetEnabled(unit)
-    local cfg = GetCfg(unit); EnsureEnabledKey(cfg)
+    local cfg = GetCFG(unit); EnsureEnabledKey(cfg)
     return cfg and cfg.enabled
 end
 
 local function SetEnabled(unit, val)
-    local cfg = GetCfg(unit)
+    local cfg = GetCFG(unit)
     if not cfg then return end
     EnsureEnabledKey(cfg)
 
@@ -47,20 +41,16 @@ local function SetEnabled(unit, val)
         UCB:SelectGroup({"defaultCastbar"}, unit)
     end
 
-    if UCB.DefBlizzCast and UCB.DefBlizzCast.ApplyDefaultBlizzCastbar then
-        UCB.DefBlizzCast:ApplyDefaultBlizzCastbar(unit, cfg.enabled == false)
-    end
+    UCB.DefBlizzCast:ApplyDefaultBlizzCastbar(unit, cfg.enabled == false)
 
-    if UCB.CASTBAR_API and UCB.CASTBAR_API.UpdateCastbar then
-        UCB.CASTBAR_API:UpdateCastbar(unit)
-    end
+    UCB.CASTBAR_API:UpdateCastbar(unit)
 end
 
 function GUI:BuildUnitOptionsArgs(unit)
     return {
         castbarShow = {
             type = "group",
-            name = (unit:gsub("^%l", string.upper)) .. " Cast Bar",
+            name = UCB:UnitDisplayName(unit) .. " Cast Bar",
             order = 0.5,
             inline = true,
             args = {
@@ -75,6 +65,11 @@ function GUI:BuildUnitOptionsArgs(unit)
                         if UCB.ACR then UCB.ACR:NotifyChange("UCB") end
                     end,
                 },
+                unitTitle = {
+                    type = "header",
+                    name = "Now modifying: ".. UIOptions.ColorText(UIOptions.turquoise, UCB:UnitDisplayName(unit)),
+                    order = 1.5,
+                },
                 previewButtons = {
                     type = "group",
                     name = "Preview",
@@ -82,6 +77,14 @@ function GUI:BuildUnitOptionsArgs(unit)
                     inline = true,
                     disabled = function() return IsDisabled(unit) end,
                     args = UCB.Options.BuildGeneralSettingsPreviewArgs(unit, { includePerTabEnable = false }),
+                },
+                copySection = {
+                    type = "group",
+                    name = "Copy Settings From Another Bar",
+                    order = 3,
+                    inline = true,
+                    disabled = function() return IsDisabled(unit) end,
+                    args = UCB.Options.BuildCopySettingsArgs(unit, { includePerTabEnable = false }),
                 },
             },
         },

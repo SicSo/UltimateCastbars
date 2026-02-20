@@ -1,23 +1,19 @@
 local _, UCB = ...
+
 UCB.Options = UCB.Options or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.UIOptions = UCB.UIOptions or {}
-UCB.CFG_API = UCB.CFG_API or {}
 UCB.OtherFeatures_API = UCB.OtherFeatures_API or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
 local Opt = UCB.Options
-local CFG_API = UCB.CFG_API
-local GetCfg = CFG_API.GetValueConfig
+local GetCFG = UCB.GetValueConfig
 local UIOptions = UCB.UIOptions
 local OtherFeatures_API = UCB.OtherFeatures_API
-
 local LSM  = UCB.LSM
 
-
-
 local function BuildOtherArgs(args, unit)
-    local cfg = GetCfg(unit).otherFeatures
+    local cfg = GetCFG(unit, "otherFeatures")
     if unit == "player" then
         args.spellQueGrp = {
             type   = "group",

@@ -8,9 +8,9 @@ local Default_Values = {
         GlobalProfileName = "Default",
     },
     profile = {
-        player = UCB.Default_DB.Player,
-        target = UCB.Default_DB.Target,
-        focus = UCB.Default_DB.Focus,
+        player = UCB.Default_DB.player,
+        target = UCB.Default_DB.target,
+        focus = UCB.Default_DB.focus,
         debug = {
             enabled = false,
             _addonList = {}

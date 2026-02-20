@@ -1,14 +1,12 @@
 local _, UCB = ...
 UCB.Options = UCB.Options or {}
-UCB.CFG_API = UCB.CFG_API or {}
 UCB.UIOptions = UCB.UIOptions or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.Text_API = UCB.Text_API or {}
 
 local Opt = UCB.Options
 local CASTBAR_API = UCB.CASTBAR_API
-local CFG_API = UCB.CFG_API
-local GetCfg = CFG_API.GetValueConfig
+local GetCFG = UCB.GetValueConfig
 local UIOptions = UCB.UIOptions
 local Text_API = UCB.Text_API
 
@@ -20,14 +18,14 @@ local function GoToTag(unit, tagKey)
 end
 
 local function BuildTagButtons(unit)
-  local text = GetCfg(unit).text 
+  local text = GetCFG(unit, "text")
   text.tagList = text.tagList or {}
 
   local btns, order = {}, 1
 
   for tagType, tagTable in pairs(text.tagList) do
     for key, _ in pairs(tagTable) do
-      local tcfg = GetCfg(unit).text.tagList[tagType][key]
+      local tcfg = GetCFG(unit, "text").tagList[tagType][key]
 
       btns["btn_" .. key] = {
         type  = "execute",
@@ -44,7 +42,7 @@ local function BuildTagButtons(unit)
 end
 
 
-local function RefreshTagPickerButtons(unit)
+function Text_API:RefreshTagPickerButtons(unit)
     local tree = UCB.Options._textTreeArgs[unit]
     if not tree or not tree.tagPicker then return end
     tree.tagPicker.args = BuildTagButtons(unit)
@@ -55,8 +53,8 @@ end
 
 local function tagUI(key, tagType, unit)
     local args = {}
-    local bigCFG = GetCfg(unit).text
-    local cfg = GetCfg(unit).text.tagList[tagType][key]
+    local bigCFG = GetCFG(unit, "text")
+    local cfg = bigCFG.tagList[tagType][key]
     
     args.deleteButton = {
         type = "execute",
@@ -69,9 +67,9 @@ local function tagUI(key, tagType, unit)
           
            local treeArgs = UCB.Options._textTreeArgs[unit]
            treeArgs[key] = nil
-           RefreshTagPickerButtons(unit)
+           Text_API:RefreshTagPickerButtons(unit)
 
-            UCB:NotifyChange(unit)
+            UCB:NotifyChange()
 
             UCB:SelectGroup({"text"}, unit)
 
@@ -127,7 +125,7 @@ local function tagUI(key, tagType, unit)
                 set = function(_, v)
                     cfg.showType.normal = v
                     if Text_API:updateStaticShow(key, cfg, bigCFG) then
-                        UCB:NotifyChange(unit)
+                        UCB:NotifyChange()
                     end
                     CASTBAR_API:UpdateCastbar(unit)
                     end,
@@ -140,7 +138,7 @@ local function tagUI(key, tagType, unit)
                 set = function(_, v) 
                     cfg.showType.channel = v
                     if Text_API:updateStaticShow(key, cfg, bigCFG) then
-                        UCB:NotifyChange(unit)
+                        UCB:NotifyChange()
                     end
                     CASTBAR_API:UpdateCastbar(unit)
                     end,
@@ -153,7 +151,7 @@ local function tagUI(key, tagType, unit)
                 set = function(_, v) 
                     cfg.showType.empowered = v
                     if Text_API:updateStaticShow(key, cfg, bigCFG) then
-                        UCB:NotifyChange(unit)
+                        UCB:NotifyChange()
                     end
                     CASTBAR_API:UpdateCastbar(unit)
                     end,
@@ -178,7 +176,7 @@ local function tagUI(key, tagType, unit)
                         if v ~= "" then
                             cfg.tagText = tostring(v)
                             Text_API:updateTagText(key, cfg, bigCFG)
-                            UCB:NotifyChange(unit)
+                            UCB:NotifyChange()
                             CASTBAR_API:UpdateCastbar(unit)
                         end
                     end,
@@ -399,7 +397,7 @@ end
 
 
 local function addTagUI(unit)
-    local cfg  = GetCfg(unit).text
+    local cfg  = GetCFG(unit, "text")
     local generalCFG = cfg.generalValues
     local newName = ""
     local treeArgs = UCB.Options._textTreeArgs[unit]
@@ -433,8 +431,8 @@ local function addTagUI(unit)
                             args = tagUI(key, state, unit),
                         }
                         newName = ""
-                        RefreshTagPickerButtons(unit)
-                        UCB:NotifyChange(unit)
+                        Text_API:RefreshTagPickerButtons(unit)
+                        UCB:NotifyChange()
                         UCB:SelectGroup({"text", key}, unit)
                     end
                 end,
@@ -623,15 +621,14 @@ end
 
 
 local function BuildTagsTreeArgs(unit)
-    --print("Here")
-    local text = GetCfg(unit).text
+    local text = GetCFG(unit, "text")
     text.tagList = text.tagList or {}
 
     local args, order = {}, 1
 
     for tagType, tagTable in pairs(text.tagList) do
         for key, _ in pairs(tagTable) do
-            local cfg = GetCfg(unit).text.tagList[tagType][key]
+            local cfg = GetCFG(unit, "text").tagList[tagType][key]
 
             args[key] = {
                 type  = "group",

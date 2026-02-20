@@ -1,13 +1,11 @@
 local ADDON_NAME, UCB = ...
 
-UCB.CFG_API  = UCB.CFG_API  or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.BarUpdate_API = UCB.BarUpdate_API or {}
 UCB.tags     = UCB.tags     or {}
 UCB.Preview_API = UCB.Preview_API or {}
 UCB.GeneralCore_Helpers = UCB.GeneralCore_Helpers or {}
 
-local CFG_API = UCB.CFG_API
 local CASTBAR_API = UCB.CASTBAR_API
 local tags = UCB.tags
 local BarUpdate_API = UCB.BarUpdate_API
@@ -16,8 +14,9 @@ local GeneralHelpers = UCB.GeneralCore_Helpers
 
 
 -- Tries to stop previous casts
-local function StopPrevCast(unit, bar, castGUID, spellID)
-    if bar.activeCast then
+function CASTBAR_API:StopPrevCast(unit, bar, castGUID, spellID)
+    if not bar then bar = UCB.castBar[unit] end
+    if bar.flags.castActive then
         if bar.flags.prevType == "normal" then
             CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID)
         elseif bar.flags.prevType == "channel" then
@@ -113,23 +112,22 @@ function CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
     status:SetValue(bar_status:GetValue())
 end
 
-function CASTBAR_API:AssignQueueWindow(typeCast)
+function CASTBAR_API:AssignQueueWindow(cfg, typeCast)
     local unit  = "player"
     local bar = UCB.castBar[unit]
     if not bar.queueWindowOverlay then return end
 
-    local bigCFG = CFG_API.GetValueConfig(unit)
-    local cfg = bigCFG.otherFeatures
+    local otherCFG = cfg.otherFeatures
     local queueWindowOverlay = bar.queueWindowOverlay
     local overlayFrame = bar.frames.overlay
-    local inverted = cfg.invertBar[typeCast]
-    local mirror = cfg.mirrorBar[typeCast]
+    local inverted = otherCFG.invertBar[typeCast]
+    local mirror = otherCFG.mirrorBar[typeCast]
 
     local switch = (inverted or mirror) and not (inverted and mirror)  -- if either is true, but not both
 
-    if cfg.showQueueWindow[typeCast] then
+    if otherCFG.showQueueWindow[typeCast] then
         local queWindow = BarUpdate_API.queueWindow / 1000
-        local px = bigCFG.general.actualBarWidth * (queWindow / tags.var[unit].dTime)
+        local px = cfg.general.actualBarWidth * (queWindow / tags.var[unit].dTime)
         queueWindowOverlay:SetWidth(px)
         queueWindowOverlay:ClearAllPoints()
         if (not switch and typeCast ~= "channel") or (typeCast == "channel" and switch) then
@@ -320,9 +318,11 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
         Preview_API:HidePreviewCastBar(unit)
     end
 
-    local cfg = CFG_API.GetValueConfig(unit)
+    local cfg = UCB.GetValueConfig(unit)
     local bar = UCB.castBar[unit]
-    StopPrevCast(unit, bar, castGUID, spellID)
+    CASTBAR_API:StopPrevCast(unit, bar, nil, nil)
+
+    bar.current_spellID = spellID
 
     -- Update internal vars with spellInfo
     local icon_texture = tags:updateVars(unit, castType, spellID, cfg)
@@ -341,7 +341,7 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
     bar.icon:SetTexture(icon_texture)
 
     if unit == "player" then
-        CASTBAR_API:AssignQueueWindow(castType)
+        CASTBAR_API:AssignQueueWindow(cfg, castType)
     end
 
     local bar_status = bar.status
@@ -374,7 +374,7 @@ end
 
 
 function CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType)
-    local cfg = CFG_API.GetValueConfig(unit)
+    local cfg = UCB.GetValueConfig(unit)
     local bar = UCB.castBar[unit]
 
     local icon_texture = tags:updateVars(unit, castType, spellID, cfg)
@@ -393,7 +393,7 @@ function CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType)
     bar.icon:SetTexture(icon_texture)
 
     if unit == "player" then
-        CASTBAR_API:AssignQueueWindow(castType)
+        CASTBAR_API:AssignQueueWindow(cfg, castType)
     end
 
     bar.status:SetMinMaxValues(0, vars.dTime)

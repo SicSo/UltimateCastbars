@@ -11,15 +11,7 @@ function CASTBAR_API:OnUnitChange(unit)
     local resumeCast = true
 
     -- Hide any previous casts
-    if bar.flags.prevType ~= nil and bar.flags.castActive then
-        if bar.flags.prevType == "normal" then
-            CASTBAR_API:OnUnitSpellcastStop(unit)
-        elseif bar.flags.prevType == "channel" then
-            CASTBAR_API:OnUnitSpellcastChannelStop(unit)
-        elseif bar.flags.prevType == "empowered" then
-            CASTBAR_API:OnUnitSpellcastEmpowerStop(unit)
-        end
-    end
+    CASTBAR_API:StopPrevCast(unit, bar, nil, nil)
     
     -- Look for current casts
     local name, _, _, _, _, _, _, _ = UnitCastingInfo(unit)
