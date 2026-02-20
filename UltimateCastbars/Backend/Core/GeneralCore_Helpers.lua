@@ -3,11 +3,11 @@ local ADDON_NAME, UCB = ...
 UCB.GeneralCore_Helpers = UCB.GeneralCore_Helpers or {}
 local GeneralHelpers = UCB.GeneralCore_Helpers
 
-function GeneralHelpers:KickAlpha(notInterruptibleSecretBool, kickReadySecretBool, whenKickReady)
+function GeneralHelpers:KickAlpha(notInterruptibleSecretBool, kickReadySecretBool, whenKickReady, alpha)
   local kickReadyVal, kickNotReadyVal
   if whenKickReady then
     kickReadyVal = 1
-    kickNotReadyVal = 0
+    kickNotReadyVal = alpha or 0
   else
     kickReadyVal = 0
     kickNotReadyVal = 1

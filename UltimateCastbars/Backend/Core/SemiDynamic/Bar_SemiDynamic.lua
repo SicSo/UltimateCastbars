@@ -49,34 +49,61 @@ local function InitCastbarVal(status, castType, resumeCast, vars, cfg)
     end
 end
 
-local function Alpha_ShowOnlyWhenKickReady(notInterruptibleSecretBool, kickReadySecretBool)
+local function Alpha_ShowOnlyWhenKickReady(notInterruptibleSecretBool, kickReadySecretBool, alpha)
     if not C_CurveUtil then
         return 1 -- safest fallback if curve util isn't available
     end
+    if not alpha then
+        alpha = 0
+    end
     -- kickReady=true -> 1, false -> 0
-    local aKick = C_CurveUtil.EvaluateColorValueFromBoolean(kickReadySecretBool, 1, 0)
+    local aKick = C_CurveUtil.EvaluateColorValueFromBoolean(kickReadySecretBool, 1, alpha)
     -- notInterruptible=true -> 0, false -> aKick
     return C_CurveUtil.EvaluateColorValueFromBoolean(notInterruptibleSecretBool, 0, aKick)
 end
 
 local function HideCastbar(bar, vars, cfg)
+    local unintCFG = cfg.uninterruptible
     local notIntr = vars and vars.nIntr  -- secret boolean
     local a = 1
-    if C_CurveUtil then
-        a = C_CurveUtil.EvaluateColorValueFromBoolean(notIntr, 0, 1)
-    end
-    if cfg.uninterruptible.disableBarUnInt then
-        bar.group:SetAlpha(a)
-    end
 
-    local spellID, kickDur = GeneralHelpers:GetKickTimer()
-    if not spellID or not kickDur then
-        return
+    if unintCFG.disableBarUnInt or unintCFG.changeAlphaBarUnint then
+        if unintCFG.disableBarUnInt then
+            a = C_CurveUtil.EvaluateColorValueFromBoolean(notIntr, 0, 1)
+            bar.group:SetAlpha(a)
+            return
+        end
+        if unintCFG.changeAlphaBarUnint then
+             a = C_CurveUtil.EvaluateColorValueFromBoolean(notIntr, unintCFG.alphaBarUnint, 1)
+             if unintCFG.includeIconAlphaUnint then
+                bar.group:SetAlpha(a)
+             else
+                bar:SetAlpha(a)
+             end
+            return
+        end
     end
-    local kickReady = kickDur:IsZero()   -- secret boolean
-    a = Alpha_ShowOnlyWhenKickReady(notIntr, kickReady)
-    if cfg.uninterruptible.disableBarUnKick then
-        bar.group:SetAlpha(a)
+   
+    if unintCFG.disableBarUnKick or unintCFG.changeAlphaBarUnKick then
+        local spellID, kickDur = GeneralHelpers:GetKickTimer()
+        if not spellID or not kickDur then
+            return
+        end
+        local kickReady = kickDur:IsZero()   -- secret boolean
+        if unintCFG.disableBarUnKick then
+            a = Alpha_ShowOnlyWhenKickReady(notIntr, kickReady, 0)
+            bar.group:SetAlpha(a)
+            return
+        end
+        if unintCFG.changeAlphaBarUnKick then
+            a = Alpha_ShowOnlyWhenKickReady(notIntr, kickReady, unintCFG.alphaBarUnKick)
+            if unintCFG.includeIconAlphaUnKick then
+                bar.group:SetAlpha(a)
+            else
+                bar:SetAlpha(a)
+            end
+            return
+        end
     end
 end
 
@@ -87,7 +114,7 @@ function CASTBAR_API:MirrorBar(cfg, bar, castType)
 
     -- Show/hide mirror frame
     bar.mirrorStatus:SetShown(mirror)
-    bar.mirror_frames.unInterrupted:SetShown(mirror and cfg.uninterruptible.showUninterruptible and cfg.uninterruptible.showUninterruptibleFill)
+    bar.mirror_frames.unInterrupted:SetShown(mirror and cfg.uninterruptible.showUninterruptibleFill)
     bar.mirror_frames.untilKick:SetShown(mirror and cfg.uninterruptible.showUntilKickTick)
 
     -- Show/Hide Status if mirrored
@@ -359,6 +386,7 @@ end
 
 function CASTBAR_API:CastOnUpdateSetup(bar, unit, cfg, vars, castType, spellID, CastbarOnUpdate)
     bar.group:SetAlpha(1)
+    bar:SetAlpha(1)
     bar._ucbUnit = unit
     bar._ucbCfg = cfg
     bar._ucbCastType = castType

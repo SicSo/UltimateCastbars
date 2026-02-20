@@ -120,7 +120,7 @@ end
 -- Call this from your per-frame update while a cast is active.
 local function UpdateShowWhenKickAvailable(bar, vars, cfg, castType)
     local unIntCFG = cfg.uninterruptible
-    if not unIntCFG.disableBarUnKick and not unIntCFG.showUntilKickTick then
+    if not unIntCFG.disableBarUnKick and not unIntCFG.showUntilKickTick and not unIntCFG.dynamicKickAlphaBar then
         return
     end
     if not bar or not vars then return end
@@ -130,11 +130,24 @@ local function UpdateShowWhenKickAvailable(bar, vars, cfg, castType)
     local notIntr   = vars and vars.nIntr
     local kickReady = kickDur:IsZero()
 
+    -- Hide the bar
     if unIntCFG.disableBarUnKick then
         local alpha = GeneralHelpers:KickAlpha(notIntr, kickReady, true)
          bar.group:SetAlpha(alpha)
          return
     end
+
+    -- Change alpha of the bar
+    if unIntCFG.changeAlphaBarUnKick and unIntCFG.dynamicKickAlphaBar then
+        local alpha = GeneralHelpers:KickAlpha(notIntr, kickReady, true, unIntCFG.alphaBarUnKick)
+        if unIntCFG.includeIconAlphaUnKick then
+            bar.group:SetAlpha(alpha)
+        else
+            bar:SetAlpha(alpha)
+        end
+     end
+
+     -- Show fill bar
     if unIntCFG.showUntilKickTick then
         local alpha = GeneralHelpers:KickAlpha(notIntr, kickReady, false)
         if cfg.otherFeatures.mirrorBar[castType] then

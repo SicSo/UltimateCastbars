@@ -202,7 +202,7 @@ local function UpdateUninterruptibleBorder(unit)
     if not unint_frame then return end
 
     -- If you want border to be conditional on showUninterruptible too:
-    local show = cfg.showUninterruptibleBorder and cfg.showUninterruptible
+    local show = cfg.showUninterruptibleBorder
 
     local borderBlock = {
         show      = show,
@@ -225,7 +225,7 @@ local function UpdateUninterruptibleBorder(unit)
     local mirror_frame = bar.mirror_frames.unInterruptedMirrorFrame
     -- OPTIONAL: mirror border (if you want the mirrored uninterruptible to also have border)
     if mirror_frame and cfg.showUninterruptibleMirrorBorder then
-        local mirrorShow = cfg.showUninterruptibleBorder and cfg.showUninterruptible
+        local mirrorShow = cfg.showUninterruptibleBorder
         local mirrorBlock = {
             show      = mirrorShow,
             texture   = cfg.textureBorder,
@@ -251,7 +251,7 @@ local function UpdateUninterruptibleIconBorder(unit)
     local cfg = GetCFG(unit, "uninterruptible")
 
     -- Gate: only show when uninterruptible feature is enabled (and optionally when currently shown)
-    local show = cfg.showUninterruptibleBorderIcon and cfg.showUninterruptible and cfg.showUninterruptibleBorder
+    local show = cfg.showUninterruptibleBorderIcon and cfg.showUninterruptibleBorder
 
     local borderBlock
     if cfg.syncBorderIcon then
@@ -446,7 +446,7 @@ function BarUpdate_API:UpdateUninterruptable(unit)
     local unint_frame = bar.frames.unInterrupted
     local mirror_frame = bar.mirror_frames.unInterrupted
     
-    if cfg.showUninterruptibleFill and cfg.showUninterruptible then
+    if cfg.showUninterruptibleFill then
         unint_frame.status:SetStatusBarTexture(cfg.fillTexture)
         unint_frame.status:SetStatusBarColor(cfg.fillColour.r, cfg.fillColour.g, cfg.fillColour.b, cfg.fillColour.a)
         mirror_frame.tex:SetTexture(cfg.fillTexture)
@@ -457,9 +457,8 @@ function BarUpdate_API:UpdateUninterruptable(unit)
         unint_frame.status:Hide()
     end
 
-    if cfg.showUninterruptibleBackground and cfg.showUninterruptible then
+    if cfg.showUninterruptibleBackground then
         local bg = unint_frame.bg
-        --print("I am here")
         if cfg.backgroundUseTexture then
             bg:SetTexture(cfg.backgroundTexture)
             bg:SetVertexColor(cfg.backgroundColour.r, cfg.backgroundColour.g, cfg.backgroundColour.b, cfg.backgroundColour.a)

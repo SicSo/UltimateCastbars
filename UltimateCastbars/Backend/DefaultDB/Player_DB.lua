@@ -254,8 +254,12 @@ UCB.Default_DB.player = {
     },
 
     uninterruptible = {
-        showUninterruptible = true,
         disableBarUnInt = false,
+
+        changeAlphaBarUnint = false,
+        includeIconAlphaUnint = true,
+        alphaBarUnint = 0.5,
+
         showUninterruptibleFill = true,
         fillColour = {r=1, g=0, b=0, a=1}, -- red, semi-transparent
         fillTexture = "Interface\\TargetingFrame\\UI-StatusBar",
@@ -289,6 +293,12 @@ UCB.Default_DB.player = {
         borderOffsetRightIcon = 0,
 
         disableBarUnKick = false,
+
+        changeAlphaBarUnKick = false,
+        dynamicKickAlphaBar = false,
+        includeIconAlphaUnKick = true,
+        alphaBarUnKick = 0.5,
+
         showKickTick = false,
         kickTickColour = {r=1, g=1, b=0, a=1}, -- yellow
         kickTickUseTexture = false,

@@ -447,7 +447,6 @@ function GUI:RefreshUnitUI(unit, path)
     end
 
     UCB:NotifyChange()
-    print(unpack(groups))
 
     UCB:SelectGroup(groups)
 
