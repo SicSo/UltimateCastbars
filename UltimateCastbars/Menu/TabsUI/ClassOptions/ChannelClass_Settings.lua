@@ -11,7 +11,6 @@ local UIOptions = UCB.UIOptions
 
 local LSM  = UCB.LSM
 
--- Registry: classToken -> function(cfgGetter) -> argsTable
 Opt.ClassExtraBuilders = Opt.ClassExtraBuilders or {}
 
 local function BuildChannelSettings(unit, class)
@@ -361,10 +360,9 @@ local function BuildChannelTable(args, unit, class)
     return channelTable
 end
 
-local function BuildChannelSectionPlayer(args, unit, class)
+function Opt:BuildChannelSectionPlayer(args, unit, class)
     local bigCFG = GetCFG(unit)
     local cfg = bigCFG.CLASSES[class]
-    
 
     args.channelSection = {
         type = "group",
@@ -513,7 +511,7 @@ local function BuildChannelSpecSettings(args, unit, class)
     return channelTable
 end
 
-local function BuildChannelSectionNonPlayer(args, unit, class)
+function Opt:BuildChannelSectionNonPlayer(args, unit, class)
     local bigCFG = GetCFG(unit)
     local cfg = bigCFG.CLASSES[class]
 
@@ -558,28 +556,3 @@ local function BuildChannelSectionNonPlayer(args, unit, class)
         },
     }
 end
-
-
-Opt.ClassExtraBuilders["*"] = function(unit, classToken)
-    local args = {}
-    if unit == "player" then
-        BuildChannelSectionPlayer(args, unit, classToken)
-        Opt:BuildAbilityFilterSectionPlayer(args, unit, classToken) -- <- NEW (player exclusive)
-    else
-        BuildChannelSectionNonPlayer(args, unit, classToken)
-    end
-    return args
-end
-
-
-
--- Public builder
-function Opt.BuildGeneralSettingsClass(unit, class, opts)
-    opts = opts or {}
-    local args = {}
-    BuildChannelSectionPlayer(args, unit, class)
-
-    return args
-end
-
-

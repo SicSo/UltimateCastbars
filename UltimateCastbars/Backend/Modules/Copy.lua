@@ -62,7 +62,7 @@ local function ReplaceCommonKeys_ArraysReplace(dst, src, def, seen)
         -- common between 3: key exists in def, dst, and src (src must be non-nil)
         if dstVal ~= nil and srcVal ~= nil then
             if type(dstVal) == "table" and type(srcVal) == "table" and type(defVal) == "table" then
-                if IsArray(dstVal) then
+                if IsArray(defVal) then
                     dst[k] = DeepCopy(srcVal)
                 else
                     ReplaceCommonKeys_ArraysReplace(dstVal, srcVal, defVal, seen)
@@ -103,7 +103,7 @@ local function ReplaceCommonKeys_ArraysReplace_Text(dst, src, def, seen, inTagLi
                 if nowInTagList and TEXT_TAGLIST_REPLACE[k] then
                     -- fully replace these buckets
                     dst[k] = DeepCopy(srcVal)
-                elseif IsArray(dstVal) then
+                elseif IsArray(defVal) then
                     dst[k] = DeepCopy(srcVal)
                 else
                     ReplaceCommonKeys_ArraysReplace_Text(dstVal, srcVal, defVal, seen, nowInTagList)
