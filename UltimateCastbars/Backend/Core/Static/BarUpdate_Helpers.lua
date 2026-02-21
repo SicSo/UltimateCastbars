@@ -630,12 +630,29 @@ end
 function BarUpdate_API:UpdateOthers(unit)
     local cfg = GetCFG(unit)
 
+    -- Channeling ticks
     local classCFG = cfg.CLASSES[UCB.className]
     classCFG._channelingSpellIDs = {}
     if classCFG and classCFG.channeledSpels then
         for _, spellCfg in pairs(classCFG.channeledSpels) do
             if spellCfg.enable then
                 classCFG._channelingSpellIDs[spellCfg.id] = spellCfg.ticks
+            end
+        end
+    end
+
+    -- Whitelist/Blacklist
+    classCFG._whiteListSpellIDs = {}
+    classCFG._blackListSpellIDs = {}
+    if classCFG and classCFG.enableAbilityFilter then
+        for _, spellCfg in pairs(classCFG.blackListSpells) do
+            if spellCfg.enable then
+                classCFG._blackListSpellIDs[spellCfg.id] = true
+            end
+        end
+        for _, spellCfg in pairs(classCFG.whiteListSpells) do
+            if spellCfg.enable then
+                classCFG._whiteListSpellIDs[spellCfg.id] = true
             end
         end
     end

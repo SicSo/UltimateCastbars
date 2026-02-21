@@ -165,7 +165,8 @@ end
 
 ---------------------------------------------------- MAIN -------------------------------------------------
 function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID, resumeCast)
-    local cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
+    local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
+    if not show then return end
     CASTBAR_API:AssignChannelTicks(unit, spellID, "START")
     -- Set colours
     CASTBAR_API:SemiColourUpdate(unit, bar)

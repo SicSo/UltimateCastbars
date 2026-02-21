@@ -338,14 +338,48 @@ function CASTBAR_API:InterruptibleTick(bar, bar_status, vars, cfg, castType)
     bar.interruptMarkerPoint:SetAlpha(alpha)
 end
 
+function CASTBAR_API:SpellFilter(spellID, cfg)
+    local classCFG = cfg.CLASSES[UCB.className]
+
+    if not classCFG or not classCFG.enableAbilityFilter then
+        return true
+    end
+
+    local inWhiteList = classCFG._whiteListSpellIDs[spellID]
+    local inBlackList = classCFG._blackListSpellIDs[spellID]
+
+    if classCFG.blackList then
+        if inBlackList then
+            return false
+        else
+            return true
+        end
+    else
+        if inWhiteList then
+            return true
+        else
+            return false
+        end
+    end
+end
+
 
 ----------------------------------------------------------------- CASTBAR UPDATE FUNCTIONS -----------------------------------------------------------------
 function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
+    local cfg = UCB.GetValueConfig(unit)
+
+    -- Spell filter
+    if unit == "player" then
+         if not CASTBAR_API:SpellFilter(spellID, cfg) then
+            return false, nil, nil, nil
+        end
+    end
+
+    -- Stop preview
     if Preview_API.previewActive and Preview_API.previewActive[unit] then
         Preview_API:HidePreviewCastBar(unit)
     end
 
-    local cfg = UCB.GetValueConfig(unit)
     local bar = UCB.castBar[unit]
     CASTBAR_API:StopPrevCast(unit, bar, nil, nil)
 
@@ -381,7 +415,7 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
 
     CASTBAR_API:InterruptibleTick(bar, bar_status, vars, cfg, castType)
 
-    return cfg, bar, vars
+    return true, cfg, bar, vars
 end
 
 function CASTBAR_API:CastOnUpdateSetup(bar, unit, cfg, vars, castType, spellID, CastbarOnUpdate)

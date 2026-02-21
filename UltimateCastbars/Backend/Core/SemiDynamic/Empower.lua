@@ -171,7 +171,8 @@ end
 function CASTBAR_API:OnUnitSpellcastEmpowerStart(unit, castGUID, spellID, resumeCast)
     -- Prevent Font of Magic (spellID 411212) from showing empower stages ???
     if unit == "player" and spellID == 411212 then return end
-    local cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
+    local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
+    if not show then return end
     -- Set colours and other empower stage visuals
     if cfg.CLASSES.EVOKER.enableEmpowerEffects and UnitIsPlayer(unit) then
         CASTBAR_API:InitializeEmpoweredStages(bar, cfg,  vars)

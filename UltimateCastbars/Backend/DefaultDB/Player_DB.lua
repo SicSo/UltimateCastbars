@@ -387,6 +387,11 @@ UCB.Default_DB.player = {
             tickTextureName = "Blizzard",
             channelTickWidth = 2,
             channelTickColour = {r=1, g=1, b=1, a=0.7},
+
+            enableAbilityFilter = false,
+            blackList = true,
+            blackListSpells = {},
+            whiteListSpells = {},
         },
 
         PALADIN = {
@@ -398,6 +403,11 @@ UCB.Default_DB.player = {
             tickTextureName = "Blizzard",
             channelTickWidth = 2,
             channelTickColour = {r=1, g=1, b=1, a=0.7},
+
+            enableAbilityFilter = false,
+            blackList = true,
+            blackListSpells = {},
+            whiteListSpells = {},
         },
 
         HUNTER = {
@@ -409,6 +419,11 @@ UCB.Default_DB.player = {
             tickTextureName = "Blizzard",
             channelTickWidth = 2,
             channelTickColour = {r=1, g=1, b=1, a=0.7},
+
+            enableAbilityFilter = false,
+            blackList = true,
+            blackListSpells = {},
+            whiteListSpells = {},
         },
 
         ROGUE = {
@@ -420,6 +435,11 @@ UCB.Default_DB.player = {
             tickTextureName = "Blizzard",
             channelTickWidth = 2,
             channelTickColour = {r=1, g=1, b=1, a=0.7},
+
+            enableAbilityFilter = false,
+            blackList = true,
+            blackListSpells = {},
+            whiteListSpells = {},
         },
 
         PRIEST = {
@@ -431,6 +451,11 @@ UCB.Default_DB.player = {
             tickTextureName = "Blizzard",
             channelTickWidth = 2,
             channelTickColour = {r=1, g=1, b=1, a=0.7},
+
+            enableAbilityFilter = false,
+            blackList = true,
+            blackListSpells = {},
+            whiteListSpells = {},
         },
 
         DEATHKNIGHT = {
@@ -442,6 +467,11 @@ UCB.Default_DB.player = {
             tickTextureName = "Blizzard",
             channelTickWidth = 2,
             channelTickColour = {r=1, g=1, b=1, a=0.7},
+
+            enableAbilityFilter = false,
+            blackList = true,
+            blackListSpells = {},
+            whiteListSpells = {},
         },
 
         SHAMAN = {
@@ -453,6 +483,11 @@ UCB.Default_DB.player = {
             tickTextureName = "Blizzard",
             channelTickWidth = 2,
             channelTickColour = {r=1, g=1, b=1, a=0.7},
+
+            enableAbilityFilter = false,
+            blackList = true,
+            blackListSpells = {},
+            whiteListSpells = {},
         },
 
         MAGE = {
@@ -464,6 +499,11 @@ UCB.Default_DB.player = {
             tickTextureName = "Blizzard",
             channelTickWidth = 2,
             channelTickColour = {r=1, g=1, b=1, a=0.7},
+
+            enableAbilityFilter = false,
+            blackList = true,
+            blackListSpells = {},
+            whiteListSpells = {},
         },
 
         WARLOCK = {
@@ -475,6 +515,11 @@ UCB.Default_DB.player = {
             tickTextureName = "Blizzard",
             channelTickWidth = 2,
             channelTickColour = {r=1, g=1, b=1, a=0.7},
+
+            enableAbilityFilter = false,
+            blackList = true,
+            blackListSpells = {},
+            whiteListSpells = {},
         },
 
         MONK = {
@@ -486,6 +531,11 @@ UCB.Default_DB.player = {
             tickTextureName = "Blizzard",
             channelTickWidth = 2,
             channelTickColour = {r=1, g=1, b=1, a=0.7},
+
+            enableAbilityFilter = false,
+            blackList = true,
+            blackListSpells = {},
+            whiteListSpells = {},
         },
 
         DRUID = {
@@ -497,6 +547,11 @@ UCB.Default_DB.player = {
             tickTextureName = "Blizzard",
             channelTickWidth = 2,
             channelTickColour = {r=1, g=1, b=1, a=0.7},
+
+            enableAbilityFilter = false,
+            blackList = true,
+            blackListSpells = {},
+            whiteListSpells = {},
         },
 
         DEMONHUNTER = {
@@ -508,6 +563,11 @@ UCB.Default_DB.player = {
             tickTextureName = "Blizzard",
             channelTickWidth = 2,
             channelTickColour = {r=1, g=1, b=1, a=0.7},
+
+            enableAbilityFilter = false,
+            blackList = true,
+            blackListSpells = {},
+            whiteListSpells = {},
         },
 
         EVOKER = {
@@ -519,6 +579,11 @@ UCB.Default_DB.player = {
             tickTextureName = "Blizzard",
             channelTickWidth = 2,
             channelTickColour = {r=1, g=1, b=1, a=0.7},
+
+            enableAbilityFilter = false,
+            blackList = true,
+            blackListSpells = {},
+            whiteListSpells = {},
 
             disintegrateDynamicTicks = true,
 
