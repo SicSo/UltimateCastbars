@@ -4,7 +4,9 @@ UCB.Normiliser = UCB.Normiliser or {}
 
 local Normiliser = UCB.Normiliser
 
-local LSM = LibStub and LibStub("LibSharedMedia-3.0", true)
+local function GetLSM()
+  return LibStub and LibStub("LibSharedMedia-3.0", true)
+end
 
 -- -------- dot-path helpers --------
 local function GetByPath(root, path)
@@ -37,11 +39,13 @@ end
 
 -- -------- LSM helpers --------
 local function LSMFetch(mediaType, name)
+  local LSM = GetLSM()
   if not LSM or type(name) ~= "string" or name == "" then return nil end
-  return LSM:Fetch(mediaType, name, false) -- nil if missing
+  return LSM:Fetch(mediaType, name, true) -- nil if missing
 end
 
 local function LSMNameFromPath(mediaType, path)
+  local LSM = GetLSM()
   if not LSM or type(path) ~= "string" or path == "" then return nil end
   local ht = LSM:HashTable(mediaType) -- name -> path
   if type(ht) ~= "table" then return nil end
@@ -55,11 +59,13 @@ local function GetFallbackName(mediaType, fallbackByType)
   if type(fallbackByType) == "table" and type(fallbackByType[mediaType]) == "string" and fallbackByType[mediaType] ~= "" then
     return fallbackByType[mediaType]
   end
+  local LSM = GetLSM()
   if LSM and LSM.GetDefault then
     local def = LSM:GetDefault(mediaType)
     if type(def) == "string" and def ~= "" then return def end
   end
   -- last-resort guesses (adjust to taste)
+  if mediaType == "font" then return "Friz Quadrata TT" end
   if mediaType == "statusbar" then return "Blizzard" end
   if mediaType == "background" then return "Blizzard" end
   return "Blizzard"
@@ -79,17 +85,19 @@ local function EnsureScalarPair(unit, namePath, pathPath, mediaType, fallbackByT
 
   -- 2) invalid name -> try reverse from path
   local guessed = LSMNameFromPath(mediaType, curPath)
+  local LSM = GetLSM()
   if guessed then
     SetByPath(unit, namePath, guessed)
-    SetByPath(unit, pathPath, LSM:Fetch(mediaType, guessed, true))
+    SetByPath(unit, pathPath, LSM:Fetch(mediaType, guessed, false))
     return
   end
 
   -- 3) fallback
+  local LSM = GetLSM()
   local fb = GetFallbackName(mediaType, fallbackByType)
   SetByPath(unit, namePath, fb)
   if LSM then
-    SetByPath(unit, pathPath, LSM:Fetch(mediaType, fb, true))
+    SetByPath(unit, pathPath, LSM:Fetch(mediaType, fb, false))
   end
 end
 
@@ -104,6 +112,7 @@ local function EnsureListPair(unit, namePath, pathPath, mediaType, fallbackByTyp
 
   local fb = GetFallbackName(mediaType, fallbackByType)
   local maxN = math.max(#names, #paths)
+  local LSM = GetLSM()
 
   for i = 1, maxN do
     local fetched = LSMFetch(mediaType, names[i])
@@ -113,17 +122,17 @@ local function EnsureListPair(unit, namePath, pathPath, mediaType, fallbackByTyp
       local guessed = LSMNameFromPath(mediaType, paths[i])
       if guessed then
         names[i] = guessed
-        paths[i] = LSM:Fetch(mediaType, guessed, true)
+        paths[i] = LSM:Fetch(mediaType, guessed, false)
       else
         names[i] = fb
-        paths[i] = LSM and LSM:Fetch(mediaType, fb, true) or paths[i]
+        paths[i] = LSM and LSM:Fetch(mediaType, fb, false) or paths[i]
       end
     end
   end
 end
 
 
-function Normiliser:NormalizeUnitTextures(unitTable, texture_map, fallbackByType)
+function Normiliser:NormalizeUnitTextures_Legacy(unitTable, texture_map, fallbackByType)
   if type(unitTable) ~= "table" or type(texture_map) ~= "table" then return end
 
   -- If LSM is missing, we can still set fallback names; paths we can't reliably resolve.
@@ -146,13 +155,93 @@ function Normiliser:NormalizeUnitTextures(unitTable, texture_map, fallbackByType
   end
 end
 
-function Normiliser:NormalizeAllUnitTextures(profile, fallbacks)
-  if not fallbacks then 
-    fallbacks = UCB.profiles.textureFallbacks
+-- NEW: Generic normalizer that works for textures + fonts (supports wildcard groups: "...*")
+function Normiliser:NormalizeUnitLSM(unitTable, map, fallbackByType)
+  if type(unitTable) ~= "table" or type(map) ~= "table" then return end
+
+  local function NormalizeWildcardGroup(wildcardPath, entry)
+    -- "text.tagList.dynamic.*" -> base "text.tagList.dynamic"
+    local base = wildcardPath:gsub("%.%*$", "")
+    local tagMap = GetByPath(unitTable, base)
+    if type(tagMap) ~= "table" then return end
+
+    local mediaType = entry.type or "font"
+    local nameKey   = entry.nameKey or entry.fontNameKey or "fontName"
+    local pathKey   = entry.pathKey or entry.fontPathKey or "font"
+
+    local fb = GetFallbackName(mediaType, fallbackByType)
+    local LSM = GetLSM()
+    
+    for _, tagTbl in pairs(tagMap) do
+      if type(tagTbl) == "table" then
+        local fetched = LSMFetch(mediaType, tagTbl[nameKey])
+        if fetched then
+          tagTbl[pathKey] = fetched
+        else
+          local guessed = LSMNameFromPath(mediaType, tagTbl[pathKey])
+          if guessed then
+            tagTbl[nameKey] = guessed
+            tagTbl[pathKey] = LSM and LSM:Fetch(mediaType, guessed, false) or tagTbl[pathKey]
+          else
+            tagTbl[nameKey] = fb
+            tagTbl[pathKey] = LSM and LSM:Fetch(mediaType, fb, false) or tagTbl[pathKey]
+          end
+        end
+      end
+    end
   end
-  self:NormalizeUnitTextures(profile.player, UCB.profiles.texture_keys, fallbacks)
-  self:NormalizeUnitTextures(profile.target, UCB.profiles.texture_keys, fallbacks)
-  self:NormalizeUnitTextures(profile.focus,  UCB.profiles.texture_keys, fallbacks)
+
+  for namePath, entry in pairs(map) do
+    if type(namePath) == "string" and type(entry) == "table" then
+      -- wildcard group (fonts tag lists)
+      if namePath:sub(-2) == ".*" then
+        NormalizeWildcardGroup(namePath, entry)
+      else
+        -- normal scalar/list pair (namePath -> entry.path)
+        local pathPath  = entry.path
+        local mediaType = entry.type or "statusbar"
+        if type(pathPath) == "string" then
+          local vName = GetByPath(unitTable, namePath)
+          local vPath = GetByPath(unitTable, pathPath)
+
+          if type(vName) == "table" or type(vPath) == "table" then
+            EnsureListPair(unitTable, namePath, pathPath, mediaType, fallbackByType)
+          else
+            EnsureScalarPair(unitTable, namePath, pathPath, mediaType, fallbackByType)
+          end
+        end
+      end
+    end
+  end
+end
+
+
+function Normiliser:NormalizeUnitTextures(unitTable, fallbackByType)
+  return self:NormalizeUnitLSM(unitTable, UCB.profiles.texture_map, fallbackByType)
+end
+
+
+function Normiliser:NormalizeAllUnitTextures(profile, fallbacks)
+  if type(profile) ~= "table" then return end
+  fallbacks = fallbacks or UCB.profiles.textureFallbacks
+
+  self:NormalizeUnitTextures(profile.player, fallbacks)
+  self:NormalizeUnitTextures(profile.target, fallbacks)
+  self:NormalizeUnitTextures(profile.focus,  fallbacks)
+end
+
+
+function Normiliser:NormalizeUnitFonts(unitTable, fallbacks)
+  return self:NormalizeUnitLSM(unitTable, UCB.profiles.font_map, fallbacks)
+end
+
+function Normiliser:NormalizeAllUnitFonts(profile, fallbacks)
+  if type(profile) ~= "table" then return end
+  fallbacks = fallbacks or UCB.profiles.fontFallbacks
+
+  self:NormalizeUnitFonts(profile.player, fallbacks)
+  self:NormalizeUnitFonts(profile.target, fallbacks)
+  self:NormalizeUnitFonts(profile.focus,  fallbacks)
 end
 
 local function DeepCopySerializable(src, seen)
@@ -339,8 +428,8 @@ function UCB:NormalizeCurrentProfileToSchema()
     local rebuilt = Normiliser:DeepCopyTable(schemaProfile)
     Normiliser:Overlay(rebuilt, filtered)
 
-    -- After: local rebuilt = DeepCopyTable(schemaProfile); Overlay(rebuilt, filtered)
      Normiliser:NormalizeAllUnitTextures(rebuilt)
+     Normiliser:NormalizeAllUnitFonts(rebuilt)
 
     wipe(UCB.db.profile)
     for k, v in pairs(rebuilt) do

@@ -172,6 +172,7 @@ local function ImportFilteredProfile(targetProfileName, serialized)
     Normiliser:Overlay(rebuilt, filtered)
 
     Normiliser:NormalizeAllUnitTextures(rebuilt)
+    Normiliser:NormalizeAllUnitFonts(rebuilt)
 
     -- Choose destination without switching
     local destTable

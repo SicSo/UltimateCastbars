@@ -420,6 +420,8 @@ UCB.profiles.textureFallbacks = {
   background = "Blizzard Dialog Background",
 }
 
+UCB.profiles.fontFallbacks = { font = "Friz Quadrata TT" }
+
 UCB.profiles.texture_map = {
   ["style.textureName"]                     = { path = "style.texture",                         type = "statusbar" },
   ["style.textureNameBack"]                 = { path = "style.textureBack",                     type = "background" },
@@ -456,23 +458,13 @@ UCB.profiles.texture_map = {
   ["CLASSES.EVOKER.empowerSegmentTexturesNames"] = { path = "CLASSES.EVOKER.empowerSegmentTextures", type = "background" },
 }
 
-UCB.profiles.textfont_keys = {
-  "text.generalValues.font",
-  "text.generalValues.fontName",
+UCB.profiles.font_map = {
+  ["text.generalValues.fontName"] = { path = "text.generalValues.font", type = "font" },
+  ["text.defaultValues.fontName"] = { path = "text.defaultValues.font", type = "font" },
 
-  "text.defaultValues.font",
-  "text.defaultValues.fontName",
-
-  "text.tagList.dynamic.*",
-  "text.tagList.semiDynamic.*",
-  "text.tagList.static.*",
-  "text.tagList.unk.*",
-  
-  --"text.tagList.dynamic.tag2.font",
-  --"text.tagList.dynamic.tag2.fontName",
-  --"text.tagList.dynamic.tag3.font",
-  --"text.tagList.dynamic.tag3.fontName",
-
-  --"text.tagList.semiDynamic.tag1.font",
- -- "text.tagList.semiDynamic.tag1.fontName",
+  -- wildcard groups: these point to a table of tags; each tag table contains font/fontName
+  ["text.tagList.dynamic.*"]      = { type = "font", fontNameKey = "fontName", fontPathKey = "font" },
+  ["text.tagList.semiDynamic.*"]  = { type = "font", fontNameKey = "fontName", fontPathKey = "font" },
+  ["text.tagList.static.*"]       = { type = "font", fontNameKey = "fontName", fontPathKey = "font" },
+  ["text.tagList.unk.*"]          = { type = "font", fontNameKey = "fontName", fontPathKey = "font" },
 }

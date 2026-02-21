@@ -1,5 +1,7 @@
 local ADDON_NAME, UCB = ...
 
+_G.UCB = UCB
+
 -- Created APIs
 UCB.CFG_API = UCB.CFG_API or {}
 UCB.tags = UCB.tags or {}
