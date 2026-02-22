@@ -441,6 +441,14 @@ end
 
 function CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType)
     local cfg = UCB.GetValueConfig(unit)
+
+    -- Spell filter
+    if unit == "player" then
+         if not CASTBAR_API:SpellFilter(spellID, cfg) then
+            return false
+        end
+    end
+
     local bar = UCB.castBar[unit]
 
     local icon_texture = tags:updateVars(unit, castType, spellID, cfg)

@@ -183,7 +183,8 @@ function CASTBAR_API:OnUnitSpellcastEmpowerStart(unit, castGUID, spellID, castBa
 end
 
 function CASTBAR_API:OnUnitSpellcastEmpowerUpdate(unit, castGUID, spellID, castBarID)
-    CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType)
+    local show = CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType)
+    if not show then return end
 end
 
 function CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID, castBarID)

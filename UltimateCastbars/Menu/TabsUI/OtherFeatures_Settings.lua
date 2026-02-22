@@ -453,7 +453,7 @@ local function BuildOtherArgs(args, unit)
         args = {
             kickedCancelledInfo = {
                 type = "description",
-                name = function() return UIOptions.ColorText(UIOptions.turquoise, "These options control the display of interrupted or cancelled effects that are caused by the players. Interrupted happens when a unit gets kicked and cancelled when a unit stops the cast on its own or through failure.") end,
+                name = function() return UIOptions.ColorText(UIOptions.turquoise, "These options control the display of interrupted or cancelled effects that are caused by the players. Interrupted happens when a unit gets kicked and cancelled when a unit stops the cast on its own, through failure or if it gets CCed.") end,
                 order = 0,
             },
             kickedGrp = {

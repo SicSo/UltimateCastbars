@@ -174,7 +174,8 @@ function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID, castBa
 end
 
 function CASTBAR_API:OnUnitSpellcastChannelUpdate(unit, castGUID, spellID, castBarID)
-    CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType)
+    local show = CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType)
+    if not show then return end
     CASTBAR_API:AssignChannelTicks(unit, spellID, "UPDATE")
 end
 
