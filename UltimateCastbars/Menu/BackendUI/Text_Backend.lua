@@ -133,10 +133,6 @@ function Text_API:deleteTag(key, cfg, bigCFG, unit)
     local tagList = tags.tagGroups[unit]
     tagList[state][key] = nil
     bigCFG.textList[key] = nil
-    local id = tonumber(key:match("tag(%d+)"))
-    if id then
-        table.insert(bigCFG.oldIDTags, id)
-    end
 end
 
 function Text_API:updateStaticShow(key, cfg, unit)

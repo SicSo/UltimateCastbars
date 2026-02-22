@@ -31,7 +31,7 @@ end
 local TAG_FN = {}
 
 TAG_FN["[kName]"] = function(v, limNum)
-    if (v.kColour) and v.kColour.GenerateHexColor() then
+    if (v.kColour) and v.kColour.GenerateHexColor then
         return UCB.UIOptions.ColorText(v.kColour:GenerateHexColor(), FirstNChars(v.kName, limNum))
     end
     return FirstNChars(v.kName, limNum)
@@ -89,7 +89,7 @@ function tags:compileFormula(formula, limits, mainType)
         local part = formula[i]
         local fn = TAG_FN[part]
 
-        if part == "[kName]" and mainType ~= "Interrupted" then
+        if part == "[kName]" and mainType ~= "interrupted" then
             fn = nil
         end
 
