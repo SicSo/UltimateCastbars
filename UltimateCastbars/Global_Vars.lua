@@ -25,10 +25,10 @@ UCB.events = {
   UNIT_SPELLCAST_STOP           = "OnUnitSpellcastStop",
   UNIT_SPELLCAST_CHANNEL_START  = "OnUnitSpellcastChannelStart",
   UNIT_SPELLCAST_CHANNEL_UPDATE = "OnUnitSpellcastChannelUpdate",
-  UNIT_SPELLCAST_CHANNEL_STOP   = "OnUnitSpellcastChannelStop",
+  --UNIT_SPELLCAST_CHANNEL_STOP   = "OnUnitSpellcastChannelStop",
   UNIT_SPELLCAST_EMPOWER_START  = "OnUnitSpellcastEmpowerStart",
   UNIT_SPELLCAST_EMPOWER_UPDATE = "OnUnitSpellcastEmpowerUpdate",
-  UNIT_SPELLCAST_EMPOWER_STOP   = "OnUnitSpellcastEmpowerStop",
+  --UNIT_SPELLCAST_EMPOWER_STOP   = "OnUnitSpellcastEmpowerStop",
 
   --UNIT_SPELLCAST_DELAYED = CastUpdate,
 	--UNIT_SPELLCAST_FAILED = CastFail,
@@ -40,6 +40,12 @@ UCB.events = {
 UCB.swapEvents = {
     PLAYER_TARGET_CHANGED = {"OnUnitChange", "target"},
     PLAYER_FOCUS_CHANGED = {"OnUnitChange", "focus"},
+}
+
+UCB.interruptEvents = {
+    UNIT_SPELLCAST_INTERRUPTED = "OnCastInterrupt",
+    UNIT_SPELLCAST_CHANNEL_STOP = "OnChannelInterrupt",
+    UNIT_SPELLCAST_EMPOWER_STOP = "OnEmpowerInterrupt",
 }
 
 UCB.menuUnits = {
@@ -57,7 +63,9 @@ UCB.tags.var = {
         eTime = 0,
         dTime = 0,
         nIntr = false,
-        empStages = {}
+        empStages = {},
+        kName = "",
+        kColour = {}
     },
     target = {
         sName = "",
@@ -65,7 +73,9 @@ UCB.tags.var = {
         eTime = 0,
         dTime = 0,
         nIntr = false,
-        empStages = {}
+        empStages = {},
+        kName = "",
+        kColour = {}
     },
     focus = {
         sName = "",
@@ -73,6 +83,35 @@ UCB.tags.var = {
         eTime = 0,
         dTime = 0,
         nIntr = false,
-        empStages = {}
+        empStages = {},
+        kName = "",
+        kColour = {}
     },
+}
+
+UCB.tags.tagGroups = {
+    player = {
+        static = {},
+        semiDynamic = {},
+        dynamic = {},
+        unk = {},
+        cancelled = {},
+        interrupted = {}
+    },
+    target = {
+        static = {},
+        semiDynamic = {},
+        dynamic = {},
+        unk = {},
+        cancelled = {},
+        interrupted = {}
+    },
+    focus = {
+        static = {},
+        semiDynamic = {},
+        dynamic = {},
+        unk = {},
+        cancelled = {},
+        interrupted = {}
+    }
 }

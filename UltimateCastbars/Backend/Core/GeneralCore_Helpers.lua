@@ -47,6 +47,14 @@ function GeneralHelpers:GetKickTimer()
   end
 end
 
+function GeneralHelpers:SecretTo0_1(val)
+    return C_CurveUtil.EvaluateColorValueFromBoolean(val, 1, 0)
+end
+
 function GeneralHelpers:NotSecretTo0_1(val)
     return C_CurveUtil.EvaluateColorValueFromBoolean(val, 0, 1)
+end
+
+function GeneralHelpers:SecretToA_B(val, a, b)
+    return C_CurveUtil.EvaluateColorValueFromBoolean(val, a, b)
 end

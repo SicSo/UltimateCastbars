@@ -300,55 +300,63 @@ function BarUpdate_API:UpdateText(unit)
         v:Hide()
     end
 
+    local tagGroups = {
+        static = {},
+        semiDynamic = {},
+        dynamic = {},
+        unk = {},
+        cancelled = {},
+        interrupted = {},
+    }
+    UCB.tags.tagGroups[unit] = tagGroups
+
     local textFrame = bar.frames.text
-    for _, tagStates in pairs(cfg.tagList) do
-        for key, tagOptions in pairs(tagStates) do
-            if tagOptions.show then
-                if not bar.texts[key] then
-                    bar.texts[key] = textFrame:CreateFontString(nil, tagOptions.frameStrata, "GameFontHighlightSmall")
-                end
-                UCB.tags:updateTagText(key, tagOptions, cfg)
-
-                local usedFont, usedFontSize, usedColour = generalFont, generalFontSize, generalColour
-                local usedOutline, usedShadow, usedShadowOffset, usedShadowColour = generalOutlineTags, generalShadow, generalShadowOffset, generalShadowColour
-                if not generalCFG.useGeneralFont then
-                    usedFont = tagOptions.font
-                elseif generalCFG.useGlobalFont then
-                    usedFont = globalFont
-                end
-                if not generalCFG.useGeneralTextSize then
-                    usedFontSize = tagOptions.textSize
-                end
-                if not generalCFG.useGeneralColour then
-                    usedColour = tagOptions.colour
-                end
-                if not generalCFG.useGeneralOutline then
-                    usedOutline, usedShadow = Text_API:OutlineFlags(tagOptions.outline)
-                    usedShadowOffset = tagOptions.shadowOffset
-                    usedShadowColour = tagOptions.shadowColour
-                end
-
-                local fs = bar.texts[key]
-                fs:SetJustifyH(tagOptions.justify)
-                fs:SetPoint(tagOptions.anchorFrom, textFrame, tagOptions.anchorTo, tagOptions.textOffsetX, tagOptions.textOffsetY)
-                fs:SetFont(usedFont, usedFontSize, unpack(usedOutline))
-                if usedShadow then
-                    fs:SetShadowColor(usedShadowColour.r, usedShadowColour.g, usedShadowColour.b, usedShadowColour.a)
-                    fs:SetShadowOffset(usedShadowOffset, -usedShadowOffset)
-                else
-                    fs:SetShadowOffset(0, 0)
-                end
-                fs:SetTextColor(usedColour.r, usedColour.g, usedColour.b, usedColour.a)
-                fs:Show()
-                tagOptions._compiled = UCB.tags:compileFormula(tagOptions._formula, tagOptions._limits)
-            elseif bar.texts[key] then
-                bar.texts[key]:Hide()
+    for key, tagOptions in pairs(cfg.textList) do
+        if tagOptions.show then
+            if not bar.texts[key] then
+                bar.texts[key] = textFrame:CreateFontString(nil, tagOptions.frameStrata, "GameFontHighlightSmall")
             end
+            UCB.tags:updateTagText(key, tagOptions, unit)
+
+            local usedFont, usedFontSize, usedColour = generalFont, generalFontSize, generalColour
+            local usedOutline, usedShadow, usedShadowOffset, usedShadowColour = generalOutlineTags, generalShadow, generalShadowOffset, generalShadowColour
+            if not generalCFG.useGeneralFont then
+                usedFont = tagOptions.font
+            elseif generalCFG.useGlobalFont then
+                usedFont = globalFont
+            end
+            if not generalCFG.useGeneralTextSize then
+                usedFontSize = tagOptions.textSize
+            end
+            if not generalCFG.useGeneralColour then
+                usedColour = tagOptions.colour
+            end
+            if not generalCFG.useGeneralOutline then
+                usedOutline, usedShadow = Text_API:OutlineFlags(tagOptions.outline)
+                usedShadowOffset = tagOptions.shadowOffset
+                usedShadowColour = tagOptions.shadowColour
+            end
+
+            local fs = bar.texts[key]
+            fs:SetJustifyH(tagOptions.justify)
+            fs:SetPoint(tagOptions.anchorFrom, textFrame, tagOptions.anchorTo, tagOptions.textOffsetX, tagOptions.textOffsetY)
+            fs:SetFont(usedFont, usedFontSize, unpack(usedOutline))
+            if usedShadow then
+                fs:SetShadowColor(usedShadowColour.r, usedShadowColour.g, usedShadowColour.b, usedShadowColour.a)
+                fs:SetShadowOffset(usedShadowOffset, -usedShadowOffset)
+            else
+                fs:SetShadowOffset(0, 0)
+            end
+            fs:SetTextColor(usedColour.r, usedColour.g, usedColour.b, usedColour.a)
+            fs:Show()
+            tagOptions._compiled = UCB.tags:compileFormula(tagOptions._formula, tagOptions._limits, tagOptions.mainType)
+        elseif bar.texts[key] then
+            bar.texts[key]:Hide()
         end
     end
 
     -- static update (should use compiled ops inside setTextSameState)
-    UCB.tags:setTextSameState(cfg, bar, "static", unit)
+    UCB.tags:setTextSameState(bar, "static", unit)
 end
 
 function BarUpdate_API:UpdateVisibility(unit)
@@ -366,7 +374,9 @@ function BarUpdate_API:UpdateVisibility(unit)
     bar.mirror_frames.untilKick:SetFrameLevel(cfg.frameLevel + 3)
     bar.frames.unInterrupted:SetFrameLevel(cfg.frameLevel + 4) -- same as status, but only shown when uninterruptible
     bar.mirror_frames.unInterrupted:SetFrameLevel(cfg.frameLevel + 4) -- same as status, but only shown when uninterruptible and mirrored
-    bar.frames.overlay:SetFrameLevel(cfg.frameLevel + 9) -- below text
+    bar.frames.overlay:SetFrameLevel(cfg.frameLevel + 7) -- below text
+    bar.frames.cancelled:SetFrameLevel(cfg.frameLevel + 8) -- above overlay,
+    bar.frames.interrupted:SetFrameLevel(cfg.frameLevel + 9) -- above overlay, below text
     bar.frames.text:SetFrameLevel(cfg.frameLevel + 10) -- text above all
 end
 
@@ -548,6 +558,12 @@ function BarUpdate_API:UpdateOtherFeatures(unit)
             bar.queueWindowOverlay:Hide()
         end
     end
+
+    -- Cancelled/Interrupted frames
+    bar.frames.interrupted.status:SetMinMaxValues(0, 1)
+    bar.frames.interrupted.status:SetValue(1)
+    bar.frames.cancelled.status:SetMinMaxValues(0, 1)
+    bar.frames.cancelled.status:SetValue(1)
 end
 
 

@@ -65,9 +65,6 @@ local target_db = {
     },
 
     text = {
-        newIDTags = 4,
-        oldIDTags = {},
-        useGlobalFont = false,
         generalValues = {
             useGeneralSize = false,
             useGeneralFont = false,
@@ -111,6 +108,13 @@ local target_db = {
                 empowered = true,
             },
 
+            showOnEffect = {
+                interrupted = false,
+                cancelled = false,
+            },
+
+            mainType = "cast",
+
             _dynamicTag = false,
             _type = "Unknown",
             _typeColour = "grey",
@@ -118,99 +122,173 @@ local target_db = {
             _limits = {},
 
         },
-        tagList = {
-            dynamic = {
-                tag2 = {
-                    name = "Timer (decrease)",
+        textList = {
+            tag1 = {
+                name = "Spell name",
+                show = true,
+                tagText = "[sName]",
 
-                    show = true,
+                font = "Fonts\\FRIZQT__.TTF",
+                fontName = "Friz Quadrata TT",
+                outline = "NONE",
+                shadowColour = {r=0, g=0, b=0, a=1},
+                shadowOffset = 1,
+                textSize = 12,
+                textOffsetX = 4,
+                textOffsetY = 0,
+                colour = {r=1, g=1, b=1, a=1},
 
-                    tagText = "[rTime]/[dTime]",
+                frameStrata = "OVERLAY",
+                frameLevel = 10,
+                anchorFrom = "LEFT",
+                anchorTo = "LEFT",
+                justify = "LEFT",
 
-                    anchorFrom = "RIGHT",
-                    anchorTo = "RIGHT",
-                    justify = "RIGHT",
-                    textOffsetX = -4,
-                    textOffsetY = 0,
-                    frameStrata = "OVERLAY",
-
-                    font = "Fonts\\FRIZQT__.TTF",
-                    fontName = "Friz Quadrata TT",
-                    outline = "NONE",
-                    shadowColour = {r=0, g=0, b=0, a=1},
-                    shadowOffset = 1,
-                    textSize = 12,
-                    colour = {r=1, g=1, b=1, a=1},
-
-                    showType = {
-                        normal = true,
-                        channel = false,
-                        empowered = true,
-                    },
+                showType = {
+                    normal = true,
+                    channel = true,
+                    empowered = true,
                 },
-                tag3 = {
-                    name = "Timer (increase)",
 
-                    show = true,
-
-                    tagText = "[rTimeInv]/[dTime]",
-
-                    anchorFrom = "RIGHT",
-                    anchorTo = "RIGHT",
-                    justify = "RIGHT",
-                    textOffsetX = -4,
-                    textOffsetY = 0,
-                    frameStrata = "OVERLAY",
-
-                    font = "Fonts\\FRIZQT__.TTF",
-                    fontName = "Friz Quadrata TT",
-                    outline = "NONE",
-                    shadowColour = {r=0, g=0, b=0, a=1},
-                    shadowOffset = 1,
-                    textSize = 12,
-                    colour = {r=1, g=1, b=1, a=1},
-
-                    showType = {
-                        normal = false,
-                        channel = true,
-                        empowered = false,
-                    },
+                showOnEffect = {
+                    interrupted = true,
+                    cancelled = true,
                 },
+
+                mainType = "cast",
             },
-            semiDynamic = {
-                tag1 = {
-                    name = "Spell name",
-                    show = true,
+            tag2 = {
+                name = "Timer (decrease)",
+                show = true,
+                tagText = "[rTime]/[dTime]",
 
-                    tagText = "[sName]",
+                anchorFrom = "RIGHT",
+                anchorTo = "RIGHT",
+                justify = "RIGHT",
+                textOffsetX = -4,
+                textOffsetY = 0,
+                frameStrata = "OVERLAY",
 
-                    font = "Fonts\\FRIZQT__.TTF",
-                    fontName = "Friz Quadrata TT",
-                    outline = "NONE",
-                    shadowColour = {r=0, g=0, b=0, a=1},
-                    shadowOffset = 1,
-                    textSize = 12,
-                    textOffsetX = 4,
-                    textOffsetY = 0,
-                    colour = {r=1, g=1, b=1, a=1},
+                font = "Fonts\\FRIZQT__.TTF",
+                fontName = "Friz Quadrata TT",
+                outline = "NONE",
+                shadowColour = {r=0, g=0, b=0, a=1},
+                shadowOffset = 1,
+                textSize = 12,
+                colour = {r=1, g=1, b=1, a=1},
 
-                    frameStrata = "OVERLAY",
-                    frameLevel = 10,
-                    anchorFrom = "LEFT",
-                    anchorTo = "LEFT",
-                    justify = "LEFT",
-
-                    showType = {
-                        normal = true,
-                        channel = true,
-                        empowered = true,
-                    },
+                showType = {
+                    normal = true,
+                    channel = false,
+                    empowered = true,
                 },
+
+                showOnEffect = {
+                    interrupted = false,
+                    cancelled = false,
+                },
+
+                mainType = "cast",
             },
-            static = {
+            tag3 = {
+                name = "Timer (increase)",
+                show = true,
+                tagText = "[rTimeInv]/[dTime]",
+
+                anchorFrom = "RIGHT",
+                anchorTo = "RIGHT",
+                justify = "RIGHT",
+                textOffsetX = -4,
+                textOffsetY = 0,
+                frameStrata = "OVERLAY",
+
+                font = "Fonts\\FRIZQT__.TTF",
+                fontName = "Friz Quadrata TT",
+                outline = "NONE",
+                shadowColour = {r=0, g=0, b=0, a=1},
+                shadowOffset = 1,
+                textSize = 12,
+                colour = {r=1, g=1, b=1, a=1},
+
+                showType = {
+                    normal = false,
+                    channel = true,
+                    empowered = false,
+                },
+
+                showOnEffect = {
+                    interrupted = false,
+                    cancelled = false,
+                },
+
+                mainType = "cast",
             },
-            unk = {
-            }
+            tag4 = {
+                name = "Cancelled",
+                show = true,
+                tagText = "CANCELLED",
+
+                anchorFrom = "RIGHT",
+                anchorTo = "RIGHT",
+                justify = "RIGHT",
+                textOffsetX = -4,
+                textOffsetY = 0,
+                frameStrata = "OVERLAY",
+
+                font = "Fonts\\FRIZQT__.TTF",
+                fontName = "Friz Quadrata TT",
+                outline = "NONE",
+                shadowColour = {r=0, g=0, b=0, a=1},
+                shadowOffset = 1,
+                textSize = 12,
+                colour = {r=1, g=1, b=1, a=1},
+
+                showType = {
+                    normal = true,
+                    channel = true,
+                    empowered = true,
+                },
+
+                showOnEffect = {
+                    interrupted = false,
+                    cancelled = false,
+                },
+
+                mainType = "cancelled",
+            },
+            tag5 = {
+                name = "Interrupted By",
+                show = true,
+                tagText = "INTER.- [kName:5]",
+
+                anchorFrom = "RIGHT",
+                anchorTo = "RIGHT",
+                justify = "RIGHT",
+                textOffsetX = -4,
+                textOffsetY = 0,
+                frameStrata = "OVERLAY",
+
+                font = "Fonts\\FRIZQT__.TTF",
+                fontName = "Friz Quadrata TT",
+                outline = "NONE",
+                shadowColour = {r=0, g=0, b=0, a=1},
+                shadowOffset = 1,
+                textSize = 12,
+                colour = {r=1, g=1, b=1, a=1},
+
+                showType = {
+                    normal = true,
+                    channel = true,
+                    empowered = true,
+                },
+
+                showOnEffect = {
+                    interrupted = false,
+                    cancelled = false,
+                },
+
+                mainType = "interrupted",
+            },
         },
     },
 
@@ -341,7 +419,73 @@ local target_db = {
             normal = false,
             channel = false,
             empowered = false,
-        }
+        },
+
+        interruptedEffect = {
+            enableEffect = {
+                normal = true,
+                channel = true,
+                empowered = true,
+            },
+            useSameTextureAsMain = {
+                normal = true,
+                channel = true,
+                empowered = true,
+            },
+            frameTexture = {
+                normal = "Interface\\TargetingFrame\\UI-StatusBar",
+                channel = "Interface\\TargetingFrame\\UI-StatusBar",
+                empowered = "Interface\\TargetingFrame\\UI-StatusBar",
+            },
+            frameTextureName = {
+                normal = "Blizzard",
+                channel = "Blizzard",
+                empowered = "Blizzard",
+            },
+            frameColour = {
+                normal = {r=0.5, g=0.5, b=0.5, a=1}, -- grey
+                channel = {r=0.5, g=0.5, b=0.5, a=1}, -- grey
+                empowered = {r=0.5, g=0.5, b=0.5, a=1}, -- grey
+            },
+            displayTimer = {
+                normal = 0.5,
+                channel = 0.5,
+                empowered = 0.5,
+            },
+        },
+
+        cancelledEffect = {
+            enableEffect = {
+                normal = true,
+                channel = true,
+                empowered = true,
+            },
+            useSameTextureAsMain = { 
+                normal = true,
+                channel = true,
+                empowered = true,
+            },
+            frameTexture = {
+                normal = "Interface\\TargetingFrame\\UI-StatusBar",
+                channel = "Interface\\TargetingFrame\\UI-StatusBar",
+                empowered = "Interface\\TargetingFrame\\UI-StatusBar",
+            },
+            frameTextureName = {
+                normal = "Blizzard",
+                channel = "Blizzard",
+                empowered = "Blizzard",
+            },
+            frameColour = {
+                normal = {r=1, g=0, b=0, a=1}, -- red
+                channel = {r=1, g=0, b=0, a=1}, -- red
+                empowered = {r=1, g=0, b=0, a=1}, -- red
+            },
+            displayTimer = {
+                normal = 0.5,
+                channel = 0.5,
+                empowered = 0.5,
+            },
+        },
     },
 
     previewSettings = {

@@ -17,7 +17,7 @@ local function CastbarOnUpdate(bar, elapsed)
 end
 
 ---------------------------------------------------- MAIN -------------------------------------------------
-function CASTBAR_API:OnUnitSpellcastStart(unit, castGUID, spellID, resumeCast)
+function CASTBAR_API:OnUnitSpellcastStart(unit, castGUID, spellID, castBarID, resumeCast)
     local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
     if not show then return end
     -- Set colours
@@ -25,11 +25,11 @@ function CASTBAR_API:OnUnitSpellcastStart(unit, castGUID, spellID, resumeCast)
     CASTBAR_API:CastOnUpdateSetup(bar, unit, cfg, vars, castType, spellID, CastbarOnUpdate)
 end
 
-function CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID)
+function CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID, castBarID)
     -- Only hide if not casting 
     local nameCast = UnitCastingInfo(unit)
     local nameChannel = UnitChannelInfo(unit)
-    if nameCast or nameChannel then return end
+    --if nameCast or nameChannel then return end
 
     local bar = UCB.castBar[unit]
     if bar and bar.flags.castActive then

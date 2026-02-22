@@ -43,6 +43,7 @@ local function CreateFrameBar(bar, name, type, mirror, status, background)
         frame.bg = frame:CreateTexture(nil, "BACKGROUND", nil, 3)
         frame.bg:SetAllPoints()
     end
+    --frame:Hide()
 end
 
 local function CreateCastBar(unit)
@@ -123,6 +124,8 @@ local function CreateCastBar(unit)
     CreateFrameBar(bar, "untilKick", "BackdropTemplate", true, true, false) -- Unkickable overlay (mirror if mirror enabled)
     bar.frames.untilKick.bg = CreateFrame("StatusBar", nil, bar.frames.untilKick, "BackdropTemplate")
     bar.frames.untilKick.bg:SetAllPoints()
+    CreateFrameBar(bar, "interrupted", nil, false, true)
+    CreateFrameBar(bar, "cancelled", nil, false, true)
 
     -- Flags
     bar.flags = {

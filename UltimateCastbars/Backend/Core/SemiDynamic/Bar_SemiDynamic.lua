@@ -14,15 +14,15 @@ local GeneralHelpers = UCB.GeneralCore_Helpers
 
 
 -- Tries to stop previous casts
-function CASTBAR_API:StopPrevCast(unit, bar, castGUID, spellID)
+function CASTBAR_API:StopPrevCast(unit, bar, castGUID, spellID, castBarID)
     if not bar then bar = UCB.castBar[unit] end
     if bar.flags.castActive then
         if bar.flags.prevType == "normal" then
-            CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID)
+            CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID, castBarID)
         elseif bar.flags.prevType == "channel" then
-            CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID)
+            CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID, castBarID)
         elseif bar.flags.prevType == "empowered" then
-            CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID)
+            CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID, castBarID)
         end
     end
 end
@@ -381,7 +381,11 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
     end
 
     local bar = UCB.castBar[unit]
-    CASTBAR_API:StopPrevCast(unit, bar, nil, nil)
+    CASTBAR_API:StopPrevCast(unit, bar, nil, nil, nil)
+
+    -- Stop view of cancelled/interrupted casts
+    CASTBAR_API:StopFrameTimer(UCB.castBar[unit], "cancelled")
+    CASTBAR_API:StopFrameTimer(UCB.castBar[unit], "interrupted")
 
     bar.current_spellID = spellID
 
@@ -396,8 +400,8 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
 
     -- Set text, icon, queue window
     local textCFG = cfg.text
-    tags:setTextSameState(textCFG, bar, "semiDynamic", unit, castType, false)
-    tags:setTextSameState(textCFG, bar, "dynamic", unit, castType, true)
+    tags:setTextSameState(bar, "semiDynamic", unit, castType, false)
+    tags:setTextSameState(bar, "dynamic", unit, castType, true)
     
     bar.icon:SetTexture(icon_texture)
 
@@ -449,8 +453,8 @@ function CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType)
 
     -- Set text, icon, queue window
     local textCFG = cfg.text
-    tags:setTextSameState(textCFG, bar, "semiDynamic", unit, castType, false)
-    tags:setTextSameState(textCFG, bar, "dynamic", unit, castType, true)
+    tags:setTextSameState(bar, "semiDynamic", unit, castType, false)
+    tags:setTextSameState(bar, "dynamic", unit, castType, true)
 
     bar.icon:SetTexture(icon_texture)
 

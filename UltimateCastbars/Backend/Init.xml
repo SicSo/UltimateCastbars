@@ -24,6 +24,7 @@
 	<Script file="Core/SemiDynamic/Empower.lua"/>
 	<Script file="Core/SemiDynamic/Normal.lua"/>
 	<Script file="Core/SemiDynamic/UnitChange.lua"/>
+	<Script file="Core/SemiDynamic/SpellInterrupt.lua"/>
 
 	<Script file="Core/Static/Bar_Static.lua"/>
 	<Script file="Core/Static/BarUpdate_BarIcon.lua"/>

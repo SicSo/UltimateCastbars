@@ -2,10 +2,11 @@
 local _, UCB = ...
 
 UCB.tags = UCB.tags or {}
+UCB.UIOptions = UCB.UIOptions or {}
+UCB.GeneralCore_Helpers = UCB.GeneralCore_Helpers or {}
 
 local tags = UCB.tags
-
-
+local GeneralHelpers = UCB.GeneralCore_Helpers
 
 local function FormatDecimals(n, x)
     if x ==-1 then x=1 end
@@ -13,17 +14,6 @@ local function FormatDecimals(n, x)
     x = tonumber(x) or 0
     if x < 0 then x = 0 end
     return string.format("%." .. x .. "f", n)
-end
-
-local function FirstNChars_Legacy(s, x)
-    if x == -1 then return s end
-    if type(s) ~= "string" then return "" end
-    x = tonumber(x) or 0
-    if x <= 0 then return "" end
-    local res = s:sub(1, x)
-
-    if #s <= x then return res end
-    return res.."..."
 end
 
 local function FirstNChars(s, x)
@@ -39,6 +29,13 @@ local function FirstNChars(s, x)
 end
 
 local TAG_FN = {}
+
+TAG_FN["[kName]"] = function(v, limNum)
+    if (v.kColour) and v.kColour.GenerateHexColor() then
+        return UCB.UIOptions.ColorText(v.kColour:GenerateHexColor(), FirstNChars(v.kName, limNum))
+    end
+    return FirstNChars(v.kName, limNum)
+end
 
 TAG_FN["[sName]"] = function(v, limNum)
     return FirstNChars(v.sName, limNum)
@@ -83,7 +80,7 @@ TAG_FN["[nIntrInv]"] = function(v, limNum, remaining, elpased, limRaw)
     return (limNum == -1) and "Intr." or limRaw
 end
 
-function tags:compileFormula(formula, limits)
+function tags:compileFormula(formula, limits, mainType)
     local ops = {}
     local n = 0
     local needsNow = false
@@ -91,6 +88,10 @@ function tags:compileFormula(formula, limits)
     for i = 1, #formula do
         local part = formula[i]
         local fn = TAG_FN[part]
+
+        if part == "[kName]" and mainType ~= "Interrupted" then
+            fn = nil
+        end
 
         if fn then
             local limRaw = limits and limits[i]
@@ -112,8 +113,11 @@ function tags:compileFormula(formula, limits)
             local show = ""
             if part == "[nIntr]" or part == "[nIntrInv]" then
                 show = part
+                if type(limRaw) == "string" then
+                    limNum = 0
+                end
             end
-
+            --print("Compiling tag:", part, "with limNum:", limNum, "and limRaw:", limRaw)
             n = n + 1
             ops[n] = { fn = fn, limNum = limNum, limRaw = limRaw , show = show }
         else
@@ -143,7 +147,7 @@ local function join(t, sep, n)
   return s
 end
 
-function tags:processCompiled(ops, unit, remainingTime, elpasedTime)
+function tags:processCompiled(ops, unit, remainingTime, elpasedTime, alpha)
     local v = self.var[unit]
 
     local out = self._out
@@ -161,15 +165,10 @@ function tags:processCompiled(ops, unit, remainingTime, elpasedTime)
         end
 
         if op.show == "[nIntr]" then
-            show = v.nIntr
+            show = GeneralHelpers:SecretToA_B(v.nIntr, alpha, 0)
         end
         if op.show == "[nIntrInv]" then
-            if unit == "player" then
-                show = not v.nIntr
-            else
-                show = true
-                out[outN] = "[nIntrInv_INVALID_"..unit.."]"
-            end
+            show = GeneralHelpers:SecretToA_B(v.nIntr, 0, alpha)
         end
     end
 
@@ -220,7 +219,12 @@ function tags:splitTags(s, openDelim, closeDelim)
     assert(type(openDelim) == "string" and #openDelim > 0, "openDelim must be non-empty")
     assert(type(closeDelim) == "string" and #closeDelim > 0, "closeDelim must be non-empty")
 
-    local state  = "static"
+    local state
+    if s == "" then
+        state = "unk"
+    else
+        state = "static"
+    end
     local out    = {}
     local limits = {}
     local i = 1
@@ -359,8 +363,8 @@ function tags:updateVarsPreview(unit, cfg, type, spellID, duration, notInterrupt
 end
 
 
-function tags:PrepareTextState(cfgText, bar, state, castType)
-    local tagList = cfgText.tagList[state]
+function tags:PrepareTextState(tagGroups, bar, state, castType)
+    local tagList = tagGroups[state]
     if not tagList then return end
 
     -- per-state cache on the bar
@@ -379,7 +383,9 @@ function tags:PrepareTextState(cfgText, bar, state, castType)
     end
 
     -- decide show/hide ONCE, store only active entries for fast loops later
+    --print("state", state, "for cast type", castType)
     for key, tagOptions in next, tagList do
+        --print("  tag: "..key)
         local fs = bar.texts[key]
         if fs then
             local show = tagOptions.show
@@ -396,6 +402,8 @@ function tags:PrepareTextState(cfgText, bar, state, castType)
                     formula = tagOptions._formula,
                     limits  = tagOptions._limits,
                     compiled = tagOptions._compiled,
+                    showOnEffect = tagOptions.showOnEffect,
+                    alpha = tagOptions.colour.a
                 }
             else
                 fs:Hide()
@@ -404,9 +412,8 @@ function tags:PrepareTextState(cfgText, bar, state, castType)
     end
 end
 
-function tags:updateTagText(key, cfg, bigCFG)
+function tags:updateTagText(key, cfg, unit)
     local out, limits, state = tags:splitTags(cfg.tagText, UCB.tags.openDelim, UCB.tags.closeDelim)
-
 
     local textIsDynamic
     if state == "dynamic" or state == "semiDynamic" then
@@ -415,25 +422,54 @@ function tags:updateTagText(key, cfg, bigCFG)
         textIsDynamic = false
     end
 
-    if state == "static" and (not cfg.showType.normal or not cfg.showType.channel or not cfg.showType.empowered) then
-        state = "semiDynamic"
+    if cfg.mainType == "cast" then
+        if state == "static" and (not cfg.showType.normal or not cfg.showType.channel or not cfg.showType.empowered) then
+            state = "semiDynamic"
+        end
+    else
+        state = cfg.mainType
     end
-
+   
     local oldTag = tags.typeTags[cfg._type]
     cfg._formula = out
     cfg._limits = limits
     cfg._type = tags.typeNames[state]
     cfg._typeColour = tags.colours[state]
 
-    if oldTag ~= state then
-        bigCFG.tagList[state][key] = cfg
-        if oldTag then
-            bigCFG.tagList[oldTag][key] = nil
+    local tagList = tags.tagGroups[unit]
+    tagList[state][key] = cfg
+    if oldTag and oldTag ~= state then
+        tagList[oldTag][key] = nil
+    end
+    cfg._dynamicTag = textIsDynamic
+end
+
+
+function tags:hideTextFromEffect(bar, effect)
+    local active_tags = bar._activeTags[effect]
+    if active_tags then
+        for i = 1, #active_tags do
+            active_tags[i].fs:Hide()
         end
     end
-    bigCFG.tagList[state][key]._dynamicTag = textIsDynamic
+end
 
+local function hideTextOnEffect(bar, effect)
+    for state, active in pairs(bar._activeTags or {}) do
+        if state == "dynamic" or state == "semiDynamic" then
+            for i = 1, #active do
+                local t = active[i]
+                if not t.showOnEffect[effect] then
+                    t.fs:Hide()
+                end
+            end
+        end
+    end
+end
 
+function tags:ShowEffectTags(bar, effect, castType, unit)
+    hideTextOnEffect(bar, effect)
+    tags:setTextSameState(bar, effect, unit, castType, false)
 end
 
 -- !!!!!!!!!!!!!!!!!!!!!!! DYNAMIC UPDATE FUNCTION !!!!!!!!!!!!!!!!!!!!!!!!
@@ -443,21 +479,19 @@ function tags:ApplyTextState(bar, state, unit, remaining, elapsed)
 
     for i = 1, #active do
         local t = active[i]
-        local text, showText = tags:processCompiled(t.compiled, unit, remaining, elapsed)
+        local text, alphaText = tags:processCompiled(t.compiled, unit, remaining, elapsed, t.alpha)
         t.fs:SetText(text)
-        local secret = issecretvalue(showText)
-        if secret or (not secret and showText ~= nil) then
-           local alpha = C_CurveUtil.EvaluateColorValueFromBoolean(showText, t.colour.a, 0)
-            t.fs:SetAlphaFromBoolean(alpha)
+        if (alphaText) then
+            t.fs:SetAlpha(alphaText)
         end
     end
 end
 
 
-function tags:setTextSameState(cfgText, bar, state, unit, castType, prepareOnly, remaining)
+function tags:setTextSameState(bar, state, unit, castType, prepareOnly, remaining)
     -- If prepareOnly=true, only do show/hide + build active list
     -- Otherwise do both (prepare then apply)
-    self:PrepareTextState(cfgText, bar, state, castType)
+    self:PrepareTextState(tags.tagGroups[unit], bar, state, castType)
 
     if not prepareOnly then
         self:ApplyTextState(bar, state, unit, remaining)

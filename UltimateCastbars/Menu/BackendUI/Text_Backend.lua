@@ -72,59 +72,99 @@ function Text_API:MakeLSMFontOption(cfg, order, applyFont, disabledFn, unit)
 end
 
 
-function Text_API:addNewTag(bigCFG, name)
+local function missing_and_next_max(t, prefix)
+  prefix = prefix or "tag"
+
+  local used = {}
+  local maxN = 0
+
+  -- extract keys from the table
+  for k, _ in pairs(t) do
+    if type(k) == "string" then
+      local n = k:match("^" .. prefix .. "(%d+)$")
+      if n then
+        n = tonumber(n)
+        if n and n >= 1 then
+          used[n] = true
+          if n > maxN then maxN = n end
+        end
+      end
+    end
+  end
+
+  -- missing numbers from 1..maxN
+  local missing = {}
+  for i = 1, maxN do
+    if not used[i] then
+      missing[#missing + 1] = i
+    end
+  end
+
+  -- biggest unused = max used + 1
+  local nextNum = maxN + 1
+
+  return missing, nextNum
+end
+
+function Text_API:addNewTag(bigCFG, name, unit)
     local key
-    if bigCFG.oldIDTags and #bigCFG.oldIDTags > 0 then
-        key = "tag" .. table.remove(bigCFG.oldIDTags, 1)
+
+    local missing, nextNum = missing_and_next_max(bigCFG.textList, "tag") -- ensure oldIDTags is populated
+
+    if #missing > 0 then
+        key = "tag" .. missing[1]
     else
-        bigCFG.newIDTags = bigCFG.newIDTags or 1
-        key = "tag" .. tostring(bigCFG.newIDTags)
-        bigCFG.newIDTags = bigCFG.newIDTags + 1
+        key = "tag" .. nextNum
     end
 
-    bigCFG.tagList = bigCFG.tagList or {}
-    bigCFG.tagList.unk = bigCFG.tagList.unk or {}
+    bigCFG.textList = bigCFG.textList or {}
 
     local newTag = DeepCopy(bigCFG.defaultValues)
     newTag.name = name
-    bigCFG.tagList.unk[key] = newTag
+    bigCFG.textList[key] = newTag
 
-    return key, newTag, "unk"
+    tags:updateTagText(key, newTag, unit)
+
+    return key, newTag
 end
 
-function Text_API:updateTagText(key, cfg, bigCFG)
-   tags:updateTagText(key, cfg, bigCFG)
-end
-
-function Text_API:deleteTag(key, cfg, bigCFG)
+function Text_API:deleteTag(key, cfg, bigCFG, unit)
     local state = tags.typeTags[cfg._type]
-    bigCFG.tagList[state][key] = nil
+    local tagList = tags.tagGroups[unit]
+    tagList[state][key] = nil
+    bigCFG.textList[key] = nil
     local id = tonumber(key:match("tag(%d+)"))
     if id then
         table.insert(bigCFG.oldIDTags, id)
     end
 end
 
--- TODO: Fix
-function Text_API:updateStaticShow(key, cfg, bigCFG)
+function Text_API:updateStaticShow(key, cfg, unit)
+    if cfg.maintype ~= "cast" then return false end
+    local tagList = tags.tagGroups[unit]
+   
     if tags.typeTags[cfg._type] == "static" then
         if cfg.showType.normal == true and cfg.showType.channel == true and cfg.showType.empowered == true then
             return false
         end
-        bigCFG.tagList.semiDynamic[key] = cfg
+        tagList.semiDynamic[key] = cfg
         cfg._type = tags.typeNames.semiDynamic
         cfg._typeColour = tags.colours.semiDynamic
-        bigCFG.tagList.static[key] = nil
+        tagList.static[key] = nil
         return true
     end
     if tags.typeTags[cfg._type] == "semiDynamic" and cfg._dynamicTag == false then
         if cfg.showType.normal == true and cfg.showType.channel == true and cfg.showType.empowered == true then
-            bigCFG.tagList.static[key] = cfg
+            tagList.static[key] = cfg
             cfg._type = tags.typeNames.static
             cfg._typeColour = tags.colours.static
-            bigCFG.tagList.semiDynamic[key] = nil
+            tagList.semiDynamic[key] = nil
             return true
         end
     end
     return false
+end
+
+function Text_API:updateTagMainType(key, cfg, bigCFG)
+    tags:updateTagText(key, cfg, bigCFG)
 end

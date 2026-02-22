@@ -17,7 +17,7 @@ function UltimateCastBars:OnInitialize()
     local ok, err = UCB:NormalizeCurrentProfileToSchema()
     if not ok and err then
         -- optional debug
-        -- print("UCB: Normalize failed:", err)
+        print("UCB: Normalize failed:", err)
     end
 
     -- Callbacks (after profile selection)

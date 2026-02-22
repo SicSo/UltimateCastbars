@@ -11,19 +11,19 @@ function CASTBAR_API:OnUnitChange(unit)
     local resumeCast = true
 
     -- Hide any previous casts
-    CASTBAR_API:StopPrevCast(unit, bar, nil, nil)
+    CASTBAR_API:StopPrevCast(unit, bar, nil, nil, nil)
     
     -- Look for current casts
     local name, _, _, _, _, _, _, _ = UnitCastingInfo(unit)
 	if(name) then
-		CASTBAR_API:OnUnitSpellcastStart(unit, nil, nil, resumeCast)
+		CASTBAR_API:OnUnitSpellcastStart(unit, nil, nil, nil, resumeCast)
 	else
 		local name, _, _, _, _, _, _, _, isEmpowered, _, _ = UnitChannelInfo(unit)
         if (name) then
             if(isEmpowered) then
-                CASTBAR_API:OnUnitSpellcastEmpowerStart(unit, nil, nil, resumeCast)
+                CASTBAR_API:OnUnitSpellcastEmpowerStart(unit, nil, nil, nil, resumeCast)
             else
-                CASTBAR_API:OnUnitSpellcastChannelStart(unit, nil, nil, resumeCast)
+                CASTBAR_API:OnUnitSpellcastChannelStart(unit, nil, nil, nil, resumeCast)
             end
         end
 	end

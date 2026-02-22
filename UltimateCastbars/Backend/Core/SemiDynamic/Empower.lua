@@ -168,7 +168,7 @@ function CASTBAR_API:InitializeEmpoweredStages(bar, cfg, vars)
 end
 
 ---------------------------------------------------- MAIN -------------------------------------------------
-function CASTBAR_API:OnUnitSpellcastEmpowerStart(unit, castGUID, spellID, resumeCast)
+function CASTBAR_API:OnUnitSpellcastEmpowerStart(unit, castGUID, spellID, castBarID, resumeCast)
     -- Prevent Font of Magic (spellID 411212) from showing empower stages ???
     if unit == "player" and spellID == 411212 then return end
     local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
@@ -182,11 +182,11 @@ function CASTBAR_API:OnUnitSpellcastEmpowerStart(unit, castGUID, spellID, resume
     CASTBAR_API:CastOnUpdateSetup(bar, unit, cfg, vars, castType, spellID, CastbarOnUpdate)
 end
 
-function CASTBAR_API:OnUnitSpellcastEmpowerUpdate(unit, castGUID, spellID)
+function CASTBAR_API:OnUnitSpellcastEmpowerUpdate(unit, castGUID, spellID, castBarID)
     CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType)
 end
 
-function CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID)
+function CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID, castBarID)
     local bar = UCB.castBar[unit]
     if bar and bar.flags.castActive then
         bar.group:Hide()

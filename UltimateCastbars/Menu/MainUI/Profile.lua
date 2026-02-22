@@ -81,22 +81,19 @@ local function ExportFilteredProfile(profileName)
         local dstText = dstUnit.text
         if type(srcText) ~= "table" or type(dstText) ~= "table" then return end
 
-        local srcTagList = srcText.tagList
+        local srcTagList = srcText.textList
         if type(srcTagList) ~= "table" then return end
 
-        dstText.tagList = dstText.tagList or {}
+        dstText.textList = dstText.textList or {}
 
-        for _, cat in ipairs({ "dynamic", "semiDynamic", "static", "unk" }) do
-            if type(srcTagList[cat]) == "table" then
-                local outMap = {}
-                for tagKey, tagTable in pairs(srcTagList[cat]) do
-                    if type(tagKey) == "string" and type(tagTable) == "table" then
-                        outMap[tagKey] = Normiliser:FilterBySchema(tagTable, template)
-                    end
-                end
-                dstText.tagList[cat] = outMap
+        local outMap = {}
+        for tagKey, tagTable in pairs(srcTagList) do
+            if type(tagKey) == "string" and type(tagTable) == "table" then
+                outMap[tagKey] = Normiliser:FilterBySchema(tagTable, template)
             end
         end
+        dstText.textList = outMap
+         
     end
 
     ExpandTagLists("player")
@@ -146,22 +143,18 @@ local function ImportFilteredProfile(targetProfileName, serialized)
         local dstText = dstUnit.text
         if type(srcText) ~= "table" or type(dstText) ~= "table" then return end
 
-        local srcTagList = srcText.tagList
+        local srcTagList = srcText.textList
         if type(srcTagList) ~= "table" then return end
 
-        dstText.tagList = dstText.tagList or {}
+        dstText.textList = dstText.textList or {}
 
-        for _, cat in ipairs({ "dynamic", "semiDynamic", "static", "unk" }) do
-            if type(srcTagList[cat]) == "table" then
-                local outMap = {}
-                for tagKey, tagTable in pairs(srcTagList[cat]) do
-                    if type(tagKey) == "string" and type(tagTable) == "table" then
-                        outMap[tagKey] = Normiliser:FilterBySchema(tagTable, template)
-                    end
-                end
-                dstText.tagList[cat] = outMap
+        local outMap = {}
+        for tagKey, tagTable in pairs(srcTagList) do
+            if type(tagKey) == "string" and type(tagTable) == "table" then
+                outMap[tagKey] = Normiliser:FilterBySchema(tagTable, template)
             end
         end
+        dstText.textList = outMap
     end
 
     ExpandTagLists("player")

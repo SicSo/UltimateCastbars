@@ -60,9 +60,8 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
     local icon_texture = tags:updateVarsPreview(unit, cfg, castType, previewCFG.previewSpellID[castType], duration, previewCFG.previewNotIntrerruptible, previewCFG.previewEmpowerStages)
     local vars = tags.var[unit]
 
-    local textCFG = cfg.text
-    tags:setTextSameState(textCFG, bar, "semiDynamic", unit, castType, false)
-    tags:setTextSameState(textCFG, bar, "dynamic", unit, castType, true)
+    tags:setTextSameState(bar, "semiDynamic", unit, castType, false)
+    tags:setTextSameState(bar, "dynamic", unit, castType, true)
 
     bar.icon:SetTexture(icon_texture)
 

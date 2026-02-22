@@ -12,6 +12,104 @@ local UIOptions = UCB.UIOptions
 local OtherFeatures_API = UCB.OtherFeatures_API
 local LSM  = UCB.LSM
 
+
+
+local function BuildKickedCancelledArgs(unit, cfg, castType, type, order)
+    local castTypeName = castType:sub(1,1):upper()..castType:sub(2)
+    local mainGrp = {
+        type = "group",
+        name = "",
+        inline = true,
+        order = order,
+        args = {
+            showEffect = {
+                type  = "toggle",
+                name  = function() return UIOptions.ColorText(UIOptions.turquoise, castTypeName).." casts: show "..UIOptions.ColorText(UIOptions.turquoise, type).." effects" end,
+                order = 1,
+                width = "full",
+                get   = function() return cfg.enableEffect[castType] end,
+                set   = function(_, val)
+                    cfg.enableEffect[castType] = val
+                    CASTBAR_API:UpdateCastbar(unit)
+                end,
+            },
+            effectOptionsGro = {
+                type = "group",
+                name = function() return castTypeName.." cast effect options" end,
+                inline = true,
+                order = 2,
+                hidden = function() return not cfg.enableEffect[castType] end,
+                args = {
+                    useMainTextureForEffect = {
+                        type  = "toggle",
+                        name  = function() return "Use main texture for effect" end,
+                        order = 1,
+                        width = "full",
+                        get   = function() return cfg.useSameTextureAsMain[castType] end,
+                        set   = function(_, val)
+                            cfg.useSameTextureAsMain[castType] = val
+                            CASTBAR_API:UpdateCastbar(unit)
+                         end,
+                    },
+                    effectTexture = {
+                        type          = "select",
+                        dialogControl = "LSM30_Statusbar",
+                        name          = function() return castTypeName.." cast effect texture" end,
+                        order         = 2,
+                        values        = function() return LSM:HashTable(LSM.MediaType.STATUSBAR) end,
+                        get           = function() return cfg.frameTextureName[castType] end,
+                        set           = function(_, val)
+                            cfg.frameTextureName[castType] = val
+                            cfg.frameTexture[castType] = LSM:Fetch(LSM.MediaType.STATUSBAR, val)
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                        disabled = function() return cfg.useSameTextureAsMain[castType] == true end,
+                    },
+                    gap1 = {
+                        type = "description",
+                        name = "",
+                        order = 2.5,
+                        width = "0.3",
+                    },
+                    effectColor = {
+                        type = "color",
+                        name = function() return castTypeName.." cast effect colour" end,
+                        hasAlpha = true,
+                        order = 3,
+                        get = function()
+                            local c = cfg.frameColour[castType]
+                            return c.r, c.g, c.b, c.a
+                        end,
+                        set = function(_, r,g,b,a)
+                            cfg.frameColour[castType] = {r=r,g=g,b=b,a=a}
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                    },
+                    gap2 = {
+                        type = "description",
+                        name = "",
+                        order = 3.5,
+                        width = "0.3",
+                    },
+                    displayTimer = {
+                        type = "range",
+                        name = function() return "Duration to display effect for "..castType.." casts (s)" end,
+                        min = 0, max = 5, step = 0.05,
+                        order = 4,
+                        width = 1.5,
+                        get = function() return cfg.displayTimer[castType] end,
+                        set = function(_, val)
+                            cfg.displayTimer[castType] = val
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                }
+            }
+        }
+    }
+}
+return mainGrp
+end
+
 local function BuildOtherArgs(args, unit)
     local cfg = GetCFG(unit, "otherFeatures")
     if unit == "player" then
@@ -345,6 +443,42 @@ local function BuildOtherArgs(args, unit)
                 }
             }
         },
+    }
+
+    args.kickedCancelledGrp = {
+        type   = "group",
+        name   = "Kicked/Canceled Cast Options",
+        inline = true,
+        order  = 4,
+        args = {
+            kickedCancelledInfo = {
+                type = "description",
+                name = function() return UIOptions.ColorText(UIOptions.turquoise, "These options control the display of interrupted or cancelled effects that are caused by the players. Interrupted happens when a unit gets kicked and cancelled when a unit stops the cast on its own or through failure.") end,
+                order = 0,
+            },
+            kickedGrp = {
+                type = "group",
+                name = "Interrupted Cast Effect Options",
+                inline = true,
+                order = 1,
+                args = {
+                    normalGrp = BuildKickedCancelledArgs(unit, cfg.interruptedEffect, "normal", "interrupted", 1),
+                    channelGrp = BuildKickedCancelledArgs(unit, cfg.interruptedEffect, "channel", "interrupted", 2),
+                    empoweredGrp = BuildKickedCancelledArgs(unit, cfg.interruptedEffect, "empowered", "interrupted", 3),
+                }
+            },
+            cancelledGrp = {
+                type = "group",
+                name = "Cancelled Cast Effect Options",
+                inline = true,
+                order = 2,
+                args = {
+                    normalGrp = BuildKickedCancelledArgs(unit, cfg.cancelledEffect, "normal", "cancelled", 1),
+                    channelGrp = BuildKickedCancelledArgs(unit, cfg.cancelledEffect, "channel", "cancelled", 2),
+                    empoweredGrp = BuildKickedCancelledArgs(unit, cfg.cancelledEffect, "empowered", "cancelled", 3),
+                }
+            },
+        }
     }
 end
 

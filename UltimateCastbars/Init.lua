@@ -41,14 +41,14 @@ function UCB:EnsureSpellcastEventFrame()
       f1:RegisterEvent(eventName)
     end
 
-    f1:SetScript("OnEvent", function(_, event, unit, castGUID, spellID)
+    f1:SetScript("OnEvent", function(_, event, unit, castGUID, spellID, castBarID)
       if not UCB.trackedUnits[unit] then return end
       local resumeCast = false
 
       local method = events[event]
       local api = UCB.CASTBAR_API
       if method and api and api[method] then
-        api[method](api, unit, castGUID, spellID, resumeCast)
+        api[method](api, unit, castGUID, spellID, castBarID, resumeCast)
       end
     end)
 
@@ -75,6 +75,25 @@ function UCB:EnsureSpellcastEventFrame()
     end)
 
     UCB.eventFrame.swap = f2
+  end
+
+  if not UCB.eventFrame.interrupted then
+    local f3 = CreateFrame("Frame")
+    for eventName in pairs(UCB.interruptEvents) do
+      f3:RegisterEvent(eventName)
+    end
+
+    f3:SetScript("OnEvent", function(_, event, unit, ...)
+      if not UCB.trackedUnits[unit] then return end
+      
+      local method = UCB.interruptEvents[event]
+      local api = UCB.CASTBAR_API
+      if method and api and api[method] then
+        api[method](api, unit, ...)
+      end
+    end)
+
+    UCB.eventFrame.interrupted = f3
   end
 end
 
@@ -268,7 +287,7 @@ end
 local function HideCurrentBars()
   for unit, bar in pairs(UCB.castBar) do
     if UCB.menuUnits[unit] and bar then
-      UCB.CASTBAR_API:StopPrevCast(unit, bar, nil, nil)
+      UCB.CASTBAR_API:StopPrevCast(unit, bar, nil, nil, nil)
     end
   end
 end

@@ -230,20 +230,27 @@ UCB.tags.colours = {
     dynamic = "red",
     semiDynamic = "yellow",
     static = "green",
-    unk = "grey"
+    unk = "grey",
+    cancelled = "purple",
+    interrupted = "orange"
 }
+
 UCB.tags.typeNames = {
     dynamic = "Dynamic",
     semiDynamic = "Semi-Dynamic",
     static = "Static",
-    unk = "Unknown"
+    unk = "Unknown",
+    cancelled = "Cancelled",
+    interrupted = "Interrupted"
 }
 
 UCB.tags.typeTags = {
     Dynamic = "dynamic",
     ["Semi-Dynamic"] = "semiDynamic",
     Static = "static",
-    Unknown = "unk"
+    Unknown = "unk",
+    Cancelled = "cancelled",
+    Interrupted = "interrupted",
 }
 
 ------------------------------------------------------------UI Options------------------------------------------------------------
@@ -373,6 +380,8 @@ UCB.UIOptions.red = "FFFF0000"
 UCB.UIOptions.green = "FF00FF00"
 UCB.UIOptions.yellow = "FFFFFF00"
 UCB.UIOptions.grey = "FF808080"
+UCB.UIOptions.purple = "FFFF00FF"
+UCB.UIOptions.orange = "FFFFA500"
 
 
 function UCB.UIOptions:ClassFileToColors(classFile, alpha)
@@ -454,6 +463,8 @@ UCB.profiles.texture_map = {
   ["CLASSES.EVOKER.tickTextureName"]        = { path = "CLASSES.EVOKER.tickTexture",            type = "statusbar" },
 
   -- Array/list pairs (names list is the key)
+  ["otherFeatures.cancelledEffect.frameTextureName"] = { path = "otherFeatures.cancelledEffect.frameTexture", type = "statusbar" },
+  ["otherFeatures.interruptedEffect.frameTextureName"] = { path = "otherFeatures.interruptedEffect.frameTexture", type = "statusbar" },
   ["CLASSES.EVOKER.empowerTickTexturesNames"]    = { path = "CLASSES.EVOKER.empowerTickTextures",    type = "statusbar" },
   ["CLASSES.EVOKER.empowerSegmentTexturesNames"] = { path = "CLASSES.EVOKER.empowerSegmentTextures", type = "background" },
 }
@@ -463,8 +474,5 @@ UCB.profiles.font_map = {
   ["text.defaultValues.fontName"] = { path = "text.defaultValues.font", type = "font" },
 
   -- wildcard groups: these point to a table of tags; each tag table contains font/fontName
-  ["text.tagList.dynamic.*"]      = { type = "font", fontNameKey = "fontName", fontPathKey = "font" },
-  ["text.tagList.semiDynamic.*"]  = { type = "font", fontNameKey = "fontName", fontPathKey = "font" },
-  ["text.tagList.static.*"]       = { type = "font", fontNameKey = "fontName", fontPathKey = "font" },
-  ["text.tagList.unk.*"]          = { type = "font", fontNameKey = "fontName", fontPathKey = "font" },
+  ["text.textList.*"]      = { type = "font", fontNameKey = "fontName", fontPathKey = "font" },
 }

@@ -164,7 +164,7 @@ function CASTBAR_API:AssignChannelTicks(unit, spellID, event)
 end
 
 ---------------------------------------------------- MAIN -------------------------------------------------
-function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID, resumeCast)
+function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID, castBarID, resumeCast)
     local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
     if not show then return end
     CASTBAR_API:AssignChannelTicks(unit, spellID, "START")
@@ -173,15 +173,14 @@ function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID, resume
     CASTBAR_API:CastOnUpdateSetup(bar, unit, cfg, vars, castType, spellID, CastbarOnUpdate)
 end
 
-function CASTBAR_API:OnUnitSpellcastChannelUpdate(unit, castGUID, spellID)
+function CASTBAR_API:OnUnitSpellcastChannelUpdate(unit, castGUID, spellID, castBarID)
     CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType)
     CASTBAR_API:AssignChannelTicks(unit, spellID, "UPDATE")
 end
 
-function CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID)
+function CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID, castBarID)
     -- Only hide if not channeling anymore
-    if UnitChannelInfo(unit) then return end
-    
+    --if UnitChannelInfo(unit) then return end
     local bar = UCB.castBar[unit]
     if bar and bar.flags.castActive == true then
         bar.group:Hide()

@@ -77,15 +77,12 @@ local function ReplaceCommonKeys_ArraysReplace(dst, src, def, seen)
 end
 
 
--- Keys under text that should be fully replaced (rebuilt) instead of merged
-local TEXT_TAGLIST_REPLACE = {
-    dynamic = true,
-    semiDynamic = true,
-    static = true,
-    unk = true,
+-- Keys that should be fully replaced (rebuilt) instead of merged
+local TEXTLIST_REPLACE = {
+    textList = true,
 }
 
-local function ReplaceCommonKeys_ArraysReplace_Text(dst, src, def, seen, inTagList)
+local function ReplaceCommonKeys_ArraysReplace_Text(dst, src, def, seen)
     if type(dst) ~= "table" or type(src) ~= "table" or type(def) ~= "table" then return end
 
     seen = seen or {}
@@ -97,17 +94,19 @@ local function ReplaceCommonKeys_ArraysReplace_Text(dst, src, def, seen, inTagLi
         local srcVal = src[k]
 
         if dstVal ~= nil and srcVal ~= nil then
-            local nowInTagList = inTagList or (k == "tagList")
+            -- If this key is a full-replace text container, do it and skip recursion
+            if TEXTLIST_REPLACE[k] and type(srcVal) == "table" then
+                dst[k] = DeepCopy(srcVal)
 
-            if type(dstVal) == "table" and type(srcVal) == "table" and type(defVal) == "table" then
-                if nowInTagList and TEXT_TAGLIST_REPLACE[k] then
-                    -- fully replace these buckets
-                    dst[k] = DeepCopy(srcVal)
-                elseif IsArray(defVal) then
+            elseif type(dstVal) == "table" and type(srcVal) == "table" and type(defVal) == "table" then
+                if IsArray(defVal) then
+                    -- arrays get replaced wholesale
                     dst[k] = DeepCopy(srcVal)
                 else
-                    ReplaceCommonKeys_ArraysReplace_Text(dstVal, srcVal, defVal, seen, nowInTagList)
+                    -- normal table merge
+                    ReplaceCommonKeys_ArraysReplace_Text(dstVal, srcVal, defVal, seen)
                 end
+
             elseif type(srcVal) == "table" then
                 dst[k] = DeepCopy(srcVal)
             else
