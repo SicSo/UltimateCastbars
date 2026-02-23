@@ -13,17 +13,46 @@ local GUIWidgets = UCB.GUIWidgets
 
 GUIWidgets._linkPopup = GUIWidgets._linkPopup or nil
 
-function GUIWidgets:OpenLinkPopup(title, url)
+local function NormalizeLinks(urlOrLinks)
+    -- string -> { {label="Link", url="..."} }
+    if type(urlOrLinks) ~= "table" then
+        return { { label = "Link", url = tostring(urlOrLinks or "") } }
+    end
+
+    -- array form: { {label="", url=""}, ... }
+    if urlOrLinks[1] then
+        local out = {}
+        for i, lnk in ipairs(urlOrLinks) do
+            if type(lnk) == "table" then
+                out[#out + 1] = {
+                    label = lnk.label or lnk.title or ("Link " .. i),
+                    url   = tostring(lnk.url or "")
+                }
+            end
+        end
+        return out
+    end
+
+    -- map form: { ["Ko-fi"]="...", ["PayPal"]="..." } (order not guaranteed)
+    local out = {}
+    for k, v in pairs(urlOrLinks) do
+        out[#out + 1] = { label = tostring(k), url = tostring(v) }
+    end
+    return out
+end
+
+function GUIWidgets:OpenLinkPopup(title, urlOrLinks)
     if self._linkPopup then
         AG:Release(self._linkPopup)
         self._linkPopup = nil
     end
 
+    local links = NormalizeLinks(urlOrLinks)
+
     local f = AG:Create("Frame")
     f:SetTitle(title or "Link")
-    f:SetLayout("Flow")
+    f:SetLayout("List") -- stacks children vertically
     f:SetWidth(520)
-    f:SetHeight(140)
     f:EnableResize(false)
     f:SetCallback("OnClose", function(widget)
         AG:Release(widget)
@@ -32,19 +61,37 @@ function GUIWidgets:OpenLinkPopup(title, url)
 
     local info = AG:Create("Label")
     info:SetFullWidth(true)
-    info:SetText("Copy the link below:")
+    info:SetText(#links > 1 and "Copy any link below:" or "Copy the link below:")
     f:AddChild(info)
 
-    local eb = AG:Create("EditBox")
-    eb:SetFullWidth(true)
-    eb:SetLabel("Link")
-    eb:SetText(url or "")
-    f:AddChild(eb)
+    local firstEdit = nil
 
-    -- highlight for quick Ctrl+C
-    if eb.editbox and eb.editbox.HighlightText then
-        eb.editbox:HighlightText()
-        eb.editbox:SetFocus()
+    for i, lnk in ipairs(links) do
+        local eb = AG:Create("EditBox")
+        eb:SetFullWidth(true)
+        eb:SetLabel(lnk.label or ("Link " .. i))
+        eb:SetText(lnk.url or "")
+        f:AddChild(eb)
+
+        -- highlight on focus for quick Ctrl+C
+        if eb.editbox then
+            eb.editbox:SetScript("OnEditFocusGained", function(box)
+                if box.HighlightText then box:HighlightText() end
+            end)
+        end
+
+        if not firstEdit then firstEdit = eb end
+    end
+
+    -- size the popup based on how many boxes we created
+    local baseH = 90
+    local rowH  = 44
+    f:SetHeight(baseH + (#links * rowH))
+
+    -- focus first box
+    if firstEdit and firstEdit.editbox and firstEdit.editbox.HighlightText then
+        firstEdit.editbox:HighlightText()
+        firstEdit.editbox:SetFocus()
     end
 
     self._linkPopup = f

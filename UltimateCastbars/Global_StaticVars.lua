@@ -30,6 +30,9 @@ UCB.UI.links = {
     discord = "https://discord.gg/wX5hWW3N3Q",
     github = "https://github.com/SicSo/UltimateCastbars",
     donate = "https://ko-fi.com/sicso",
+    patreon = "https://www.patreon.com/SicSo",
+    paypal = "https://paypal.me/SicSo",
+    kofi = "https://ko-fi.com/sicso",
 }
 
 UCB.UI.text = {

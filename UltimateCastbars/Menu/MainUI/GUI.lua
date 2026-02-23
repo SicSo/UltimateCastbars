@@ -335,7 +335,11 @@ function GUI:OpenGUI(selectPath)
                 text="Donate",
                 icon=UI.icons.donate,
                 title="Donate",
-                url=UI.links.donate,
+                url={
+                    { label = "Ko-fi",   url = UI.links.kofi },
+                    { label = "PayPal",  url = UI.links.paypal },
+                    { label = "Patreon", url = UI.links.patreon },
+                },
                 width = 90,
             },
         }

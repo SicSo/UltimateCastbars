@@ -14,9 +14,9 @@ Ultimate Castbar aims to be **the last castbar World of Warcraft addon** you’l
 
 ### Sources of inspiration and credits
 
-Thanks to Xepheris for [DisintegrateTicks](https://www.curseforge.com/wow/addons/disintegrateticks) on which was based dynamic disintegrate ticks, donate [here](https://www.patreon.com/cw/warcraftlogs) if you liked that feature
+Thanks to Xepheris for [DisintegrateTicks](https://www.curseforge.com/wow/addons/disintegrateticks) on which was based dynamic disintegrate ticks, donate [here](https://www.patreon.com/cw/warcraftlogs) if you liked that feature.
 
-Thanks to obk_wow for [Universal Frame Anchor](https://www.curseforge.com/wow/addons/frame-anchor-ui-builder) on which was based the frame picker, send some love his way if you liked that feature
+Thanks to obk_wow for [Universal Frame Anchor](https://www.curseforge.com/wow/addons/frame-anchor-ui-builder) on which was based the frame picker, send some love his way if you liked that feature.
 
 ---
 
