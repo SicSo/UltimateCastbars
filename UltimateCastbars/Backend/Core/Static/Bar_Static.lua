@@ -50,14 +50,17 @@ local function CreateCastBar(unit)
     -- Create castbar
     local anchor = UIParent
 
-    -- Group frame = the thing you anchor (represents bar+icon combined)
-    local group = CreateFrame("Frame", ADDON_NAME .. "_" .. unit .. "CastGroup", anchor)
+    local gate_effects = CreateFrame("Frame", ADDON_NAME.."_"..unit.."EffectCastGate", anchor)
+
+    -- Group frame = the thing you anchor (represents bar+icon combined)    
+    local group = CreateFrame("Frame", ADDON_NAME .. "_" .. unit .. "CastGroup", gate_effects)
     UCB.castBarGroup[unit] = group
 
     -- Bar frame lives inside group (keep your name)
     local bar = CreateFrame("Frame", ADDON_NAME .. "_" .. unit:sub(1,1):upper() .. unit:sub(2) .. "CastBar", group, "BackdropTemplate")
     UCB.castBar[unit] = bar
     bar.group = group  -- handy reference
+    bar.gate_effects = gate_effects
 
     -- Status bar (fill bar)
     bar.status = CreateFrame("StatusBar", nil, bar, "BackdropTemplate")

@@ -95,6 +95,7 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
         EmpowerCast(unit, bar, cfg, vars)
     end
 
+    bar.gate_effects:SetAlpha(1)
     bar.group:SetAlpha(1)
     bar:SetAlpha(1)
     bar._ucbUnit = unit

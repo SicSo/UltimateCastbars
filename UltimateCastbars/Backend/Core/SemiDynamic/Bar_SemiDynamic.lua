@@ -62,7 +62,7 @@ local function Alpha_ShowOnlyWhenKickReady(notInterruptibleSecretBool, kickReady
     return C_CurveUtil.EvaluateColorValueFromBoolean(notInterruptibleSecretBool, 0, aKick)
 end
 
-function CASTBAR_API:HideCastbar(bar, vars, cfg)
+function CASTBAR_API:HideCastbar(bar, vars, cfg, starting_alpha)
     local unintCFG = cfg.uninterruptible
     local notIntr = vars and vars.nIntr  -- secret boolean
 
@@ -420,6 +420,7 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
 end
 
 function CASTBAR_API:CastOnUpdateSetup(bar, unit, cfg, vars, castType, spellID, CastbarOnUpdate)
+    bar.gate_effects:SetAlpha(1)
     bar.group:SetAlpha(1)
     bar:SetAlpha(1)
     bar._ucbUnit = unit

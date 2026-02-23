@@ -52,10 +52,9 @@ function CASTBAR_API:ShowFrameTimer(bar, unit, type, duration, alpha)
   bar.flags.cancelledOrInterrupted = true
   local frame = bar.frames[type]
 
-  if type == "cancelled" then
-    frame:SetAlpha(alpha)
-    bar.group:SetAlpha(alpha)
-  end
+    if type == "cancelled" then
+        bar.gate_effects:SetAlpha(alpha)
+    end
 
   frame:Show()
   bar.group:Show()
@@ -84,12 +83,24 @@ function CASTBAR_API:ShowFrameTimer(bar, unit, type, duration, alpha)
 end
 
 
-local function CancelledCast(unit, castType, castGUID, spellID, interruptedBy, castBarID)
+local function CancelledCast(unit, castType, castGUID, spellID, interruptedBy, castBarID, complete)
     local bar = UCB.castBar[unit]
     local frame = bar.frames.cancelled
-    local durationObject = tags.var[unit].durationObject
+
+    local alpha
+    if castType == "empowered" then
+        alpha = GeneralHelpers:NotSecretTo0_1(complete)
+    elseif castType == "channel" then
+        local durationObject = tags.var[unit].durationObject
+        local curve = C_CurveUtil.CreateCurve()
+        curve:AddPoint(0.0,    0.0)  -- at exactly 0s remaining => 0
+        curve:AddPoint(0.001,  1.0)  -- at >= 0.001s remaining => ~1
+        curve:AddPoint(1.0, 1.0)  -- keep it at 1 for typical ranges
+        alpha = durationObject:EvaluateRemainingPercent(curve)
+    else
+        alpha = 1
+    end
     local timer = DesignBar(frame.status, UCB.GetValueConfig(unit), castType, true)
-    local alpha = GeneralHelpers:NotSecretTo0_1(durationObject:IsZero())
     tags:ShowEffectTags(bar, "cancelled", castType, unit)
     CASTBAR_API:ShowFrameTimer(bar, unit, "cancelled", timer, alpha)
 end
@@ -154,7 +165,7 @@ function CASTBAR_API:OnEmpowerInterrupt(unit, castGUID, spellID, complete, inter
         end
     else
         if cfg.otherFeatures.cancelledEffect.enableEffect[castType] then
-            CancelledCast(unit, castType, castGUID, spellID, interruptedBy, castBarID)
+            CancelledCast(unit, castType, castGUID, spellID, interruptedBy, castBarID, complete)
         end
     end
 end
