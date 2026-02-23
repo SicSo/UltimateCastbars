@@ -1,0 +1,18 @@
+package-as: UltimateCastbars
+
+move-folders:
+  - UltimateCastbars
+
+# Use your generated notes for Curse/Wago changelog text:
+manual-changelog: RELEASE_NOTES.md
+changelog-title: UltimateCastbars
+
+ignore:
+  - .github/**
+  - README.md
+  - LICENSE.md
+  - CHANGELOG.md
+  - RELEASE_NOTES.md
+  - update.py
+  - make_release.sh
+  - .gitignore

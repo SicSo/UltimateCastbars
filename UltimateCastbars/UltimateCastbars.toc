@@ -7,6 +7,8 @@
 ## Category: Unit Frames
 ## OptionalDeps: Ace3, LibSharedMedia-3.0
 ## SavedVariables: UCB_DB
+## X-Wago-ID: QNlze9Ke
+## X-Curse-Project-ID: 1470290
 
 
 Libs\LibStub\LibStub.lua

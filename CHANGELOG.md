@@ -1,4 +1,12 @@
+## Unreleased
+
+### Added
+- Support for automatic Curse and Wago releases
+
+---
+
 ## Version 0.9.0 - [23-02-2026]
+
 ### Added
 - Castbars for **player, target, focus** (supports **casts, channels, empowered**).
 - Preview simulator that uses the real cast pipeline:
