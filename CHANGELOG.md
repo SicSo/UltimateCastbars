@@ -1,23 +1,7 @@
 ## Unreleased
-
----
-
-
-## Version 0.9.2 - [23-02-2026]
-
-### Fixed
-- Fixed automatic release for Curse and Wago attempt 1
-
----
-
-
-## Version 0.9.1 - [23-02-2026]
-
-### Added
 - Support for automatic Curse and Wago releases
 
 ---
-
 
 ## Version 0.9.0 - [23-02-2026]
 
