@@ -27,24 +27,29 @@ local function DesignBar(frame_status, cfg, castType, cancelled)
 end
 
 function CASTBAR_API:StopFrameTimer(bar, type)
-  if not bar then return end
+    if not bar.flags.cancelledOrInterrupted then return end
+    if not bar then return end
 
-  local frame = bar.frames[type]
-  if not frame then return end
+    local frame = bar.frames[type]
+    if not frame then return end
 
-  tags:hideTextFromEffect(bar, type)
+    tags:hideTextFromEffect(bar, type)
 
-  -- cancel pending hide timer if any
-  if frame.hideTimer then
-    frame.hideTimer:Cancel()
-    frame.hideTimer = nil
-  end
+    -- cancel pending hide timer if any
+    if frame.hideTimer then
+        frame.hideTimer:Cancel()
+        frame.hideTimer = nil
+    end
 
-  frame:Hide()
-  bar.group:Hide()
+    bar.frames.overlay:Show()
+    bar.frames.underlay:Show()
+
+    frame:Hide()
+    bar.group:Hide()
 end
 
 function CASTBAR_API:ShowFrameTimer(bar, unit, type, duration, alpha)
+  bar.flags.cancelledOrInterrupted = true
   local frame = bar.frames[type]
 
   if type == "cancelled" then
@@ -60,6 +65,13 @@ function CASTBAR_API:ShowFrameTimer(bar, unit, type, duration, alpha)
     frame.hideTimer:Cancel()
     frame.hideTimer = nil
   end
+
+  bar.status:SetValue(0)
+  bar.frames.unInterrupted.status:SetValue(0)
+  bar.frames.untilKick.status:SetValue(0)
+
+  bar.frames.overlay:Hide()
+  bar.frames.underlay:Hide()
 
   local cfg = UCB.GetValueConfig(unit)
   CASTBAR_API:HideCastbar(bar, tags.var[unit], cfg)

@@ -131,7 +131,8 @@ local function CreateCastBar(unit)
     bar.flags = {
         castActive = false, -- Active cast
         mirrored = false, -- Whether mirror bars are enabled for this unit
-        prevType = nil -- Type of previous cast (normal/channel/empowered)
+        prevType = nil, -- Type of previous cast (normal/channel/empowered)
+        cancelledOrInterrupted = false -- Whether the current cast was cancelled or interrupted (used to prevent hiding the bar on spellcast stop event)    
     }
 
     -- Cast info

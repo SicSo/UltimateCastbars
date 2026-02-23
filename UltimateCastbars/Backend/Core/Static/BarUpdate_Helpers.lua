@@ -560,16 +560,19 @@ function BarUpdate_API:UpdateOtherFeatures(unit)
     end
 
     -- Cancelled/Interrupted frames
+    bar.frames.interrupted:Hide()
     bar.frames.interrupted.status:SetMinMaxValues(0, 1)
     bar.frames.interrupted.status:SetValue(1)
     local interCFG = cfg.interruptedEffect
     bar.frames.interrupted.status:SetStatusBarTexture(interCFG.frameTexture.normal)
     bar.frames.interrupted.status:SetStatusBarColor(interCFG.frameColour.normal.r, interCFG.frameColour.normal.g, interCFG.frameColour.normal.b, interCFG.frameColour.normal.a)
+    bar.frames.cancelled:Hide()
     bar.frames.cancelled.status:SetMinMaxValues(0, 1)
     bar.frames.cancelled.status:SetValue(1)
     local cancelCFG = cfg.cancelledEffect
     bar.frames.cancelled.status:SetStatusBarTexture(cancelCFG.frameTexture.normal)
     bar.frames.cancelled.status:SetStatusBarColor(cancelCFG.frameColour.normal.r, cancelCFG.frameColour.normal.g, cancelCFG.frameColour.normal.b, cancelCFG.frameColour.normal.a)
+
 end
 
 
