@@ -44,7 +44,7 @@ function CASTBAR_API:StopFrameTimer(bar, type)
   bar.group:Hide()
 end
 
-function CASTBAR_API:ShowFrameTimer(bar, type, duration, alpha)
+function CASTBAR_API:ShowFrameTimer(bar, unit, type, duration, alpha)
   local frame = bar.frames[type]
 
   if type == "cancelled" then
@@ -61,6 +61,9 @@ function CASTBAR_API:ShowFrameTimer(bar, type, duration, alpha)
     frame.hideTimer = nil
   end
 
+  local cfg = UCB.GetValueConfig(unit)
+  CASTBAR_API:HideCastbar(bar, tags.var[unit], cfg)
+
   frame.hideTimer = C_Timer.NewTimer(duration, function()
     frame.hideTimer = nil
     frame:Hide()
@@ -76,7 +79,7 @@ local function CancelledCast(unit, castType, castGUID, spellID, interruptedBy, c
     local timer = DesignBar(frame.status, UCB.GetValueConfig(unit), castType, true)
     local alpha = GeneralHelpers:NotSecretTo0_1(durationObject:IsZero())
     tags:ShowEffectTags(bar, "cancelled", castType, unit)
-    CASTBAR_API:ShowFrameTimer(bar, "cancelled", timer, alpha)
+    CASTBAR_API:ShowFrameTimer(bar, unit, "cancelled", timer, alpha)
 end
 
 local function InterruptedCast(unit, castType, castGUID, spellID, interruptedBy, castBarID)
@@ -92,7 +95,7 @@ local function InterruptedCast(unit, castType, castGUID, spellID, interruptedBy,
     local frame = bar.frames.interrupted
     local timer = DesignBar(frame.status, UCB.GetValueConfig(unit), castType, false)
     tags:ShowEffectTags(bar, "interrupted", castType, unit)
-    CASTBAR_API:ShowFrameTimer(bar, "interrupted", timer)
+    CASTBAR_API:ShowFrameTimer(bar, unit, "interrupted", timer)
 end
 
 

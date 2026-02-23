@@ -49,6 +49,14 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
     Preview_API.previewActive[unit] = true
     Preview_API.lastCastType[unit] = castType
 
+    CASTBAR_API:StopPrevCast(unit, bar, nil, nil, nil)
+
+    -- Stop view of cancelled/interrupted casts
+    CASTBAR_API:StopFrameTimer(UCB.castBar[unit], "cancelled")
+    CASTBAR_API:StopFrameTimer(UCB.castBar[unit], "interrupted")
+
+    bar.current_spellID = previewCFG.previewSpellID[castType]
+
     local duration = previewCFG.previewDuration
     if previewCFG.previewNormalDefaultDuration and castType == "normal" then
         local spellID = previewCFG.previewSpellID[castType]
@@ -68,9 +76,16 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
     if unit == "player" then
         CASTBAR_API:AssignQueueWindow(cfg, castType)
     end
-    CASTBAR_API:MirrorBar(cfg, bar, castType)
 
-    CASTBAR_API:UninterruptibleCast(bar, bar.status, vars)
+    local bar_status = bar.status
+    bar_status:SetMinMaxValues(0, vars.dTime)
+    local otherCFG = cfg.otherFeatures
+    CASTBAR_API:MirrorBar(cfg, bar, castType)
+    CASTBAR_API:InitCastbarVal(bar_status, castType, false, vars, otherCFG)
+
+    CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
+
+    CASTBAR_API:InterruptibleTick(bar, bar_status, vars, cfg, castType)
 
     if castType == "normal" then
         NormalCast(unit, bar)
@@ -80,13 +95,19 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
         EmpowerCast(unit, bar, cfg, vars)
     end
 
-    bar.status:SetMinMaxValues(0,tags.var[unit].dTime)
+    bar.group:SetAlpha(1)
+    bar:SetAlpha(1)
     bar._ucbUnit = unit
     bar._ucbCfg = cfg
     bar._ucbCastType = castType
     bar._ucbVars = vars
+    bar._ucbSpellID = previewCFG.previewSpellID[castType]
     bar:SetScript("OnUpdate", CastbarOnUpdate)
     bar.group:Show()
+    bar.flags.prevType = castType
+    bar.flags.castActive = true
+
+    CASTBAR_API:HideCastbar(bar, vars, cfg)
 end
 
 function Preview_API:HidePreviewCastBar(unit)
@@ -99,7 +120,10 @@ function Preview_API:HidePreviewCastBar(unit)
     local bar = UCB.castBar[unit]
     bar.group:Hide()
     bar:SetScript("OnUpdate", nil)
-    bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars = nil, nil, nil, nil
+    bar.flags.castActive = false
+    bar.flags.prevType = nil
+    bar.current_spellID = nil
+    bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars, bar._ucbSpellID = nil, nil, nil, nil, nil
 
     -- Player main, targets, focus,
     CASTBAR_API:HideChannelTicks(bar, cfg.otherFeatures)

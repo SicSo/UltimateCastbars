@@ -27,7 +27,7 @@ function CASTBAR_API:StopPrevCast(unit, bar, castGUID, spellID, castBarID)
     end
 end
 
-local function InitCastbarVal(status, castType, resumeCast, vars, cfg)
+function CASTBAR_API:InitCastbarVal(status, castType, resumeCast, vars, cfg)
     local minVal = 0
     local maxVal = vars.dTime
     -- Resume sets value to current point
@@ -62,7 +62,7 @@ local function Alpha_ShowOnlyWhenKickReady(notInterruptibleSecretBool, kickReady
     return C_CurveUtil.EvaluateColorValueFromBoolean(notInterruptibleSecretBool, 0, aKick)
 end
 
-local function HideCastbar(bar, vars, cfg)
+function CASTBAR_API:HideCastbar(bar, vars, cfg)
     local unintCFG = cfg.uninterruptible
     local notIntr = vars and vars.nIntr  -- secret boolean
     local a = 1
@@ -399,7 +399,6 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
     end
 
     -- Set text, icon, queue window
-    local textCFG = cfg.text
     tags:setTextSameState(bar, "semiDynamic", unit, castType, false)
     tags:setTextSameState(bar, "dynamic", unit, castType, true)
     
@@ -413,7 +412,7 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
     bar_status:SetMinMaxValues(0, vars.dTime)
     local otherCFG = cfg.otherFeatures
     CASTBAR_API:MirrorBar(cfg, bar, castType)
-    InitCastbarVal(bar_status, castType, resumeCast, vars, otherCFG)
+    CASTBAR_API:InitCastbarVal(bar_status, castType, resumeCast, vars, otherCFG)
 
     CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
 
@@ -435,7 +434,7 @@ function CASTBAR_API:CastOnUpdateSetup(bar, unit, cfg, vars, castType, spellID, 
     bar.flags.prevType = castType
     bar.flags.castActive = true
 
-    HideCastbar(bar, vars, cfg)
+    CASTBAR_API:HideCastbar(bar, vars, cfg)
 end
 
 
@@ -460,7 +459,6 @@ function CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType)
     end
 
     -- Set text, icon, queue window
-    local textCFG = cfg.text
     tags:setTextSameState(bar, "semiDynamic", unit, castType, false)
     tags:setTextSameState(bar, "dynamic", unit, castType, true)
 
