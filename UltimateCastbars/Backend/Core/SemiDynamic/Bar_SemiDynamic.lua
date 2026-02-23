@@ -65,24 +65,9 @@ end
 function CASTBAR_API:HideCastbar(bar, vars, cfg)
     local unintCFG = cfg.uninterruptible
     local notIntr = vars and vars.nIntr  -- secret boolean
-    local a = 1
 
-    if unintCFG.disableBarUnInt or unintCFG.changeAlphaBarUnint then
-        if unintCFG.disableBarUnInt then
-            a = C_CurveUtil.EvaluateColorValueFromBoolean(notIntr, 0, 1)
-            bar.group:SetAlpha(a)
-            return
-        end
-        if unintCFG.changeAlphaBarUnint then
-             a = C_CurveUtil.EvaluateColorValueFromBoolean(notIntr, unintCFG.alphaBarUnint, 1)
-             if unintCFG.includeIconAlphaUnint then
-                bar.group:SetAlpha(a)
-             else
-                bar:SetAlpha(a)
-             end
-            return
-        end
-    end
+    local alphaUnint = 1
+    local alphaKick = 1
    
     if unintCFG.disableBarUnKick or unintCFG.changeAlphaBarUnKick then
         local spellID, kickDur = GeneralHelpers:GetKickTimer()
@@ -91,18 +76,31 @@ function CASTBAR_API:HideCastbar(bar, vars, cfg)
         end
         local kickReady = kickDur:IsZero()   -- secret boolean
         if unintCFG.disableBarUnKick then
-            a = Alpha_ShowOnlyWhenKickReady(notIntr, kickReady, 0)
-            bar.group:SetAlpha(a)
-            return
+            alphaKick = Alpha_ShowOnlyWhenKickReady(notIntr, kickReady, 0)
+            bar.group:SetAlpha(alphaKick)
         end
-        if unintCFG.changeAlphaBarUnKick then
-            a = Alpha_ShowOnlyWhenKickReady(notIntr, kickReady, unintCFG.alphaBarUnKick)
+        if unintCFG.changeAlphaBarUnKick and not unintCFG.disableBarUnKick then
+            alphaKick = Alpha_ShowOnlyWhenKickReady(notIntr, kickReady, unintCFG.alphaBarUnKick)
             if unintCFG.includeIconAlphaUnKick then
-                bar.group:SetAlpha(a)
+                bar.group:SetAlpha(alphaKick)
             else
-                bar:SetAlpha(a)
+                bar:SetAlpha(alphaKick)
             end
-            return
+        end
+    end
+
+    if unintCFG.disableBarUnInt or unintCFG.changeAlphaBarUnint then
+         if unintCFG.disableBarUnInt then
+            alphaUnint = C_CurveUtil.EvaluateColorValueFromBoolean(notIntr, 0, alphaKick)
+            bar.group:SetAlpha(alphaUnint)
+        end
+        if unintCFG.changeAlphaBarUnint and not unintCFG.disableBarUnInt then
+             alphaUnint = C_CurveUtil.EvaluateColorValueFromBoolean(notIntr, unintCFG.alphaBarUnint, alphaKick)
+             if unintCFG.includeIconAlphaUnint then
+                bar.group:SetAlpha(alphaUnint)
+             else
+                bar:SetAlpha(alphaUnint)
+             end
         end
     end
 end
