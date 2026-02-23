@@ -156,7 +156,7 @@ def main() -> None:
     ap.add_argument("--version", required=True, help="Release version number, e.g. 2.4.0")
     ap.add_argument("--changelog", default="CHANGELOG.md", help="Path to CHANGELOG.md")
     ap.add_argument("--toc", default="UltimateCastbars/UltimateCastbars.toc", help="Path to your .toc file")
-    ap.add_argument("--lua-out", default="UltimateCastbars/CHANGELOG.lua", help="Output Lua file path")
+    ap.add_argument("--lua-out", default="UltimateCastbars/CHANGELOGS.lua", help="Output Lua file path")
     ap.add_argument("--keep", type=int, default=10, help="How many latest released versions to copy into Lua")
     ap.add_argument("--date", default=None, help="Release date as DD-MM-YYYY (default: today)")
     ap.add_argument("--release-notes-out", default="RELEASE_NOTES.md", help="Output file for just this release's notes")

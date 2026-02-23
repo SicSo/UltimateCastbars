@@ -1,5 +1,8 @@
 ## Unreleased
 
+### Fixed
+- Fixed automatic release for Curse and Wago attempt 1
+
 ---
 
 

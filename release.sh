@@ -26,7 +26,7 @@ done
 [[ -n "$VERSION" ]] || usage
 
 TOC="UltimateCastbars/UltimateCastbars.toc"
-LUA_OUT="UltimateCastbars/CHANGELOG.lua"
+LUA_OUT="UltimateCastbars/CHANGELOGS.lua"
 PY="py"  # or python3
 
 # 1) run updater
@@ -37,7 +37,7 @@ else
 fi
 
 # 2) commit
-git add CHANGELOG.md "$TOC" "$LUA_OUT"
+git add CHANGELOG.md "$TOC" "$LUA_OUT" RELEASE_NOTES.md
 git commit -m "chore(release): $VERSION"
 
 # 3) tag (fails if tag already exists)

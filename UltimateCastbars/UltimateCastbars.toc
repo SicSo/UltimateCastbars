@@ -7,6 +7,7 @@
 ## Category: Unit Frames
 ## OptionalDeps: Ace3, LibSharedMedia-3.0
 ## SavedVariables: UCB_DB
+
 ## X-Wago-ID: QNlze9Ke
 ## X-Curse-Project-ID: 1470290
 
@@ -35,7 +36,7 @@ Libs\LibDeflate\LibDeflate.lua
 # Load AceGUI-3.0-SharedMediaWidgets XML (for LSM30_Statusbar)
 PlayersCastbars_AceGUISharedMediaWidgets.xml
 
-CHANGELOG.lua
+CHANGELOGS.lua
 Global_StaticVars.lua
 Global_Functions.lua
 Global_Vars.lua
