@@ -11,6 +11,13 @@
 
 Ultimate Castbar aims to be **the last castbar World of Warcraft addon** you’ll ever need. It is a highly configurabl castbar addon for World of Warcraft (Retail), focused on deep layout control, rich text/tagging, and advanced interruptibility/kick-aware visuals.
 
+
+### Sources of inspiration and credits
+
+Thanks to Xepheris for [DisintegrateTicks](https://www.curseforge.com/wow/addons/disintegrateticks) on which was based dynamic disintegrate ticks, donate [here](https://www.patreon.com/cw/warcraftlogs) if you liked that feature
+
+Thanks to obk_wow for [Universal Frame Anchor](https://www.curseforge.com/wow/addons/frame-anchor-ui-builder) on which was based the frame picker, send some love his way if you liked that feature
+
 ---
 
 ## Table of Contents
@@ -68,7 +75,6 @@ Ultimate Castbar aims to be **the last castbar World of Warcraft addon** you’l
 3. Ensure the addon folder name matches the `.toc` addon name.
 4. Launch the game and enable the addon in the character select “AddOns” menu.
 
-> If you ship embedded libraries in-repo, this should “just work.” If you unembed libraries, ensure required libs are installed.
 
 ---
 
