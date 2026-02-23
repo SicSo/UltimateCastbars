@@ -1,9 +1,9 @@
 package-as: UltimateCastbars
 
 move-folders:
-  UltimateCastbars: UltimateCastbars
+  UltimateCastbars/UltimateCastbars: UltimateCastbars
 
-manual-changelog: 
+manual-changelog:
   filename: CHANGELOG.md
   markup-type: markdown
 changelog-title: UltimateCastbars
@@ -17,3 +17,4 @@ ignore:
   - update.py
   - make_release.sh
   - .gitignore
+  - release.sh
