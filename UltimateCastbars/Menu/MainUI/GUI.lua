@@ -344,6 +344,8 @@ function GUI:OpenGUI(selectPath)
             },
         }
     })
+    
+    GUIWidgets:AttachTopRightChangelogButton(Container)
 
     local holder = UCB.AG:Create("SimpleGroup")
     holder:SetFullWidth(true)

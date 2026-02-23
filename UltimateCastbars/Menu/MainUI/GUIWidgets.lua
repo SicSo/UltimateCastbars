@@ -1,5 +1,7 @@
 local _, UCB = ...
 
+UCB_DB = UCB_DB or {}
+
 local AG = UCB and UCB.AG
 if not (UCB and AG) then return end
 
@@ -525,3 +527,48 @@ function GUIWidgets:DetachFooterBar(aceGuiContainer)
     parent.__ucbFooterBar = nil
 end
 
+
+local function IsChangelogNew()
+    local cur = UCB.UI.text.version
+    return (cur ~= "") and (UCB_DB.lastSeenChangelogVersion ~= cur)
+end
+
+local function MarkChangelogSeen()
+    local cur = UCB.UI.text.version
+    if cur ~= "" then
+        UCB_DB.lastSeenChangelogVersion = cur
+    end
+end
+
+function GUIWidgets:AttachTopRightChangelogButton(aceGuiFrame)
+    if not (aceGuiFrame and aceGuiFrame.frame) then return end
+    local parent = aceGuiFrame.frame
+
+    if parent.__ucbChangelogBtn then
+        parent.__ucbChangelogBtn:Hide()
+        parent.__ucbChangelogBtn:SetParent(nil)
+        parent.__ucbChangelogBtn = nil
+    end
+
+    local btn = self:CreateTopBarButton(parent, {
+        width    = 150,
+        height   = 18,
+        iconSize = 14,
+        icon     = "Interface\\AddOns\\UltimateCastbars\\gfx\\Icons\\changelog.png", -- <-- your icon
+        text     = "Changelogs",
+        onClick  = function(b) 
+            self:OpenChangelogWindow("UltimateCastbars Changelog", (UCB and UCB.CHANGELOG_TEXT) or "")
+            MarkChangelogSeen()
+            b:SetShowNew(IsChangelogNew())
+        end
+    })
+
+    -- Position (offset left/down from top-right)
+    btn:ClearAllPoints()
+    btn:SetPoint("TOPRIGHT", parent, "TOPRIGHT", -3, -3)
+
+    -- show (New) if needed
+    btn:SetShowNew(IsChangelogNew())
+
+    parent.__ucbChangelogBtn = btn
+end

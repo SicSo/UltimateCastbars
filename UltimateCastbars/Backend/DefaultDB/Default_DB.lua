@@ -18,7 +18,7 @@ local Default_Values = {
         misc = {
             lastUIPath = {},
         }
-    }
+    },
 }
 
 function UCB:GetDefaultDB()
