@@ -64,7 +64,7 @@ Any redistribution or bundling permitted by this license must:
 ## Attribution Text (Recommended)
 Use the following credit (or equivalent wording):
 
-> “This package includes UltimateCastBars by Sicso. Original: <PROJECT URL>”
+> “This package includes UltimateCastbars by Sicso. Original: <PROJECT URL>”
 
 ## Trademarks
 World of Warcraft® and Blizzard Entertainment® are trademarks of Blizzard Entertainment, Inc. This project is not affiliated with or endorsed by Blizzard Entertainment.
