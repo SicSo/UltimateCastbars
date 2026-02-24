@@ -298,6 +298,7 @@ function GUI:OpenGUI(selectPath)
         if GUIWidgets and GUIWidgets.DetachFooterBar then
             --GUIWidgets:DetachBottomLeftLinks(widget)
             GUIWidgets:DetachFooterBar(widget)
+            GUIWidgets:DetachHeaderButtons(widget)
 
         end
 

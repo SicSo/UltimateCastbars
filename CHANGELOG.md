@@ -1,5 +1,8 @@
 ## Unreleased
 
+### Fixed
+- Hide changelog button on non UCB frames
+
 ---
 
 

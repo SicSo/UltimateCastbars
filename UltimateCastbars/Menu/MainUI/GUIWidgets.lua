@@ -166,6 +166,7 @@ function GUIWidgets:AttachBottomLeftLinks(aceGuiFrame, links)
     aceGuiFrame.OnRelease = function(widget)
         if GUIWidgets and GUIWidgets.DetachBottomLeftLinks then
             GUIWidgets:DetachBottomLeftLinks(widget)
+            GUIWidgets:DetachHeaderButtons(widget)
         end
         if old then old(widget) end
         end
@@ -571,4 +572,15 @@ function GUIWidgets:AttachTopRightChangelogButton(aceGuiFrame)
     btn:SetShowNew(IsChangelogNew())
 
     parent.__ucbChangelogBtn = btn
+end
+
+function GUIWidgets:DetachHeaderButtons(aceGuiFrame)
+    if not (aceGuiFrame and aceGuiFrame.frame) then return end
+    local parent = aceGuiFrame.frame
+
+    if parent.__ucbChangelogBtn then
+        parent.__ucbChangelogBtn:Hide()
+        parent.__ucbChangelogBtn:SetParent(nil)
+        parent.__ucbChangelogBtn = nil
+    end
 end
