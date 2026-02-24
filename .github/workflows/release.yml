@@ -17,15 +17,24 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Package and publish (CurseForge, Wago)
+        uses: BigWigsMods/packager@v2
+        env:
+          CF_API_KEY: ${{ secrets.CF_API_KEY }}
+          WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+
+      - name: Zip UltimateCastbars folder (extra asset)
+        run: |
+          mkdir -p dist
+          zip -r "dist/UltimateCastbars-${GITHUB_REF_NAME}.zip" UltimateCastbars
+
       - name: Create GitHub Release (use RELEASE_NOTES.md)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
           body_path: RELEASE_NOTES.md
-
-      - name: Package and publish (CurseForge, Wago)
-        uses: BigWigsMods/packager@v2
-        env:
-          CF_API_KEY: ${{ secrets.CF_API_KEY }}
-          WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+          # .release/*.zip in files MAYBE
+          files: |
+            dist/UltimateCastbars-${{ github.ref_name }}.zip
+          fail_on_unmatched_files: false

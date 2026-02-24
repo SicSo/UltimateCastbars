@@ -1,9 +1,12 @@
 <!-- Buttons -->
-<!-- Support buttons -->
 [![PayPal](https://img.shields.io/badge/PayPal-Donate-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/sicso2000)
 [![Ko--fi](https://img.shields.io/badge/Ko--fi-Support-FF5E5B?style=for-the-badge&logo=kofi&logoColor=white)](https://ko-fi.com/sicso)
 [![Patreon](https://img.shields.io/badge/Patreon-Become%20a%20Patron-F96854?style=for-the-badge&logo=patreon&logoColor=white)](https://patreon.com/SicSo)
-[![Download](https://img.shields.io/badge/Download-Latest-2ea44f?style=for-the-badge&logo=github&logoColor=white)](https://github.com//SicSo/UltimateCastbars/releases/latest)
+
+[![CurseForge](https://img.shields.io/badge/CurseForge-Download-F16436?style=for-the-badge&logo=curseforge&logoColor=white)](https://legacy.curseforge.com/wow/addons/ultimate-castbars)
+[![Wago](https://img.shields.io/badge/Wago-Download-c1272d?style=for-the-badge&logo=data:image/svg%2Bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NDEuNyAzMTEuNiI%2BPGRlZnM%2BPHN0eWxlPi5jbHMtMXtmaWxsOiNmZmY7fS5jbHMtMntmaWxsOiNjMTI3MmQ7fTwvc3R5bGU%2BPC9kZWZzPjxnIGlkPSJMYXllcl8yIiBkYXRhLW5hbWU9IkxheWVyIDIiPjxnIGlkPSJMYXllcl8xLTIiIGRhdGEtbmFtZT0iTGF5ZXIgMSI%2BPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMjMwLjgsMTQwLjZoNzkuOGE3Ny4xMSw3Ny4xMSwwLDAsMSw2MC44LTYwLjdWMEExNTYuMTMsMTU2LjEzLDAsMCwwLDIzMC44LDE0MC42WiIvPjxwYXRoIGNsYXNzPSJjbHMtMiIgZD0iTTQ2MS45LDE0MC42aDc5LjhBMTU2LjEzLDE1Ni4xMywwLDAsMCw0MDEuMSwwVjc5LjhBNzcuMSw3Ny4xLDAsMCwxLDQ2MS45LDE0MC42WiIvPjxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTMxMC43LDE3MC45YzAtLjIuMS0uNC4xLS42aC04MGExLjI3LDEuMjcsMCwwLDAsLjEuNiw3Ny4wNiw3Ny4wNiwwLDAsMS0xNTEuMS0uNkgwYTE1Ni4yNCwxNTYuMjQsMCwwLDAsMjcxLDkwLjMsMTU1LjM4LDE1NS4zOCwwLDAsMCwxMDAuNiw1MC4zVjIzMUE3Ni45Myw3Ni45MywwLDAsMSwzMTAuNywxNzAuOVoiLz48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik00MDEuMSwyMzEuMVYzMTFBMTU2LjEzLDE1Ni4xMywwLDAsMCw1NDEuNywxNzAuNEg0NjEuOUE3Ny4xMSw3Ny4xMSwwLDAsMSw0MDEuMSwyMzEuMVoiLz48L2c%2BPC9nPjwvc3ZnPg%3D%3D)](https://addons.wago.io/addons/ultimate-castbars)
+[![Github](https://img.shields.io/badge/Github-Download-2ea44f?style=for-the-badge&logo=github&logoColor=white)](https://github.com//SicSo/UltimateCastbars/releases/latest)
+
 [![Changelog](https://img.shields.io/badge/Changelog-View-4c4c4c?style=for-the-badge&logo=readthedocs&logoColor=white)](CHANGELOG.md)
 [![Discord](https://img.shields.io/discord/1122703064730710139?label=Discord&style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/wX5hWW3N3Q)
 
@@ -64,16 +67,23 @@ Thanks to obk_wow for [Universal Frame Anchor](https://www.curseforge.com/wow/ad
 
 ## Installation
 
+### Automatic install
+
+1. Use either [Curse](https://www.curseforge.com/wow/search?page=1&pageSize=20&sortBy=relevancy&class=addons) or [Wago](https://wago.io/) and their corresponding OS apps 
+
+    - Search for “Ultimate Castbars” and click “Install” (Curse) or “Add to collection” (Wago).
+    - Follow the prompts to select your WoW installation and desired options.
+    - The app will handle downloading, installing, and updating the addon for you with only a few clicks.
+
 ### Manual install
 
 1. Download the repository as a ZIP (or a release archive if you publish releases).
-2. Extract into your WoW AddOns folder:
+2. Extract the **UltimateCastbars sub-folder** into your WoW AddOns folder (the sub-folder should have a file called **UltimateCastbars.toc** inside it):
 
    - **Windows:** `World of Warcraft\_retail_\Interface\AddOns\`
    - **macOS:** `World of Warcraft/_retail_/Interface/AddOns/`
 
-3. Ensure the addon folder name matches the `.toc` addon name.
-4. Launch the game and enable the addon in the character select “AddOns” menu.
+3. Launch the game and enable the addon in the character select “AddOns” menu.
 
 
 ---
