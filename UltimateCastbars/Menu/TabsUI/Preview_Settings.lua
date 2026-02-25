@@ -9,13 +9,11 @@ local GetCFG = UCB.GetValueConfig
 local Preview_API = UCB.Preview_API
 
 local function PreviewSpells(cfg)
-    if not Preview_API.showSettings then
-        return nil
-    end
     return {
         type   = "group",
         name   = "Preview Spell Settings",
         --inline = false,
+        hidden = function() return not Preview_API.showSettingsToggle end,
         order  = 2,
         args   = {
             spellListNormal = {
@@ -89,13 +87,11 @@ end
 
 
 local function PreviewSettings(cfg)
-    if not Preview_API.showSettings then
-        return nil
-    end
     return {
         type   = "group",
         name   = "Preview Settings",
         --inline = false,
+        hidden = function() return not Preview_API.showSettingsToggle end,
         order  = 3,
         args   = {
             setCustomDuration = {
@@ -143,7 +139,7 @@ end
 
 local function BuildPreviewArgs(args, unit, opts)
     local cfg = GetCFG(unit)
-    Preview_API.showSettings = false
+    Preview_API.showSettingsToggle = false
 
     args.previewRow = {
         type   = "group",
@@ -304,7 +300,7 @@ local function BuildPreviewArgs(args, unit, opts)
             showSettings = {
                 type  = "execute",
                 name  = function() 
-                    if Preview_API.showSettings then
+                    if Preview_API.showSettingsToggle then
                         return UCB.UIOptions.ColorText(UCB.UIOptions.red, "Hide").." Preview Settings"
                     else
                         return UCB.UIOptions.ColorText(UCB.UIOptions.green, "Show").." Preview Settings"
@@ -313,7 +309,7 @@ local function BuildPreviewArgs(args, unit, opts)
                 order = 4,
                 width = 1,
                 func  = function()
-                    Preview_API.showSettings = not Preview_API.showSettings
+                    Preview_API.showSettingsToggle = not Preview_API.showSettingsToggle
                     args.previewSpells = PreviewSpells(cfg)
                     args.previewSettings = PreviewSettings(cfg)
                 end,

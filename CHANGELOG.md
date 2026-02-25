@@ -6,6 +6,7 @@
 ### Fixed
 - Update events for channel/empower spells were not behaving as intended
 - Hide changelog button on non UCB frames
+- Show/Hide preview was not working correctly in between castbar types of tabs
 
 ---
 
