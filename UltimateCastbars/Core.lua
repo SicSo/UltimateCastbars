@@ -1,6 +1,8 @@
 local ADDON_NAME, UCB = ...
 local UltimateCastBars = LibStub("AceAddon-3.0"):NewAddon("Ultimate Castbars", "AceConsole-3.0")
 
+UCB.Copy = UCB.Copy or {}
+
 function UltimateCastBars:OnInitialize()
     UCB.db = LibStub("AceDB-3.0"):New("UCB_DB", UCB:GetDefaultDB(), true)
 
@@ -25,7 +27,13 @@ function UltimateCastBars:OnInitialize()
         UCB:NormalizeCurrentProfileToSchema()
         UCB:UpdateAllCastBars()
     end)
-    UCB.db.RegisterCallback(UCB, "OnProfileCopied", function()
+    UCB.db.RegisterCallback(UCB, "OnProfileCopied", function(_, db, sourceKey)
+        local src = db.profiles and db.profiles[sourceKey]
+        local dst = db.profile
+
+        UCB.Copy:WipeTable(dst)
+        UCB.Copy:CopyBySchema(dst, src, UCB:GetDefaultDB().profile) -- or your defaults.profile table
+
         UCB:NormalizeCurrentProfileToSchema()
         UCB:UpdateAllCastBars()
     end)

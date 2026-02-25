@@ -149,3 +149,24 @@ function Copy:CopySettings(unitDest, unitSrc, keys)
     end
     return copyOne
 end
+
+function Copy:WipeTable(t)
+    for k in pairs(t) do t[k] = nil end
+end
+
+function Copy:CopyBySchema(dst, src, schema)
+    for k, schemaVal in pairs(schema) do
+        local srcVal = src and src[k]
+
+        if type(schemaVal) == "table" then
+            if type(dst[k]) ~= "table" then dst[k] = {} end
+            self:CopyBySchema(dst[k], type(srcVal) == "table" and srcVal or nil, schemaVal)
+        else
+            if srcVal ~= nil and type(srcVal) == type(schemaVal) then
+                dst[k] = srcVal
+            else
+                dst[k] = schemaVal
+            end
+        end
+    end
+end
