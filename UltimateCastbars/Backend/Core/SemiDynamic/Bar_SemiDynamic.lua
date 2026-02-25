@@ -483,4 +483,5 @@ function CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType)
     else
         bar.status:SetValue(minVal)
     end
+    return true
 end

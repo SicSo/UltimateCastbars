@@ -1,7 +1,5 @@
 local ADDON_NAME, UCB = ...
 
-
-
 -- Used to hide the default castbar
 UCB.defaultCastbarFrame = CreateFrame("Frame")
 UCB.defaultCastbarFrame:Hide()
@@ -25,16 +23,8 @@ UCB.events = {
   UNIT_SPELLCAST_STOP           = "OnUnitSpellcastStop",
   UNIT_SPELLCAST_CHANNEL_START  = "OnUnitSpellcastChannelStart",
   UNIT_SPELLCAST_CHANNEL_UPDATE = "OnUnitSpellcastChannelUpdate",
-  --UNIT_SPELLCAST_CHANNEL_STOP   = "OnUnitSpellcastChannelStop",
   UNIT_SPELLCAST_EMPOWER_START  = "OnUnitSpellcastEmpowerStart",
   UNIT_SPELLCAST_EMPOWER_UPDATE = "OnUnitSpellcastEmpowerUpdate",
-  --UNIT_SPELLCAST_EMPOWER_STOP   = "OnUnitSpellcastEmpowerStop",
-
-  --UNIT_SPELLCAST_DELAYED = CastUpdate,
-	--UNIT_SPELLCAST_FAILED = CastFail,
-	--UNIT_SPELLCAST_INTERRUPTED = CastFail,
-	--UNIT_SPELLCAST_INTERRUPTIBLE = CastInterruptible,
-	--UNIT_SPELLCAST_NOT_INTERRUPTIBLE = CastInterruptible,
 }
 
 UCB.swapEvents = {

@@ -1,6 +1,10 @@
 ## Unreleased
 
+### Changed
+- Updated LibSharedMedia-3.0 to current version
+
 ### Fixed
+- Update events for channel/empower spells were not behaving as intended
 - Hide changelog button on non UCB frames
 
 ---
