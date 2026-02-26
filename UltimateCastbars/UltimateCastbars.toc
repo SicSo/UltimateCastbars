@@ -2,7 +2,7 @@
 ## Title: Ultimate Castbars
 ## Notes: Castbars
 ## Author: SicSo, Ckraigfriend
-## Version: 0.9.3
+## Version: 0.9.4
 ## IconTexture: Interface/AddOns/UltimateCastbars/gfx/icon
 ## Category: Castbars
 ## SavedVariables: UCB_DB
