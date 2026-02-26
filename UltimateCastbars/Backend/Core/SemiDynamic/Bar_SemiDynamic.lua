@@ -49,19 +49,6 @@ function CASTBAR_API:InitCastbarVal(status, castType, resumeCast, vars, cfg)
     end
 end
 
-local function Alpha_ShowOnlyWhenKickReady(notInterruptibleSecretBool, kickReadySecretBool, alpha)
-    if not C_CurveUtil then
-        return 1 -- safest fallback if curve util isn't available
-    end
-    if not alpha then
-        alpha = 0
-    end
-    -- kickReady=true -> 1, false -> 0
-    local aKick = C_CurveUtil.EvaluateColorValueFromBoolean(kickReadySecretBool, 1, alpha)
-    -- notInterruptible=true -> 0, false -> aKick
-    return C_CurveUtil.EvaluateColorValueFromBoolean(notInterruptibleSecretBool, 0, aKick)
-end
-
 function CASTBAR_API:HideCastbar(bar, vars, cfg, starting_alpha)
     local unintCFG = cfg.uninterruptible
     local notIntr = vars and vars.nIntr  -- secret boolean
@@ -76,11 +63,11 @@ function CASTBAR_API:HideCastbar(bar, vars, cfg, starting_alpha)
         end
         local kickReady = kickDur:IsZero()   -- secret boolean
         if unintCFG.disableBarUnKick then
-            alphaKick = Alpha_ShowOnlyWhenKickReady(notIntr, kickReady, 0)
+            alphaKick = GeneralHelpers:SecretToA_B(kickReady, 1, 0)
             bar.group:SetAlpha(alphaKick)
         end
         if unintCFG.changeAlphaBarUnKick and not unintCFG.disableBarUnKick then
-            alphaKick = Alpha_ShowOnlyWhenKickReady(notIntr, kickReady, unintCFG.alphaBarUnKick)
+            alphaKick = GeneralHelpers:SecretToA_B(kickReady, 1, unintCFG.alphaBarUnKick)
             if unintCFG.includeIconAlphaUnKick then
                 bar.group:SetAlpha(alphaKick)
             else
