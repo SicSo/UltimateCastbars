@@ -1,5 +1,10 @@
 ## Unreleased
 
+---
+
+
+## Version 0.9.2 - [26-02-2026]
+
 ### Added
 - A control variable to modify the cancelled channel window to account for an "error" threshold (default 100ms or 0.1s)
 
