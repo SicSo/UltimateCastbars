@@ -133,18 +133,45 @@ local function UpdateShowWhenKickAvailable(bar, vars, cfg, castType)
     -- Hide the bar
     if unIntCFG.disableBarUnKick then
         local alpha = GeneralHelpers:KickAlpha(notIntr, kickReady, true)
-         bar.group:SetAlpha(alpha)
-         return
+        if unIntCFG.disableBarUnInt or unIntCFG.changeAlphaBarUnint then
+            if unIntCFG.disableBarUnInt then
+                alpha = GeneralHelpers:SecretToA_B(notIntr, 0, alpha)
+            else
+                alpha = GeneralHelpers:SecretToA_B(notIntr, unIntCFG.alphaBarUnint, alpha)
+                if not unIntCFG.includeIconAlphaUnint then
+                    bar:SetAlpha(alpha)
+                    return
+                end
+            end
+        end
+        bar.group:SetAlpha(alpha)
+        return
     end
 
     -- Change alpha of the bar
     if unIntCFG.changeAlphaBarUnKick and unIntCFG.dynamicKickAlphaBar then
         local alpha = GeneralHelpers:KickAlpha(notIntr, kickReady, true, unIntCFG.alphaBarUnKick)
+        -- Only chnage alpha based on kick ready
         if unIntCFG.includeIconAlphaUnKick then
             bar.group:SetAlpha(alpha)
         else
             bar:SetAlpha(alpha)
         end
+
+        if unIntCFG.disableBarUnInt or unIntCFG.changeAlphaBarUnint then
+            if unIntCFG.disableBarUnInt then -- 
+                alpha = GeneralHelpers:SecretToA_B(notIntr, 0, alpha)
+                bar.group:SetAlpha(alpha)
+            else
+                alpha = GeneralHelpers:SecretToA_B(notIntr, unIntCFG.alphaBarUnint, alpha)
+                if unIntCFG.includeIconAlphaUnint then
+                   bar.group:SetAlpha(alpha)
+                else
+                   bar:SetAlpha(alpha)
+                end
+            end
+        end
+        
      end
 
      -- Show fill bar

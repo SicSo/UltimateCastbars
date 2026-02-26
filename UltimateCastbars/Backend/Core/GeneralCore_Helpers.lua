@@ -17,7 +17,7 @@ function GeneralHelpers:KickAlpha(notInterruptibleSecretBool, kickReadySecretBoo
         kickReadyVal,
         kickNotReadyVal
     )
-  return C_CurveUtil.EvaluateColorValueFromBoolean(notInterruptibleSecretBool, 0, kickMatchesWhen)
+  return C_CurveUtil.EvaluateColorValueFromBoolean(notInterruptibleSecretBool, 1, kickMatchesWhen)
 end
 
 function GeneralHelpers:GetKickTimer()

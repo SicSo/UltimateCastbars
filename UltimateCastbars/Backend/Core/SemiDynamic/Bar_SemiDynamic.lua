@@ -63,11 +63,11 @@ function CASTBAR_API:HideCastbar(bar, vars, cfg, starting_alpha)
         end
         local kickReady = kickDur:IsZero()   -- secret boolean
         if unintCFG.disableBarUnKick then
-            alphaKick = GeneralHelpers:SecretToA_B(kickReady, 1, 0)
+            alphaKick = GeneralHelpers:KickAlpha(notIntr, kickReady, true)
             bar.group:SetAlpha(alphaKick)
         end
         if unintCFG.changeAlphaBarUnKick and not unintCFG.disableBarUnKick then
-            alphaKick = GeneralHelpers:SecretToA_B(kickReady, 1, unintCFG.alphaBarUnKick)
+            alphaKick = GeneralHelpers:KickAlpha(notIntr, kickReady, true, unintCFG.alphaBarUnKick)
             if unintCFG.includeIconAlphaUnKick then
                 bar.group:SetAlpha(alphaKick)
             else
