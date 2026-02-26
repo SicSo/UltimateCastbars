@@ -48,7 +48,7 @@ local function BuildFramePickerArgs(args, unit)
                                     UCB.GUI:RefreshGUI(true, { unit, "general"})
                                 end,
                                 function()
-                                    --print("Picker cancelled.")
+                                    print("Picker cancelled.")
                                 end
                             )
                     end,

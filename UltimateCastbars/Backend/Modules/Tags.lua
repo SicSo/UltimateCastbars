@@ -117,7 +117,6 @@ function tags:compileFormula(formula, limits, mainType)
                     limNum = 0
                 end
             end
-            --print("Compiling tag:", part, "with limNum:", limNum, "and limRaw:", limRaw)
             n = n + 1
             ops[n] = { fn = fn, limNum = limNum, limRaw = limRaw , show = show }
         else
@@ -383,9 +382,7 @@ function tags:PrepareTextState(tagGroups, bar, state, castType)
     end
 
     -- decide show/hide ONCE, store only active entries for fast loops later
-    --print("state", state, "for cast type", castType)
     for key, tagOptions in next, tagList do
-        --print("  tag: "..key)
         local fs = bar.texts[key]
         if fs then
             local show = tagOptions.show
@@ -395,7 +392,6 @@ function tags:PrepareTextState(tagGroups, bar, state, castType)
             end
 
             if show then
-                --print(key)
                 fs:Show()
                 active[#active + 1] = {
                     fs = fs,

@@ -167,7 +167,6 @@ end
 
 -- Castbar entry functionality
 function CASTBAR_API:UpdateCastbar(unit)
-    --print("Castbar update")
     if not UCB.castBar then return end
     local cfg = UCB.GetValueConfig(unit)
     -- Castbar should be disabled

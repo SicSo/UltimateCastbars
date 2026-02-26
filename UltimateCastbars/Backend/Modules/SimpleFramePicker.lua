@@ -251,7 +251,6 @@ end
 -- onCancel() optional
 function SimpleFramePicker:Start(onSelect, onCancel)
     if InCombatLockdown and InCombatLockdown() then
-        -- You can replace with your addon print function
         print("|cffff0000Cannot use picker during combat.|r")
         return
     end

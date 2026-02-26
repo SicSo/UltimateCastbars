@@ -1,5 +1,8 @@
 ## Unreleased
 
+### Fixed
+- Removed debug code 
+
 ---
 
 
