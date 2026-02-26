@@ -1,5 +1,8 @@
 ## Unreleased
 
+### Added
+- A control variable to modify the cancelled channel window to account for an "error" threshold (default 100ms or 0.1s)
+
 ### Changed
 - Updated LibSharedMedia-3.0 to current version
 

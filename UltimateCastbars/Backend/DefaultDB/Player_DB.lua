@@ -485,6 +485,7 @@ UCB.Default_DB.player = {
                 channel = 0.5,
                 empowered = 0.5,
             },
+            channelError = 100,
         },
     },
 

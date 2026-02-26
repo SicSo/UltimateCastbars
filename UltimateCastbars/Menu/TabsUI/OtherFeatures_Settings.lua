@@ -102,6 +102,33 @@ local function BuildKickedCancelledArgs(unit, cfg, castType, type, order)
                             cfg.displayTimer[castType] = val
                             CASTBAR_API:UpdateCastbar(unit)
                         end,
+                },
+                gap3 = {
+                        hidden = function() return type ~= "cancelled" and castType ~= "cancelled" end,
+                        type = "description",
+                        name = "",
+                        order = 5.5,
+                        width = "full",
+                    },
+                description = {
+                        hidden = function() return type ~= "cancelled" and castType ~= "cancelled" end,
+                        type = "description",
+                        name = function() return UIOptions.ColorText(UIOptions.turquoise, "This option is used to determine whether a channelled cast was cancelled or not. If the cast stops with less time remaining than this threshold, it will be considered finished. (1s = 1000ms)") end,
+                        order = 6,
+                    },
+                channelError = {
+                        hidden = function() return type ~= "cancelled" and castType ~= "channel" end,
+                        type = "range",
+                        name = function() return "Channel error threshold (ms)" end,
+                        desc = function() return "This option is used to determine whether a channelled cast was cancelled or not. If the cast stops with less time remaining than this threshold, it will be considered finished. (1s = 1000ms)" end,
+                        min = 0, max = 1000, step = 1,
+                        order = 7,
+                        width = 1.5,
+                        get = function() return cfg.channelError end,
+                        set = function(_, val)
+                            cfg.channelError = val
+                            CASTBAR_API:UpdateCastbar(unit)
+                         end,
                 }
             }
         }

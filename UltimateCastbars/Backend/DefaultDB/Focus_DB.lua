@@ -481,6 +481,7 @@ local focus_db = {
                 channel = 0.5,
                 empowered = 0.5,
             },
+            channelError = 100,
         },
     },
 

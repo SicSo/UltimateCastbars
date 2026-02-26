@@ -86,21 +86,24 @@ end
 local function CancelledCast(unit, castType, castGUID, spellID, interruptedBy, castBarID, complete)
     local bar = UCB.castBar[unit]
     local frame = bar.frames.cancelled
+    local cfg = UCB.GetValueConfig(unit)
 
     local alpha
     if castType == "empowered" then
         alpha = GeneralHelpers:NotSecretTo0_1(complete)
     elseif castType == "channel" then
         local durationObject = tags.var[unit].durationObject
+        local channelError = cfg.otherFeatures.cancelledEffect.channelError/1000
         local curve = C_CurveUtil.CreateCurve()
-        curve:AddPoint(0.0,    0.0)  -- at exactly 0s remaining => 0
-        curve:AddPoint(0.001,  1.0)  -- at >= 0.001s remaining => ~1
-        curve:AddPoint(1.0, 1.0)  -- keep it at 1 for typical ranges
-        alpha = durationObject:EvaluateRemainingPercent(curve)
+        curve:AddPoint(0.0, 0.0)
+        curve:AddPoint(channelError - 0.0000001,  0)
+        curve:AddPoint(channelError,  1.0)
+        curve:AddPoint(durationObject:GetTotalDuration(), 1.0)
+        alpha = durationObject:EvaluateRemainingDuration(curve)
     else
         alpha = 1
     end
-    local timer = DesignBar(frame.status, UCB.GetValueConfig(unit), castType, true)
+    local timer = DesignBar(frame.status, cfg, castType, true)
     tags:ShowEffectTags(bar, "cancelled", castType, unit)
     CASTBAR_API:ShowFrameTimer(bar, unit, "cancelled", timer, alpha)
 end

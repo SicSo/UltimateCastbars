@@ -18,3 +18,5 @@ ignore:
   - make_release.sh
   - .gitignore
   - release.sh
+  - IMAGES.md
+  - images/**
