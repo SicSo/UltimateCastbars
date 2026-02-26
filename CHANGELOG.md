@@ -1,5 +1,8 @@
 ## Unreleased
 
+### Fixed
+- Channel casts that were secrets caused issues with cancelled overlays
+
 ---
 
 

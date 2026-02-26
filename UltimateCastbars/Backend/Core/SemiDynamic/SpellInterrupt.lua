@@ -98,7 +98,6 @@ local function CancelledCast(unit, castType, castGUID, spellID, interruptedBy, c
         curve:AddPoint(0.0, 0.0)
         curve:AddPoint(channelError - 0.0000001,  0)
         curve:AddPoint(channelError,  1.0)
-        curve:AddPoint(durationObject:GetTotalDuration(), 1.0)
         alpha = durationObject:EvaluateRemainingDuration(curve)
     else
         alpha = 1
