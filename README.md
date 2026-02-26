@@ -15,6 +15,10 @@
 Ultimate Castbar aims to be **the last castbar World of Warcraft addon** you’ll ever need. It is a highly configurabl castbar addon for World of Warcraft (Retail), focused on deep layout control, rich text/tagging, and advanced interruptibility/kick-aware visuals.
 
 
+<img src="./images/logo.png" alt="drawing" style="display:block; margin: 0 auto; width:500px;"/>
+
+![AllCastbarExample1](./images/AllCastbarExample1.png)
+
 ### Sources of inspiration and credits
 
 Thanks to Xepheris for [DisintegrateTicks](https://www.curseforge.com/wow/addons/disintegrateticks) on which was based dynamic disintegrate ticks, donate [here](https://www.patreon.com/cw/warcraftlogs) if you liked that feature.
@@ -125,11 +129,15 @@ The **General** tab provides deep positioning controls:
   - Min width/height
   - Options to include border thickness in effective sizing
 
+![General1](./images/General1.png)
+
 **Icon layout:**
 - Show/hide icon
 - Anchor icon around the bar (sides/corners/top/bottom)
 - Offsets
 - Sync icon size to bar height or set explicit width/height
+
+![General3](./images/General3.png) |
 
 ---
 
@@ -149,6 +157,8 @@ Ultimate Castbars includes a custom text engine:
   - **Semi-Dynamic** (updates on cast/state change)
   - **Dynamic** (updates every frame, e.g., timers)
 
+![Text2](./images/Text2.png)
+
 #### Supported token list
 
 Tokens may support an optional `:X` suffix for limits (where applicable).
@@ -166,11 +176,11 @@ Tokens may support an optional `:X` suffix for limits (where applicable).
 | `[nIntr]` / `[nIntr:X]` | Uninterruptible-only text (also controls visibility) |
 | `[nIntrInv]` / `[nIntrInv:X]` | Interruptible-only text (also controls visibility) |
 
+![Text3](./images/Text3.png)
+
 ---
 
 ### Style and Visuals
-
-LibSharedMedia-backed visuals:
 
 - Castbar texture, background texture
 - Border textures for bar + icon
@@ -184,6 +194,10 @@ LibSharedMedia-backed visuals:
   - thickness
   - per-side offsets
   - synced/independent icon border options
+
+![CastbarExample1](./images/CastbarExample1.png)
+
+![Style1](./images/Style1.png)
 
 ---
 
@@ -204,6 +218,8 @@ A major focus area:
 - Tick marker for “kick timing”
 - “Until kick” fill region with optional overlay/background
 
+![Uninterruptible](./images/Uninterruptible.png)
+
 ---
 
 ### Other Features
@@ -212,13 +228,25 @@ A major focus area:
   - Read/write `SpellQueueWindow` CVAR
   - Optional custom ms duration
   - Visual overlay on castbar (per cast type)
+
+![CastbarExample1](./images/CastbarExample1.png)
+
 - **Channel tick markers**
   - Global tick visuals (color/width, optional texture)
+
+![CastbarExample1Channel](./images/CastbarExample1Channel.png) 
+
 - **Invert / mirror behavior**
   - Per cast type: invert fill direction, mirror rendering using clipped frames
 - **Interrupted / cancelled overlays**
   - Per effect type + cast type
   - Custom textures/colors + display duration
+
+![AllCastbarExampleCancelled1](./images/AllCastbarExampleCancelled1.png)
+
+![OtherFeatures1](./images/OtherFeatures1.png)
+
+![OtherFeatures2](./images/OtherFeatures2.png)
 
 ---
 
@@ -232,18 +260,27 @@ A major focus area:
   - Add by spell picker or spell ID
   - Applied to player castbar display logic
 
+![ClassChannelingOptions](./images/ClassChannelingOptions.png) 
+
+![ClassBlackListWhitelist](./images/ClassBlackListWhitelist.png) 
+
 ---
 
 ### Evoker Empower + Disintegrate Support
 
-- Empower visuals:
+- **Dynamic Disintegrate tick logic** (Devastation):
+  - Tick timing adapts to haste/talents/channel updates
+  - Fallback to static tick settings if disabled
+
+![Evoker1](./images/Evoker1.png)
+
+- **Empower visuals**:
   - Stage tick marks and segment backgrounds (dynamic)
   - Manual tick placement (percent-based) with reset
   - Per-stage tick and color control
   - Optional textures
-- **Dynamic Disintegrate tick logic** (Devastation):
-  - Tick timing adapts to haste/talents/channel updates
-  - Fallback to static tick settings if disabled
+
+![Evoker2](./images/Evoker2.png)
 
 ---
 
@@ -257,6 +294,8 @@ Per unit:
 - Configure duration, empower stage count, “not interruptible”
 - Drag preview bar to reposition and write offsets back to settings
 
+![CopyPreview](./images/CopyPreview.png)
+
 ---
 
 ### Blizzard Castbar Integration
@@ -266,6 +305,8 @@ Per unit:
 - Control default bar size/position/scale (or leave Blizzard-managed)
 - Captures and restores Blizzard baseline positions with “late restore” to reduce drift
 - Re-applies hide/show if Blizzard attempts to show frames again
+
+![DefaultCastbar](./images/DefaultCastbar.png)
 
 ---
 
@@ -291,13 +332,17 @@ Per unit:
   - Import into current or existing profile
   - Import as a new profile
   - Uses AceSerializer + optional LibDeflate for compression/printable encoding
-- Schema filtering/normalization:
-  - Filters imported data to match current defaults/schema
-  - Normalizes LibSharedMedia references and applies fallbacks
+
+![Import](./images/Import.png)
+
+![Export](./images/Export.png)
+
+
 - Copy settings between units:
   - Copy selected categories (general/text/style/visibility/uninterruptible/other/class)
   - Replaces array-like settings cleanly (e.g., text lists)
 
+![CopyPreview2](./images/CopyPreview2.png)
 ---
 
 ## Debug Mode
@@ -316,18 +361,19 @@ Use carefully—this is disruptive by design.
 
 This addon uses (directly or via embedded libs):
 
-- Ace3 (Addon, DB, Config, GUI, Serializer, Console)
-- LibSharedMedia-3.0 (+ AceGUI LSM widgets)
-- LibDualSpec-1.0 (optional)
+- Ace3 
+- AceGUI-3.0-SharedMediaWidgets
+- CallbackHandler-1.0
 - LibDataBroker-1.1
-- LibDeflate (optional, for import/export compression)
+- LibDualSpec-1.0 
+- LibSharedMedia-3.0 
+- LibDeflate 
 
 ---
 
 ## Support
 
-- Use GitHub Issues for bugs and feature requests: `../../issues`
-- If you provide Discord/Donate links, add them here (WoW cannot open links directly in-game, so addons often show copyable URLs).
+- Use Discord for issues or bugs and feature requests: https://discord.gg/wX5hWW3N3Q
 
 ---
 
