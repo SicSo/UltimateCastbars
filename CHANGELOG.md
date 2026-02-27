@@ -1,4 +1,9 @@
 ## Unreleased
+## Added
+- Dynamic tick support for Preservation Disintegrate
+
+## Fixed
+- State refresh for spec swaps
 
 ---
 

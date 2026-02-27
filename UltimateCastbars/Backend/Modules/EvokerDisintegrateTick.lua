@@ -7,6 +7,7 @@ local EvokerAPI = UCB.CLASS_API.Evoker
 
 local EVOKER_CLASS_ID = 13
 local DEVASTATION_SPEC_ID = 1467
+local PRESERVATION_SPEC_ID = 1468
 local DISINTEGRATE_SPELL_ID = 356995
 
 -- persistent state (only player needed)
@@ -23,6 +24,10 @@ end
 
 local function IsDevastation()
 	return PlayerUtil and PlayerUtil.GetCurrentSpecID and PlayerUtil.GetCurrentSpecID() == DEVASTATION_SPEC_ID
+end
+
+local function IsPreservation()
+	return PlayerUtil and PlayerUtil.GetCurrentSpecID and PlayerUtil.GetCurrentSpecID() == PRESERVATION_SPEC_ID
 end
 
 function EvokerAPI:GetMaxTicksAndBaseDuration()
@@ -107,13 +112,12 @@ end
 --   mode = "normal" | "chained" | nil
 --   positions = table of x offsets from left | nil
 function EvokerAPI:OnChannelEvent(event, barWidth, spellID, startTimeMs, endTimeMs)
-	if not IsEvoker() or not IsDevastation() then
+	if not IsEvoker() or not (IsDevastation() or IsPreservation()) then
 		self:ResetState()
 		return nil, nil
 	end
 
 	if spellID ~= DISINTEGRATE_SPELL_ID then
-		-- not our spell; keep your addon free to do other tick logic
 		self:ResetState()
 		return nil, nil
 	end

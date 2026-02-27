@@ -258,6 +258,36 @@ local function GetKickID()
     end
 end
 
+function UCB:EnableSpecSwapListener()
+  if self.eventFrame and self.eventFrame.specSwap then return end
+
+  self.eventFrame = self.eventFrame or {}
+
+  local f = CreateFrame("Frame")
+  f:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED") -- main spec swap event (retail)
+  f:RegisterEvent("TRAIT_CONFIG_UPDATED")          -- fallback for some talent/trait flows
+  --f:RegisterEvent("PLAYER_LOGIN")                  -- initialize on login just in case
+
+  local function UpdateSpec()
+    -- PlayerUtil.GetCurrentSpecID() returns 0/nil sometimes during loading; guard it.
+    local specID = PlayerUtil and PlayerUtil.GetCurrentSpecID and PlayerUtil.GetCurrentSpecID()
+    if specID and specID ~= 0 and specID ~= UCB.specID then
+      UCB.specID = specID
+      UCB:UpdateAllCastBars()
+    end
+  end
+
+  f:SetScript("OnEvent", function(_, event, unit)
+    if event == "PLAYER_SPECIALIZATION_CHANGED" and unit ~= "player" then return end
+    UpdateSpec()
+  end)
+
+  self.eventFrame.specSwap = f
+
+  -- Prime the value right away
+  UpdateSpec()
+end
+
 local function GatherInfo()
     SetUpPlayerInfo()
 
@@ -364,6 +394,7 @@ end
 
 function UCB:InitSequence()
   UCB.firstBuild = true
+  self:EnableSpecSwapListener()
   self:SetUpConfig()
   self:SetUpTrackedUnit() -- See which units should be tracked and track them (also ensures event frame is created)
   self:EnsureSpellcastEventFrame() -- Ensure the spellcast event frame exists

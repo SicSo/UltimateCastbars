@@ -125,7 +125,7 @@ function CASTBAR_API:AssignChannelTicks(unit, spellID, event)
             local spellIDD = spellID
             
             -- Dynamic ticks
-            if UCB.specID == 1467 and spellIDD == 356995 and classCFG.disintegrateDynamicTicks then
+            if (UCB.specID == 1467 or UCB.specID == 1468) and spellIDD == 356995 and classCFG.disintegrateDynamicTicks then
                 local vars = tags.var[unit]
                 local barWidth = cfg.general.actualBarWidth
                 local startMS, endMS = vars.sTime * 1000, vars.eTime * 1000
