@@ -286,21 +286,61 @@ local function UpdateUninterruptibleIconBorder(unit)
     UpdateRectBorderFromCfg(bar.unintIconFrame, bar.unintIconFrame, "_rectBorderUnintIcon", borderBlock, -3)
 end
 
+
+local function _BuildAllSpellIds()
+    local merged, seen = {}, {}
+
+    local function addList(list)
+        for _, sid in ipairs(list or {}) do
+            sid = tonumber(sid)
+            if sid and not seen[sid] then
+                local info = C_Spell.GetSpellInfo(sid)
+                if info and info.name then
+                    seen[sid] = info.name -- store name for sorting
+                    table.insert(merged, sid)
+                end
+            end
+        end
+    end
+
+    addList(UCB.allSpellTypes and UCB.allSpellTypes.channel)
+    addList(UCB.allSpellTypes and UCB.allSpellTypes.normal)
+    addList(UCB.allSpellTypes and UCB.allSpellTypes.empowered)
+
+    table.sort(merged, function(a, b)
+        return (seen[a] or ""):lower() < (seen[b] or ""):lower()
+    end)
+
+    return merged -- array of spell IDs
+end
+
 local function WhitelistBlacklistSetup(unit, cfg)
      if unit == "player" then
         cfg._whiteListSpellIDs = {}
         cfg._blackListSpellIDs = {}
         if cfg and cfg.enableAbilityFilter then
-            for _, spellCfg in pairs(cfg.blackListSpells) do
-                if spellCfg.enable then
-                    cfg._blackListSpellIDs[spellCfg.id] = true
+
+            if cfg.useManualTable then
+                for _, spellCfg in pairs(cfg.blackListSpells) do
+                    if spellCfg.enable then
+                        cfg._blackListSpellIDs[spellCfg.id] = true
+                    end
+                end
+                for _, spellCfg in pairs(cfg.whiteListSpells) do
+                    if spellCfg.enable then
+                        cfg._whiteListSpellIDs[spellCfg.id] = true
+                    end
                 end
             end
-            for _, spellCfg in pairs(cfg.whiteListSpells) do
-                if spellCfg.enable then
-                    cfg._whiteListSpellIDs[spellCfg.id] = true
+
+            if cfg.usePlayerSpellList and not cfg.useManualTable then
+                local allSpellIDs = _BuildAllSpellIds()
+                for _, spellID in ipairs(allSpellIDs) do
+                    cfg._whiteListSpellIDs[spellID] = true
+                    cfg._blackListSpellIDs[spellID] = true
                 end
             end
+
         end
     end
 end

@@ -189,14 +189,14 @@ local function BuildAbilityFilterTable(cfg, unit, disabled)
                     end
                     return "Mode: "..UIOptions.ColorText(UIOptions.green, "Whitelist")
                 end,
-                order = 0.5,
+                order = 0.4,
                 width = "full",
             },
 
             switchMode = {
                 type = "execute",
                 name = "Switch mode",
-                order = 0.6,
+                order = 0.5,
                 width = 1.5,
                 func = function()
                     cfg.blackList = not cfg.blackList
@@ -206,13 +206,50 @@ local function BuildAbilityFilterTable(cfg, unit, disabled)
                 end,
             },
 
-            spacer0 = { type = "description", name = "", order = 0.7, width = "full" },
+            spacer0 = { type = "description", name = "", order = 0.6, width = "full" },
+
+            descToggle = {
+                type = "description",
+                name = function() return UIOptions.ColorText(UIOptions.turquoise, "You can either use a manual table or have the addon automatically read your player's spell list. The manual table allows you to add any spell by ID, while the player spell list will show all spells available to your class and spec.") end,
+                order = 0.65,
+                width = "full",
+            },
+
+            manualTableToggle = {
+                type = "toggle",
+                name = "Use Manual Table (instead of other options)",
+                order = 0.7,
+                width = 2,
+                get = function() return cfg.useManualTable end,
+                set = function(_, val)
+                    cfg.useManualTable = val
+                    BuildAbilityRows(abilityTable, cfg, unit)
+                    CASTBAR_API:UpdateCastbar(unit)
+                end,
+            },
+
+            playerSpellListToggle = {
+                type = "toggle",
+                name = "Use Player Spell List (instead of other options)",
+                order = 0.8,
+                width = 2,
+                disabled = function() return cfg.useManualTable or not cfg.enableAbilityFilter end,
+                get = function() return cfg.usePlayerSpellList end,
+                set = function(_, val)
+                    cfg.usePlayerSpellList = val
+                    BuildAbilityRows(abilityTable, cfg, unit)
+                    CASTBAR_API:UpdateCastbar(unit)
+                end,
+            },
+
+            spacer1 = { type = "description", name = "", order = 0.9, width = "full" },
 
             selectGroup = {
                 type = "group",
                 name = "Select Spell",
                 inline = true,
                 order = 1,
+                disabled = function() return not cfg.useManualTable end,
                 args = {
                     selectedSpell = {
                         type = "header",
@@ -270,6 +307,7 @@ local function BuildAbilityFilterTable(cfg, unit, disabled)
                 name = "Add Spell",
                 inline = true,
                 order = 2,
+                disabled = function() return not cfg.useManualTable end,
                 args = {
                     spellId = {
                         type = "input",
@@ -305,6 +343,7 @@ local function BuildAbilityFilterTable(cfg, unit, disabled)
                 name = "",
                 inline = true,
                 order = 3,
+                disabled = function() return not cfg.useManualTable end,
                 args = {
                     h_icon = { type = "description", name = "Icon",   order = 1, width = 0.30 },
                     v1     = { type = "description", name = "|",      order = 2, width = 0.05 },
@@ -323,6 +362,7 @@ local function BuildAbilityFilterTable(cfg, unit, disabled)
                 name = "",
                 inline = true,
                 order = 4,
+                disabled = function() return not cfg.useManualTable end,
                 args = {},
             },
         },

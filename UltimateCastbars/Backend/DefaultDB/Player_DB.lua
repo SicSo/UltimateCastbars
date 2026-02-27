@@ -389,6 +389,8 @@ UCB.Default_DB.player = {
 
         enableAbilityFilter = false,
         blackList = true,
+        useManualTable = true,
+        usePlayerSpellList = true,
         blackListSpells = {},
         whiteListSpells = {},
     },
@@ -494,6 +496,8 @@ UCB.Default_DB.player = {
 
             enableAbilityFilter = false,
             blackList = true,
+            useManualTable = true,
+            usePlayerSpellList = true,
             blackListSpells = {},
             whiteListSpells = {},
         },
@@ -537,6 +541,8 @@ UCB.Default_DB.player = {
 
             enableAbilityFilter = false,
             blackList = true,
+            useManualTable = true,
+            usePlayerSpellList = true,
             blackListSpells = {},
             whiteListSpells = {},
         },
@@ -553,6 +559,8 @@ UCB.Default_DB.player = {
 
             enableAbilityFilter = false,
             blackList = true,
+            useManualTable = true,
+            usePlayerSpellList = true,
             blackListSpells = {},
             whiteListSpells = {},
         },
@@ -569,6 +577,8 @@ UCB.Default_DB.player = {
 
             enableAbilityFilter = false,
             blackList = true,
+            useManualTable = true,
+            usePlayerSpellList = true,
             blackListSpells = {},
             whiteListSpells = {},
         },
@@ -585,6 +595,8 @@ UCB.Default_DB.player = {
 
             enableAbilityFilter = false,
             blackList = true,
+            useManualTable = true,
+            usePlayerSpellList = true,
             blackListSpells = {},
             whiteListSpells = {},
         },
@@ -601,6 +613,8 @@ UCB.Default_DB.player = {
 
             enableAbilityFilter = false,
             blackList = true,
+            useManualTable = true,
+            usePlayerSpellList = true,
             blackListSpells = {},
             whiteListSpells = {},
         },
@@ -617,6 +631,8 @@ UCB.Default_DB.player = {
 
             enableAbilityFilter = false,
             blackList = true,
+            useManualTable = true,
+            usePlayerSpellList = true,
             blackListSpells = {},
             whiteListSpells = {},
         },
@@ -633,6 +649,8 @@ UCB.Default_DB.player = {
 
             enableAbilityFilter = false,
             blackList = true,
+            useManualTable = true,
+            usePlayerSpellList = true,
             blackListSpells = {},
             whiteListSpells = {},
         },
@@ -649,6 +667,8 @@ UCB.Default_DB.player = {
 
             enableAbilityFilter = false,
             blackList = true,
+            useManualTable = true,
+            usePlayerSpellList = true,
             blackListSpells = {},
             whiteListSpells = {},
         },
@@ -665,6 +685,8 @@ UCB.Default_DB.player = {
 
             enableAbilityFilter = false,
             blackList = true,
+            useManualTable = true,
+            usePlayerSpellList = true,
             blackListSpells = {},
             whiteListSpells = {},
         },
@@ -681,6 +703,8 @@ UCB.Default_DB.player = {
 
             enableAbilityFilter = false,
             blackList = true,
+            useManualTable = true,
+            usePlayerSpellList = true,
             blackListSpells = {},
             whiteListSpells = {},
         },
@@ -697,6 +721,8 @@ UCB.Default_DB.player = {
 
             enableAbilityFilter = false,
             blackList = true,
+            useManualTable = true,
+            usePlayerSpellList = true,
             blackListSpells = {},
             whiteListSpells = {},
         },
@@ -713,6 +739,8 @@ UCB.Default_DB.player = {
 
             enableAbilityFilter = false,
             blackList = true,
+            useManualTable = true,
+            usePlayerSpellList = true,
             blackListSpells = {},
             whiteListSpells = {},
         },
@@ -729,6 +757,8 @@ UCB.Default_DB.player = {
 
             enableAbilityFilter = false,
             blackList = true,
+            useManualTable = true,
+            usePlayerSplellList = true,
             blackListSpells = {},
             whiteListSpells = {},
 
