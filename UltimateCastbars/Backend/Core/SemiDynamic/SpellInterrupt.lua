@@ -84,16 +84,25 @@ end
 
 
 local function CancelledCast(unit, castType, castGUID, spellID, interruptedBy, castBarID, complete)
+    local cfg = UCB.GetValueConfig(unit)
+    local cfgCancelled = cfg.otherFeatures.cancelledEffect
+
+    -- Spell filter
+    if unit == "player" then 
+        if not CASTBAR_API:SpellFilter(spellID, cfgCancelled) then
+            return 
+        end
+    end
+
     local bar = UCB.castBar[unit]
     local frame = bar.frames.cancelled
-    local cfg = UCB.GetValueConfig(unit)
 
     local alpha
     if castType == "empowered" then
         alpha = GeneralHelpers:NotSecretTo0_1(complete)
     elseif castType == "channel" then
         local durationObject = tags.var[unit].durationObject
-        local channelError = cfg.otherFeatures.cancelledEffect.channelError/1000
+        local channelError = cfgCancelled.channelError/1000
         local curve = C_CurveUtil.CreateCurve()
         curve:AddPoint(0.0, 0.0)
         curve:AddPoint(channelError - 0.0000001,  0)
@@ -126,7 +135,8 @@ end
 
 function CASTBAR_API:OnCastInterrupt(unit, castGUID, spellID, interruptedBy, castBarID)
     if not castBarID then return end
-    CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID, castBarID)
+    local show = CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID, castBarID)
+    if not show then return end
     local cfg = UCB.GetValueConfig(unit)
     local castType = "normal"
     if (interruptedBy) then
@@ -142,7 +152,8 @@ end
 
 function CASTBAR_API:OnChannelInterrupt(unit, castGUID, spellID, interruptedBy, castBarID)
     if not castBarID then return end
-    CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID, castBarID)
+    local show = CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID, castBarID)
+    if not show then return end
     local cfg = UCB.GetValueConfig(unit)
     local castType = "channel"
     if (interruptedBy) then
@@ -158,7 +169,8 @@ end
 
 function CASTBAR_API:OnEmpowerInterrupt(unit, castGUID, spellID, complete, interruptedBy, castBarID)
     if not castBarID then return end
-    CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID, castBarID)
+    local show = CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID, castBarID)
+    if not show then return end
     local cfg = UCB.GetValueConfig(unit)
     local castType = "empowered"
     if (interruptedBy) then

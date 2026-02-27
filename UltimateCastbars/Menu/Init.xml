@@ -21,6 +21,8 @@
 	<Script file="BackendUI/Copy_Backend.lua"/>
 	
 	<!-- UI Settings -->
+	<Script file="TabsUI/GenericStructures/BlacklistWhitelistTable.lua"/>
+
 	<Script file="TabsUI/BlizzCast_Settings.lua"/>
 	<Script file="TabsUI/General_Settings.lua"/>
 	<Script file="TabsUI/OtherFeatures_Settings.lua"/>

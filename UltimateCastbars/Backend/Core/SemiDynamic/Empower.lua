@@ -188,6 +188,12 @@ function CASTBAR_API:OnUnitSpellcastEmpowerUpdate(unit, castGUID, spellID, castB
 end
 
 function CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID, castBarID)
+    -- Spell filter
+    local cfg = UCB.GetValueConfig(unit)
+    if not CASTBAR_API:SpellFilterClass(unit, spellID, cfg) then
+        return false
+    end
+
     local bar = UCB.castBar[unit]
     if bar and bar.flags.castActive then
         bar.group:Hide()
@@ -196,9 +202,9 @@ function CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID, castBar
         bar.flags.prevType = nil
         bar.current_spellID = nil
         bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars, bar._ucbSpellID = nil, nil, nil, nil, nil
-        local cfg = UCB.GetValueConfig(unit)
         if cfg.CLASSES.EVOKER.enableEmpowerEffects and UnitIsPlayer(unit) then
             CASTBAR_API:HideStages(bar)
         end
     end
+    return true
 end

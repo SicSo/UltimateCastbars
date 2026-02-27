@@ -31,6 +31,12 @@ function CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID, castBarID)
     local nameChannel = UnitChannelInfo(unit)
     --if nameCast or nameChannel then return end
 
+    -- Spell filter
+    local cfg = UCB.GetValueConfig(unit)
+    if not CASTBAR_API:SpellFilterClass(unit, spellID, cfg) then
+        return false
+    end
+
     local bar = UCB.castBar[unit]
     if bar and bar.flags.castActive then
         bar.group:Hide()
@@ -40,4 +46,5 @@ function CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID, castBarID)
         bar.current_spellID = nil
         bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars,  bar._ucbSpellID = nil, nil, nil, nil, nil
      end
+    return true
 end

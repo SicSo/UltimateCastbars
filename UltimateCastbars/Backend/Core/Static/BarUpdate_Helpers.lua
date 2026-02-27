@@ -286,6 +286,25 @@ local function UpdateUninterruptibleIconBorder(unit)
     UpdateRectBorderFromCfg(bar.unintIconFrame, bar.unintIconFrame, "_rectBorderUnintIcon", borderBlock, -3)
 end
 
+local function WhitelistBlacklistSetup(unit, cfg)
+     if unit == "player" then
+        cfg._whiteListSpellIDs = {}
+        cfg._blackListSpellIDs = {}
+        if cfg and cfg.enableAbilityFilter then
+            for _, spellCfg in pairs(cfg.blackListSpells) do
+                if spellCfg.enable then
+                    cfg._blackListSpellIDs[spellCfg.id] = true
+                end
+            end
+            for _, spellCfg in pairs(cfg.whiteListSpells) do
+                if spellCfg.enable then
+                    cfg._whiteListSpellIDs[spellCfg.id] = true
+                end
+            end
+        end
+    end
+end
+
 ----------------------------------------MAIN----------------------------------------
 function BarUpdate_API:UpdateText(unit)
     local bar = UCB.castBar[unit]
@@ -573,6 +592,8 @@ function BarUpdate_API:UpdateOtherFeatures(unit)
     bar.frames.cancelled.status:SetStatusBarTexture(cancelCFG.frameTexture.normal)
     bar.frames.cancelled.status:SetStatusBarColor(cancelCFG.frameColour.normal.r, cancelCFG.frameColour.normal.g, cancelCFG.frameColour.normal.b, cancelCFG.frameColour.normal.a)
 
+    -- Whitelist/Blacklist cancelled
+    WhitelistBlacklistSetup(unit, cancelCFG)
 end
 
 
@@ -666,21 +687,8 @@ function BarUpdate_API:UpdateOthers(unit)
         end
     end
 
-    -- Whitelist/Blacklist
-    classCFG._whiteListSpellIDs = {}
-    classCFG._blackListSpellIDs = {}
-    if classCFG and classCFG.enableAbilityFilter then
-        for _, spellCfg in pairs(classCFG.blackListSpells) do
-            if spellCfg.enable then
-                classCFG._blackListSpellIDs[spellCfg.id] = true
-            end
-        end
-        for _, spellCfg in pairs(classCFG.whiteListSpells) do
-            if spellCfg.enable then
-                classCFG._whiteListSpellIDs[spellCfg.id] = true
-            end
-        end
-    end
+    -- Whitelist/Blacklist class
+    WhitelistBlacklistSetup(unit, classCFG)
 
     -- Predecide tick settings here
     local otherCFG = cfg.otherFeatures

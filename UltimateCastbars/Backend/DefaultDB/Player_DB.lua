@@ -386,6 +386,11 @@ UCB.Default_DB.player = {
         untilKickTickBackUseTexture = false,
         untilKickTickBackTexture = "Interface\\TargetingFrame\\UI-StatusBar",
         untilKickTickBackTextureName = "Blizzard",
+
+        enableAbilityFilter = false,
+        blackList = true,
+        blackListSpells = {},
+        whiteListSpells = {},
     },
 
     otherFeatures = {
@@ -486,6 +491,11 @@ UCB.Default_DB.player = {
                 empowered = 0.5,
             },
             channelError = 100,
+
+            enableAbilityFilter = false,
+            blackList = true,
+            blackListSpells = {},
+            whiteListSpells = {},
         },
     },
 

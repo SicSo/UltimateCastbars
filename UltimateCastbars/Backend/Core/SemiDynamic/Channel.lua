@@ -182,6 +182,13 @@ end
 function CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID, castBarID)
     -- Only hide if not channeling anymore
     --if UnitChannelInfo(unit) then return end
+
+   -- Spell filter
+    local cfg = UCB.GetValueConfig(unit)
+    if not CASTBAR_API:SpellFilterClass(unit, spellID, cfg) then
+        return false
+    end
+
     local bar = UCB.castBar[unit]
     if bar and bar.flags.castActive == true then
         bar.group:Hide()
@@ -189,7 +196,6 @@ function CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID, castBar
         bar.flags.castActive = false
         bar.flags.prevType = nil
         bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars, bar._ucbSpellID = nil, nil, nil, nil, nil
-        local cfg = UCB.GetValueConfig(unit)
         local classCFG = cfg.CLASSES[UCB.className]
         -- Player main, targets, focus,
         if unit == "player" then
@@ -202,4 +208,5 @@ function CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID, castBar
         bar.current_spellID = nil
         CASTBAR_API:HideChannelTicks(bar, cfg.otherFeatures)
     end
+    return true
 end

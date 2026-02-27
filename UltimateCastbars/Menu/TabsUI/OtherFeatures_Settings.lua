@@ -4,12 +4,14 @@ UCB.Options = UCB.Options or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.UIOptions = UCB.UIOptions or {}
 UCB.OtherFeatures_API = UCB.OtherFeatures_API or {}
+UCB.UIStructures = UCB.UIStructures or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
 local Opt = UCB.Options
 local GetCFG = UCB.GetValueConfig
 local UIOptions = UCB.UIOptions
 local OtherFeatures_API = UCB.OtherFeatures_API
+local UIStructures = UCB.UIStructures
 local LSM  = UCB.LSM
 
 
@@ -507,6 +509,12 @@ local function BuildOtherArgs(args, unit)
             },
         }
     }
+
+    if unit == "player" then
+        args.kickedCancelledGrp.args.cancelledGrp.args.filterGroup = UIStructures:BuildAbilityFilterSectionPlayer(cfg.cancelledEffect, unit, false, "Blacklist/Whitelist cancelled spells", 4)
+    else
+        args.kickedCancelledGrp.args.cancelledGrp.args.filterGroup = nil
+    end
 end
 
 
