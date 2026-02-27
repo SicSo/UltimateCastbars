@@ -520,6 +520,9 @@ function BarUpdate_API:UpdateUninterruptable(unit)
         bar.unintIconFrame:SetFrameLevel(bar.iconFrame:GetFrameLevel() + 10)
     end
     UpdateUninterruptibleIconBorder(unit)
+
+    -- Whitelist/Blacklist class
+    WhitelistBlacklistSetup(unit, cfg)
 end
 
 function BarUpdate_API:UpdateStyle(unit)

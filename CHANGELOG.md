@@ -2,6 +2,7 @@
 ## Added
 - Dynamic tick support for Preservation Disintegrate
 - Blacklist/Whitelist for cancelled spells on player bar
+- Blacklist/Whitelist for uninterrupted spells on player bar
 
 ## Fixed
 - State refresh for spec swaps

@@ -3,12 +3,14 @@ UCB.Options = UCB.Options or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.UIOptions = UCB.UIOptions or {}
 UCB.UNINTERRUPTIBLE_API = UCB.UNINTERRUPTIBLE_API or {}
+UCB.UIStructures = UCB.UIStructures or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
 local Opt = UCB.Options
 local GetCFG = UCB.GetValueConfig
 local UIOptions = UCB.UIOptions
 local UNINTERRUPTIBLE = UCB.UNINTERRUPTIBLE_API
+local UIStructures = UCB.UIStructures
 
 local LSM  = UCB.LSM
 
@@ -446,6 +448,12 @@ local function BuildUninterruptableArgs(args, unit)
             },
         },
     }
+    if unit == "player" then
+        args.uninterruptibleGroup.args.filterGroup = UIStructures:BuildAbilityFilterSectionPlayer(cfg, unit, false, "Blacklist/Whitelist spells", 6)
+    else
+        args.uninterruptibleGroup.args.filterGroup = nil
+    end
+
     --------------------------------------------------------------------------------------------------------------------------
     args.unKickable = {
         type   = "group",

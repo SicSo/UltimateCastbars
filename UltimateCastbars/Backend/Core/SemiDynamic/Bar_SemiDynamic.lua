@@ -370,7 +370,6 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
         return false, nil, nil, nil
     end
 
-
     -- Stop preview
     if Preview_API.previewActive and Preview_API.previewActive[unit] then
         Preview_API:HidePreviewCastBar(unit)
@@ -409,6 +408,11 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
     local otherCFG = cfg.otherFeatures
     CASTBAR_API:MirrorBar(cfg, bar, castType)
     CASTBAR_API:InitCastbarVal(bar_status, castType, resumeCast, vars, otherCFG)
+
+     -- Spell filter unint (make the spell int to avoid any unint effects)
+    if not CASTBAR_API:SpellFilter(spellID, cfg.uninterruptible) then
+        vars.nIntr = false
+    end
 
     CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
 
