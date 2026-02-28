@@ -91,8 +91,9 @@ local function CreateCategoriesToggle(unit)
     local categories = UCB.Copy.categories
     local categoriesOrder = UCB.Copy.categoriesOrder
     local args = {}
-    for i, key in ipairs(categoriesOrder) do
-        local label = categories[key]
+    local i = 1
+    for key, val in pairs(categoriesOrder) do
+        local label = val
         args[key] = {
             type = "toggle",
             name = label,
@@ -101,6 +102,7 @@ local function CreateCategoriesToggle(unit)
             get = function() return cfg.copySettings.paths[key] end,
             set = function(_, val) cfg.copySettings.paths[key] = val end,
         }
+        i = i + 1
     end
     return {
         type = "group",

@@ -56,13 +56,13 @@ UCB.Copy.categories = {
 }
 
 UCB.Copy.categoriesOrder = {
-    "general",
-    "text",
-    "style",
-    "visibility",
-    "uninterruptible",
-    "otherFeatures",
-    "CLASSES"
+    ["general"] = "general",
+    ["text"] = "text",
+    ["styleCastType"] = "style",
+    ["visibility"] = "visibility",
+    ["uninterruptible"] = "uninterruptible",
+    ["otherFeatures"] = "otherFeatures",
+    ["CLASSES"] = "CLASSES"
 }
 
 --------------------------------------------------------------- General ------------------------------------------------------------
@@ -435,10 +435,30 @@ UCB.profiles.textureFallbacks = {
 UCB.profiles.fontFallbacks = { font = "Friz Quadrata TT" }
 
 UCB.profiles.texture_map = {
-  ["style.textureName"]                     = { path = "style.texture",                         type = "statusbar" },
-  ["style.textureNameBack"]                 = { path = "style.textureBack",                     type = "background" },
-  ["style.textureNameBorder"]               = { path = "style.textureBorder",                   type = "statusbar" },
-  ["style.textureNameBorderIcon"]           = { path = "style.textureBorderIcon",               type = "statusbar" },
+  ["styleCastType.general.textureName"]             = { path = "styleCastType.general.texture",                 type = "statusbar" },
+  ["styleCastType.general.textureNameBack"]                 = { path = "styleCastType.general.textureBack",                     type = "background" },
+  ["styleCastType.general.textureNameBorder"]               = { path = "styleCastType.general.textureBorder",                   type = "statusbar" },
+  ["styleCastType.general.textureNameBorderIcon"]           = { path = "styleCastType.general.textureBorderIcon",               type = "statusbar" },
+
+  ["styleCastType.normal.textureName"]                     = { path = "styleCastType.normal.texture",                 type = "statusbar" },
+  ["styleCastType.normal.textureNameBack"]                 = { path = "styleCastType.normal.textureBack",                     type = "background" },
+  ["styleCastType.normal.textureNameBorder"]               = { path = "styleCastType.normal.textureBorder",                   type = "statusbar" },
+  ["styleCastType.normal.textureNameBorderIcon"]           = { path = "styleCastType.normal.textureBorderIcon",               type = "statusbar" },
+
+  ["styleCastType.channel.textureName"]                     = { path = "styleCastType.channel.texture",                 type = "statusbar" },
+  ["styleCastType.channel.textureNameBack"]                 = { path = "styleCastType.channel.textureBack",                     type = "background" },
+  ["styleCastType.channel.textureNameBorder"]               = { path = "styleCastType.channel.textureBorder",                   type = "statusbar" },
+  ["styleCastType.channel.textureNameBorderIcon"]           = { path = "styleCastType.channel.textureBorderIcon",               type = "statusbar" },
+
+  ["styleCastType.empowered.textureName"]                     = { path = "styleCastType.empowered.texture",                 type = "statusbar" },
+  ["styleCastType.empowered.textureNameBack"]                 = { path = "styleCastType.empowered.textureBack",                     type = "background" },
+  ["styleCastType.empowered.textureNameBorder"]               = { path = "styleCastType.empowered.textureBorder",                   type = "statusbar" },
+  ["styleCastType.empowered.textureNameBorderIcon"]           = { path = "styleCastType.empowered.textureBorderIcon",               type = "statusbar" },
+
+  ["styleCastType.default.textureName"]                     = { path = "styleCastType.default.texture",                 type = "statusbar" },
+  ["styleCastType.default.textureNameBack"]                 = { path = "styleCastType.default.textureBack",                     type = "background" },
+  ["styleCastType.default.textureNameBorder"]               = { path = "styleCastType.default.textureBorder",                   type = "statusbar" },
+  ["styleCastType.default.textureNameBorderIcon"]           = { path = "styleCastType.default.textureBorderIcon",               type = "statusbar" },
 
   ["uninterruptible.fillTextureName"]       = { path = "uninterruptible.fillTexture",           type = "statusbar" },
   ["uninterruptible.backgroundTextureName"] = { path = "uninterruptible.backgroundTexture",     type = "background" },

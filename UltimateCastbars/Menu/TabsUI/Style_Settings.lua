@@ -6,6 +6,7 @@ UCB.UIOptions = UCB.UIOptions or {}
 UCB.STYLE_API = UCB.STYLE_API or {}
 UCB.UIStructures = UCB.UIStructures or {}
 
+
 local CASTBAR_API = UCB.CASTBAR_API
 local Opt = UCB.Options
 local GetCFG = UCB.GetValueConfig
@@ -13,36 +14,97 @@ local UIOptions = UCB.UIOptions
 local STYLE_API = UCB.STYLE_API
 local UIStructures = UCB.UIStructures
 
-STYLE_API.castType = "normal"
-
-local function createCasttypeList()
+local function createCasttypeList(base)
     local values = {
+        general   = "General",
         normal    = "Normal",
         channel   = "Channelled",
         empowered = "Empowered",
     }
 
-    local sorting = { "normal", "channel", "empowered" } -- desired order
+    values[base] = nil
 
-    return values, sorting
+    local sorting = { "general", "normal", "channel", "empowered" }
+    local newSorting = {}
+
+    for _, k in ipairs(sorting) do
+        if values[k] ~= nil then
+            table.insert(newSorting, k)
+        end
+    end
+
+    return values, newSorting
 end
 
-local function createStyleWindow(args, unit, castTypeStyleCFG)
-    if castTypeStyleCFG.useGeneralStyle then
-        args.styleSelectionGrp.args.styleWindow = {
-            type = "group",
-            name = "General style settings",
-            order = 2,
-            args = UIStructures:BuildStyleWindow(castTypeStyleCFG.general, unit),
+local function createStyleWindow(unit, castTypeStyleCFG, castType, order)
+    local styleWindow = {
+        type = "group",
+        name = function() return UIOptions.MakeTitle(castType).." style settings" end,
+        order = order,
+        args = UIStructures:BuildStyleWindow(castTypeStyleCFG[castType], unit),
+    }
+    return styleWindow
+end
+
+
+local function createCopySettings(unit, cfg, base)
+    local values_list, sorting = createCasttypeList(base)
+    local copyFromCastType = sorting[1]
+    local copyStyleSettingsGrp = {
+        type = "group",
+        name = "Copy style settings",
+        order = 2,
+        args = {
+            selectSource = {
+                type = "select",
+                name = "Copy from cast type",
+                desc = "Select the cast type you want to copy the style settings from.",
+                order = 1,
+                width = 1.2,
+                values = createCasttypeList(base),
+                get = function() return copyFromCastType end,
+                set = function(_, value)
+                    copyFromCastType = value
+                    CASTBAR_API:UpdateCastbar(unit)
+                    end,
+            },
+            gap1 = {
+                type = "description",
+                name = "",
+                order = 1.5,
+                width = 0.1,
+            },
+            copyFromSource = {
+                type = "execute",
+                name = function() return "Copy from "..UIOptions.ColorText(UIOptions.turquoise, UIOptions.MakeTitle(copyFromCastType)) end,
+                desc = "Copy the current cast type style settings to the other cast types.",
+                order = 2,
+                width = 1.2,
+                func = function()
+                    STYLE_API:DeepCopy(cfg[base], cfg[copyFromCastType])
+                    CASTBAR_API:UpdateCastbar(unit)
+                    end,
+            },
+            gap2 = {
+                type = "description",
+                name = "",
+                order = 2.5,
+                width = 0.1,
+            },
+            resetDefault = {
+                type = "execute",
+                name = "Reset to default",
+                desc = "Reset the current cast type style settings to default.",
+                order = 3,
+                width = 1.2,
+                func = function()
+                    STYLE_API:DeepCopy(cfg[base], cfg.default)
+                    CASTBAR_API:UpdateCastbar(unit)
+                    end,
+            }
         }
-    else
-        args.styleSelectionGrp.args.styleWindow = {
-            type = "group",
-            name = function() return UIOptions.MakeTitle(STYLE_API.castType).." style settings" end,
-            order = 2,
-            args = UIStructures:BuildStyleWindow(castTypeStyleCFG[STYLE_API.castType], unit),
-        }
-    end
+    }
+    return copyStyleSettingsGrp
 end
 
 local function BuildCustomisationArgs(args, unit)
@@ -54,47 +116,113 @@ local function BuildCustomisationArgs(args, unit)
         order = 0,
         inline = true,
         args = {
+            headerMode = {
+                type = "header",
+                name = function() 
+                    if castTypeStyleCFG.useGeneralStyle then
+                        return "Using "..UIOptions.ColorText(UIOptions.turquoise, "general").." style settings for all cast types"
+                    end
+                    return "Using "..UIOptions.ColorText(UIOptions.turquoise, "individual").." style settings for each cast type"
+                end,
+                order = 0,
+            },
             useGeneralSettings = {
                 type = "toggle",
                 name = "Use general settings",
                 desc = "Use the general settings for this cast type instead of custom ones.",
-                order = 0,
+                order = 1,
                 get = function() return castTypeStyleCFG.useGeneralStyle end,
                 set = function(_, value)
                     castTypeStyleCFG.useGeneralStyle = value
-                    createStyleWindow(args, unit, castTypeStyleCFG)
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
             },
-            styleSelectionGrp = {
+            generalStyleGrp = {
                 type = "group",
-                name = "Per cast type style settings",
+                name = "General style settings",
+                order = 2,
+                inline = true,
+                disabled = function() return not castTypeStyleCFG.useGeneralStyle end,
+                args = {
+                    
+                copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "general"),
+                styleWindow = createStyleWindow(unit, castTypeStyleCFG, "general", 3),
+                },
+            },
+        }
+    }
+
+    args.styleNormal = {
+        type = "group",
+        name = "Normal",
+        order = 1,
+        hidden = function() return castTypeStyleCFG.useGeneralStyle end,
+        args = {
+            styleNormalgrp = {
+                type = "group",
+                name = "Normal cast style settings",
                 order = 1,
-                hidden = function() return castTypeStyleCFG.useGeneralStyle end,
+                inline = true,
+                args = {
+                     editHeader = {
+                        type = "header",
+                        name = function() return "Settings for "..UIOptions.ColorText(UIOptions.turquoise , UIOptions.MakeTitle(unit).." - NORMAL").." casts" end,
+                        order = 1,
+                    },
+                    copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "normal"),
+                    styleWindow = createStyleWindow(unit, castTypeStyleCFG, "normal", 3),
+                }
+            }
+        },
+    }
+
+    args.styleChannel = {
+        type = "group",
+        name = "Channel",
+        order = 2,
+        hidden = function() return castTypeStyleCFG.useGeneralStyle end,
+        args = {
+            styleChannelgrp = {
+                type = "group",
+                name = "Channel cast style settings",
+                order = 1,
+                inline = true,
                 args = {
                     editHeader = {
                         type = "header",
-                        name = function() return "Settings for "..UIOptions.ColorText(UIOptions.turquoise , UIOptions.MakeTitle(unit).." - "..string.upper(STYLE_API.castType)).." cast bars" end,
-                        order = 0,
-                    },
-                    selectType = {
-                        type = "select",
-                        name = "Select cast type",
+                        name = function() return "Settings for "..UIOptions.ColorText(UIOptions.turquoise , UIOptions.MakeTitle(unit).." - CHANNEL").." casts" end,
                         order = 1,
-                        values = createCasttypeList(),
-                        get = function() return STYLE_API.castType end,
-                        set = function(_, value)
-                            STYLE_API.castType = value
-                            createStyleWindow(args, unit, castTypeStyleCFG)
-                        end,
                     },
-                    -- add copy controls
-
+                    copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "channel"),
+                    styleWindow = createStyleWindow(unit, castTypeStyleCFG, "channel", 3),
                 },
             }
         }
     }
-    createStyleWindow(args, unit, castTypeStyleCFG)
+
+    args.styleEmpowered = {
+        type = "group",
+        name = "Empowered",
+        order = 3,
+        hidden = function() return castTypeStyleCFG.useGeneralStyle end,
+        args = {
+            styleEmpoweredgrp = {
+                type = "group",
+                name = "Empowered cast style settings",
+                order = 1,
+                inline = true,
+                args = {
+                    editHeader = {
+                        type = "header",
+                        name = function() return "Settings for "..UIOptions.ColorText(UIOptions.turquoise , UIOptions.MakeTitle(unit).." - EMPOWERED").." casts" end,
+                        order = 1,
+                    },
+                    copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "empowered"),
+                    styleWindow = createStyleWindow(unit, castTypeStyleCFG, "empowered", 3),
+                },
+            }
+        }
+    }
 end
 
 -- Public builder

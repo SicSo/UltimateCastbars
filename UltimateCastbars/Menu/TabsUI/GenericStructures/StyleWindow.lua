@@ -24,6 +24,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                     dialogControl = "LSM30_Statusbar",
                     name          = "Castbar",
                     order         = 1,
+                    width         = 0.9,
                     values        = function() return LSM:HashTable(LSM.MediaType.STATUSBAR) end,
                     get           = function() return cfg.textureName end,
                     set           = function(_, val)
@@ -37,6 +38,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                     dialogControl = "LSM30_Statusbar",
                     name          = "Background",
                     order         = 2,
+                    width         = 0.9,
                     values        = function() return LSM:HashTable(LSM.MediaType.BACKGROUND) end,
                     get           = function() return cfg.textureNameBack end,
                     set           = function(_, val)
@@ -50,6 +52,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                     dialogControl = "LSM30_Statusbar",
                     name          = "Border Castbar",
                     order         = 3,
+                    width         = 0.9,
                     values        = function() return LSM:HashTable(LSM.MediaType.STATUSBAR) end,
                     get           = function() return cfg.textureNameBorder end,
                     set           = function(_, val)
@@ -63,6 +66,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                     dialogControl = "LSM30_Statusbar",
                     name          = "Border Icon",
                     order         = 4,
+                    width         = 0.9,
                     values        = function() return LSM:HashTable(LSM.MediaType.STATUSBAR) end,
                     get           = function() return cfg.textureNameBorderIcon end,
                     set           = function(_, val)
@@ -107,6 +111,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 type = "color",
                 name = function() if cfg.gradientEnable then return "Gradient Start" else return "Colour" end end,
                 order = 3,
+                width = 0.8,
                 hasAlpha = true,
                 get = function()
                     local c = cfg.customColour
@@ -122,6 +127,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 type = "color",
                 name = "Gradient End",
                 order = 4,
+                width = 0.8,
                 hasAlpha = true,
                 get = function()
                     local c = cfg.customColour2

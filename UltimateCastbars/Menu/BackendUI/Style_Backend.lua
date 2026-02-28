@@ -8,11 +8,22 @@ local CASTBAR_API = UCB.CASTBAR_API
 local UIOptions = UCB.UIOptions
 local STYLE_API = UCB.STYLE_API
 
+
+function STYLE_API:DeepCopy(dst, src)
+    for k, v in pairs(src) do
+        if type(v) == "table" then
+            if type(dst[k]) ~= "table" then dst[k] = {} end
+            self:DeepCopy(dst[k], v)
+        else
+            dst[k] = v
+        end
+    end
+end
+
 function STYLE_API:RebuildOffsets(args, cfg, unit, oldThickness, oldThicknessIcon)
     args.grpBorder.args.borderOffsetGrp.args = self:BuildBorderOffsetArgs(cfg, unit, oldThickness)
     args.grpBorderIcon.args.borderOffsetGrp.args = self:BuildBorderOffsetIconArgs(cfg, unit, oldThickness, oldThicknessIcon)
 end
-
 
 function STYLE_API:BuildBorderOffsetArgs(cfg, unit, oldThickness)
     local thickness = tonumber(cfg.borderThickness) or 0

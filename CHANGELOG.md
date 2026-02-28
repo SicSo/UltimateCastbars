@@ -6,6 +6,7 @@
 - Blacklist/Whitelist for uninterrupted spells on player bar
 - Option to blacklist/whitelist all spells from player spell list
 - Per cast type styling options
+- Copy style settings between cast types
 
 ## Fixed
 - State refresh for spec swaps
