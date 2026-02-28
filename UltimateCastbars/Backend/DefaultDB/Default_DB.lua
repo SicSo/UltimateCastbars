@@ -17,7 +17,9 @@ local Default_Values = {
         },
         misc = {
             lastUIPath = {},
+            __schemaVersion = 0, -- for migrations
         }
+        
     },
 }
 

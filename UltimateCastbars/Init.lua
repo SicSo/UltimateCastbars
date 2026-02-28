@@ -24,6 +24,7 @@ UCB.GeneralCore_Helpers = UCB.GeneralCore_Helpers or {}
 UCB.Copy = UCB.Copy or {}
 UCB.Normiliser = UCB.Normiliser or {}
 UCB.UIStructures = UCB.UIStructures or {}
+UCB.Migration = UCB.Migration or {}
 
 -- Sub APIs
 UCB.CLASS_API.Evoker = UCB.CLASS_API.Evoker or {}

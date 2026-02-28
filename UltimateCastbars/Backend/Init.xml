@@ -28,5 +28,6 @@
 
 	<Script file="Core/Static/Bar_Static.lua"/>
 	<Script file="Core/Static/BarUpdate_BarIcon.lua"/>
+	<Script file="Core/Static/BarUpdate_Style.lua"/>	
 	<Script file="Core/Static/BarUpdate_Helpers.lua"/>	
 </Ui>

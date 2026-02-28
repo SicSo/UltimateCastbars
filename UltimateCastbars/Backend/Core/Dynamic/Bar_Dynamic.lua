@@ -24,7 +24,7 @@ local function EnsureOmbreCurve(unit, bar, cfg)
         local classColourVal = UCB.UIOptions.classColoursList[classFile]
         cc = classColourVal.RGBA
     else
-        cc = cfg.style.enemyColour
+        cc = bar._enemyColour.RGBA
     end
     local needsRebuild = false
 
@@ -216,11 +216,10 @@ function CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
     SyncMirror(bar)
 
     -- Set dynamic colours
-    local colourMode = cfg.style.colourMode
-    if castType == "empowered" or colourMode == "ombre" then
+    if castType == "empowered" or bar._colourMode == "ombre" then
         local mirror = cfg.otherFeatures.mirrorBar[castType]
         local switch = (inverted or mirror) and not (inverted and mirror)  -- if either is true, but not both
-        AssignColours(unit, bar, cfg, colourMode, castType, durationObject, switch)
+        AssignColours(unit, bar, cfg, bar._colourMode, castType, durationObject, switch)
     end
 
     -- Show bar if kick is ready

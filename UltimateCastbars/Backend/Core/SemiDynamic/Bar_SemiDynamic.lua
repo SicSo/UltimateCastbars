@@ -382,6 +382,14 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
     CASTBAR_API:StopFrameTimer(UCB.castBar[unit], "cancelled")
     CASTBAR_API:StopFrameTimer(UCB.castBar[unit], "interrupted")
 
+    -- Set style based on cast type
+    local castTypeStyleCFG = cfg.styleCastType
+    if not castTypeStyleCFG.useGeneralStyle then
+        local styleCFG = castTypeStyleCFG[castType]
+        BarUpdate_API:RefreshBarStyleOnly(unit, styleCFG)
+        BarUpdate_API:UpdateStyle(unit, castType)
+    end
+
     bar.current_spellID = spellID
 
     -- Update internal vars with spellInfo

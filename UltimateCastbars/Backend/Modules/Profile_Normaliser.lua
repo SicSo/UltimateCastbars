@@ -382,6 +382,12 @@ end
 
 
 function UCB:NormalizeCurrentProfileToSchema()
+    UCB:RegisterMigrations()
+    local ok, err = UCB.Migration.Apply(UCB.db.profile, { schemaKey = "__schemaVersion" })
+    if not ok then
+        return false, err
+    end
+
     local defaults = UCB:GetDefaultDB()
     local schemaProfile = defaults and defaults.profile
     if not schemaProfile then return false, "No default schema found." end

@@ -9,7 +9,7 @@ local BarUpdate_API = UCB.BarUpdate_API
 local function UpdateSequence(unit)
     BarUpdate_API:UpdateBarIcon(unit)
     BarUpdate_API:UpdateVisibility(unit)
-    BarUpdate_API:UpdateColours(unit)
+    BarUpdate_API:BuildColourCandidates(unit)
     BarUpdate_API:UpdateStyle(unit)
     BarUpdate_API:UpdateText(unit)
     BarUpdate_API:UpdateUninterruptable(unit)

@@ -267,7 +267,6 @@ local function ComputeSize(bar, genCfg, styleCfg, syncedW, syncedH)
 
     -- Apply
     bar:SetSize(barW, barH)
-    --bar.status:SetAllPoints(bar)
     bar.group:SetSize(genCfg.fullBarWidth, genCfg.fullBarHeight)
 end
 
@@ -301,7 +300,6 @@ local function LayoutIconAndBar2(bar, cfg)
         -- place bar so its OUTSIDE border fits in group
         bar:SetPoint("TOPLEFT", group, "TOPLEFT", bL, -bT)
         bar:SetSize(barW, barH)
-        --bar.status:SetAllPoints(bar)
         return
     end
 
@@ -341,7 +339,6 @@ local function LayoutIconAndBar2(bar, cfg)
     end
 
     bar:SetSize(barW, barH)
-    --bar.status:SetAllPoints(bar)
 end
 
 local function SizeWhenReady(bar, genCfg, styleCfg, opts)
@@ -425,6 +422,10 @@ local function SizeWhenReady(bar, genCfg, styleCfg, opts)
         if wReady and hReady then
             -- Ready: compute + apply using synced values
             --ComputeSize(bar, genCfg, syncedW, syncedH)
+            
+            genCfg._lastSyncedW = syncedW
+            genCfg._lastSyncedH = syncedH
+
             ComputeSize(bar, genCfg, styleCfg, syncedW, syncedH)
             return
         end
@@ -435,6 +436,10 @@ local function SizeWhenReady(bar, genCfg, styleCfg, opts)
             -- Timeout: fall back and set errors for whatever wasn't ready
             genCfg._widthFrameError  = needW and (syncedW == nil) or false
             genCfg._heightFrameError = needH and (syncedH == nil) or false
+
+            genCfg._lastSyncedW = syncedW
+            genCfg._lastSyncedH = syncedH
+
             --ComputeSize(bar, genCfg, syncedW, syncedH)
             ComputeSize(bar, genCfg, styleCfg, syncedW, syncedH)
         end
@@ -452,7 +457,7 @@ function BarUpdate_API:UpdateBarIcon(unit)
     local bar = UCB.castBar[unit]
     local bigCFG = UCB.GetValueConfig(unit)
     local genCfg = bigCFG.general
-    local styleCfg = bigCFG.style
+    local styleCfg = bigCFG.styleCastType.general
 
     -- Determine width and apply
     SizeWhenReady(bar, genCfg, styleCfg, {interval=genCfg.syncFrameInterval, maxTries=genCfg.syncFrameTries, minWidth=1, minHeight = 1})
@@ -462,4 +467,35 @@ function BarUpdate_API:UpdateBarIcon(unit)
 
     -- Determine anchor frame and attach
     AnchorWhenReady(bar.group, genCfg, {interval=genCfg.anchorFrameInterval, maxTries=genCfg.anchorFrameTries, delay=genCfg.anchorDelay})
+end
+
+function BarUpdate_API:RefreshBarStyleOnly(unit, newStyleCfg)
+    local bar = UCB.castBar[unit]
+    if not bar then return end
+
+    local bigCFG = UCB.GetValueConfig(unit)
+    local genCfg = bigCFG.general
+
+    -- keep old error state (don’t re-fail sync just by restyling)
+    local oldWErr = genCfg._widthFrameError
+    local oldHErr = genCfg._heightFrameError
+
+    -- Use last synced if we have it, otherwise use CURRENT size as the target
+    local syncedW = genCfg._lastSyncedW
+    local syncedH = genCfg._lastSyncedH
+
+    if not genCfg.manualWidth and (syncedW == nil) and bar.group then
+        local gw = bar.group:GetWidth()
+        if gw and gw > 0 then syncedW = gw end
+    end
+    if not genCfg.manualHeight and (syncedH == nil) and bar.group then
+        local gh = bar.group:GetHeight()
+        if gh and gh > 0 then syncedH = gh end
+    end
+
+    ComputeSize(bar, genCfg, newStyleCfg, syncedW, syncedH)
+    LayoutIconAndBar2(bar, genCfg)
+
+    genCfg._widthFrameError  = oldWErr
+    genCfg._heightFrameError = oldHErr
 end

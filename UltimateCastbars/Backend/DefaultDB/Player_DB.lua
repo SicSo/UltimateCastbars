@@ -2,6 +2,46 @@ local _, UCB = ...
 
 UCB.Default_DB = UCB.Default_DB or {}
 
+local function createStyle()
+    local style = {
+        texture = "Interface\\TargetingFrame\\UI-StatusBar",
+        textureName = "Blizzard",
+        textureBack = "Interface\\DialogFrame\\UI-DialogBox-Background",
+        textureNameBack = "Blizzard Dialog Background",
+        textureBorder = "Interface\\TargetingFrame\\UI-StatusBar",
+        textureNameBorder = "Blizzard",
+        textureBorderIcon = "Interface\\TargetingFrame\\UI-StatusBar",
+        textureNameBorderIcon = "Blizzard",
+
+        colourMode = "class", -- "class", "ombre", "custom"
+        gradientEnable = false,
+        customColour = {r=1, g=1, b=1, a=1}, -- default white
+        customColour2 = {r=1, g=1, b=1, a=1}, -- default white for gradient end
+
+        showBackground = true,
+        bgColour = {r=0, g=0, b=0, a=1},
+
+        showBorder = false,
+        borderThickness = 1,
+        borderColour = {r=1, g=1, b=1, a=1},
+        borderOffsetTop = 0,
+        borderOffsetBottom = 0,
+        borderOffsetLeft = 0,
+        borderOffsetRight = 0,
+
+        
+        showBorderIcon = false,
+        syncBorderIcon = false,
+        borderThicknessIcon = 1,
+        borderColourIcon = {r=1, g=1, b=1, a=1},
+        borderOffsetTopIcon = 0,
+        borderOffsetBottomIcon = 0,
+        borderOffsetLeftIcon = 0,
+        borderOffsetRightIcon = 0,
+    }
+    return style
+end
+
 UCB.Default_DB.player = {
      enabled = true,
 
@@ -282,41 +322,13 @@ UCB.Default_DB.player = {
         },
     },
 
-    style = {
-        texture = "Interface\\TargetingFrame\\UI-StatusBar",
-        textureName = "Blizzard",
-        textureBack = "Interface\\DialogFrame\\UI-DialogBox-Background",
-        textureNameBack = "Blizzard Dialog Background",
-        textureBorder = "Interface\\TargetingFrame\\UI-StatusBar",
-        textureNameBorder = "Blizzard",
-        textureBorderIcon = "Interface\\TargetingFrame\\UI-StatusBar",
-        textureNameBorderIcon = "Blizzard",
-
-        colourMode = "class", -- "class", "ombre", "custom"
-        gradientEnable = false,
-        customColour = {r=1, g=1, b=1, a=1}, -- default white
-        customColour2 = {r=1, g=1, b=1, a=1}, -- default white for gradient end
-
-        showBackground = true,
-        bgColour = {r=0, g=0, b=0, a=1},
-
-        showBorder = false,
-        borderThickness = 1,
-        borderColour = {r=1, g=1, b=1, a=1},
-        borderOffsetTop = 0,
-        borderOffsetBottom = 0,
-        borderOffsetLeft = 0,
-        borderOffsetRight = 0,
-
-        
-        showBorderIcon = false,
-        syncBorderIcon = false,
-        borderThicknessIcon = 1,
-        borderColourIcon = {r=1, g=1, b=1, a=1},
-        borderOffsetTopIcon = 0,
-        borderOffsetBottomIcon = 0,
-        borderOffsetLeftIcon = 0,
-        borderOffsetRightIcon = 0,
+    styleCastType = {
+        useGeneralStyle = true,
+        default = createStyle(),
+        general = createStyle(),
+        normal = createStyle(),
+        channel = createStyle(),
+        empowered = createStyle(),
     },
 
     visibility = {

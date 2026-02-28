@@ -22,6 +22,7 @@
 	
 	<!-- UI Settings -->
 	<Script file="TabsUI/GenericStructures/BlacklistWhitelistTable.lua"/>
+	<Script file="TabsUI/GenericStructures/StyleWindow.lua"/>
 
 	<Script file="TabsUI/BlizzCast_Settings.lua"/>
 	<Script file="TabsUI/General_Settings.lua"/>

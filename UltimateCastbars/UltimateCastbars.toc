@@ -18,6 +18,8 @@ Global_StaticVars.lua
 Global_Functions.lua
 Global_Vars.lua
 Init.lua
+Backend\DefaultDB\DB_Migration.lua
+Backend\DefaultDB\DB_Revisions.lua
 Core.lua
 Misc.lua
 Menu\Init.xml

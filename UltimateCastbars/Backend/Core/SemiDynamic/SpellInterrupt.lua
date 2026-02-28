@@ -9,7 +9,7 @@ local tags = UCB.tags
 local GeneralHelpers = UCB.GeneralCore_Helpers
 
 
-local function DesignBar(frame_status, cfg, castType, cancelled)
+local function DesignBar(status, frame_status, cfg, castType, cancelled)
     local currentCFG
     if cancelled then
         currentCFG = cfg.otherFeatures.cancelledEffect
@@ -19,7 +19,7 @@ local function DesignBar(frame_status, cfg, castType, cancelled)
     local colour = currentCFG.frameColour[castType]
     frame_status:SetStatusBarColor(colour.r, colour.g, colour.b, colour.a)
     if currentCFG.useSameTextureAsMain[castType] then
-        frame_status:SetStatusBarTexture(cfg.style.texture)
+        frame_status:SetStatusBarTexture(status:GetStatusBarTexture():GetTextureFileID())
     else
         frame_status:SetStatusBarTexture(currentCFG.frameTexture[castType])
     end
@@ -111,7 +111,7 @@ local function CancelledCast(unit, castType, castGUID, spellID, interruptedBy, c
     else
         alpha = 1
     end
-    local timer = DesignBar(frame.status, cfg, castType, true)
+    local timer = DesignBar(bar.status, frame.status, cfg, castType, true)
     tags:ShowEffectTags(bar, "cancelled", castType, unit)
     CASTBAR_API:ShowFrameTimer(bar, unit, "cancelled", timer, alpha)
 end
@@ -127,7 +127,7 @@ local function InterruptedCast(unit, castType, castGUID, spellID, interruptedBy,
     tags.var[unit].kColour = colour
     local bar = UCB.castBar[unit]
     local frame = bar.frames.interrupted
-    local timer = DesignBar(frame.status, UCB.GetValueConfig(unit), castType, false)
+    local timer = DesignBar(bar.status, frame.status, UCB.GetValueConfig(unit), castType, false)
     tags:ShowEffectTags(bar, "interrupted", castType, unit)
     CASTBAR_API:ShowFrameTimer(bar, unit, "interrupted", timer)
 end

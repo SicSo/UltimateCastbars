@@ -18,6 +18,13 @@ UCB.units = {
     "focus"
 }
 
+UCB.castTypesStyle = {
+    "general",
+    "normal",
+    "channel",
+    "empowered"
+}
+
 UCB.events = {
   UNIT_SPELLCAST_START          = "OnUnitSpellcastStart",
   UNIT_SPELLCAST_STOP           = "OnUnitSpellcastStop",

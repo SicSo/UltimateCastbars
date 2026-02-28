@@ -9,6 +9,11 @@ function UCB.UIOptions.ColorText(hex, text)
     return ("|c%s%s|r"):format(hex, text)
 end
 
+function UCB.UIOptions.MakeTitle(text)
+    text = tostring(text or "")
+    return (text:gsub("^%l", string.upper))
+end
+
 function UCB:PrintAddonMsg(msg)  print(self.ADDON_NAME .. ":|r " .. msg) end
 
 function UCB:UnitDisplayName(unit)
