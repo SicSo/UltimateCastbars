@@ -39,4 +39,5 @@
 	<Script file="TabsUI/ClassOptions/Evoker_Settings.lua"/>
 	<Script file="TabsUI/ClassOptions/ChannelClass_Settings.lua"/>
 	<Script file="TabsUI/ClassOptions/BlacklistWhitelist_Settings.lua"/>
+	<Script file="TabsUI/ClassOptions/SpellStyle_Settings.lua"/>
 </Ui>

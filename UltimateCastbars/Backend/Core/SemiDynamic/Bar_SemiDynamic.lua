@@ -360,6 +360,35 @@ function CASTBAR_API:SpellFilter(spellID, cfg)
     end
 end
 
+function CASTBAR_API:ApplyStyle(unit, cfg, spellID, castType)
+    if unit ~= "player" then
+        return
+    end
+
+    local classCFG = cfg.CLASSES[UCB.className]
+
+    if not classCFG then
+        return
+    end
+    local applied = false
+    if classCFG.useStyleSpell then
+        if classCFG._customSpellStyles and classCFG._customSpellStyles[spellID] then
+            local style = classCFG._customSpellStyles[spellID]
+            BarUpdate_API:RefreshBarStyleOnly(unit, style)
+            BarUpdate_API:UpdateStyle(unit, spellID, style)
+            applied = true
+        end
+    end
+    if not applied then
+        local castTypeStyleCFG = cfg.styleCastType
+        if not castTypeStyleCFG.useGeneralStyle then
+            local styleCFG = castTypeStyleCFG[castType]
+            BarUpdate_API:RefreshBarStyleOnly(unit, styleCFG)
+            BarUpdate_API:UpdateStyle(unit, castType)
+        end
+    end
+end
+
 
 ----------------------------------------------------------------- CASTBAR UPDATE FUNCTIONS -----------------------------------------------------------------
 function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
@@ -383,12 +412,7 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
     CASTBAR_API:StopFrameTimer(UCB.castBar[unit], "interrupted")
 
     -- Set style based on cast type
-    local castTypeStyleCFG = cfg.styleCastType
-    if not castTypeStyleCFG.useGeneralStyle then
-        local styleCFG = castTypeStyleCFG[castType]
-        BarUpdate_API:RefreshBarStyleOnly(unit, styleCFG)
-        BarUpdate_API:UpdateStyle(unit, castType)
-    end
+    CASTBAR_API:ApplyStyle(unit, cfg, spellID, castType)
 
     bar.current_spellID = spellID
 

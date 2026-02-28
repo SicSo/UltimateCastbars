@@ -484,4 +484,14 @@ function BarUpdate_API:UpdateOthers(unit)
         otherCFG._useTickTexture = otherCFG.useTickTexture
         otherCFG._tickTexture = otherCFG.tickTexture
     end
+
+    -- Spell custom styles 
+    if unit == "player" then
+        classCFG._customSpellStyles = {}
+        for _, spellStyle in ipairs(classCFG.styleSpells) do
+            if spellStyle.enable and spellStyle.id then
+                classCFG._customSpellStyles[spellStyle.id] = spellStyle.style
+            end
+        end
+    end
 end

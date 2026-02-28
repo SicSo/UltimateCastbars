@@ -2,7 +2,7 @@ local _, UCB = ...
 
 UCB.Default_DB = UCB.Default_DB or {}
 
-local function createStyle()
+function UCB.Default_DB:createStyle()
     local style = {
         texture = "Interface\\TargetingFrame\\UI-StatusBar",
         textureName = "Blizzard",
@@ -40,6 +40,41 @@ local function createStyle()
         borderOffsetRightIcon = 0,
     }
     return style
+end
+
+local function createClassSettings()
+    local generalClassSettings = {
+        useMainSettingsChannel = true,
+        channeledSpels = {},
+        showChannelTicks = true,
+        useTickTexture = false,
+        tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+        tickTextureName = "Blizzard",
+        channelTickWidth = 2,
+        channelTickColour = {r=1, g=1, b=1, a=0.7},
+
+        enableAbilityFilter = false,
+        blackList = true,
+        useManualTable = true,
+        usePlayerSpellList = true,
+        blackListSpells = {},
+        whiteListSpells = {},
+
+        useStyleSpell = false,
+        styleSpells = {}
+    }
+    return generalClassSettings
+end
+
+local function merge(dst, src)
+  if dst == nil then dst = {} end
+  if src == nil then return dst end
+
+  for k, v in pairs(src) do
+    dst[k] = v
+  end
+
+  return dst
 end
 
 UCB.Default_DB.player = {
@@ -324,11 +359,11 @@ UCB.Default_DB.player = {
 
     styleCastType = {
         useGeneralStyle = true,
-        default = createStyle(),
-        general = createStyle(),
-        normal = createStyle(),
-        channel = createStyle(),
-        empowered = createStyle(),
+        default = UCB.Default_DB:createStyle(),
+        general = UCB.Default_DB:createStyle(),
+        normal = UCB.Default_DB:createStyle(),
+        channel = UCB.Default_DB:createStyle(),
+        empowered = UCB.Default_DB:createStyle(),
     },
 
     visibility = {
@@ -542,237 +577,42 @@ UCB.Default_DB.player = {
     CLASSES = {
 
         WARRIOR = {
-            useMainSettingsChannel = true,
-            channeledSpels = {},
-            showChannelTicks = true,
-            useTickTexture = false,
-            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
-            tickTextureName = "Blizzard",
-            channelTickWidth = 2,
-            channelTickColour = {r=1, g=1, b=1, a=0.7},
-
-            enableAbilityFilter = false,
-            blackList = true,
-            useManualTable = true,
-            usePlayerSpellList = true,
-            blackListSpells = {},
-            whiteListSpells = {},
         },
 
         PALADIN = {
-            useMainSettingsChannel = true,
-            channeledSpels = {},
-            showChannelTicks = true,
-            useTickTexture = false,
-            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
-            tickTextureName = "Blizzard",
-            channelTickWidth = 2,
-            channelTickColour = {r=1, g=1, b=1, a=0.7},
-
-            enableAbilityFilter = false,
-            blackList = true,
-            useManualTable = true,
-            usePlayerSpellList = true,
-            blackListSpells = {},
-            whiteListSpells = {},
         },
 
         HUNTER = {
-            useMainSettingsChannel = true,
-            channeledSpels = {},
-            showChannelTicks = true,
-            useTickTexture = false,
-            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
-            tickTextureName = "Blizzard",
-            channelTickWidth = 2,
-            channelTickColour = {r=1, g=1, b=1, a=0.7},
-
-            enableAbilityFilter = false,
-            blackList = true,
-            useManualTable = true,
-            usePlayerSpellList = true,
-            blackListSpells = {},
-            whiteListSpells = {},
         },
 
         ROGUE = {
-            useMainSettingsChannel = true,
-            channeledSpels = {},
-            showChannelTicks = true,
-            useTickTexture = false,
-            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
-            tickTextureName = "Blizzard",
-            channelTickWidth = 2,
-            channelTickColour = {r=1, g=1, b=1, a=0.7},
-
-            enableAbilityFilter = false,
-            blackList = true,
-            useManualTable = true,
-            usePlayerSpellList = true,
-            blackListSpells = {},
-            whiteListSpells = {},
         },
 
         PRIEST = {
-            useMainSettingsChannel = true,
-            channeledSpels = {},
-            showChannelTicks = true,
-            useTickTexture = false,
-            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
-            tickTextureName = "Blizzard",
-            channelTickWidth = 2,
-            channelTickColour = {r=1, g=1, b=1, a=0.7},
-
-            enableAbilityFilter = false,
-            blackList = true,
-            useManualTable = true,
-            usePlayerSpellList = true,
-            blackListSpells = {},
-            whiteListSpells = {},
         },
 
         DEATHKNIGHT = {
-            useMainSettingsChannel = true,
-            channeledSpels = {},
-            showChannelTicks = true,
-            useTickTexture = false,
-            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
-            tickTextureName = "Blizzard",
-            channelTickWidth = 2,
-            channelTickColour = {r=1, g=1, b=1, a=0.7},
-
-            enableAbilityFilter = false,
-            blackList = true,
-            useManualTable = true,
-            usePlayerSpellList = true,
-            blackListSpells = {},
-            whiteListSpells = {},
         },
 
         SHAMAN = {
-            useMainSettingsChannel = true,
-            channeledSpels = {},
-            showChannelTicks = true,
-            useTickTexture = false,
-            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
-            tickTextureName = "Blizzard",
-            channelTickWidth = 2,
-            channelTickColour = {r=1, g=1, b=1, a=0.7},
-
-            enableAbilityFilter = false,
-            blackList = true,
-            useManualTable = true,
-            usePlayerSpellList = true,
-            blackListSpells = {},
-            whiteListSpells = {},
         },
 
         MAGE = {
-            useMainSettingsChannel = true,
-            channeledSpels = {},
-            showChannelTicks = true,
-            useTickTexture = false,
-            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
-            tickTextureName = "Blizzard",
-            channelTickWidth = 2,
-            channelTickColour = {r=1, g=1, b=1, a=0.7},
-
-            enableAbilityFilter = false,
-            blackList = true,
-            useManualTable = true,
-            usePlayerSpellList = true,
-            blackListSpells = {},
-            whiteListSpells = {},
         },
 
         WARLOCK = {
-            useMainSettingsChannel = true,
-            channeledSpels = {},
-            showChannelTicks = true,
-            useTickTexture = false,
-            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
-            tickTextureName = "Blizzard",
-            channelTickWidth = 2,
-            channelTickColour = {r=1, g=1, b=1, a=0.7},
-
-            enableAbilityFilter = false,
-            blackList = true,
-            useManualTable = true,
-            usePlayerSpellList = true,
-            blackListSpells = {},
-            whiteListSpells = {},
         },
 
         MONK = {
-            useMainSettingsChannel = true,
-            channeledSpels = {},
-            showChannelTicks = true,
-            useTickTexture = false,
-            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
-            tickTextureName = "Blizzard",
-            channelTickWidth = 2,
-            channelTickColour = {r=1, g=1, b=1, a=0.7},
-
-            enableAbilityFilter = false,
-            blackList = true,
-            useManualTable = true,
-            usePlayerSpellList = true,
-            blackListSpells = {},
-            whiteListSpells = {},
         },
 
         DRUID = {
-            useMainSettingsChannel = true,
-            channeledSpels = {},
-            showChannelTicks = true,
-            useTickTexture = false,
-            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
-            tickTextureName = "Blizzard",
-            channelTickWidth = 2,
-            channelTickColour = {r=1, g=1, b=1, a=0.7},
-
-            enableAbilityFilter = false,
-            blackList = true,
-            useManualTable = true,
-            usePlayerSpellList = true,
-            blackListSpells = {},
-            whiteListSpells = {},
         },
 
         DEMONHUNTER = {
-            useMainSettingsChannel = true,
-            channeledSpels = {},
-            showChannelTicks = true,
-            useTickTexture = false,
-            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
-            tickTextureName = "Blizzard",
-            channelTickWidth = 2,
-            channelTickColour = {r=1, g=1, b=1, a=0.7},
-
-            enableAbilityFilter = false,
-            blackList = true,
-            useManualTable = true,
-            usePlayerSpellList = true,
-            blackListSpells = {},
-            whiteListSpells = {},
         },
 
         EVOKER = {
-            useMainSettingsChannel = true,
-            channeledSpels = {},
-            showChannelTicks = true,
-            useTickTexture = false,
-            tickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
-            tickTextureName = "Blizzard",
-            channelTickWidth = 2,
-            channelTickColour = {r=1, g=1, b=1, a=0.7},
-
-            enableAbilityFilter = false,
-            blackList = true,
-            useManualTable = true,
-            usePlayerSplellList = true,
-            blackListSpells = {},
-            whiteListSpells = {},
 
             disintegrateDynamicTicks = true,
 
@@ -843,5 +683,10 @@ UCB.Default_DB.player = {
         anchorPoint = "CENTER",
     },
 }
+
+
+for class, classSettings in pairs(UCB.Default_DB.player.CLASSES) do
+    UCB.Default_DB.player.CLASSES[class] = merge(classSettings, createClassSettings())
+end
 
 

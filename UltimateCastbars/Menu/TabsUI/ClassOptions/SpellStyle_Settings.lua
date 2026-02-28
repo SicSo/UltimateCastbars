@@ -1,0 +1,441 @@
+local _, UCB = ...
+
+UCB.Options = UCB.Options or {}
+UCB.UIStructures = UCB.UIStructures or {}
+UCB.CASTBAR_API = UCB.CASTBAR_API or {}
+UCB.UIOptions = UCB.UIOptions or {}
+UCB.Default_DB = UCB.Default_DB or {}
+
+local Opt = UCB.Options
+local GetCFG = UCB.GetValueConfig
+local UIStructures = UCB.UIStructures
+local CASTBAR_API = UCB.CASTBAR_API
+local UIOptions = UCB.UIOptions
+
+
+-- Registry: classToken -> function(cfgGetter) -> argsTable
+Opt.ClassExtraBuilders = Opt.ClassExtraBuilders or {}
+
+
+local function GoToStyle(unit, ct)
+    -- adjust these paths if your tree differs
+    if ct ~= UCB.className then
+        UCB:SelectGroup({"classSettings", "otherClasses", "class_" .. ct, "styleSection", "spellStyleGroup"}, unit)
+    else
+        UCB:SelectGroup({"classSettings", "class_" .. ct, "styleSection", "spellStyleGroup"}, unit)
+    end
+end
+
+
+local function _SafeSpellInfo(spellID)
+    local id = tonumber(spellID)
+    if not id then return nil end
+
+    local info = C_Spell.GetSpellInfo(id)
+    if not info then
+        return { id = id, name = "Unknown", icon = 134400 }
+    end
+
+    return {
+        id   = id,
+        name = info.name or "Unknown",
+        icon = info.originalIconID or 134400,
+    }
+end
+
+local function _BuildAllSpellsDropdownValues()
+    local merged, seen = {}, {}
+
+    local function addList(list)
+        for _, sid in ipairs(list or {}) do
+            sid = tonumber(sid)
+            if sid and not seen[sid] then
+                local info = C_Spell.GetSpellInfo(sid)
+                if info and info.name then
+                    seen[sid] = true
+                    table.insert(merged, { id = sid, name = info.name })
+                end
+            end
+        end
+    end
+
+    addList(UCB.allSpellTypes and UCB.allSpellTypes.channel)
+    addList(UCB.allSpellTypes and UCB.allSpellTypes.normal)
+    addList(UCB.allSpellTypes and UCB.allSpellTypes.empowered)
+
+    table.sort(merged, function(a, b)
+        return (a.name or ""):lower() < (b.name or ""):lower()
+    end)
+
+    local values = {}
+    for _, s in ipairs(merged) do
+        values[s.id] = s.name .. " - " .. s.id
+    end
+    return values
+end
+
+local function AddSpellByID(id, cfg)
+    id = tonumber(id)
+    if not id then return false end
+
+    local info = _SafeSpellInfo(id)
+    local list = cfg.styleSpells
+
+    for _, existing in ipairs(list) do
+        if existing.id == id then
+            return false
+        end
+    end
+
+    table.insert(list, {
+        icon = info.icon,
+        name = info.name,
+        id = info.id,
+        enable = true,
+        style = UCB.Default_DB:createStyle(),
+    })
+    return true
+end
+
+local function createSelectBlock(cfg)
+    local selectGroup = {
+        type = "group",
+        name = "Select Spell",
+        inline = true,
+        order = 2,
+        disabled = function() return not cfg.useStyleSpell end,
+        args = {
+            selectedSpell = {
+                type = "header",
+                name = function()
+                    local info = _SafeSpellInfo(cfg._abilitySelectStyle)
+                    if info then
+                        return "Selected: " .. UIOptions.ColorText(UIOptions.turquoise, info.name .. " (" .. tostring(info.id) .. ")")
+                    end
+                    return "Selected: " .. UIOptions.ColorText(UIOptions.red, "None")
+                end,
+                order = 1,
+                width = "full",
+            },
+
+            spellDescription = {
+                type = "description",
+                name = function()
+                    local id = tonumber(cfg._abilitySelectStyle)
+                    local tooltip = (id and id >= -2147483648 and id <= 2147483647) and C_TooltipInfo.GetSpellByID(id) or nil
+                    local spellDesc = tooltip and tooltip.lines and tooltip.lines[4] and tooltip.lines[4].leftText or "No description available."
+                    return spellDesc
+                end,
+                order = 2,
+                width = "full",
+            },
+
+            selectedSpellId = {
+                type = "input",
+                name = "Selected Spell ID",
+                order = 3,
+                width = 1.5,
+                get = function() return tostring(cfg._abilitySelectStyle or "") end,
+                set = function(_, v) end,
+            },
+
+            v1 = { type = "description", name = "", order = 3.5, width = 0.2 },
+
+            spellSelect = {
+                type = "select",
+                name = "All Spells For Current Class",
+                desc = "Channel + normal + empowered (merged)",
+                order = 4,
+                width = 1.5,
+                values = function()
+                    return _BuildAllSpellsDropdownValues()
+                end,
+                get = function() return cfg._abilitySelectStyle end,
+                set = function(_, v) cfg._abilitySelectStyle = v end,
+            },
+        },
+    }
+    return selectGroup
+end
+
+
+local function buildStyleWindow(args, unit, spellStyle)
+    if not spellStyle then args.spellStyleWindow = {} return end
+    args.spellStyleWindow = {
+        type = "group",
+        name = function() return "Editing style for: " .. (spellStyle.name or "Unknown") end,
+        order = 3,
+        inline =  true,
+        args = UIStructures:BuildStyleWindow(spellStyle.style, unit),
+    }
+end
+
+
+local function BuildSpellStyle(args, unit, cfg, indexedSpellStyle)
+
+    if #cfg.styleSpells == 0 then args.styleSection.args.spellStyleGroup = nil return end
+    if not indexedSpellStyle then indexedSpellStyle = 1 end
+    cfg._setyleSpellsIndex = indexedSpellStyle
+    local spellStyle = cfg.styleSpells[indexedSpellStyle]
+    args.styleSection.args.spellStyleGroup = {
+        type = "group",
+        name = "Edit style options",
+        inline = false,
+        order = 2,
+        hidden = function() return not cfg.useStyleSpell end,
+        args = {
+            header = {
+                type = "header",
+                name = function() 
+                    local shown = spellStyle and spellStyle.enable and UIOptions.ColorText(UIOptions.green, "Enabled") or UIOptions.ColorText(UIOptions.red, "Disabled")
+                    return "Spell " .. UIOptions.ColorText(UIOptions.turquoise, (spellStyle.name or "Unknown")) .. " - (" .. UIOptions.ColorText(UIOptions.turquoise, tostring(spellStyle.id or "")) .. ") (" .. shown..")" end,
+                order = 0,
+            },
+            spellStyleSelection = {
+                type = "select",
+                name = "Select spell style to edit",
+                order = 1,
+                width = 1.2,
+                values = function()
+                    local vals
+                    for i, spell in ipairs(cfg.styleSpells) do
+                        vals = vals or {}
+                        vals[i] = spell.name .. " (" .. spell.id .. ")"
+                    end
+                    return vals
+                end,
+                get = function() return indexedSpellStyle end,
+                set = function(_, v)
+                    BuildSpellStyle(args, unit, cfg, v)
+                end,
+            },
+            gap1 = {
+                type = "description",
+                name = "",
+                order = 1.5,
+                width = "full",
+            },
+            enableSpellStyle = {
+                type = "toggle",
+                name = "Enable style for this spell",
+                order = 2,
+                width = 1.2,
+                get = function() return spellStyle.enable end,
+                set = function(_, v)
+                    spellStyle.enable = v
+                    BuildSpellStyle(args, unit, cfg, indexedSpellStyle)
+                    CASTBAR_API:UpdateCastbar(unit)
+                end,
+            },
+        }
+    }
+    buildStyleWindow(args.styleSection.args.spellStyleGroup.args, unit, spellStyle)
+end
+
+local function BuildAbilityRows(args, mainGrp, cfg, unit, class)
+    local list = cfg.styleSpells
+
+    mainGrp.args.spellTable.args.rows.args = {}
+    local rowsArgs = mainGrp.args.spellTable.args.rows.args
+
+    for i, spell in ipairs(list) do
+        rowsArgs["row" .. i] = {
+            type = "group",
+            name = "",
+            inline = true,
+            order = i,
+            args = {
+                icon = {
+                    type = "description",
+                    name = "",
+                    order = 1,
+                    width = 0.30,
+                    image = spell.icon,
+                    imageWidth = 16,
+                    imageHeight = 16,
+                },
+                v1 = { type = "description", name = "|", order = 2, width = 0.05 },
+
+                name = {
+                    type = "description",
+                    name = tostring(spell.name or ""),
+                    order = 3,
+                    width = 1,
+                },
+                v2 = { type = "description", name = "|", order = 4, width = 0.05 },
+
+                id = {
+                    type = "description",
+                    name = tostring(spell.id or ""),
+                    order = 5,
+                    width = 0.40,
+                },
+                v3 = { type = "description", name = "|", order = 6, width = 0.05 },
+
+                enable = {
+                    type = "toggle",
+                    name = "",
+                    order = 7,
+                    width = 0.30,
+                    get = function() return list[i] and (list[i].enable ~= false) end,
+                    set = function(_, v)
+                        if list[i] then
+                            list[i].enable = v
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end
+                    end,
+                },
+
+                v4 = { type = "description", name = "|", order = 8, width = 0.05 },
+
+                settings = {
+                    type = "execute",
+                    name = "Settings",
+                    order = 9,
+                    width = 0.60,
+                    func = function()
+                        BuildSpellStyle(args, unit, cfg, i)
+                        GoToStyle(unit, class)
+                    end,
+                },
+
+                v5 = { type = "description", name = "|", order = 10, width = 0.05 },
+
+                remove = {
+                    type = "execute",
+                    name = "Remove",
+                    order = 11,
+                    width = 0.60,
+                    func = function()
+                        table.remove(list, i)
+                        if #cfg.styleSpells == 0 or cfg._setyleSpellsIndex == i then
+                            BuildSpellStyle(args, unit, cfg)
+                        end
+                        CASTBAR_API:UpdateCastbar(unit)
+                        BuildAbilityRows(args, mainGrp, cfg, unit, class)
+                    end,
+                },
+            },
+        }
+    end
+end
+
+local function buildMainGroup(args, cfg, unit, class)
+
+    local mainGrp 
+    mainGrp = {
+        type = "group",
+        name = "",
+        inline = true,
+        order = 1,
+        args = {
+            useStyleSpell = {
+                type = "toggle",
+                name = "Use specific spell styles",
+                desc = "If enabled, the cast bar will use the style settings of a specific spell instead of the general cast type style settings.",
+                order = 1,
+                width = 1.2,
+                get = function() return cfg.useStyleSpell end,
+                set = function(_, value)
+                    cfg.useStyleSpell = value
+                    CASTBAR_API:UpdateCastbar(unit)
+                end,
+            },
+            spellSelectGroup = createSelectBlock(cfg),
+            addSpell = {
+                type = "group",
+                name = "Add Spell",
+                inline = true,
+                order = 3,
+                disabled = function() return not cfg.useStyleSpell end,
+                args = {
+                    spellId = {
+                        type = "input",
+                        name = "Add by Spell ID",
+                        order = 2,
+                        width = 1.5,
+                        get = function() return tostring(cfg._abilityAddStyle or "") end,
+                        set = function(_, v) cfg._abilityAddStyle = v end,
+                    },
+
+                    v1 = { type = "description", name = "", order = 2.5, width = 0.2 },
+
+                    addBtn = {
+                        type = "execute",
+                        name = "Add Spell ID",
+                        order = 3,
+                        width = 1.5,
+                        func = function()
+                            if not cfg._abilityAddStyle or cfg._abilityAddStyle == "" then return end
+                            local added = AddSpellByID(cfg._abilityAddStyle, cfg)
+                            cfg._abilityAddStyle = ""
+                            if added then
+                                BuildAbilityRows(args, mainGrp, cfg, unit, class)
+                                BuildSpellStyle(args, unit, cfg, #cfg.styleSpells)
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end
+                        end,
+                    },
+                },
+            },
+            spellTable = {
+                type = "group",
+                name = "Spells with specific styles",
+                inline = true,
+                order = 4,
+                disabled = function() return not cfg.useStyleSpell or #cfg.styleSpells == 0 end,
+                args = {
+                    tableHeader = {
+                        type = "group",
+                        name = "",
+                        inline = true,
+                        order = 1,
+                        disabled = function() return not cfg.useManualTable end,
+                        args = {
+                            h_icon = { type = "description", name = "Icon",   order = 1, width = 0.30 },
+                            v1     = { type = "description", name = "|",      order = 2, width = 0.05 },
+                            h_name = { type = "description", name = "Name",   order = 3, width = 1 },
+                            v2     = { type = "description", name = "|",      order = 4, width = 0.05 },
+                            h_id   = { type = "description", name = "ID",     order = 5, width = 0.40 },
+                            v3     = { type = "description", name = "|",      order = 6, width = 0.05 },
+                            h_en   = { type = "description", name = "Enable", order = 7, width = 0.30 },
+                            v4     = { type = "description", name = "|",      order = 8, width = 0.05 },
+                            h_st   = { type = "description", name = "Settings", order = 9, width = 0.60 },
+                            v5     = { type = "description", name = "|",      order = 10, width = 0.05 },
+                            h_rm   = { type = "description", name = "Remove", order = 11, width = 0.60 },
+                        },
+                    },
+
+                    rows = {
+                        type = "group",
+                        name = "",
+                        inline = true,
+                        order = 2,
+                        disabled = function() return not cfg.useManualTable end,
+                        args = {},
+                    },
+                },
+            }
+        },
+    }
+    BuildAbilityRows(args, mainGrp, cfg, unit, class)
+    return mainGrp
+end
+
+
+function Opt:BuildAbilityStylePlayer(args, unit, class)
+    local bigCFG = GetCFG(unit)
+    local cfg = bigCFG.CLASSES[class]
+
+    args.styleSection = {
+        type = "group",
+        name = "Per-spell style settings",
+        order = 1,
+        args = {
+            mainGroup = buildMainGroup(args, cfg, unit, class),
+            spellStyleWindow = nil,
+        },
+    }
+    BuildSpellStyle(args, unit, cfg)
+end
+

@@ -218,15 +218,24 @@ local function BuildCandidateFromStyle(unit, bar, styleCfg)
 end
 
 ----------------------------------------MAIN----------------------------------------
-function BarUpdate_API:UpdateStyle(unit, type)
+function BarUpdate_API:UpdateStyle(unit, type, customStyle)
     local bar = UCB.castBar[unit]
-    if not type then type = "general" end
+    local cfg
 
-    if bar._lastStyleType == type then return end
-    bar._lastStyleType = type
+    if not customStyle then
+        if not type then type = "general" end
 
-    local cfg = GetCFG(unit, "styleCastType")[type]
+        if bar._lastStyleType == type then return end
+        bar._lastStyleType = type
 
+         cfg = GetCFG(unit, "styleCastType")[type]
+    else
+        if bar._lastStyleType == type then return end
+        bar._lastStyleType = type
+
+        cfg = customStyle
+    end
+    
     -- Bar style
     bar.status:SetStatusBarTexture(cfg.texture)
 
@@ -335,6 +344,15 @@ function BarUpdate_API:BuildColourCandidates(unit)
     if not bar then return end
 
     local typeList = { "general", "normal", "channel", "empowered" }
+    local typeListPlayer = {}
+    if unit == "player" then
+        local classCFG = GetCFG(unit).CLASSES[UCB.className]
+        for _, spellStyle in ipairs(classCFG.styleSpells) do
+            if spellStyle.enable and spellStyle.id then
+                typeListPlayer[spellStyle.id] = spellStyle.style
+            end
+        end
+    end
 
     local store = bar._colourCandidates
     if not store then
@@ -348,6 +366,13 @@ function BarUpdate_API:BuildColourCandidates(unit)
         local styleCfg = styleGrpCFG and styleGrpCFG[typeKey]
         store[typeKey] = BuildCandidateFromStyle(unit, bar, styleCfg)
     end
+
+    if unit == "player" then
+        for spellID, style in pairs(typeListPlayer) do
+            store[spellID] = BuildCandidateFromStyle(unit, bar, style)
+        end
+    end
+
 end
 
 -- =========================

@@ -262,7 +262,8 @@ Opt.ClassExtraBuilders["*"] = function(unit, classToken)
     local args = {}
     if unit == "player" then
         Opt:BuildChannelSectionPlayer(args, unit, classToken)
-        Opt:BuildAbilityFilterSectionPlayer(args, unit, classToken) -- <- NEW (player exclusive)
+        Opt:BuildAbilityFilterSectionPlayer(args, unit, classToken) 
+        Opt:BuildAbilityStylePlayer(args, unit, classToken)
     else
         Opt:BuildChannelSectionNonPlayer(args, unit, classToken)
     end
