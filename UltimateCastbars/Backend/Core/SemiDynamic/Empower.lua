@@ -205,6 +205,7 @@ function CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID, castBar
         if cfg.CLASSES.EVOKER.enableEmpowerEffects and UnitIsPlayer(unit) then
             CASTBAR_API:HideStages(bar)
         end
+        return true
     end
-    return true
+    return false
 end

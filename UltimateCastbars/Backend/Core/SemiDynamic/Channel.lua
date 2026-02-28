@@ -207,6 +207,7 @@ function CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID, castBar
         end
         bar.current_spellID = nil
         CASTBAR_API:HideChannelTicks(bar, cfg.otherFeatures)
+        return true
     end
-    return true
+    return false
 end

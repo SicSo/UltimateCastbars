@@ -45,6 +45,7 @@ function CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID, castBarID)
         bar.flags.prevType = nil
         bar.current_spellID = nil
         bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars,  bar._ucbSpellID = nil, nil, nil, nil, nil
+        return true
      end
-    return true
+    return false
 end

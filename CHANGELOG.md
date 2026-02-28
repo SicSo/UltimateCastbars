@@ -1,4 +1,5 @@
 ## Unreleased
+
 ## Added
 - Dynamic tick support for Preservation Disintegrate
 - Blacklist/Whitelist for cancelled spells on player bar
@@ -8,6 +9,7 @@
 ## Fixed
 - State refresh for spec swaps
 - Cancelled effect was appearing for hidden spells on player bar
+- durationObject could be nil when cancelling channel casts
 
 ---
 
