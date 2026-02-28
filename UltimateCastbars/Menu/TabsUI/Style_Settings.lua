@@ -36,6 +36,40 @@ local function createCasttypeList(base)
     return values, newSorting
 end
 
+function STYLE_API:createCastTypePath(castType)
+    local path = {
+        general = {"style"},
+        normal = {"style",  "styleNormal"},
+        channel = {"style", "styleChannel"},
+        empowered = {"style", "styleEmpowered"},
+        class = {"classSettings", "class_" .. UCB.className, "styleSection"},
+    }
+    return path[castType]
+end
+
+function STYLE_API:createQuickButtons(unit, tabs)
+    local buttons = {}
+    for index, castType in ipairs(tabs) do
+        buttons["btn_"..castType] = {
+            type = "execute",
+            name = function() return UIOptions.MakeTitle(castType).." casts" end,
+            desc = function() return "Jump to the "..castType.." cast style settings." end,
+            width = 0.8,
+            order = index,
+            func = function()
+                UCB:SelectGroup(STYLE_API:createCastTypePath(castType), unit)
+            end,
+        }
+        buttons["gap_"..castType] = {
+            type = "description",
+            name = "",
+            order = index + 0.5,
+            width = 0.2,
+        }
+    end
+    return buttons
+end
+
 local function createStyleWindow(unit, castTypeStyleCFG, castType, order)
     local styleWindow = {
         type = "group",
@@ -137,6 +171,22 @@ local function BuildCustomisationArgs(args, unit)
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
             },
+            buttonsFull = {
+                    type = "group",
+                    name = "Quick navigation",
+                    order = 1.5,
+                    inline = true,
+                    hidden = function() return castTypeStyleCFG.useGeneralStyle end,
+                    args = STYLE_API:createQuickButtons(unit, { "normal", "channel", "empowered", "class" }),
+            },
+            buttonsClass = {
+                type = "group",
+                name = "Quick navigation",
+                order = 1.5,
+                inline = true,
+                hidden = function() return not castTypeStyleCFG.useGeneralStyle end,
+                args = STYLE_API:createQuickButtons(unit, { "class" }),
+            },
             generalStyleGrp = {
                 type = "group",
                 name = "General style settings",
@@ -144,9 +194,8 @@ local function BuildCustomisationArgs(args, unit)
                 inline = true,
                 disabled = function() return not castTypeStyleCFG.useGeneralStyle end,
                 args = {
-                    
-                copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "general"),
-                styleWindow = createStyleWindow(unit, castTypeStyleCFG, "general", 3),
+                    copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "general"),
+                    styleWindow = createStyleWindow(unit, castTypeStyleCFG, "general", 3),
                 },
             },
         }
@@ -168,6 +217,13 @@ local function BuildCustomisationArgs(args, unit)
                         type = "header",
                         name = function() return "Settings for "..UIOptions.ColorText(UIOptions.turquoise , UIOptions.MakeTitle(unit).." - NORMAL").." casts" end,
                         order = 1,
+                    },
+                    buttons = {
+                        type = "group",
+                        name = "Quick navigation",
+                        order = 1.5,
+                        inline = true,
+                        args = STYLE_API:createQuickButtons(unit, { "general", "empowered", "channel", "class" }),
                     },
                     copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "normal"),
                     styleWindow = createStyleWindow(unit, castTypeStyleCFG, "normal", 3),
@@ -193,6 +249,13 @@ local function BuildCustomisationArgs(args, unit)
                         name = function() return "Settings for "..UIOptions.ColorText(UIOptions.turquoise , UIOptions.MakeTitle(unit).." - CHANNEL").." casts" end,
                         order = 1,
                     },
+                    buttons = {
+                        type = "group",
+                        name = "Quick navigation",
+                        order = 1.5,
+                        inline = true,
+                        args = STYLE_API:createQuickButtons(unit, { "general", "normal", "empowered", "class" }),
+                    },
                     copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "channel"),
                     styleWindow = createStyleWindow(unit, castTypeStyleCFG, "channel", 3),
                 },
@@ -216,6 +279,13 @@ local function BuildCustomisationArgs(args, unit)
                         type = "header",
                         name = function() return "Settings for "..UIOptions.ColorText(UIOptions.turquoise , UIOptions.MakeTitle(unit).." - EMPOWERED").." casts" end,
                         order = 1,
+                    },
+                    buttons = {
+                        type = "group",
+                        name = "Quick navigation",
+                        order = 1.5,
+                        inline = true,
+                        args = STYLE_API:createQuickButtons(unit, { "general", "normal", "channel", "class" }),
                     },
                     copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "empowered"),
                     styleWindow = createStyleWindow(unit, castTypeStyleCFG, "empowered", 3),

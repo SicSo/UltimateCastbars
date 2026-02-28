@@ -5,12 +5,14 @@ UCB.UIStructures = UCB.UIStructures or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.UIOptions = UCB.UIOptions or {}
 UCB.Default_DB = UCB.Default_DB or {}
+UCB.STYLE_API = UCB.STYLE_API or {}
 
 local Opt = UCB.Options
 local GetCFG = UCB.GetValueConfig
 local UIStructures = UCB.UIStructures
 local CASTBAR_API = UCB.CASTBAR_API
 local UIOptions = UCB.UIOptions
+local STYLE_API = UCB.STYLE_API
 
 
 -- Registry: classToken -> function(cfgGetter) -> argsTable
@@ -320,7 +322,7 @@ local function BuildAbilityRows(args, mainGrp, cfg, unit, class)
     end
 end
 
-local function buildMainGroup(args, cfg, unit, class)
+local function buildMainGroup(args, cfg, unit, class, bigCFG)
 
     local mainGrp 
     mainGrp = {
@@ -340,6 +342,22 @@ local function buildMainGroup(args, cfg, unit, class)
                     cfg.useStyleSpell = value
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
+            },
+            buttonsAll = {
+                type = "group",
+                name = "Quick navigation",
+                order = 1.5,
+                inline = true,
+                hidden = function() return bigCFG.styleCastType.useGeneralStyle end,
+                args = STYLE_API:createQuickButtons(unit, { "general", "normal", "channel", "empowered"}),
+            },
+            buttonsGeneral = {
+                type = "group",
+                name = "Quick navigation",
+                order = 1.5,
+                inline = true,
+                hidden = function() return not bigCFG.styleCastType.useGeneralStyle end,
+                args = STYLE_API:createQuickButtons(unit, { "general" }),
             },
             spellSelectGroup = createSelectBlock(cfg),
             addSpell = {
@@ -432,7 +450,7 @@ function Opt:BuildAbilityStylePlayer(args, unit, class)
         name = "Per-spell style settings",
         order = 1,
         args = {
-            mainGroup = buildMainGroup(args, cfg, unit, class),
+            mainGroup = buildMainGroup(args, cfg, unit, class, bigCFG),
             spellStyleWindow = nil,
         },
     }
