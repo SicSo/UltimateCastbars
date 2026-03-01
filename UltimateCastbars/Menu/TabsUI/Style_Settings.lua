@@ -16,28 +16,6 @@ local UIStructures = UCB.UIStructures
 
 STYLE_API.spellStyleListArgs = STYLE_API.spellStyleListArgs or {}
 
-local function createCasttypeList(base)
-    local values = {
-        general   = "General",
-        normal    = "Normal",
-        channel   = "Channelled",
-        empowered = "Empowered",
-    }
-
-    values[base] = nil
-
-    local sorting = { "general", "normal", "channel", "empowered" }
-    local newSorting = {}
-
-    for _, k in ipairs(sorting) do
-        if values[k] ~= nil then
-            table.insert(newSorting, k)
-        end
-    end
-
-    return values, newSorting
-end
-
 function STYLE_API:createCastTypePath(castType)
     local path = {
         general = {"style"},
@@ -83,66 +61,6 @@ local function createStyleWindow(unit, castTypeStyleCFG, castType, order)
 end
 
 
-local function createCopySettings(unit, cfg, base)
-    local values_list, sorting = createCasttypeList(base)
-    local copyFromCastType = sorting[1]
-    local copyStyleSettingsGrp = {
-        type = "group",
-        name = "Main types style",
-        order = 2,
-        args = {
-            selectSource = {
-                type = "select",
-                name = "Copy from cast type",
-                desc = "Select the cast type you want to copy the style settings from.",
-                order = 1,
-                width = 1.2,
-                values = createCasttypeList(base),
-                get = function() return copyFromCastType end,
-                set = function(_, value)
-                    copyFromCastType = value
-                    CASTBAR_API:UpdateCastbar(unit)
-                    end,
-            },
-            gap1 = {
-                type = "description",
-                name = "",
-                order = 1.5,
-                width = 0.1,
-            },
-            copyFromSource = {
-                type = "execute",
-                name = function() return "Copy from "..UIOptions.ColorText(UIOptions.turquoise, UIOptions.MakeTitle(copyFromCastType)) end,
-                desc = "Copy the current cast type style settings to the other cast types.",
-                order = 2,
-                width = 1.2,
-                func = function()
-                    STYLE_API:DeepCopy(cfg[base], cfg[copyFromCastType])
-                    CASTBAR_API:UpdateCastbar(unit)
-                    end,
-            },
-            gap2 = {
-                type = "description",
-                name = "",
-                order = 2.5,
-                width = 0.1,
-            },
-            resetDefault = {
-                type = "execute",
-                name = "Reset to default",
-                desc = "Reset the current cast type style settings to default.",
-                order = 3,
-                width = 1.2,
-                func = function()
-                    STYLE_API:DeepCopy(cfg[base], cfg.default)
-                    CASTBAR_API:UpdateCastbar(unit)
-                    end,
-            }
-        }
-    }
-    return copyStyleSettingsGrp
-end
-
 local function BuildCustomisationArgs(args, unit)
     local bigCFG = GetCFG(unit)
     local castTypeStyleCFG = bigCFG.styleCastType
@@ -171,6 +89,7 @@ local function BuildCustomisationArgs(args, unit)
                 get = function() return castTypeStyleCFG.useGeneralStyle end,
                 set = function(_, value)
                     castTypeStyleCFG.useGeneralStyle = value
+                    STYLE_API:RebuildMainStyleCopyArgs(unit, castTypeStyleCFG, bigCFG)
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
             },
@@ -201,9 +120,10 @@ local function BuildCustomisationArgs(args, unit)
                         type = "group",
                         name = "Copy style settings",
                         order = 1,
+                        disabled = false,
                         args = {
-                            copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "general"),
-                            copySettingsSpellsGrp = STYLE_API:createCopySettingsSpells(unit, castTypeStyleCFG, "general", bigCFG),
+                            copySettingsGrp = STYLE_API:createCopySettingsMainTOMain(unit, castTypeStyleCFG, "general"),
+                            copySettingsSpellsGrp = STYLE_API:createCopySettingsSpellsTOMain(unit, castTypeStyleCFG, "general", bigCFG),
                         },
                     },
                     styleWindow = createStyleWindow(unit, castTypeStyleCFG, "general", 4),
@@ -241,8 +161,8 @@ local function BuildCustomisationArgs(args, unit)
                         name = "Copy style settings",
                         order = 2,
                         args = {
-                            copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "normal"),
-                            copySettingsSpellsGrp = STYLE_API:createCopySettingsSpells(unit, castTypeStyleCFG, "normal", bigCFG),
+                            copySettingsGrp = STYLE_API:createCopySettingsMainTOMain(unit, castTypeStyleCFG, "normal"),
+                            copySettingsSpellsGrp = STYLE_API:createCopySettingsSpellsTOMain(unit, castTypeStyleCFG, "normal", bigCFG),
                         }
                     },
                     styleWindow = createStyleWindow(unit, castTypeStyleCFG, "normal", 4),
@@ -280,8 +200,8 @@ local function BuildCustomisationArgs(args, unit)
                         name = "Copy style settings",
                         order = 2,
                         args = {
-                            copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "channel"),
-                            copySettingsSpellsGrp = STYLE_API:createCopySettingsSpells(unit, castTypeStyleCFG, "channel", bigCFG),
+                            copySettingsGrp = STYLE_API:createCopySettingsMainTOMain(unit, castTypeStyleCFG, "channel"),
+                            copySettingsSpellsGrp = STYLE_API:createCopySettingsSpellsTOMain(unit, castTypeStyleCFG, "channel", bigCFG),
                         },
                     },
                     styleWindow = createStyleWindow(unit, castTypeStyleCFG, "channel", 4),
@@ -319,8 +239,8 @@ local function BuildCustomisationArgs(args, unit)
                         name = "Copy style settings",
                         order = 2,
                         args = {
-                            copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "empowered"),
-                            copySettingsSpellsGrp = STYLE_API:createCopySettingsSpells(unit, castTypeStyleCFG, "empowered", bigCFG),
+                            copySettingsGrp = STYLE_API:createCopySettingsMainTOMain(unit, castTypeStyleCFG, "empowered"),
+                            copySettingsSpellsGrp = STYLE_API:createCopySettingsSpellsTOMain(unit, castTypeStyleCFG, "empowered", bigCFG),
                         },
                     },
                     styleWindow = createStyleWindow(unit, castTypeStyleCFG, "empowered", 4),

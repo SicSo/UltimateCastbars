@@ -7,6 +7,7 @@ UCB.STYLE_API = UCB.STYLE_API or {}
 local CASTBAR_API = UCB.CASTBAR_API
 local UIOptions = UCB.UIOptions
 local STYLE_API = UCB.STYLE_API
+local GetCFG = UCB.GetValueConfig
 
 STYLE_API.spellStyleListArgs = STYLE_API.spellStyleListArgs or {}
 
@@ -203,6 +204,95 @@ function STYLE_API:BuildBorderOffsetIconArgs(cfg, unit, oldThickness, oldThickne
     }
 end
 
+-------------------------------------------------------------------------- STYLE per cast type and spell style copy functions --------------------------------------------------------------------------
+local function createCasttypeList(useGeneral, base)
+    local values = {
+        general   = "General",
+        normal    = "Normal",
+        channel   = "Channelled",
+        empowered = "Empowered",
+    }
+
+    if base~=nil then values[base] = nil end
+    if useGeneral then
+        values.normal = nil
+        values.channel = nil
+        values.empowered = nil
+    end
+
+    local sorting = { "general", "normal", "channel", "empowered" }
+    local newSorting = {}
+
+    for _, k in ipairs(sorting) do
+        if values[k] ~= nil then
+            table.insert(newSorting, k)
+        end
+    end
+
+    return values, newSorting
+end
+
+function STYLE_API:createCopySettingsMainTOMain(unit, cfg, base)
+    local values_list, sorting = createCasttypeList(cfg.useGeneralStyle, base)
+    local copyFromCastType = sorting[1]
+    local copyStyleSettingsGrp = {
+        type = "group",
+        name = "Main types style",
+        order = 2,
+        hidden = function() return base == "general" and cfg.useGeneralStyle end,
+        args = {
+            selectSource = {
+                type = "select",
+                name = "Copy from cast type",
+                desc = "Select the cast type you want to copy the style settings from.",
+                order = 1,
+                width = 1.2,
+                values = createCasttypeList(cfg.useGeneralStyle, base),
+                get = function() return copyFromCastType end,
+                set = function(_, value)
+                    copyFromCastType = value
+                    CASTBAR_API:UpdateCastbar(unit)
+                    end,
+            },
+            gap1 = {
+                type = "description",
+                name = "",
+                order = 1.5,
+                width = 0.1,
+            },
+            copyFromSource = {
+                type = "execute",
+                name = function() return "Copy from "..UIOptions.ColorText(UIOptions.turquoise, UIOptions.MakeTitle(copyFromCastType)) end,
+                desc = "Copy the current cast type style settings to the other cast types.",
+                order = 2,
+                width = 1.2,
+                func = function()
+                    STYLE_API:DeepCopy(cfg[base], cfg[copyFromCastType])
+                    CASTBAR_API:UpdateCastbar(unit)
+                    end,
+            },
+            gap2 = {
+                type = "description",
+                name = "",
+                order = 2.5,
+                width = 0.1,
+            },
+            resetDefault = {
+                type = "execute",
+                name = "Reset to default",
+                desc = "Reset the current cast type style settings to default.",
+                order = 3,
+                width = 1.2,
+                func = function()
+                    STYLE_API:DeepCopy(cfg[base], cfg.default)
+                    CASTBAR_API:UpdateCastbar(unit)
+                    end,
+            }
+        }
+    }
+    return copyStyleSettingsGrp
+end
+
 local function createSpellListStyle(cfg)
     local classCFG = cfg.CLASSES[UCB.className]
     local spellStyling = classCFG and classCFG.spellStyling
@@ -217,7 +307,7 @@ local function createSpellListStyle(cfg)
     return values
 end
 
-function STYLE_API:createCopySettingsSpells(unit, cfg, base, bigCFG)
+function STYLE_API:createCopySettingsSpellsTOMain(unit, cfg, base, bigCFG)
     if unit ~= "player" then return nil end
     local spellStyling = bigCFG.CLASSES[UCB.className].spellStyling
     local values_list = createSpellListStyle(bigCFG)
@@ -266,6 +356,128 @@ end
 function STYLE_API:RebuildSpellStyleCopyArgs(unit, styleCFG, bigCFG)
     local spell_list_args = self.spellStyleListArgs[unit]
     for key, arg in pairs(spell_list_args) do
-        arg.parent[arg.key] = self:createCopySettingsSpells(unit, styleCFG, key, bigCFG)
+        arg.parent[arg.key] = self:createCopySettingsSpellsTOMain(unit, styleCFG, key, bigCFG)
     end
+end
+
+
+
+function STYLE_API:createCopySettingsSpellTOSpell(unit, cfg, base_index)
+    local values_list = {}
+    for i, spellInfo in ipairs(cfg.styleSpells) do
+        if i == base_index then
+            values_list[i] = nil
+        elseif spellInfo and spellInfo.name then
+            values_list[i] = spellInfo.name .. " - " .. spellInfo.id
+        else
+            values_list[i] = "Unknown spell - " .. (spellInfo and spellInfo.id or "nil")
+        end
+    end
+    local src_index = base_index ~= 1 and 1 or 2
+    local copyStyleSettingsGrp = {
+        type = "group",
+        name = "Spell style",
+        order = 1,
+        hidden = function() return #cfg.styleSpells == 1 end,
+        args = {
+            selectSource = {
+                type = "select",
+                name = "Copy from spell",
+                desc = "Select the spell you want to copy the style settings from.",
+                order = 1,
+                width = 1.2,
+                values = values_list,
+                get = function() return src_index end,
+                set = function(_, value)
+                    src_index = value
+                    CASTBAR_API:UpdateCastbar(unit)
+                    end,
+            },
+            gap1 = {
+                type = "description",
+                name = "",
+                order = 1.5,
+                width = 0.1,
+            },
+            copyFromSource = {
+                type = "execute",
+                name = function() return "Copy from "..UIOptions.ColorText(UIOptions.turquoise, UIOptions.MakeTitle(values_list[src_index])) end,
+                desc = "Copy the current spell style settings to the other spells.",
+                order = 2,
+                width = 1.2,
+                func = function()
+                    STYLE_API:DeepCopy(cfg.styleSpells[base_index].style, cfg.styleSpells[src_index].style)
+                    CASTBAR_API:UpdateCastbar(unit)
+                    end,
+            },
+            gap2 = {
+                type = "description",
+                name = "",
+                order = 2.5,
+                width = 0.1,
+            },
+            resetDefault = {
+                type = "execute",
+                name = "Reset to default",
+                desc = "Reset the current cast type style settings to default.",
+                order = 3,
+                width = 1.2,
+                func = function()
+                    STYLE_API:DeepCopy(cfg.styleSpells[base_index].style, GetCFG(unit, {"styleCastType", "default"}))
+                    CASTBAR_API:UpdateCastbar(unit)
+                    end,
+            }
+        }
+    }
+    return copyStyleSettingsGrp
+end
+
+
+function STYLE_API:createCopySettingsMainToSpell(unit, cfg, base_index, styleCFG)
+    local values_list, sorting = createCasttypeList(styleCFG.useGeneralStyle)
+    local copyFromCastType = sorting[1]
+    local copyStyleSettingsGrp = {
+        type = "group",
+        name = "Main types style",
+        order = 2,
+        args = {
+            selectSource = {
+                type = "select",
+                name = "Copy from cast type",
+                desc = "Select the cast type you want to copy the style settings from.",
+                order = 1,
+                width = 1.2,
+                values = createCasttypeList(styleCFG.useGeneralStyle),
+                get = function() return copyFromCastType end,
+                set = function(_, value)
+                    copyFromCastType = value
+                    CASTBAR_API:UpdateCastbar(unit)
+                    end,
+            },
+            gap1 = {
+                type = "description",
+                name = "",
+                order = 1.5,
+                width = 0.1,
+            },
+            copyFromSource = {
+                type = "execute",
+                name = function() return "Copy from "..UIOptions.ColorText(UIOptions.turquoise, UIOptions.MakeTitle(copyFromCastType)) end,
+                desc = "Copy the current cast type style settings to the other cast types.",
+                order = 2,
+                width = 1.2,
+                func = function()
+                    STYLE_API:DeepCopy(cfg.styleSpells[base_index].style, styleCFG[copyFromCastType])
+                    CASTBAR_API:UpdateCastbar(unit)
+                    end,
+            },
+        }
+    }
+    return copyStyleSettingsGrp
+end
+
+function STYLE_API:RebuildMainStyleCopyArgs(unit, styleCFG, bigCFG)
+    local spellStyling = bigCFG.CLASSES[UCB.className].spellStyling
+    local mainCopyArgs = self.ClassCopyMain
+    mainCopyArgs.parent[mainCopyArgs.key] = self:createCopySettingsMainToSpell(unit, spellStyling, mainCopyArgs.index, styleCFG)
 end

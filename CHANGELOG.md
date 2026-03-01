@@ -7,6 +7,8 @@
 - Option to blacklist/whitelist all spells from player spell list
 - Per cast type styling options
 - Copy style settings between cast types
+- Copy style settings between spells
+- Copy style settings between spells and cast types
 - Per spell styling for player bar (class specific)
 - Latency overlay for player bar with options for show rules, colour for nomal and channel casts
 - Latency tag "lat"

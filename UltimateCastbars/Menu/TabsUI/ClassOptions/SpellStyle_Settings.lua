@@ -21,10 +21,14 @@ Opt.ClassExtraBuilders = Opt.ClassExtraBuilders or {}
 
 local function GoToStyle(unit, ct)
     -- adjust these paths if your tree differs
-    if ct ~= UCB.className then
+    if ct and ct ~= UCB.className then
         UCB:SelectGroup({"classSettings", "otherClasses", "class_" .. ct, "styleSection", "spellStyleGroup"}, unit)
     else
-        UCB:SelectGroup({"classSettings", "class_" .. ct, "styleSection", "spellStyleGroup"}, unit)
+        if not ct then
+            UCB:SelectGroup({"classSettings", "class_" .. UCB.className, "styleSection", "spellStyleGroup"}, unit)
+        else
+            UCB:SelectGroup({"classSettings", "class_" .. ct, "styleSection", "spellStyleGroup"}, unit)
+        end
     end
 end
 
@@ -59,12 +63,13 @@ local function buildStyleWindow(args, unit, spellStyle)
         name = function() return "Editing style for: " .. (spellStyle.name or "Unknown") end,
         order = 3,
         inline =  true,
+        disabled = function() return not spellStyle.enable end,
         args = UIStructures:BuildStyleWindow(spellStyle.style, unit),
     }
 end
 
 
-local function BuildSpellStyle(args, unit, cfg, indexedSpellStyle)
+local function BuildSpellStyle(args, unit, cfg, bigCFG, class, indexedSpellStyle)
 
     if #cfg.styleSpells == 0 then args.styleSection.args.spellStyleGroup = nil return end
     if not indexedSpellStyle then indexedSpellStyle = 1 end
@@ -82,7 +87,27 @@ local function BuildSpellStyle(args, unit, cfg, indexedSpellStyle)
                 name = function() 
                     local shown = spellStyle and spellStyle.enable and UIOptions.ColorText(UIOptions.green, "Enabled") or UIOptions.ColorText(UIOptions.red, "Disabled")
                     return "Spell " .. UIOptions.ColorText(UIOptions.turquoise, (spellStyle.name or "Unknown")) .. " - (" .. UIOptions.ColorText(UIOptions.turquoise, tostring(spellStyle.id or "")) .. ") (" .. shown..")" end,
-                order = 0,
+                order = 0.1,
+            },
+            quickButtons = {
+                type = "group",
+                name = "Quick navigation",
+                order = 0.2,
+                inline = true,
+                args = {
+                    back = {
+                        type = "execute",
+                        name = "Back to table",
+                        order = 1,
+                        func = function() 
+                            if class ~= UCB.className then
+                                UCB:SelectGroup({"classSettings", "otherClasses", "class_" .. class, "styleSection"}, unit)
+                            else
+                                UCB:SelectGroup({"classSettings", "class_" .. class, "styleSection"}, unit)
+                            end
+                         end,
+                    },
+                }
             },
             spellStyleSelection = {
                 type = "select",
@@ -99,10 +124,26 @@ local function BuildSpellStyle(args, unit, cfg, indexedSpellStyle)
                 end,
                 get = function() return indexedSpellStyle end,
                 set = function(_, v)
-                    BuildSpellStyle(args, unit, cfg, v)
+                    BuildSpellStyle(args, unit, cfg, bigCFG, class, v)
                 end,
             },
             gap1 = {
+                type = "description",
+                name = "",
+                order = 1.5,
+                width = "full",
+            },
+            copyGrp = {
+                type = "group",
+                name = "Copy style settings",
+                order = 2,
+                inline = true,
+                args = {
+                    copyFromSpells = STYLE_API:createCopySettingsSpellTOSpell(unit, cfg, indexedSpellStyle),
+                    copyFromMains = STYLE_API:createCopySettingsMainToSpell(unit, cfg, indexedSpellStyle, bigCFG.styleCastType),
+                }
+            },
+            gap2 = {
                 type = "description",
                 name = "",
                 order = 1.5,
@@ -116,13 +157,14 @@ local function BuildSpellStyle(args, unit, cfg, indexedSpellStyle)
                 get = function() return spellStyle.enable end,
                 set = function(_, v)
                     spellStyle.enable = v
-                    BuildSpellStyle(args, unit, cfg, indexedSpellStyle)
+                    BuildSpellStyle(args, unit, cfg, bigCFG, class, indexedSpellStyle)
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
             },
         }
     }
     buildStyleWindow(args.styleSection.args.spellStyleGroup.args, unit, spellStyle)
+    STYLE_API.ClassCopyMain = {parent = args.styleSection.args.spellStyleGroup.args.copyGrp.args, key = "copyFromMains", index = indexedSpellStyle}
 end
 
 local function BuildAbilityRows(args, mainGrp, cfg, unit, class, bigCFG)
@@ -187,7 +229,7 @@ local function BuildAbilityRows(args, mainGrp, cfg, unit, class, bigCFG)
                     order = 9,
                     width = 0.60,
                     func = function()
-                        BuildSpellStyle(args, unit, cfg, i)
+                        BuildSpellStyle(args, unit, cfg, bigCFG, class, i)
                         GoToStyle(unit, class)
                     end,
                 },
@@ -202,7 +244,7 @@ local function BuildAbilityRows(args, mainGrp, cfg, unit, class, bigCFG)
                     func = function()
                         table.remove(list, i)
                         if #cfg.styleSpells == 0 or cfg._setyleSpellsIndex == i then
-                            BuildSpellStyle(args, unit, cfg)
+                            BuildSpellStyle(args, unit, cfg, bigCFG, class)
                         end
                         STYLE_API:RebuildSpellStyleCopyArgs(unit, bigCFG.styleCastType, bigCFG)
                         CASTBAR_API:UpdateCastbar(unit)
@@ -287,7 +329,7 @@ local function buildMainGroup(args, cfg, unit, class, bigCFG)
                                     cfg._abilityAddStyle = ""
                                     if added then
                                         BuildAbilityRows(args, mainGrp, cfg, unit, class, bigCFG)
-                                        BuildSpellStyle(args, unit, cfg, #cfg.styleSpells)
+                                        BuildSpellStyle(args, unit, cfg, bigCFG, class, #cfg.styleSpells)
                                         STYLE_API:RebuildSpellStyleCopyArgs(unit, bigCFG.styleCastType, bigCFG)
                                         CASTBAR_API:UpdateCastbar(unit)
                                     end
@@ -354,6 +396,6 @@ function Opt:BuildAbilityStylePlayer(args, unit, class)
             spellStyleWindow = nil,
         },
     }
-    BuildSpellStyle(args, unit, cfg)
+    BuildSpellStyle(args, unit, cfg, bigCFG, class)
 end
 
