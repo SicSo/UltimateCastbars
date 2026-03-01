@@ -13,7 +13,7 @@ Opt.ClassExtraBuilders = Opt.ClassExtraBuilders or {}
 
 function Opt:BuildAbilityFilterSectionPlayer(args, unit, class)
     local bigCFG = GetCFG(unit)
-    local cfg = bigCFG.CLASSES[class]
+    local cfg = bigCFG.CLASSES[class].blacklistWhitelist
 
     -- defaults (in case section is built before table)
     if cfg.enableAbilityFilter == nil then cfg.enableAbilityFilter = false end

@@ -53,15 +53,20 @@ local function createClassSettings()
         channelTickWidth = 2,
         channelTickColour = {r=1, g=1, b=1, a=0.7},
 
-        enableAbilityFilter = false,
-        blackList = true,
-        useManualTable = true,
-        usePlayerSpellList = true,
-        blackListSpells = {},
-        whiteListSpells = {},
+        blacklistWhitelist = {
+            enableAbilityFilter = false,
+            blackList = true,
+            useManualTable = true,
+            usePlayerSpellList = true,
+            blackListSpells = {},
+            whiteListSpells = {},
+        },
 
-        useStyleSpell = false,
-        styleSpells = {}
+        spellStyling = {
+            useStyleSpell = false,
+            styleSpells = {}
+        }
+
     }
     return generalClassSettings
 end
@@ -434,12 +439,15 @@ UCB.Default_DB.player = {
         untilKickTickBackTexture = "Interface\\TargetingFrame\\UI-StatusBar",
         untilKickTickBackTextureName = "Blizzard",
 
-        enableAbilityFilter = false,
-        blackList = true,
-        useManualTable = true,
-        usePlayerSpellList = true,
-        blackListSpells = {},
-        whiteListSpells = {},
+        blacklistWhitelist = {
+            enableAbilityFilter = false,
+            blackList = true,
+            useManualTable = true,
+            usePlayerSpellList = true,
+            blackListSpells = {},
+            whiteListSpells = {},
+        }
+
     },
 
     otherFeatures = {
@@ -554,12 +562,14 @@ UCB.Default_DB.player = {
             },
             channelError = 100,
 
-            enableAbilityFilter = false,
-            blackList = true,
-            useManualTable = true,
-            usePlayerSpellList = true,
-            blackListSpells = {},
-            whiteListSpells = {},
+            blacklistWhitelist = {
+                enableAbilityFilter = false,
+                blackList = true,
+                useManualTable = true,
+                usePlayerSpellList = true,
+                blackListSpells = {},
+                whiteListSpells = {},
+            }
         },
     },
 

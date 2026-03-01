@@ -347,7 +347,8 @@ function BarUpdate_API:BuildColourCandidates(unit)
     local typeListPlayer = {}
     if unit == "player" then
         local classCFG = GetCFG(unit).CLASSES[UCB.className]
-        for _, spellStyle in ipairs(classCFG.styleSpells) do
+        local spellStyling = classCFG and classCFG.spellStyling
+        for _, spellStyle in ipairs(spellStyling.styleSpells) do
             if spellStyle.enable and spellStyle.id then
                 typeListPlayer[spellStyle.id] = spellStyle.style
             end

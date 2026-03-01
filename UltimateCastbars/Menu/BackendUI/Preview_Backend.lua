@@ -42,6 +42,19 @@ local function EmpowerCast(unit, bar, cfg, vars)
     end
 end
 
+function Preview_API:RestartPreview(unit)
+    -- Stop preview
+    local hidden = false
+    if Preview_API.previewActive and Preview_API.previewActive[unit] then
+        Preview_API:HidePreviewCastBar(unit)
+        hidden = true
+    end
+    -- Restart preview if active before
+    if hidden then
+        Preview_API:ShowPreviewCastBar(unit, Preview_API.lastCastType[unit])
+    end
+end
+
 function Preview_API:ShowPreviewCastBar(unit, castType)
     local cfg = GetCFG(unit)
     local previewCFG = cfg.previewSettings

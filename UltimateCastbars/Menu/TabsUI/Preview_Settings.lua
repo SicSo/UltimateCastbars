@@ -102,7 +102,10 @@ local function PreviewSettings(cfg, unit)
                 order   = 1,
                 width   = 1,
                 get     = function() return cfg.previewSettings.previewNormalDefaultDuration end,
-                set     = function(_, value) cfg.previewSettings.previewNormalDefaultDuration = value end,
+                set     = function(_, value) 
+                    cfg.previewSettings.previewNormalDefaultDuration = value
+                    Preview_API:RestartPreview(unit)
+                    end,
             },
             setDuration = {
                 type    = "range",
@@ -113,7 +116,10 @@ local function PreviewSettings(cfg, unit)
                 max     = UCB.UIOptions.maxPreviewDuration,
                 step    = 0.5,
                 get     = function() return cfg.previewSettings.previewDuration end,
-                set     = function(_, value) cfg.previewSettings.previewDuration = value end,
+                set     = function(_, value) 
+                    cfg.previewSettings.previewDuration = value
+                    Preview_API:RestartPreview(unit)
+                    end,
             },
             setNotInterruptible = {
                 type    = "toggle",
@@ -121,7 +127,10 @@ local function PreviewSettings(cfg, unit)
                 order   = 3,
                 width   = 1,
                 get     = function() return cfg.previewSettings.previewNotIntrerruptible end,
-                set     = function(_, value) cfg.previewSettings.previewNotIntrerruptible = value end,
+                set     = function(_, value) 
+                    cfg.previewSettings.previewNotIntrerruptible = value 
+                    Preview_API:RestartPreview(unit)
+                    end,
             },
             setEmpowerStages = {
                 type    = "range",
@@ -132,7 +141,10 @@ local function PreviewSettings(cfg, unit)
                 max     = UCB.UIOptions.maxPreviewEmpowerStages,
                 step    = 1,
                 get     = function() return cfg.previewSettings.previewEmpowerStages end,
-                set     = function(_, value) cfg.previewSettings.previewEmpowerStages = value end,
+                set     = function(_, value) 
+                    cfg.previewSettings.previewEmpowerStages = value 
+                    Preview_API:RestartPreview(unit)
+                    end,
                 hidden = function() return not UCB.allSpellTypes.empowered or #UCB.allSpellTypes.empowered == 0 end,
             },
             setPreviewLatency = {
@@ -145,7 +157,10 @@ local function PreviewSettings(cfg, unit)
                 max     = 0.5,
                 step    = 0.001,
                 get     = function() return cfg.previewSettings.previewLatency or 0 end,
-                set     = function(_, value) cfg.previewSettings.previewLatency = value end,
+                set     = function(_, value) 
+                    cfg.previewSettings.previewLatency = value
+                    Preview_API:RestartPreview(unit)
+                    end,
             }
         },
     }

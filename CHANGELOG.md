@@ -12,6 +12,7 @@
 - Latency tag "lat"
 
 ## Changed
+- **PER CLASS SPELL FILTERING GOT RESET**
 - Small UI improvements
 
 ## Fixed
@@ -19,6 +20,7 @@
 - Cancelled effect was appearing for hidden spells on player bar
 - durationObject could be nil when cancelling channel casts
 - Preview was not properly displaying on settings update
+- Preview was not properly refreshing after preview settings were changed
 
 ---
 

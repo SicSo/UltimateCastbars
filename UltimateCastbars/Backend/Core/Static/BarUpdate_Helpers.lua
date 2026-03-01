@@ -404,7 +404,7 @@ function BarUpdate_API:UpdateUninterruptable(unit)
     UpdateUninterruptibleIconBorder(unit)
 
     -- Whitelist/Blacklist class
-    WhitelistBlacklistSetup(unit, cfg)
+    WhitelistBlacklistSetup(unit, cfg.blacklistWhitelist)
 end
 
 function BarUpdate_API:UpdateOtherFeatures(unit)
@@ -471,7 +471,7 @@ function BarUpdate_API:UpdateOtherFeatures(unit)
     bar.frames.cancelled.status:SetStatusBarColor(cancelCFG.frameColour.normal.r, cancelCFG.frameColour.normal.g, cancelCFG.frameColour.normal.b, cancelCFG.frameColour.normal.a)
 
     -- Whitelist/Blacklist cancelled
-    WhitelistBlacklistSetup(unit, cancelCFG)
+    WhitelistBlacklistSetup(unit, cancelCFG.blacklistWhitelist)
 end
 
 function BarUpdate_API:UpdateOthers(unit)
@@ -489,7 +489,7 @@ function BarUpdate_API:UpdateOthers(unit)
     end
 
     -- Whitelist/Blacklist class
-    WhitelistBlacklistSetup(unit, classCFG)
+    WhitelistBlacklistSetup(unit, classCFG.blacklistWhitelist)
 
     -- Predecide tick settings here
     local otherCFG = cfg.otherFeatures
@@ -505,12 +505,13 @@ function BarUpdate_API:UpdateOthers(unit)
         otherCFG._tickTexture = otherCFG.tickTexture
     end
 
-    -- Spell custom styles 
+    -- Spell custom styles
+    local spellStyling = classCFG.spellStyling
     if unit == "player" then
-        classCFG._customSpellStyles = {}
-        for _, spellStyle in ipairs(classCFG.styleSpells) do
+        spellStyling._customSpellStyles = {}
+        for _, spellStyle in ipairs(spellStyling.styleSpells) do
             if spellStyle.enable and spellStyle.id then
-                classCFG._customSpellStyles[spellStyle.id] = spellStyle.style
+                spellStyling._customSpellStyles[spellStyle.id] = spellStyle.style
             end
         end
     end

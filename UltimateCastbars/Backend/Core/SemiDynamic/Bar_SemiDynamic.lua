@@ -373,14 +373,16 @@ end
 
 function CASTBAR_API:SpellFilter(spellID, cfg)
 
-    if not cfg.enableAbilityFilter then
+    local blacklistWhitelist = cfg.blacklistWhitelist
+
+    if not blacklistWhitelist.enableAbilityFilter then
         return true
     end
 
-    local inWhiteList = cfg._whiteListSpellIDs[spellID]
-    local inBlackList = cfg._blackListSpellIDs[spellID]
+    local inWhiteList = blacklistWhitelist._whiteListSpellIDs[spellID]
+    local inBlackList = blacklistWhitelist._blackListSpellIDs[spellID]
 
-    if cfg.blackList then
+    if blacklistWhitelist.blackList then
         if inBlackList then
             return false
         else
@@ -401,14 +403,15 @@ function CASTBAR_API:ApplyStyle(unit, cfg, spellID, castType)
     end
 
     local classCFG = cfg.CLASSES[UCB.className]
+    local spellStyling = classCFG.spellStyling
 
     if not classCFG then
         return
     end
     local applied = false
-    if classCFG.useStyleSpell then
-        if classCFG._customSpellStyles and classCFG._customSpellStyles[spellID] then
-            local style = classCFG._customSpellStyles[spellID]
+    if spellStyling.useStyleSpell then
+        if spellStyling._customSpellStyles and spellStyling._customSpellStyles[spellID] then
+            local style = spellStyling._customSpellStyles[spellID]
             BarUpdate_API:RefreshBarStyleOnly(unit, style)
             BarUpdate_API:UpdateStyle(unit, false, spellID, style)
             applied = true

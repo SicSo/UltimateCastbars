@@ -29,58 +29,11 @@ local function GoToStyle(unit, ct)
 end
 
 
-local function _SafeSpellInfo(spellID)
-    local id = tonumber(spellID)
-    if not id then return nil end
-
-    local info = C_Spell.GetSpellInfo(id)
-    if not info then
-        return { id = id, name = "Unknown", icon = 134400 }
-    end
-
-    return {
-        id   = id,
-        name = info.name or "Unknown",
-        icon = info.originalIconID or 134400,
-    }
-end
-
-local function _BuildAllSpellsDropdownValues()
-    local merged, seen = {}, {}
-
-    local function addList(list)
-        for _, sid in ipairs(list or {}) do
-            sid = tonumber(sid)
-            if sid and not seen[sid] then
-                local info = C_Spell.GetSpellInfo(sid)
-                if info and info.name then
-                    seen[sid] = true
-                    table.insert(merged, { id = sid, name = info.name })
-                end
-            end
-        end
-    end
-
-    addList(UCB.allSpellTypes and UCB.allSpellTypes.channel)
-    addList(UCB.allSpellTypes and UCB.allSpellTypes.normal)
-    addList(UCB.allSpellTypes and UCB.allSpellTypes.empowered)
-
-    table.sort(merged, function(a, b)
-        return (a.name or ""):lower() < (b.name or ""):lower()
-    end)
-
-    local values = {}
-    for _, s in ipairs(merged) do
-        values[s.id] = s.name .. " - " .. s.id
-    end
-    return values
-end
-
 local function AddSpellByID(id, cfg)
     id = tonumber(id)
     if not id then return false end
 
-    local info = _SafeSpellInfo(id)
+    local info = UIStructures:_SafeSpellInfo(id)
     local list = cfg.styleSpells
 
     for _, existing in ipairs(list) do
@@ -98,68 +51,6 @@ local function AddSpellByID(id, cfg)
     })
     return true
 end
-
-local function createSelectBlock(cfg)
-    local selectGroup = {
-        type = "group",
-        name = "Select Spell",
-        inline = true,
-        order = 2,
-        disabled = function() return not cfg.useStyleSpell end,
-        args = {
-            selectedSpell = {
-                type = "header",
-                name = function()
-                    local info = _SafeSpellInfo(cfg._abilitySelectStyle)
-                    if info then
-                        return "Selected: " .. UIOptions.ColorText(UIOptions.turquoise, info.name .. " (" .. tostring(info.id) .. ")")
-                    end
-                    return "Selected: " .. UIOptions.ColorText(UIOptions.red, "None")
-                end,
-                order = 1,
-                width = "full",
-            },
-
-            spellDescription = {
-                type = "description",
-                name = function()
-                    local id = tonumber(cfg._abilitySelectStyle)
-                    local tooltip = (id and id >= -2147483648 and id <= 2147483647) and C_TooltipInfo.GetSpellByID(id) or nil
-                    local spellDesc = tooltip and tooltip.lines and tooltip.lines[4] and tooltip.lines[4].leftText or "No description available."
-                    return spellDesc
-                end,
-                order = 2,
-                width = "full",
-            },
-
-            selectedSpellId = {
-                type = "input",
-                name = "Selected Spell ID",
-                order = 3,
-                width = 1.5,
-                get = function() return tostring(cfg._abilitySelectStyle or "") end,
-                set = function(_, v) end,
-            },
-
-            v1 = { type = "description", name = "", order = 3.5, width = 0.2 },
-
-            spellSelect = {
-                type = "select",
-                name = "All Spells For Current Class",
-                desc = "Channel + normal + empowered (merged)",
-                order = 4,
-                width = 1.5,
-                values = function()
-                    return _BuildAllSpellsDropdownValues()
-                end,
-                get = function() return cfg._abilitySelectStyle end,
-                set = function(_, v) cfg._abilitySelectStyle = v end,
-            },
-        },
-    }
-    return selectGroup
-end
-
 
 local function buildStyleWindow(args, unit, spellStyle)
     if not spellStyle then args.spellStyleWindow = {} return end
@@ -237,8 +128,8 @@ end
 local function BuildAbilityRows(args, mainGrp, cfg, unit, class)
     local list = cfg.styleSpells
 
-    mainGrp.args.spellTable.args.rows.args = {}
-    local rowsArgs = mainGrp.args.spellTable.args.rows.args
+    mainGrp.args.contentGrp.args.spellTable.args.rows.args = {}
+    local rowsArgs = mainGrp.args.contentGrp.args.spellTable.args.rows.args
 
     for i, spell in ipairs(list) do
         rowsArgs["row" .. i] = {
@@ -359,81 +250,88 @@ local function buildMainGroup(args, cfg, unit, class, bigCFG)
                 hidden = function() return not bigCFG.styleCastType.useGeneralStyle end,
                 args = STYLE_API:createQuickButtons(unit, { "general" }),
             },
-            spellSelectGroup = createSelectBlock(cfg),
-            addSpell = {
+            contentGrp = {
                 type = "group",
-                name = "Add Spell",
+                name = "",
+                order = 2,
                 inline = true,
-                order = 3,
                 disabled = function() return not cfg.useStyleSpell end,
                 args = {
-                    spellId = {
-                        type = "input",
-                        name = "Add by Spell ID",
-                        order = 2,
-                        width = 1.5,
-                        get = function() return tostring(cfg._abilityAddStyle or "") end,
-                        set = function(_, v) cfg._abilityAddStyle = v end,
-                    },
-
-                    v1 = { type = "description", name = "", order = 2.5, width = 0.2 },
-
-                    addBtn = {
-                        type = "execute",
-                        name = "Add Spell ID",
-                        order = 3,
-                        width = 1.5,
-                        func = function()
-                            if not cfg._abilityAddStyle or cfg._abilityAddStyle == "" then return end
-                            local added = AddSpellByID(cfg._abilityAddStyle, cfg)
-                            cfg._abilityAddStyle = ""
-                            if added then
-                                BuildAbilityRows(args, mainGrp, cfg, unit, class)
-                                BuildSpellStyle(args, unit, cfg, #cfg.styleSpells)
-                                CASTBAR_API:UpdateCastbar(unit)
-                            end
-                        end,
-                    },
-                },
-            },
-            spellTable = {
-                type = "group",
-                name = "Spells with specific styles",
-                inline = true,
-                order = 4,
-                disabled = function() return not cfg.useStyleSpell or #cfg.styleSpells == 0 end,
-                args = {
-                    tableHeader = {
+                    spellSelectGroup = UIStructures:createSelectBlock(cfg, 1),
+                    addSpell = {
                         type = "group",
-                        name = "",
+                        name = "Add Spell",
                         inline = true,
-                        order = 1,
-                        disabled = function() return not cfg.useManualTable end,
+                        order = 2,
                         args = {
-                            h_icon = { type = "description", name = "Icon",   order = 1, width = 0.30 },
-                            v1     = { type = "description", name = "|",      order = 2, width = 0.05 },
-                            h_name = { type = "description", name = "Name",   order = 3, width = 1 },
-                            v2     = { type = "description", name = "|",      order = 4, width = 0.05 },
-                            h_id   = { type = "description", name = "ID",     order = 5, width = 0.40 },
-                            v3     = { type = "description", name = "|",      order = 6, width = 0.05 },
-                            h_en   = { type = "description", name = "Enable", order = 7, width = 0.30 },
-                            v4     = { type = "description", name = "|",      order = 8, width = 0.05 },
-                            h_st   = { type = "description", name = "Settings", order = 9, width = 0.60 },
-                            v5     = { type = "description", name = "|",      order = 10, width = 0.05 },
-                            h_rm   = { type = "description", name = "Remove", order = 11, width = 0.60 },
+                            spellId = {
+                                type = "input",
+                                name = "Add by Spell ID",
+                                order = 2,
+                                width = 1.5,
+                                get = function() return tostring(cfg._abilityAddStyle or "") end,
+                                set = function(_, v) cfg._abilityAddStyle = v end,
+                            },
+
+                            v1 = { type = "description", name = "", order = 2.5, width = 0.2 },
+
+                            addBtn = {
+                                type = "execute",
+                                name = "Add Spell ID",
+                                order = 3,
+                                width = 1.5,
+                                func = function()
+                                    if not cfg._abilityAddStyle or cfg._abilityAddStyle == "" then return end
+                                    local added = AddSpellByID(cfg._abilityAddStyle, cfg)
+                                    cfg._abilityAddStyle = ""
+                                    if added then
+                                        BuildAbilityRows(args, mainGrp, cfg, unit, class)
+                                        BuildSpellStyle(args, unit, cfg, #cfg.styleSpells)
+                                        CASTBAR_API:UpdateCastbar(unit)
+                                    end
+                                end,
+                            },
                         },
                     },
-
-                    rows = {
+                    spellTable = {
                         type = "group",
-                        name = "",
+                        name = "Spells with specific styles",
                         inline = true,
-                        order = 2,
-                        disabled = function() return not cfg.useManualTable end,
-                        args = {},
-                    },
+                        order = 3,
+                        disabled = function() return not cfg.useStyleSpell or #cfg.styleSpells == 0 end,
+                        args = {
+                            tableHeader = {
+                                type = "group",
+                                name = "",
+                                inline = true,
+                                order = 1,
+                                args = {
+                                    h_icon = { type = "description", name = "Icon",   order = 1, width = 0.30 },
+                                    v1     = { type = "description", name = "|",      order = 2, width = 0.05 },
+                                    h_name = { type = "description", name = "Name",   order = 3, width = 1 },
+                                    v2     = { type = "description", name = "|",      order = 4, width = 0.05 },
+                                    h_id   = { type = "description", name = "ID",     order = 5, width = 0.40 },
+                                    v3     = { type = "description", name = "|",      order = 6, width = 0.05 },
+                                    h_en   = { type = "description", name = "Enable", order = 7, width = 0.30 },
+                                    v4     = { type = "description", name = "|",      order = 8, width = 0.05 },
+                                    h_st   = { type = "description", name = "Settings", order = 9, width = 0.60 },
+                                    v5     = { type = "description", name = "|",      order = 10, width = 0.05 },
+                                    h_rm   = { type = "description", name = "Remove", order = 11, width = 0.60 },
+                                },
+                            },
+
+                            rows = {
+                                type = "group",
+                                name = "",
+                                inline = true,
+                                order = 2,
+                                args = {},
+                            },
+                        },
+                    }
                 },
-            }
+            },
+            
         },
     }
     BuildAbilityRows(args, mainGrp, cfg, unit, class)
@@ -443,7 +341,7 @@ end
 
 function Opt:BuildAbilityStylePlayer(args, unit, class)
     local bigCFG = GetCFG(unit)
-    local cfg = bigCFG.CLASSES[class]
+    local cfg = bigCFG.CLASSES[class].spellStyling
 
     args.styleSection = {
         type = "group",

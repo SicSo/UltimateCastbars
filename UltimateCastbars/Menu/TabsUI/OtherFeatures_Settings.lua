@@ -678,7 +678,7 @@ local function BuildOtherArgs(args, unit)
     }
 
     if unit == "player" then
-        args.cancelledGrp.args.filterGroup = UIStructures:BuildAbilityFilterSectionPlayer(cfg.cancelledEffect, unit, true, "Blacklist/Whitelist cancelled spells", 4)
+        args.cancelledGrp.args.filterGroup = UIStructures:BuildAbilityFilterSectionPlayer(cfg.cancelledEffect.blacklistWhitelist, unit, true, "Blacklist/Whitelist cancelled spells", 4)
     else
         args.cancelledGrp.args.filterGroup = nil
     end
