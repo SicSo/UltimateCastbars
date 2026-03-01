@@ -14,6 +14,52 @@ local OtherFeatures_API = UCB.OtherFeatures_API
 local UIStructures = UCB.UIStructures
 local LSM  = UCB.LSM
 
+local function createPaths()
+    return {
+        general = {"otherFeatures"},
+        channel = {"otherFeatures" , "channelTickGrp"},
+        spell_que = {"otherFeatures" , "spellQueGrp"},
+        mirror_inverse = {"otherFeatures" , "inversMirrorGrp"},
+        interruptedEffect = {"otherFeatures" , "kickedGrp"},
+        cancelledEffect = {"otherFeatures" , "cancelledGrp"},
+    }
+end
+
+local function createNames()
+    return {
+        channel = "Channeling Options",
+        spell_que = "Spell Queue",
+        mirror_inverse = "Mirror/Inverse Bar",
+        interruptedEffect = "Interrupted Effect",
+        cancelledEffect = "Cancelled Effect",
+    }
+end
+
+
+
+local function createQuickButtons(unit, tabs, names, paths, buttonSize)
+    local buttons = {}
+    for index, tab in ipairs(tabs) do
+        buttons["btn_"..tab] = {
+            type = "execute",
+            name = function() return UIOptions.MakeTitle(names[tab]) end,
+            desc = function() return "Jump to "..UIOptions.MakeTitle(names[tab]) end,
+            width = buttonSize,
+            order = index,
+            func = function()
+                UCB:SelectGroup(paths[tab], unit)
+            end,
+        }
+        buttons["gap_"..tab] = {
+            type = "description",
+            name = "",
+            order = index + 0.5,
+            width = 0.2,
+        }
+    end
+    return buttons
+end
+
 
 
 local function BuildKickedCancelledArgs(unit, cfg, castType, type, order)
@@ -141,11 +187,29 @@ end
 
 local function BuildOtherArgs(args, unit)
     local cfg = GetCFG(unit, "otherFeatures")
+
+    args.quickButtonsPlayer = {
+        type = "group",
+        name = "Quick Navigation",
+        inline = true,
+        order = 0.1,
+        hidden = function() return unit ~= "player" end,
+        args = createQuickButtons(unit, {"channel", "spell_que", "mirror_inverse", "interruptedEffect", "cancelledEffect"}, createNames(), createPaths(), 0.8),
+    }
+    args.quickButtonsOther = {
+        type = "group",
+        name = "Quick Navigation",
+        inline = true,
+        order = 0.1,
+        hidden = function() return unit == "player" end,
+        args = createQuickButtons(unit, {"channel", "mirror_inverse", "interruptedEffect", "cancelledEffect"}, createNames(), createPaths(), 0.8),
+    }
+
     if unit == "player" then
         args.spellQueGrp = {
             type   = "group",
-            name   = "Spell Queue Options",
-            inline = true,
+            name   = "Spell Queue",
+            inline = false,
             order  = 2,
             args = {
                 queueCvarGrp = {
@@ -289,7 +353,7 @@ local function BuildOtherArgs(args, unit)
     args.channelTickGrp = {
         type   = "group",
         name   = "Channeling Options",
-        inline = true,
+        inline = false,
         order  = 1,
         args = {
             channelTickInfo = {
@@ -375,8 +439,8 @@ local function BuildOtherArgs(args, unit)
 
     args.inversMirrorGrp = {
         type   = "group",
-        name   = "Inverse/Mirror Bar Options",
-        inline = true,
+        name   = "Inverse/Mirror Bar",
+        inline = false,
         order  = 3,
         args = {
             inverseGrp = {
@@ -473,47 +537,45 @@ local function BuildOtherArgs(args, unit)
             }
         },
     }
-
-    args.kickedCancelledGrp = {
-        type   = "group",
-        name   = "Kicked/Canceled Cast Options",
-        inline = true,
-        order  = 4,
+    
+    args.kickedGrp = {
+        type = "group",
+        name = "Interrupted Effect",
+        inline = false,
+        order = 4,
         args = {
             kickedCancelledInfo = {
                 type = "description",
-                name = function() return UIOptions.ColorText(UIOptions.turquoise, "These options control the display of interrupted or cancelled effects that are caused by the players. Interrupted happens when a unit gets kicked and cancelled when a unit stops the cast on its own, through failure or if it gets CCed.") end,
+                name = function() return UIOptions.ColorText(UIOptions.turquoise, "These options control the display of interrupted effects that are caused by the players. Interrupted happens when a unit gets kicked.") end,
                 order = 0,
             },
-            kickedGrp = {
-                type = "group",
-                name = "Interrupted Cast Effect Options",
-                inline = true,
-                order = 1,
-                args = {
-                    normalGrp = BuildKickedCancelledArgs(unit, cfg.interruptedEffect, "normal", "interrupted", 1),
-                    channelGrp = BuildKickedCancelledArgs(unit, cfg.interruptedEffect, "channel", "interrupted", 2),
-                    empoweredGrp = BuildKickedCancelledArgs(unit, cfg.interruptedEffect, "empowered", "interrupted", 3),
-                }
+            normalGrp = BuildKickedCancelledArgs(unit, cfg.interruptedEffect, "normal", "interrupted", 1),
+            channelGrp = BuildKickedCancelledArgs(unit, cfg.interruptedEffect, "channel", "interrupted", 2),
+            empoweredGrp = BuildKickedCancelledArgs(unit, cfg.interruptedEffect, "empowered", "interrupted", 3),
+        }
+    }
+
+    args.cancelledGrp = {
+        type = "group",
+        name = "Cancelled Effect",
+        inline = false,
+        order = 5,
+        args = {
+            kickedCancelledInfo = {
+                type = "description",
+                name = function() return UIOptions.ColorText(UIOptions.turquoise, "These options control the display of cancelled effects that are caused by the players. Cancelled happens when a unit stops the cast on its own, through failure or if it gets CCed.") end,
+                order = 0,
             },
-            cancelledGrp = {
-                type = "group",
-                name = "Cancelled Cast Effect Options",
-                inline = true,
-                order = 2,
-                args = {
-                    normalGrp = BuildKickedCancelledArgs(unit, cfg.cancelledEffect, "normal", "cancelled", 1),
-                    channelGrp = BuildKickedCancelledArgs(unit, cfg.cancelledEffect, "channel", "cancelled", 2),
-                    empoweredGrp = BuildKickedCancelledArgs(unit, cfg.cancelledEffect, "empowered", "cancelled", 3),
-                }
-            },
+            normalGrp = BuildKickedCancelledArgs(unit, cfg.cancelledEffect, "normal", "cancelled", 1),
+            channelGrp = BuildKickedCancelledArgs(unit, cfg.cancelledEffect, "channel", "cancelled", 2),
+            empoweredGrp = BuildKickedCancelledArgs(unit, cfg.cancelledEffect, "empowered", "cancelled", 3),
         }
     }
 
     if unit == "player" then
-        args.kickedCancelledGrp.args.cancelledGrp.args.filterGroup = UIStructures:BuildAbilityFilterSectionPlayer(cfg.cancelledEffect, unit, false, "Blacklist/Whitelist cancelled spells", 4)
+        args.cancelledGrp.args.filterGroup = UIStructures:BuildAbilityFilterSectionPlayer(cfg.cancelledEffect, unit, true, "Blacklist/Whitelist cancelled spells", 4)
     else
-        args.kickedCancelledGrp.args.cancelledGrp.args.filterGroup = nil
+        args.cancelledGrp.args.filterGroup = nil
     end
 end
 

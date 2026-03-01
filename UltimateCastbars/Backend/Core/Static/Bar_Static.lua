@@ -7,15 +7,15 @@ local CASTBAR_API = UCB.CASTBAR_API
 local BarUpdate_API = UCB.BarUpdate_API
 
 local function UpdateSequence(unit)
+    BarUpdate_API:BuildColourCandidates(unit)
     BarUpdate_API:UpdateBarIcon(unit)
+    BarUpdate_API:UpdateStyle(unit, true)
     BarUpdate_API:UpdateVisibility(unit)
     BarUpdate_API:UpdateText(unit)
     BarUpdate_API:UpdateUninterruptable(unit)
     BarUpdate_API:UpdateUnkickable(unit)
     BarUpdate_API:UpdateOtherFeatures(unit)
     BarUpdate_API:UpdateOthers(unit)
-    BarUpdate_API:BuildColourCandidates(unit)
-    BarUpdate_API:UpdateStyle(unit)
 end
 
 

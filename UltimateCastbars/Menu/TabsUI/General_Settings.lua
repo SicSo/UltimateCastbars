@@ -76,8 +76,8 @@ local function BuildPositionArgs(args, unit)
 
     args.positionGrp = {
         type = "group",
-        name = "Castbar Position",
-        inline = true,
+        name = "Position",
+        inline = false,
         order = 1,
         args = {
             anchorGrp = {
@@ -367,8 +367,8 @@ local function BuildSizeArgs(args, unit)
 
     args.sizeGrp = {
         type = "group",
-        name = "Castbar Size",
-        inline = true,
+        name = "Size",
+        inline = false,
         order = 2,
         args = {
             toggleGroup = {
@@ -926,8 +926,8 @@ local function BuildIconArgs(args, unit)
 
     args.iconGrp = {
         type = "group",
-        name = "Castbar Icon",
-        inline = true,
+        name = "Icon",
+        inline = false,
         order = 3,
         args = {
             showCastIcon = {

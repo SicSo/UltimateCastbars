@@ -218,19 +218,19 @@ local function BuildCandidateFromStyle(unit, bar, styleCfg)
 end
 
 ----------------------------------------MAIN----------------------------------------
-function BarUpdate_API:UpdateStyle(unit, type, customStyle)
+function BarUpdate_API:UpdateStyle(unit, force, type, customStyle)
     local bar = UCB.castBar[unit]
     local cfg
 
     if not customStyle then
         if not type then type = "general" end
 
-        if bar._lastStyleType == type then return end
+        if bar._lastStyleType == type and not force then return end
         bar._lastStyleType = type
 
          cfg = GetCFG(unit, "styleCastType")[type]
     else
-        if bar._lastStyleType == type then return end
+        if bar._lastStyleType == type and not force then return end
         bar._lastStyleType = type
 
         cfg = customStyle

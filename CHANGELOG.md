@@ -9,6 +9,9 @@
 - Copy style settings between cast types
 - Per spell styling for player bar (class specific)
 
+## Changed
+- Small UI improvements
+
 ## Fixed
 - State refresh for spec swaps
 - Cancelled effect was appearing for hidden spells on player bar

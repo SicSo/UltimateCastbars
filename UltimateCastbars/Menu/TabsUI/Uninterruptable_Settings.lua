@@ -19,8 +19,8 @@ local function BuildUninterruptableArgs(args, unit)
 
     args.uninterruptibleGroup = {
         type   = "group",
-        name   = "Uninterruptible casts options",
-        inline = true,
+        name   = "Uninterruptible casts",
+        inline = false,
         order  = 2,
         args = {
             descUnint = {
@@ -457,8 +457,8 @@ local function BuildUninterruptableArgs(args, unit)
     --------------------------------------------------------------------------------------------------------------------------
     args.unKickable = {
         type   = "group",
-        name   = "Kick/Interrupt casts options",
-        inline = true,
+        name   = "Kick/Interrupt casts",
+        inline = false,
         order  = 3,
         args ={
             descKick = {

@@ -375,7 +375,7 @@ function CASTBAR_API:ApplyStyle(unit, cfg, spellID, castType)
         if classCFG._customSpellStyles and classCFG._customSpellStyles[spellID] then
             local style = classCFG._customSpellStyles[spellID]
             BarUpdate_API:RefreshBarStyleOnly(unit, style)
-            BarUpdate_API:UpdateStyle(unit, spellID, style)
+            BarUpdate_API:UpdateStyle(unit, false, spellID, style)
             applied = true
         end
     end
@@ -384,7 +384,7 @@ function CASTBAR_API:ApplyStyle(unit, cfg, spellID, castType)
         if not castTypeStyleCFG.useGeneralStyle then
             local styleCFG = castTypeStyleCFG[castType]
             BarUpdate_API:RefreshBarStyleOnly(unit, styleCFG)
-            BarUpdate_API:UpdateStyle(unit, castType)
+            BarUpdate_API:UpdateStyle(unit, false, castType, styleCFG)
         end
     end
 end
