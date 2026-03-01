@@ -48,7 +48,7 @@ UCB.Copy = UCB.Copy or {}
 UCB.Copy.categories = {
     general = "General",
     text = "Text",
-    style = "Style",
+    styleCastType = "Style",
     visibility = "Visibility",
     uninterruptible = "Uninterruptible",
     otherFeatures = "Other Features",
@@ -56,13 +56,13 @@ UCB.Copy.categories = {
 }
 
 UCB.Copy.categoriesOrder = {
-    ["general"] = "general",
-    ["text"] = "text",
-    ["styleCastType"] = "style",
-    ["visibility"] = "visibility",
-    ["uninterruptible"] = "uninterruptible",
-    ["otherFeatures"] = "otherFeatures",
-    ["CLASSES"] = "CLASSES"
+    "general",
+    "text",
+    "styleCastType",
+    "visibility",
+    "uninterruptible",
+    "otherFeatures",
+    "CLASSES"
 }
 
 --------------------------------------------------------------- General ------------------------------------------------------------

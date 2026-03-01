@@ -92,8 +92,8 @@ local function CreateCategoriesToggle(unit)
     local categoriesOrder = UCB.Copy.categoriesOrder
     local args = {}
     local i = 1
-    for key, val in pairs(categoriesOrder) do
-        local label = val
+    for _, key in ipairs(categoriesOrder) do
+        local label = categories[key] or key
         args[key] = {
             type = "toggle",
             name = label,
