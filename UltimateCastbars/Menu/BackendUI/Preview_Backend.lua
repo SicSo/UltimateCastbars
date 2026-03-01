@@ -86,6 +86,12 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
 
     local icon_texture = tags:updateVarsPreview(unit, cfg, castType, spellID, duration, previewCFG.previewNotIntrerruptible, previewCFG.previewEmpowerStages, latency)
     local vars = tags.var[unit]
+    if unit == "player" then
+        -- Spell filter unint (make the spell int to avoid any unint effects)
+        if not CASTBAR_API:SpellFilter(spellID, cfg.uninterruptible) then
+            vars.nIntr = false
+        end
+    end
 
     tags:setTextSameState(bar, "semiDynamic", unit, castType, false)
     tags:setTextSameState(bar, "dynamic", unit, castType, true)

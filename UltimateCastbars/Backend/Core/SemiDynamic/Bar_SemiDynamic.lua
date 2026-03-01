@@ -457,6 +457,12 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, la
     -- Update internal vars with spellInfo
     local icon_texture = tags:updateVars(unit, castType, spellID, cfg, latency)
     local vars = tags.var[unit]
+    if unit == "player" then
+        -- Spell filter unint (make the spell int to avoid any unint effects)
+        if not CASTBAR_API:SpellFilter(spellID, cfg.uninterruptible) then
+            vars.nIntr = false
+        end
+    end
 
     -- Failsafe
     if not vars.durationObject then
@@ -479,11 +485,6 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, la
     local otherCFG = cfg.otherFeatures
     CASTBAR_API:MirrorBar(cfg, bar, castType)
     CASTBAR_API:InitCastbarVal(bar_status, castType, resumeCast, vars, otherCFG)
-
-     -- Spell filter unint (make the spell int to avoid any unint effects)
-    if not CASTBAR_API:SpellFilter(spellID, cfg.uninterruptible) then
-        vars.nIntr = false
-    end
 
     CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
 
