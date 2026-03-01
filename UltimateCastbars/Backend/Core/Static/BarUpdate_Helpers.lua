@@ -250,7 +250,7 @@ function BarUpdate_API:UpdateText(unit)
             end
             fs:SetTextColor(usedColour.r, usedColour.g, usedColour.b, usedColour.a)
             fs:Show()
-            tagOptions._compiled = UCB.tags:compileFormula(tagOptions._formula, tagOptions._limits, tagOptions.mainType)
+            tagOptions._compiled = UCB.tags:compileFormula(tagOptions._formula, tagOptions._limits, tagOptions.mainType, unit)
         elseif bar.texts[key] then
             bar.texts[key]:Hide()
         end

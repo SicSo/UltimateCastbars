@@ -9,6 +9,7 @@
 - Copy style settings between cast types
 - Per spell styling for player bar (class specific)
 - Latency overlay for player bar with options for show rules, colour for nomal and channel casts
+- Latency tag "lat"
 
 ## Changed
 - Small UI improvements

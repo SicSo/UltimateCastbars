@@ -30,6 +30,10 @@ end
 
 local TAG_FN = {}
 
+TAG_FN["[lat]"] = function(v, limNum)
+    return FormatDecimals(v.lat, limNum)
+end
+
 TAG_FN["[kName]"] = function(v, limNum)
     if (v.kColour) and v.kColour.GenerateHexColor then
         return UCB.UIOptions.ColorText(v.kColour:GenerateHexColor(), FirstNChars(v.kName, limNum))
@@ -80,7 +84,7 @@ TAG_FN["[nIntrInv]"] = function(v, limNum, remaining, elpased, limRaw)
     return (limNum == -1) and "Intr." or limRaw
 end
 
-function tags:compileFormula(formula, limits, mainType)
+function tags:compileFormula(formula, limits, mainType, unit)
     local ops = {}
     local n = 0
     local needsNow = false
@@ -90,6 +94,10 @@ function tags:compileFormula(formula, limits, mainType)
         local fn = TAG_FN[part]
 
         if part == "[kName]" and mainType ~= "interrupted" then
+            fn = nil
+        end
+        
+        if part == "[lat]" and unit ~= "player" then
             fn = nil
         end
 
@@ -268,7 +276,7 @@ function tags:splitTags(s, openDelim, closeDelim)
             if token == "[rTime]" or token == "[rPerTime]" or token == "[rTimeInv]" or token == "[rPerTimeInv]" then
                 state = "dynamic"
             elseif state ~= "semiDynamic" then
-                if token == "[dTime]" or token == "[dPerTime]" or token == "[sName]" or token == "[nIntr]" or token == "[nIntrInv]" then
+                if token == "[dTime]" or token == "[dPerTime]" or token == "[sName]" or token == "[nIntr]" or token == "[nIntrInv]" or token == "[lat]" then
                     state = "semiDynamic"
                 end
             end
@@ -281,7 +289,7 @@ function tags:splitTags(s, openDelim, closeDelim)
 end
 
 
-function tags:updateVars(unit, type, spellID, cfg)
+function tags:updateVars(unit, type, spellID, cfg, latency)
     local name, texture, notInterruptible, durationObject
     local vars = tags.var[unit]
     if vars.empStages then
@@ -326,6 +334,7 @@ function tags:updateVars(unit, type, spellID, cfg)
         vars.eTime = durationObject:GetEndTime()
         vars.dTime = durationObject:GetTotalDuration()
         vars.nIntr = notInterruptible
+        vars.lat = latency or 0
     else
         -- Fallback for missing duration object (shouldn't happen, but just in case)
         vars.sName = name or "Unknown Spell"
@@ -333,6 +342,7 @@ function tags:updateVars(unit, type, spellID, cfg)
         vars.eTime = 0
         vars.dTime = 0
         vars.nIntr = notInterruptible or false
+        vars.lat = latency or 0
     end
     vars.durationObject = durationObject
     return texture

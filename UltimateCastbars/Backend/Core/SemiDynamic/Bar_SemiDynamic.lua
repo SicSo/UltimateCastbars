@@ -452,7 +452,7 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, la
     bar.current_spellID = spellID
 
     -- Update internal vars with spellInfo
-    local icon_texture = tags:updateVars(unit, castType, spellID, cfg)
+    local icon_texture = tags:updateVars(unit, castType, spellID, cfg, latency)
     local vars = tags.var[unit]
 
     -- Failsafe
@@ -507,7 +507,7 @@ function CASTBAR_API:CastOnUpdateSetup(bar, unit, cfg, vars, castType, spellID, 
 end
 
 
-function CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType)
+function CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType, latency)
     local cfg = UCB.GetValueConfig(unit)
 
     -- Spell filter
@@ -518,7 +518,7 @@ function CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType)
 
     local bar = UCB.castBar[unit]
 
-    local icon_texture = tags:updateVars(unit, castType, spellID, cfg)
+    local icon_texture = tags:updateVars(unit, castType, spellID, cfg, latency)
     local vars = tags.var[unit]
 
     -- Failsafe

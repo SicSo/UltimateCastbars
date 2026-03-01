@@ -68,7 +68,8 @@ UCB.tags.var = {
         nIntr = false,
         empStages = {},
         kName = "",
-        kColour = {}
+        kColour = {},
+        lat = 0,
     },
     target = {
         sName = "",
@@ -78,7 +79,8 @@ UCB.tags.var = {
         nIntr = false,
         empStages = {},
         kName = "",
-        kColour = {}
+        kColour = {},
+        lat = 0,
     },
     focus = {
         sName = "",
@@ -88,7 +90,8 @@ UCB.tags.var = {
         nIntr = false,
         empStages = {},
         kName = "",
-        kColour = {}
+        kColour = {},
+        lat = 0,
     },
 }
 

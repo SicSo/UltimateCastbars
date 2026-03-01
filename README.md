@@ -175,6 +175,7 @@ Tokens may support an optional `:X` suffix for limits (where applicable).
 | `[rPerTimeInv]` / `[rPerTimeInv:X]` | Elapsed percent |
 | `[nIntr]` / `[nIntr:X]` | Uninterruptible-only text (also controls visibility) |
 | `[nIntrInv]` / `[nIntrInv:X]` | Interruptible-only text (also controls visibility) |
+| `[lat]` / `[lat:X]` | Latency in seconds (player only) |
 
 ![Text3](./images/Text3.png)
 

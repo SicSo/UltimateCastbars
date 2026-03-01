@@ -177,7 +177,8 @@ function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID, castBa
 end
 
 function CASTBAR_API:OnUnitSpellcastChannelUpdate(unit, castGUID, spellID, castBarID)
-    local show = CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType)
+    if unit == "player" and Latency.sendTime then Latency.latency = GetTime() - Latency.sendTime else Latency.latency = nil end
+    local show = CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType, Latency.latency)
     if not show then return end
     CASTBAR_API:AssignChannelTicks(unit, spellID, "UPDATE")
 end
