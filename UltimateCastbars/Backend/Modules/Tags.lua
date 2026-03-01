@@ -96,7 +96,7 @@ function tags:compileFormula(formula, limits, mainType, unit)
         if part == "[kName]" and mainType ~= "interrupted" then
             fn = nil
         end
-        
+
         if part == "[lat]" and unit ~= "player" then
             fn = nil
         end
@@ -349,7 +349,7 @@ function tags:updateVars(unit, type, spellID, cfg, latency)
 end
 
 
-function tags:updateVarsPreview(unit, cfg, type, spellID, duration, notInterruptible, stageCount)
+function tags:updateVarsPreview(unit, cfg, type, spellID, duration, notInterruptible, stageCount, latency)
     local now = GetTime()
     local spellInfo = C_Spell.GetSpellInfo(spellID)
     local texture = spellInfo and spellInfo.originalIconID or 136243 -- default icon (question mark)
@@ -359,6 +359,7 @@ function tags:updateVarsPreview(unit, cfg, type, spellID, duration, notInterrupt
     vars.eTime = now + duration
     vars.dTime = duration
     vars.nIntr  = notInterruptible
+    vars.lat = latency or 0
     local durationObject = C_DurationUtil.CreateDuration()
     durationObject:SetTimeFromStart(now, duration)
     vars.durationObject = durationObject

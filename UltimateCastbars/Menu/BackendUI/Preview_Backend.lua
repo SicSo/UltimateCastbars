@@ -55,7 +55,13 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
     CASTBAR_API:StopFrameTimer(UCB.castBar[unit], "cancelled")
     CASTBAR_API:StopFrameTimer(UCB.castBar[unit], "interrupted")
 
-    bar.current_spellID = previewCFG.previewSpellID[castType]
+    local spellID = previewCFG.previewSpellID[castType]
+    local latency = previewCFG.previewLatency
+
+    -- Set style based on cast type
+    CASTBAR_API:ApplyStyle(unit, cfg, spellID, castType)
+
+    bar.current_spellID = spellID
 
     local duration = previewCFG.previewDuration
     if previewCFG.previewNormalDefaultDuration and castType == "normal" then
@@ -65,7 +71,7 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
         end
     end
 
-    local icon_texture = tags:updateVarsPreview(unit, cfg, castType, previewCFG.previewSpellID[castType], duration, previewCFG.previewNotIntrerruptible, previewCFG.previewEmpowerStages)
+    local icon_texture = tags:updateVarsPreview(unit, cfg, castType, spellID, duration, previewCFG.previewNotIntrerruptible, previewCFG.previewEmpowerStages, latency)
     local vars = tags.var[unit]
 
     tags:setTextSameState(bar, "semiDynamic", unit, castType, false)
@@ -75,6 +81,7 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
 
     if unit == "player" then
         CASTBAR_API:AssignQueueWindow(cfg, castType)
+        CASTBAR_API:AssignLatencyWindow(cfg, castType, latency)
     end
 
     local bar_status = bar.status
@@ -83,6 +90,10 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
     CASTBAR_API:MirrorBar(cfg, bar, castType)
     CASTBAR_API:InitCastbarVal(bar_status, castType, false, vars, otherCFG)
 
+    if not CASTBAR_API:SpellFilter(spellID, cfg.uninterruptible) then
+        vars.nIntr = false
+    end
+
     CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
 
     CASTBAR_API:InterruptibleTick(bar, bar_status, vars, cfg, castType)
@@ -90,7 +101,7 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
     if castType == "normal" then
         NormalCast(unit, bar)
     elseif castType == "channel" then
-        ChannelCast(unit, previewCFG.previewSpellID[castType], bar)
+        ChannelCast(unit, spellID, bar)
     elseif castType == "empowered" then
         EmpowerCast(unit, bar, cfg, vars)
     end
@@ -102,7 +113,7 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
     bar._ucbCfg = cfg
     bar._ucbCastType = castType
     bar._ucbVars = vars
-    bar._ucbSpellID = previewCFG.previewSpellID[castType]
+    bar._ucbSpellID = spellID
     bar:SetScript("OnUpdate", CastbarOnUpdate)
     bar.group:Show()
     bar.flags.prevType = castType

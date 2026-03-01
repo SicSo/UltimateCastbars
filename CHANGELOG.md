@@ -18,6 +18,7 @@
 - State refresh for spec swaps
 - Cancelled effect was appearing for hidden spells on player bar
 - durationObject could be nil when cancelling channel casts
+- Preview was not properly displaying on settings update
 
 ---
 

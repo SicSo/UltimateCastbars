@@ -2,9 +2,11 @@ local ADDON_NAME, UCB = ...
 
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.BarUpdate_API = UCB.BarUpdate_API or {}
+UCB.Preview_API = UCB.Preview_API or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
 local BarUpdate_API = UCB.BarUpdate_API
+local Preview_API = UCB.Preview_API
 
 local function UpdateSequence(unit)
     BarUpdate_API:BuildColourCandidates(unit)
@@ -188,7 +190,17 @@ function CASTBAR_API:UpdateCastbar(unit)
                 end
                 return
             end
+            -- Stop preview
+            local hidden = false
+            if Preview_API.previewActive and Preview_API.previewActive[unit] then
+                Preview_API:HidePreviewCastBar(unit)
+                hidden = true
+            end
             UpdateSequence(unit)
+            -- Restart preview if active before
+            if hidden then
+                Preview_API:ShowPreviewCastBar(unit, Preview_API.lastCastType[unit])
+            end
         end
     end
 end

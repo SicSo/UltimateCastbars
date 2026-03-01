@@ -277,7 +277,7 @@ local function tagUI(key, unit)
                        UIOptions.ColorText(UIOptions.turquoise, "[rPerTimeInv:X]").." - Inverse Remaining Time Percentage (X repesents the number of decimals and can be ommited for thse use of [rPerTime], default is 1 decimal; text is seen as default)\n" ..
                        UIOptions.ColorText(UIOptions.turquoise, "[dPerTime]").." - Duration Time Percentage (just 100)\n"..
                        UIOptions.ColorText(UIOptions.turquoise, "[nIntr:X]").." - Unintreruptable spell (X reprsents the text displayed, by ommiting it is Unintr. IT WILL SHOW OR HIDE THE ENTIRE TAG BASED ON Unintreruptable.)\n"..
-                       UIOptions.ColorText(UIOptions.turquoise, "[nIntrInv:X]").." - Intreruptable spell (X reprsents the text displayed, by ommiting it is Intr. IT WILL SHOW OR HIDE THE ENTIRE TAG BASED ON Intreruptable.)\n",
+                       UIOptions.ColorText(UIOptions.turquoise, "[nIntrInv:X]").." - Intreruptable spell (X reprsents the text displayed, by ommiting it is Intr. IT WILL SHOW OR HIDE THE ENTIRE TAG BASED ON Intreruptable.)\n"..
                        UIOptions.ColorText(UIOptions.turquoise, "[lat:X]").." - Latency - ONLY PLAYER (in seconds, X repesents the number of decimals and can be ommited for the use of [lat], default is 1 decimal; text is seen as default.)\n",
                 width = "full",
                 order = 2,
@@ -295,7 +295,7 @@ local function tagUI(key, unit)
                        UIOptions.ColorText(UIOptions.turquoise, "[rPerTimeInv:X]").." - Inverse Remaining Time Percentage (X repesents the number of decimals and can be ommited for thse use of [rPerTime], default is 1 decimal; text is seen as default)\n" ..
                        UIOptions.ColorText(UIOptions.turquoise, "[dPerTime]").." - Duration Time Percentage (just 100)\n"..
                        UIOptions.ColorText(UIOptions.turquoise, "[nIntr:X]").." - Unintreruptable spell (X reprsents the text displayed, by ommiting it is Unintr. IT WILL SHOW OR HIDE THE ENTIRE TAG BASED ON Unintreruptable.)\n"..
-                       UIOptions.ColorText(UIOptions.turquoise, "[nIntrInv:X]").." - Intreruptable spell (X reprsents the text displayed, by ommiting it is Intr. IT WILL SHOW OR HIDE THE ENTIRE TAG BASED ON Intreruptable.)\n",
+                       UIOptions.ColorText(UIOptions.turquoise, "[nIntrInv:X]").." - Intreruptable spell (X reprsents the text displayed, by ommiting it is Intr. IT WILL SHOW OR HIDE THE ENTIRE TAG BASED ON Intreruptable.)\n"..
                        UIOptions.ColorText(UIOptions.turquoise, "[lat:X]").." - Latency - ONLY PLAYER (in seconds, X repesents the number of decimals and can be ommited for the use of [lat], default is 1 decimal; text is seen as default.)\n",
                 width = "full",
                 order = 2,

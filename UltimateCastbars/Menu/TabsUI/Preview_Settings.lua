@@ -3,10 +3,12 @@ local _, UCB = ...
 UCB.Options = UCB.Options or {}
 UCB.UIOptions = UCB.UIOptions or {}
 UCB.Preview_API = UCB.Preview_API or {}
+UCB.UIOptions = UCB.UIOptions or {}
 
 local Opt = UCB.Options
 local GetCFG = UCB.GetValueConfig
 local Preview_API = UCB.Preview_API
+local UIOptions = UCB.UIOptions
 
 local function PreviewSpells(cfg)
     return {
@@ -86,7 +88,7 @@ local function PreviewSpells(cfg)
 end
 
 
-local function PreviewSettings(cfg)
+local function PreviewSettings(cfg, unit)
     return {
         type   = "group",
         name   = "Preview Settings",
@@ -133,6 +135,18 @@ local function PreviewSettings(cfg)
                 set     = function(_, value) cfg.previewSettings.previewEmpowerStages = value end,
                 hidden = function() return not UCB.allSpellTypes.empowered or #UCB.allSpellTypes.empowered == 0 end,
             },
+            setPreviewLatency = {
+                type    = "range",
+                name    = "Set Preview Latency",
+                hidden = function() return unit ~= "player" end,
+                order   = 5,
+                width   = 1,
+                min     = 0,
+                max     = 0.5,
+                step    = 0.001,
+                get     = function() return cfg.previewSettings.previewLatency or 0 end,
+                set     = function(_, value) cfg.previewSettings.previewLatency = value end,
+            }
         },
     }
 end
@@ -311,13 +325,13 @@ local function BuildPreviewArgs(args, unit, opts)
                 func  = function()
                     Preview_API.showSettingsToggle = not Preview_API.showSettingsToggle
                     args.previewSpells = PreviewSpells(cfg)
-                    args.previewSettings = PreviewSettings(cfg)
+                    args.previewSettings = PreviewSettings(cfg, unit)
                 end,
             }
         },
     }
     args.previewSpells = PreviewSpells(cfg)
-    args.previewSettings = PreviewSettings(cfg)
+    args.previewSettings = PreviewSettings(cfg, unit)
 end
 
 

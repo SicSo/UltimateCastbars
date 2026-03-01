@@ -572,7 +572,8 @@ UCB.Default_DB.player = {
             normal = 585,
             channel = 356995,
             empowered = 359073,
-        }
+        },
+        previewLatency = 0.123,
     },
 
     copySettings = {
