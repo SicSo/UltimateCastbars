@@ -19,6 +19,7 @@ local function createPaths()
         general = {"otherFeatures"},
         channel = {"otherFeatures" , "channelTickGrp"},
         spell_que = {"otherFeatures" , "spellQueGrp"},
+        latency = {"otherFeatures" , "latencyGrp"},
         mirror_inverse = {"otherFeatures" , "inversMirrorGrp"},
         interruptedEffect = {"otherFeatures" , "kickedGrp"},
         cancelledEffect = {"otherFeatures" , "cancelledGrp"},
@@ -29,6 +30,7 @@ local function createNames()
     return {
         channel = "Channeling Options",
         spell_que = "Spell Queue",
+        latency = "Latency Indicator",
         mirror_inverse = "Mirror/Inverse Bar",
         interruptedEffect = "Interrupted Effect",
         cancelledEffect = "Cancelled Effect",
@@ -167,7 +169,7 @@ local function BuildKickedCancelledArgs(unit, cfg, castType, type, order)
                 channelError = {
                         hidden = function() return type ~= "cancelled" and castType ~= "channel" end,
                         type = "range",
-                        name = function() return "Channel error threshold (ms)" end,
+                        name = function() return "Channel latency (ms)" end,
                         desc = function() return "This option is used to determine whether a channelled cast was cancelled or not. If the cast stops with less time remaining than this threshold, it will be considered finished. (1s = 1000ms)" end,
                         min = 0, max = 1000, step = 1,
                         order = 7,
@@ -194,7 +196,7 @@ local function BuildOtherArgs(args, unit)
         inline = true,
         order = 0.1,
         hidden = function() return unit ~= "player" end,
-        args = createQuickButtons(unit, {"channel", "spell_que", "mirror_inverse", "interruptedEffect", "cancelledEffect"}, createNames(), createPaths(), 0.8),
+        args = createQuickButtons(unit, {"channel", "spell_que", "latency", "mirror_inverse", "interruptedEffect", "cancelledEffect"}, createNames(), createPaths(), 0.8),
     }
     args.quickButtonsOther = {
         type = "group",
@@ -346,8 +348,111 @@ local function BuildOtherArgs(args, unit)
                 },
             },
         }
+        args.latencyGrp = {
+            type   = "group",
+            name   = "Latency Overlay",
+            inline = false,
+            order  = 3,
+            args = {
+                latencyInfo = {
+                    type = "description",
+                    name = function() return UIOptions.ColorText(UIOptions.turquoise, "When pressing a spell, the command to start the cast is sent to the server. Once the server receives that information, it replies with an event that starts the cast on your system. This means that on the server, the cast starts before the client and thus will finish faster than on the client. This is called cast latency and can be computed in-game. These options show an overlay on the bar for that latency. The only practical application is that you can move/end a cast before the end of the cast, and the cast will finish anyway without getting cancelled. DOES NOT WORK ON EMPOWERED CASTS.") end,
+                    order = 1,
+                },
+                enableLatency = {
+                    type  = "toggle",
+                    name  = "Enable Latency Overlay",
+                    order = 2,
+                    width = "full",
+                    get   = function() return cfg.latency.enabled end,
+                    set   = function(_, val)
+                        cfg.latency.enabled = val
+                        CASTBAR_API:UpdateCastbar(unit)
+                    end,
+                },
+                showLatnecyGrp = {
+                    type = "group",
+                    name = "Latency Overlay Show",
+                    inline = true,
+                    order = 3,
+                    disabled = function() return not cfg.latency.enabled end,
+                    args = {
+                        showLatencyNormal = {
+                            type  = "toggle",
+                            name  = "On normal casts",
+                            order = 1,
+                            width = 1.5,
+                            get   = function() return cfg.latency.show.normal end,
+                            set   = function(_, val)
+                                cfg.latency.show.normal = val
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                        showLatencyChannel = {
+                            type  = "toggle",
+                            name  = "On channeled casts",
+                            order = 2,
+                            width = 1.5,
+                            get   = function() return cfg.latency.show.channel end,
+                            set   = function(_, val)
+                                cfg.latency.show.channel = val
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                    },
+                },
+                latencyOptionsGrp = {
+                    type   = "group",
+                    name   = "Latency Overlay Options",
+                    inline = true,
+                    order  = 4,
+                    disabled = function() return not cfg.latency.enabled end,
+                    args = {
+                        latencyColor = {
+                            type = "color",
+                            name = "Overlay Colour",
+                            hasAlpha = true,
+                            order = 1,
+                            get = function()
+                                local c = cfg.latency.colour 
+                                return c.r, c.g, c.b, c.a
+                            end,
+                            set = function(_, r,g,b,a)
+                                cfg.latency.colour = {r=r,g=g,b=b,a=a}
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                        useLatencyTexture = {
+                            type  = "toggle",
+                            name  = "Use texture for overlay",
+                            order = 2,
+                            get   = function() return cfg.latency.useTexture end,
+                            set   = function(_, val)
+                                cfg.latency.useTexture = val
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                        latencyTextureName = {
+                            type          = "select",
+                            dialogControl = "LSM30_Statusbar",
+                            name          = "Overlay texture",
+                            order         = 3,
+                            values        = function() return LSM:HashTable(LSM.MediaType.STATUSBAR) end,
+                            get           = function() return cfg.latency.textureName end,
+                            set           = function(_, val)
+                                cfg.latency.textureName = val
+                                cfg.latency.texture = LSM:Fetch(LSM.MediaType.STATUSBAR, val)
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                            disabled = function() return cfg.latency.useTexture == false end,
+                        },
+                    },
+                },
+            },
+        }
     else
         args.spellQueGrp = nil
+        args.latencyGrp = nil
     end
 
     args.channelTickGrp = {
@@ -441,7 +546,7 @@ local function BuildOtherArgs(args, unit)
         type   = "group",
         name   = "Inverse/Mirror Bar",
         inline = false,
-        order  = 3,
+        order  = 4,
         args = {
             inverseGrp = {
                 type = "group",
@@ -542,7 +647,7 @@ local function BuildOtherArgs(args, unit)
         type = "group",
         name = "Interrupted Effect",
         inline = false,
-        order = 4,
+        order = 5,
         args = {
             kickedCancelledInfo = {
                 type = "description",
@@ -559,7 +664,7 @@ local function BuildOtherArgs(args, unit)
         type = "group",
         name = "Cancelled Effect",
         inline = false,
-        order = 5,
+        order = 6,
         args = {
             kickedCancelledInfo = {
                 type = "description",

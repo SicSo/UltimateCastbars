@@ -13,6 +13,7 @@
 	<Script file="Modules/Debug.lua"/>
 	<Script file="Modules/Copy.lua"/>
 	<Script file="Modules/Profile_Normaliser.lua"/>
+	<Script file="Modules/Latency.lua"/>
 
 	<!-- Core -->
 	<Script file="Core/GeneralCore_Helpers.lua"/>

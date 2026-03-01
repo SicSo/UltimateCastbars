@@ -1,8 +1,10 @@
 local ADDON_NAME, UCB = ...
 
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
+UCB.Latency = UCB.Latency or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
+local Latency = UCB.Latency
 local castType = "normal"
 
 local function CastbarOnUpdate(bar, elapsed)
@@ -18,7 +20,8 @@ end
 
 ---------------------------------------------------- MAIN -------------------------------------------------
 function CASTBAR_API:OnUnitSpellcastStart(unit, castGUID, spellID, castBarID, resumeCast)
-    local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
+    if unit == "player" and Latency.sendTime then Latency.latency = GetTime() - Latency.sendTime else Latency.latency = nil end
+    local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, Latency.latency)
     if not show then return end
     -- Set colours
     CASTBAR_API:SemiColourUpdate(unit, bar)

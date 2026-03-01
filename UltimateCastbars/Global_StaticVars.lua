@@ -470,6 +470,7 @@ UCB.profiles.texture_map = {
 
   ["otherFeatures.tickTextureName"]         = { path = "otherFeatures.tickTexture",             type = "statusbar" },
   ["otherFeatures.queueTextureName"]        = { path = "otherFeatures.queueTexture",            type = "statusbar" },
+  ["otherFeatures.latency.textureName"]        = { path = "otherFeatures.latency.texture",            type = "statusbar" },
 
   ["CLASSES.WARRIOR.tickTextureName"]       = { path = "CLASSES.WARRIOR.tickTexture",           type = "statusbar" },
   ["CLASSES.PALADIN.tickTextureName"]       = { path = "CLASSES.PALADIN.tickTexture",           type = "statusbar" },

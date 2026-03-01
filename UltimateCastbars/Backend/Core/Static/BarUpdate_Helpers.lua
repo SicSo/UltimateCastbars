@@ -412,9 +412,10 @@ function BarUpdate_API:UpdateOtherFeatures(unit)
     local cfg = GetCFG(unit, "otherFeatures")
 
     if unit == "player" then
+        -- Spell que
         if cfg.showQueueWindow.normal or  cfg.showQueueWindow.channel or cfg.showQueueWindow.empowered then
             if not bar.queueWindowOverlay then
-                bar.queueWindowOverlay = bar.frames.overlay:CreateTexture(nil, "OVERLAY", nil, 7)
+                bar.queueWindowOverlay = bar.frames.overlay:CreateTexture(nil, "OVERLAY", nil, 6)
             end
             -- CVAR
             if cfg.queueMatchCVAR then
@@ -434,6 +435,25 @@ function BarUpdate_API:UpdateOtherFeatures(unit)
         elseif bar.queueWindowOverlay then
             bar.queueWindowOverlay:Hide()
         end
+
+        -- Latency
+        if cfg.latency.enabled then
+            if not bar.latencyOverlay then
+                bar.latencyOverlay = bar.frames.overlay:CreateTexture(nil, "OVERLAY", nil, 7)
+            end
+            -- Texture and colour
+            if cfg.latency.useTexture then
+                bar.latencyOverlay:SetTexture(cfg.latency.texture)
+                bar.latencyOverlay:SetVertexColor(cfg.latency.colour.r, cfg.latency.colour.g, cfg.latency.colour.b, cfg.latency.colour.a)
+            else
+                bar.latencyOverlay:SetVertexColor(1, 1, 1, 1)
+                bar.latencyOverlay:SetColorTexture(cfg.latency.colour.r, cfg.latency.colour.g, cfg.latency.colour.b, cfg.latency.colour.a)
+            end
+            bar.latencyOverlay:Show()
+        elseif bar.latencyOverlay then
+            bar.latencyOverlay:Hide()
+        end
+
     end
 
     -- Cancelled/Interrupted frames

@@ -25,6 +25,7 @@ UCB.Copy = UCB.Copy or {}
 UCB.Normiliser = UCB.Normiliser or {}
 UCB.UIStructures = UCB.UIStructures or {}
 UCB.Migration = UCB.Migration or {}
+UCB.Latency = UCB.Latency or {}
 
 -- Sub APIs
 UCB.CLASS_API.Evoker = UCB.CLASS_API.Evoker or {}
@@ -97,6 +98,24 @@ function UCB:EnsureSpellcastEventFrame()
 
     UCB.eventFrame.interrupted = f3
   end
+
+  if not UCB.eventFrame.latency then
+    local f4 = CreateFrame("Frame")
+    for eventName in pairs(UCB.latencyEvents) do
+      f4:RegisterEvent(eventName)
+    end
+
+    f4:SetScript("OnEvent", function(_, event, unit, ...)
+      local method = UCB.latencyEvents[event]
+      local api = UCB.Latency
+      if method and api and api[method] then
+        api[method](api, unit, ...)
+      end
+    end)
+
+    UCB.eventFrame.latency = f4
+  end
+  
 end
 
 

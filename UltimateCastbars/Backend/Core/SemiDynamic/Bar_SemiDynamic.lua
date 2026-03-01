@@ -155,6 +155,41 @@ function CASTBAR_API:AssignQueueWindow(cfg, typeCast)
     end
 end
 
+ function CASTBAR_API:AssignLatencyWindow(cfg, castType, latency)
+    if latency == nil then return end
+    local unit  = "player"
+    local bar = UCB.castBar[unit]
+    if not bar.latencyOverlay then return end
+
+    local otherCFG = cfg.otherFeatures
+    local latencyCFG = otherCFG.latency
+    local latencyOverlay = bar.latencyOverlay
+    local overlayFrame = bar.frames.overlay
+    local inverted = otherCFG.invertBar[castType]
+    local mirror = otherCFG.mirrorBar[castType]
+
+    local switch = (inverted or mirror) and not (inverted and mirror)  -- if either is true, but not both
+
+    if latencyCFG.enabled and latencyCFG.show[castType] then
+        local px = cfg.general.actualBarWidth * (latency / tags.var[unit].dTime)
+        latencyOverlay:SetWidth(px)
+        latencyOverlay:ClearAllPoints()
+
+        if (not switch and castType ~= "channel") or (castType == "channel" and switch) then
+            latencyOverlay:SetPoint("TOPRIGHT", overlayFrame, "TOPRIGHT", 0, 0)
+            latencyOverlay:SetPoint("BOTTOMRIGHT", overlayFrame, "BOTTOMRIGHT", 0, 0)
+        else
+            latencyOverlay:SetPoint("TOPLEFT", overlayFrame, "TOPLEFT", 0, 0)
+            latencyOverlay:SetPoint("BOTTOMLEFT", overlayFrame, "BOTTOMLEFT", 0, 0)
+        end
+
+        latencyOverlay:Show()
+    else
+        latencyOverlay:Hide()
+    end
+    
+end
+
 function CASTBAR_API:SemiColourUpdate(unit, bar)
     local tex = bar.status:GetStatusBarTexture()
     local mtex = bar.mirrorStatus.tex
@@ -391,7 +426,7 @@ end
 
 
 ----------------------------------------------------------------- CASTBAR UPDATE FUNCTIONS -----------------------------------------------------------------
-function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
+function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, latency)
     local cfg = UCB.GetValueConfig(unit)
 
     -- Spell filter
@@ -433,6 +468,7 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
 
     if unit == "player" then
         CASTBAR_API:AssignQueueWindow(cfg, castType)
+        CASTBAR_API:AssignLatencyWindow(cfg, castType, latency)
     end
 
     local bar_status = bar.status

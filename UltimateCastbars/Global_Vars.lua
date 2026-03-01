@@ -45,6 +45,12 @@ UCB.interruptEvents = {
     UNIT_SPELLCAST_EMPOWER_STOP = "OnEmpowerInterrupt",
 }
 
+UCB.latencyEvents = {
+    CURRENT_SPELL_CAST_CHANGED = "OnSpellCastChanged",
+    UNIT_SPELLCAST_SENT = "OnSpellCastSent",
+    UNIT_SPELLCAST_SUCCEEDED = "OnSpellCastSuccess",
+}
+
 UCB.menuUnits = {
     player = true,
     target = true,

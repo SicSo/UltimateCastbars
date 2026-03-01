@@ -8,6 +8,7 @@
 - Per cast type styling options
 - Copy style settings between cast types
 - Per spell styling for player bar (class specific)
+- Latency overlay for player bar with options for show rules, colour for nomal and channel casts
 
 ## Changed
 - Small UI improvements

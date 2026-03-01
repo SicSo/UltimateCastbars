@@ -3,10 +3,12 @@ local ADDON_NAME, UCB = ...
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.tags     = UCB.tags     or {}
 UCB.GeneralCore_Helpers = UCB.GeneralCore_Helpers or {}
+UCB.Latency = UCB.Latency or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
 local tags = UCB.tags
 local GeneralHelpers = UCB.GeneralCore_Helpers
+local Latency = UCB.Latency
 
 
 local function DesignBar(status, frame_status, cfg, castType, cancelled)
@@ -102,14 +104,27 @@ local function CancelledCast(unit, castType, castGUID, spellID, interruptedBy, c
         alpha = GeneralHelpers:NotSecretTo0_1(complete)
     elseif castType == "channel" then
         local durationObject = tags.var[unit].durationObject
-        local channelError = cfgCancelled.channelError/1000
+       
         local curve = C_CurveUtil.CreateCurve()
         curve:AddPoint(0.0, 0.0)
-        curve:AddPoint(channelError - 0.0000001,  0)
-        curve:AddPoint(channelError,  1.0)
+        if unit == "player" and Latency.latency then
+            curve:AddPoint(Latency.latency ,  0)
+            curve:AddPoint(Latency.latency - 0.0000001,  1.0)
+        else
+            local channelLatency = cfgCancelled.channelError/1000
+            curve:AddPoint(channelLatency - 0.0000001,  0)
+            curve:AddPoint(channelLatency,  1.0)
+        end
+
         alpha = durationObject:EvaluateRemainingDuration(curve)
     else
         alpha = 1
+        if unit == "player" and Latency.latency then
+            local durationObject = tags.var[unit].durationObject
+            if durationObject:GetRemainingDuration() < Latency.latency then
+                alpha = 0
+            end
+        end  
     end
     local timer = DesignBar(bar.status, frame.status, cfg, castType, true)
     tags:ShowEffectTags(bar, "cancelled", castType, unit)

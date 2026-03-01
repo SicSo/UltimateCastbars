@@ -5,10 +5,12 @@ UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.CLASS_API = UCB.CLASS_API or {}
 UCB.CLASS_API.Evoker = UCB.CLASS_API.Evoker or {}
 UCB.Preview_API = UCB.Preview_API or {}
+UCB.Latency = UCB.Latency or {}
 
 local tags = UCB.tags
 local CASTBAR_API = UCB.CASTBAR_API
 local Evoker_API = UCB.CLASS_API.Evoker
+local Latency = UCB.Latency
 
 local castType = "channel"
 
@@ -165,7 +167,8 @@ end
 
 ---------------------------------------------------- MAIN -------------------------------------------------
 function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID, castBarID, resumeCast)
-    local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
+    if unit == "player" and Latency.sendTime then Latency.latency = GetTime() - Latency.sendTime else Latency.latency = nil end
+    local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, Latency.latency)
     if not show then return end
     CASTBAR_API:AssignChannelTicks(unit, spellID, "START")
     -- Set colours
