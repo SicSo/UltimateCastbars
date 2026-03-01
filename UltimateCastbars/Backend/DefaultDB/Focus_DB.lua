@@ -17,7 +17,7 @@ local function createStyle()
         gradientEnable = false,
         customColour = {r=1, g=1, b=1, a=1}, -- default white
         customColour2 = {r=1, g=1, b=1, a=1}, -- default white for gradient end
-        enemyColour = {r=1, g=0, b=0, a=1},
+        enemyColour = {r=1, g=1, b=0, a=1},
 
         showBackground = true,
         bgColour = {r=0, g=0, b=0, a=1},

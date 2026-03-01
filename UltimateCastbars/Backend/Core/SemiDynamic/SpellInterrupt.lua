@@ -121,10 +121,10 @@ local function CancelledCast(unit, castType, castGUID, spellID, interruptedBy, c
         alpha = 1
         if unit == "player" and Latency.latency then
             local durationObject = tags.var[unit].durationObject
-            if durationObject:GetRemainingDuration() < Latency.latency then
+            if durationObject:GetRemainingDuration() <= Latency.latency then
                 alpha = 0
             end
-        end  
+        end
     end
     local timer = DesignBar(bar.status, frame.status, cfg, castType, true)
     tags:ShowEffectTags(bar, "cancelled", castType, unit)
