@@ -5,7 +5,7 @@
 
 ## Version 0.9.5 - [01-03-2026]
 
-## Added
+### Added
 - Dynamic tick support for Preservation Disintegrate
 - Blacklist/Whitelist for cancelled spells on player bar
 - Blacklist/Whitelist for uninterrupted spells on player bar
@@ -18,11 +18,11 @@
 - Latency overlay for player bar with options for show rules, colour for nomal and channel casts
 - Latency tag "lat"
 
-## Changed
+### Changed
 - **PER CLASS SPELL FILTERING GOT RESET**
 - Small UI improvements
 
-## Fixed
+### Fixed
 - State refresh for spec swaps
 - Cancelled effect was appearing for hidden spells on player bar
 - durationObject could be nil when cancelling channel casts
