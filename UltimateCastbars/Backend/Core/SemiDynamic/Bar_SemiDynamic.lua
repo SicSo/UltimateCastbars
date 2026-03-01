@@ -155,15 +155,14 @@ function CASTBAR_API:AssignQueueWindow(cfg, typeCast)
     end
 end
 
- function CASTBAR_API:AssignLatencyWindow(cfg, castType, latency)
-    if latency == nil then return end
-    local unit  = "player"
-    local bar = UCB.castBar[unit]
-    if not bar.latencyOverlay then return end
+ function CASTBAR_API:AssignLatencyWindow(bar, cfg, castType, latency)
+    local latencyOverlay = bar.latencyOverlay
+    if not latencyOverlay then return end
+    if latency == nil then latencyOverlay:Hide() return end
 
+    local unit = "player"
     local otherCFG = cfg.otherFeatures
     local latencyCFG = otherCFG.latency
-    local latencyOverlay = bar.latencyOverlay
     local overlayFrame = bar.frames.overlay
     local inverted = otherCFG.invertBar[castType]
     local mirror = otherCFG.mirrorBar[castType]
@@ -477,7 +476,7 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, la
 
     if unit == "player" then
         CASTBAR_API:AssignQueueWindow(cfg, castType)
-        CASTBAR_API:AssignLatencyWindow(cfg, castType, latency)
+        CASTBAR_API:AssignLatencyWindow(bar, cfg, castType, latency)
     end
 
     local bar_status = bar.status

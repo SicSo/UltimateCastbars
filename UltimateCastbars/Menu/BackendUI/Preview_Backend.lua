@@ -100,7 +100,7 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
 
     if unit == "player" then
         CASTBAR_API:AssignQueueWindow(cfg, castType)
-        CASTBAR_API:AssignLatencyWindow(cfg, castType, latency)
+        CASTBAR_API:AssignLatencyWindow(bar, cfg, castType, latency)
     end
 
     local bar_status = bar.status
