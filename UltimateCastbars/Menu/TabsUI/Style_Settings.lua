@@ -14,6 +14,8 @@ local UIOptions = UCB.UIOptions
 local STYLE_API = UCB.STYLE_API
 local UIStructures = UCB.UIStructures
 
+STYLE_API.spellStyleListArgs = STYLE_API.spellStyleListArgs or {}
+
 local function createCasttypeList(base)
     local values = {
         general   = "General",
@@ -86,7 +88,7 @@ local function createCopySettings(unit, cfg, base)
     local copyFromCastType = sorting[1]
     local copyStyleSettingsGrp = {
         type = "group",
-        name = "Copy style settings",
+        name = "Main types style",
         order = 2,
         args = {
             selectSource = {
@@ -142,7 +144,8 @@ local function createCopySettings(unit, cfg, base)
 end
 
 local function BuildCustomisationArgs(args, unit)
-    local castTypeStyleCFG = GetCFG(unit, "styleCastType")
+    local bigCFG = GetCFG(unit)
+    local castTypeStyleCFG = bigCFG.styleCastType
 
     args.styleSelectionGrp = {
         type = "group",
@@ -194,8 +197,16 @@ local function BuildCustomisationArgs(args, unit)
                 inline = true,
                 disabled = function() return not castTypeStyleCFG.useGeneralStyle end,
                 args = {
-                    copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "general"),
-                    styleWindow = createStyleWindow(unit, castTypeStyleCFG, "general", 3),
+                    copyGrp = {
+                        type = "group",
+                        name = "Copy style settings",
+                        order = 1,
+                        args = {
+                            copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "general"),
+                            copySettingsSpellsGrp = STYLE_API:createCopySettingsSpells(unit, castTypeStyleCFG, "general", bigCFG),
+                        },
+                    },
+                    styleWindow = createStyleWindow(unit, castTypeStyleCFG, "general", 4),
                 },
             },
         }
@@ -225,8 +236,16 @@ local function BuildCustomisationArgs(args, unit)
                         inline = true,
                         args = STYLE_API:createQuickButtons(unit, { "general", "empowered", "channel", "class" }),
                     },
-                    copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "normal"),
-                    styleWindow = createStyleWindow(unit, castTypeStyleCFG, "normal", 3),
+                    copyGrp = {
+                        type = "group",
+                        name = "Copy style settings",
+                        order = 2,
+                        args = {
+                            copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "normal"),
+                            copySettingsSpellsGrp = STYLE_API:createCopySettingsSpells(unit, castTypeStyleCFG, "normal", bigCFG),
+                        }
+                    },
+                    styleWindow = createStyleWindow(unit, castTypeStyleCFG, "normal", 4),
                 }
             }
         },
@@ -256,8 +275,16 @@ local function BuildCustomisationArgs(args, unit)
                         inline = true,
                         args = STYLE_API:createQuickButtons(unit, { "general", "normal", "empowered", "class" }),
                     },
-                    copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "channel"),
-                    styleWindow = createStyleWindow(unit, castTypeStyleCFG, "channel", 3),
+                    copyGrp = {
+                        type = "group",
+                        name = "Copy style settings",
+                        order = 2,
+                        args = {
+                            copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "channel"),
+                            copySettingsSpellsGrp = STYLE_API:createCopySettingsSpells(unit, castTypeStyleCFG, "channel", bigCFG),
+                        },
+                    },
+                    styleWindow = createStyleWindow(unit, castTypeStyleCFG, "channel", 4),
                 },
             }
         }
@@ -287,11 +314,25 @@ local function BuildCustomisationArgs(args, unit)
                         inline = true,
                         args = STYLE_API:createQuickButtons(unit, { "general", "normal", "channel", "class" }),
                     },
-                    copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "empowered"),
-                    styleWindow = createStyleWindow(unit, castTypeStyleCFG, "empowered", 3),
+                    copyGrp = {
+                        type = "group",
+                        name = "Copy style settings",
+                        order = 2,
+                        args = {
+                            copySettingsGrp = createCopySettings(unit, castTypeStyleCFG, "empowered"),
+                            copySettingsSpellsGrp = STYLE_API:createCopySettingsSpells(unit, castTypeStyleCFG, "empowered", bigCFG),
+                        },
+                    },
+                    styleWindow = createStyleWindow(unit, castTypeStyleCFG, "empowered", 4),
                 },
             }
         }
+    }
+    STYLE_API.spellStyleListArgs[unit] = {
+        general = { parent = args.styleSelectionGrp.args.generalStyleGrp.args.copyGrp.args, key = "copySettingsSpellsGrp" },
+        normal  = { parent = args.styleNormal.args.styleNormalgrp.args.copyGrp.args,       key = "copySettingsSpellsGrp" },
+        channel = { parent = args.styleChannel.args.styleChannelgrp.args.copyGrp.args,     key = "copySettingsSpellsGrp" },
+        empowered = { parent = args.styleEmpowered.args.styleEmpoweredgrp.args.copyGrp.args, key = "copySettingsSpellsGrp" },
     }
 end
 

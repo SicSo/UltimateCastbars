@@ -125,7 +125,7 @@ local function BuildSpellStyle(args, unit, cfg, indexedSpellStyle)
     buildStyleWindow(args.styleSection.args.spellStyleGroup.args, unit, spellStyle)
 end
 
-local function BuildAbilityRows(args, mainGrp, cfg, unit, class)
+local function BuildAbilityRows(args, mainGrp, cfg, unit, class, bigCFG)
     local list = cfg.styleSpells
 
     mainGrp.args.contentGrp.args.spellTable.args.rows.args = {}
@@ -204,8 +204,9 @@ local function BuildAbilityRows(args, mainGrp, cfg, unit, class)
                         if #cfg.styleSpells == 0 or cfg._setyleSpellsIndex == i then
                             BuildSpellStyle(args, unit, cfg)
                         end
+                        STYLE_API:RebuildSpellStyleCopyArgs(unit, bigCFG.styleCastType, bigCFG)
                         CASTBAR_API:UpdateCastbar(unit)
-                        BuildAbilityRows(args, mainGrp, cfg, unit, class)
+                        BuildAbilityRows(args, mainGrp, cfg, unit, class, bigCFG)
                     end,
                 },
             },
@@ -285,8 +286,9 @@ local function buildMainGroup(args, cfg, unit, class, bigCFG)
                                     local added = AddSpellByID(cfg._abilityAddStyle, cfg)
                                     cfg._abilityAddStyle = ""
                                     if added then
-                                        BuildAbilityRows(args, mainGrp, cfg, unit, class)
+                                        BuildAbilityRows(args, mainGrp, cfg, unit, class, bigCFG)
                                         BuildSpellStyle(args, unit, cfg, #cfg.styleSpells)
+                                        STYLE_API:RebuildSpellStyleCopyArgs(unit, bigCFG.styleCastType, bigCFG)
                                         CASTBAR_API:UpdateCastbar(unit)
                                     end
                                 end,
@@ -334,7 +336,7 @@ local function buildMainGroup(args, cfg, unit, class, bigCFG)
             
         },
     }
-    BuildAbilityRows(args, mainGrp, cfg, unit, class)
+    BuildAbilityRows(args, mainGrp, cfg, unit, class, bigCFG)
     return mainGrp
 end
 
