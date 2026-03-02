@@ -109,13 +109,12 @@ local function CancelledCast(unit, castType, castGUID, spellID, interruptedBy, c
         curve:AddPoint(0.0, 0.0)
         if unit == "player" and Latency.latency then
             curve:AddPoint(Latency.latency ,  0)
-            curve:AddPoint(Latency.latency - 0.0000001,  1.0)
+            curve:AddPoint(Latency.latency + 0.0000001,  1.0)
         else
             local channelLatency = cfgCancelled.channelError/1000
             curve:AddPoint(channelLatency - 0.0000001,  0)
             curve:AddPoint(channelLatency,  1.0)
         end
-
         alpha = durationObject:EvaluateRemainingDuration(curve)
     else
         alpha = 1

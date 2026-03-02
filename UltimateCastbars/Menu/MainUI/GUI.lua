@@ -308,6 +308,8 @@ function GUI:OpenGUI(selectPath)
         self._rootHolder = nil
         self.isGUIOpen = false
         self._currentSelectedTab = nil
+
+        collectgarbage("collect")
     end)
 
     GUIWidgets:AttachFooterBar(Container, {
