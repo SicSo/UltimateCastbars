@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Fixed
+- Cancelled overlay was not properly showing for channel casts when the cancelled effect duration ended during the cancelled channel window
+- Removed quick navigation buttons from non-player cast styles
+
 ---
 
 
