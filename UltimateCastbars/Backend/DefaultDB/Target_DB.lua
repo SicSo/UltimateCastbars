@@ -6,8 +6,8 @@ local function createStyle()
     local style = {
         texture = "Interface\\TargetingFrame\\UI-StatusBar",
         textureName = "Blizzard",
-        textureBack = "Interface\\DialogFrame\\UI-DialogBox-Background",
-        textureNameBack = "Blizzard Dialog Background",
+        textureBack = "Interface\\DialogFrame\\UI-DialogBox-Gold-Background",
+        textureNameBack = "Blizzard Dialog Background Gold",
         textureBorder = "Interface\\TargetingFrame\\UI-StatusBar",
         textureNameBorder = "Blizzard",
         textureBorderIcon = "Interface\\TargetingFrame\\UI-StatusBar",
@@ -21,6 +21,10 @@ local function createStyle()
 
         showBackground = true,
         bgColour = {r=0, g=0, b=0, a=1},
+        bgUseCustomAlpha = false,
+        bgAlpha = 1,
+        bgColourMode = "custom", -- "class", "custom"
+        bgEnemyColour = {r=0, g=0, b=0, a=1},
 
         showBorder = false,
         borderThickness = 1,
@@ -359,8 +363,8 @@ local target_db = {
         showUninterruptibleBackground = true,
         backgroundColour = {r=1, g=0, b=0, a=0.5}, -- red, semi-transparent
         backgroundUseTexture = false,
-        backgroundTexture = "Interface\\DialogFrame\\UI-DialogBox-Background",
-        backgroundTextureName = "Blizzard Dialog Background",
+        backgroundTexture = "Interface\\DialogFrame\\UI-DialogBox-Gold-Background",
+        backgroundTextureName = "Blizzard Dialog Background Gold",
 
         showUninterruptibleBorder = true,
         borderColour = {r=1, g=1, b=1, a=1},

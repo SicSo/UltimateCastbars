@@ -185,6 +185,11 @@ local function BuildCandidateFromStyle(unit, bar, styleCfg)
 
     local cand = {}
 
+    -- Background
+    cand.bgColourMode = styleCfg.bgColourMode
+    cand.bgAlpha = {use = styleCfg.bgUseCustomAlpha, alpha = styleCfg.bgAlpha}
+    cand.bgEnemyColour = styleCfg.bgEnemyColour
+
     if styleCfg.colourMode == "class" then
         cand.colourType = "class"
         cand.mode = "single"
@@ -245,8 +250,19 @@ function BarUpdate_API:UpdateStyle(unit, force, type, customStyle)
     -- Background
     if cfg.showBackground then
         bar.bg:SetTexture(cfg.textureBack)
-        bar.bg:SetVertexColor(cfg.bgColour.r, cfg.bgColour.g, cfg.bgColour.b, cfg.bgColour.a)
-        --bar.bg:SetColorTexture(cfg.bgColour.r, cfg.bgColour.g, cfg.bgColour.b, cfg.bgColour.a)
+
+        local c
+        if cfg.bgColourMode == "custom" then
+            c = cfg.bgColour
+        else
+            c = UCB.classColour.RGBA
+        end
+
+        if cfg.bgUseCustomAlpha then
+            bar.bg:SetVertexColor(c.r, c.g, c.b, cfg.bgAlpha)
+        else
+            bar.bg:SetVertexColor(c.r, c.g, c.b, c.a)
+        end
         bar.bg:Show()
     else
         bar.bg:Hide()
@@ -258,83 +274,6 @@ function BarUpdate_API:UpdateStyle(unit, force, type, customStyle)
     -- Apply colour 
     BarUpdate_API:ApplyColour(bar, type)
 end
-
-function BarUpdate_API:UpdateColours(unit, cfg)
-    local bar = UCB.castBar[unit]
-
-    if not cfg then cfg = GetCFG(unit, "style") end
-
-    if unit ~= "player" then
-        local rgba = cfg.enemyColour
-        bar._enemyColour = {RGBA = rgba, COL = CreateColor(rgba.r, rgba.g, rgba.b, rgba.a)}
-    end
-
-    local colourMode = cfg.colourMode
-
-    -- Build the static palette (1 colour or 2-colour gradient)
-    local colours
-    if colourMode == "class" then
-        colours = { UCB.classColour.RGBA }
-        bar._colourType = "class"
-    else
-        -- "custom" (or anything not class): either single or gradient depending on cfg
-        if cfg.gradientEnable then
-            colours = { cfg.customColour, cfg.customColour2 }
-        else
-            bar._colourType = "custom"
-            colours = { cfg.customColour }
-        end
-    end
-    BarUpdate_API.barColour = colours
-
-    local n = #colours
-
-    if n == 1 then
-        local c = colours[1]
-        local r, g, b, a = c.r, c.g, c.b, c.a
-
-        bar._colourMode = "single"
-        bar._r, bar._g, bar._b, bar._a = r, g, b, a
-
-        local col1 = bar._c1
-        if not col1 then
-            col1 = CreateColor(r, g, b, a)
-            bar._c1 = col1
-        elseif col1.SetRGBA then
-            col1:SetRGBA(r, g, b, a)
-        end
-        bar._c1 = col1
-        return
-    end
-
-    -- n == 2
-    local c1, c2 = colours[1], colours[2]
-    local r1, g1, b1, a1 = c1.r, c1.g, c1.b, c1.a
-    local r2, g2, b2, a2 = c2.r, c2.g, c2.b, c2.a
-
-    bar._colourMode = "gradient"
-    bar._r1, bar._g1, bar._b1, bar._a1 = r1, g1, b1, a1
-    bar._r2, bar._g2, bar._b2, bar._a2 = r2, g2, b2, a2
-
-    local col1 = bar._c1
-    if not col1 then
-        col1 = CreateColor(r1, g1, b1, a1)
-        bar._c1 = col1
-    elseif col1.SetRGBA then
-        col1:SetRGBA(r1, g1, b1, a1)
-    end
-    bar.c1 = col1
-
-    local col2 = bar._c2
-    if not col2 then
-        col2 = CreateColor(r2, g2, b2, a2)
-        bar._c2 = col2
-    elseif col2.SetRGBA then
-        col2:SetRGBA(r2, g2, b2, a2)
-    end
-    bar._c2 = col2
-end
-
 
 -- =========================
 -- 3) store candidates on bar + retrieve via table
@@ -390,6 +329,9 @@ function BarUpdate_API:ApplyColour(bar, typeKey)
 
     bar._colourMode = cand.mode
     bar._colourType = cand.colourType
+    bar._bgColourMode = cand.bgColourMode
+    bar._bgAlpha = cand.bgAlpha
+    bar._bgEnemyColour = cand.bgEnemyColour
 
     EnsureBarColorObjects(bar)
 

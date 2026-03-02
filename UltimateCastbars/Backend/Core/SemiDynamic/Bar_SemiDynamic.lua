@@ -189,15 +189,16 @@ end
     
 end
 
-function CASTBAR_API:SemiColourUpdate(unit, bar)
+function CASTBAR_API:SemiColourUpdate(unit, bar, cfg)
     local tex = bar.status:GetStatusBarTexture()
     local mtex = bar.mirrorStatus.tex
     local doMirror = bar.flags.mirrored
     local colourMode = bar._colourMode
     local canGradient = tex and tex.SetGradient
     local status = bar.status
+    local bgColourMode = bar._bgColourMode
 
-    if unit == "player" then 
+    if unit == "player" then
         if colourMode == "single" then
             local r, g, b, a = bar._r, bar._g, bar._b, bar._a
             local col1 = bar._c1
@@ -218,6 +219,7 @@ function CASTBAR_API:SemiColourUpdate(unit, bar)
             end
         end
     else
+        -- Statusbar
         if colourMode == "single" then
             if bar._colourType == "custom" then
                 local r, g, b, a = bar._r, bar._g, bar._b, bar._a
@@ -258,6 +260,25 @@ function CASTBAR_API:SemiColourUpdate(unit, bar)
                 tex:SetGradient("HORIZONTAL", col1, col2)
                 if doMirror then mtex:SetGradient("HORIZONTAL", col2, col1) end
             end
+        end
+
+        -- Background
+        if unit ~= "player" and bgColourMode == "class" then
+            local r, g, b, a, col1, RGBA
+            if UnitIsPlayer(unit) then
+                local _, classFile = UnitClass(unit)
+                local classColourVal = UCB.UIOptions.classColoursList[classFile]
+                RGBA = classColourVal.RGBA
+                a = (bar._bgAlpha.use and bar._bgAlpha.alpha or 1)
+                --col1 = classColourVal.COL
+            else
+                local defaultEnemyColour = bar._bgEnemyColour
+                RGBA = defaultEnemyColour
+                a = (bar._bgAlpha.use and bar._bgAlpha.alpha or RGBA.a)
+                --col1 = defaultEnemyColour.COL
+            end
+            r, g, b = RGBA.r, RGBA.g, RGBA.b
+            bar.bg:SetVertexColor(r, g, b, a)
         end
     end
 end

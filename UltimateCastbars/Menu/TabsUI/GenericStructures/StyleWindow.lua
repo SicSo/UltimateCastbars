@@ -176,10 +176,23 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
             },
+            colourMode = {
+                type  = "select",
+                name  = "Background Colour Mode",
+                order = 2,
+                values = { class="Class Colour", custom="Custom Colour" },
+                get   = function() return cfg.bgColourMode end,
+                set   = function(_, val)
+                    cfg.bgColourMode = val
+                    CASTBAR_API:UpdateCastbar(unit)
+                end,
+                hidden = function() return not cfg.showBackground end,
+            },
             bgColour = {
                 type = "color",
                 name = "Color",
-                order = 2,
+                order = 3,
+                hidden = function() return cfg.bgColourMode ~= "custom" end,
                 hasAlpha = true,
                 get = function()
                     local c = cfg.bgColour
@@ -191,23 +204,56 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 end,
                 disabled = function() return cfg.showBackground == false end,
             },
-            bgAlpha = {
-                type = "range",
-                name = "Transparency",
-                min = UIOptions.alphaMin, max = UIOptions.alphaMax, step = 0.01,
+            bgEnemyColour = {
+                type = "color",
+                name = "Enemy colour (NPC)",
                 order = 3,
-                width = 1.5,
+                hidden = function() return cfg.bgColourMode ~= "class" or unit == "player" end,
+                hasAlpha = true,
                 get = function()
-                    local c = cfg.bgColour
-                    return c.a
+                    local c = cfg.bgEnemyColour
+                    return c.r, c.g, c.b, c.a
                 end,
-                set = function(_, val)
-                    local c = cfg.bgColour 
-                    c.a = val
-                    cfg.bgColour = c
+                set = function(_, r,g,b,a)
+                    cfg.bgEnemyColour = {r=r,g=g,b=b,a=a}
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
                 disabled = function() return cfg.showBackground == false end,
+            },
+            alphaGrp = {
+                type  = "group",
+                name   = "",
+                order  = 4,
+                inline = true,
+                args = {
+                    bgUseCustomAlpha = {
+                        type = "toggle",
+                        name = "Use custom transparency",
+                        order = 1,
+                        get = function() return cfg.bgUseCustomAlpha == true end,
+                        set = function(_, val)
+                            cfg.bgUseCustomAlpha = val
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                        disabled = function() return cfg.showBackground == false end,
+                    },
+                    bgAlpha = {
+                        type = "range",
+                        name = "Transparency",
+                        min = UIOptions.alphaMin, max = UIOptions.alphaMax, step = 0.01,
+                        order = 2,
+                        width = 1.5,
+                        hidden = function() return not cfg.bgUseCustomAlpha end,
+                        get = function()
+                            return cfg.bgAlpha
+                        end,
+                        set = function(_, val)
+                            cfg.bgAlpha = val
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                        disabled = function() return cfg.showBackground == false end,
+                    }
+                }
             }
         }
     }

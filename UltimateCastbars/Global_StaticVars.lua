@@ -429,7 +429,7 @@ UCB.profiles = UCB.profiles or {}
 
 UCB.profiles.textureFallbacks = {
   statusbar  = "Blizzard",
-  background = "Blizzard Dialog Background",
+  background = "Blizzard Dialog Background Gold",
 }
 
 UCB.profiles.fontFallbacks = { font = "Friz Quadrata TT" }
