@@ -47,8 +47,8 @@ function STYLE_API:createQuickButtons(unit, tabs)
             width = 0.2,
         }
         if castType == "class" then
-            buttons["btn_"..castType].hidden = function() return unit~="player" end
-            buttons["btn_"..castType].hidden = function() return unit~="player" end
+            buttons["btn_"..castType].hidden = function() return not UCB:IsPlayer(unit) end
+            buttons["btn_"..castType].hidden = function() return not UCB:IsPlayer(unit) end
         end
     end
     return buttons
@@ -110,7 +110,7 @@ local function BuildCustomisationArgs(args, unit)
                 name = "Quick navigation",
                 order = 1.5,
                 inline = true,
-                hidden = function() return not castTypeStyleCFG.useGeneralStyle or unit~="player" end,
+                hidden = function() return not castTypeStyleCFG.useGeneralStyle or not UCB:IsPlayer(unit) end,
                 args = STYLE_API:createQuickButtons(unit, { "class" }),
             },
             generalStyleGrp = {

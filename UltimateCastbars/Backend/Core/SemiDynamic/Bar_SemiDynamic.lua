@@ -124,8 +124,7 @@ function CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
     status:SetValue(bar_status:GetValue())
 end
 
-function CASTBAR_API:AssignQueueWindow(cfg, typeCast)
-    local unit  = "player"
+function CASTBAR_API:AssignQueueWindow(unit, cfg, typeCast)
     local bar = UCB.castBar[unit]
     if not bar.queueWindowOverlay then return end
 
@@ -198,7 +197,7 @@ function CASTBAR_API:SemiColourUpdate(unit, bar, cfg)
     local status = bar.status
     local bgColourMode = bar._bgColourMode
 
-    if unit == "player" then
+    if UCB:IsPlayer(unit) then
         if colourMode == "single" then
             local r, g, b, a = bar._r, bar._g, bar._b, bar._a
             local col1 = bar._c1
@@ -263,7 +262,7 @@ function CASTBAR_API:SemiColourUpdate(unit, bar, cfg)
         end
 
         -- Background
-        if unit ~= "player" and bgColourMode == "class" then
+        if not UCB:IsPlayer(unit) and bgColourMode == "class" then
             local r, g, b, a, col1, RGBA
             if UnitIsPlayer(unit) then
                 local _, classFile = UnitClass(unit)
@@ -379,7 +378,7 @@ function CASTBAR_API:InterruptibleTick(bar, bar_status, vars, cfg, castType)
 end
 
 function CASTBAR_API:SpellFilterClass(unit, spellID, cfg)
-    if unit ~= "player" then
+    if not UCB:IsPlayer(unit) then
         return true
     end
 
@@ -418,7 +417,7 @@ function CASTBAR_API:SpellFilter(spellID, cfg)
 end
 
 function CASTBAR_API:ApplyStyle(unit, cfg, spellID, castType)
-    if unit ~= "player" then
+    if not UCB:IsPlayer(unit) then
         return
     end
 
@@ -477,7 +476,7 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, la
     -- Update internal vars with spellInfo
     local icon_texture = tags:updateVars(unit, castType, spellID, cfg, latency)
     local vars = tags.var[unit]
-    if unit == "player" then
+    if UCB:IsPlayer(unit) then
         -- Spell filter unint (make the spell int to avoid any unint effects)
         if not CASTBAR_API:SpellFilter(spellID, cfg.uninterruptible) then
             vars.nIntr = false
@@ -495,8 +494,8 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, la
     
     bar.icon:SetTexture(icon_texture)
 
-    if unit == "player" then
-        CASTBAR_API:AssignQueueWindow(cfg, castType)
+    if UCB:IsPlayer(unit) then
+        CASTBAR_API:AssignQueueWindow(unit, cfg, castType)
         CASTBAR_API:AssignLatencyWindow(bar, cfg, castType, latency)
     end
 
@@ -556,8 +555,8 @@ function CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType, latency)
 
     bar.icon:SetTexture(icon_texture)
 
-    if unit == "player" then
-        CASTBAR_API:AssignQueueWindow(cfg, castType)
+    if UCB:IsPlayer(unit) then
+        CASTBAR_API:AssignQueueWindow(unit, cfg, castType)
     end
 
     bar.status:SetMinMaxValues(0, vars.dTime)

@@ -97,7 +97,7 @@ function tags:compileFormula(formula, limits, mainType, unit)
             fn = nil
         end
 
-        if part == "[lat]" and unit ~= "player" then
+        if part == "[lat]" and not UCB:IsPlayer(unit) then
             fn = nil
         end
 
@@ -307,7 +307,7 @@ function tags:updateVars(unit, type, spellID, cfg, latency)
         name, _, texture, _, _, _, notInterruptible = UnitChannelInfo(unit)
         durationObject = UnitEmpoweredChannelDuration(unit)
         local stages = UnitEmpoweredStagePercentages(unit, true)
-        if unit == "player" then
+        if UCB:IsPlayer(unit) then
             local temp_sum = 0
             for i = 1, #stages do
                 vars.empStages[i] = stages[i] + temp_sum

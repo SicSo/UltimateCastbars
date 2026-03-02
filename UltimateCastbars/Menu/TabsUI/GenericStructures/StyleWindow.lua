@@ -142,7 +142,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
         }
     }
 
-    if unit ~= "player" then
+    if not UCB:IsPlayer(unit) then
         args.grpColours.args.customEnemyColour = {
                 type = "color",
                 name = function() return "Enemy colour (NPC)" end,
@@ -208,7 +208,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 type = "color",
                 name = "Enemy colour (NPC)",
                 order = 3,
-                hidden = function() return cfg.bgColourMode ~= "class" or unit == "player" end,
+                hidden = function() return cfg.bgColourMode ~= "class" or UCB:IsPlayer(unit) end,
                 hasAlpha = true,
                 get = function()
                     local c = cfg.bgEnemyColour

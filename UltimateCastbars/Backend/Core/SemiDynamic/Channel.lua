@@ -21,7 +21,7 @@ local function CastbarOnUpdate(bar, elapsed)
     local vars = bar._ucbVars
     local spellID = bar._ucbSpellID
     local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
-    if unit == "player" and remainig < -0.001 then
+    if UCB:IsPlayer(unit) and remainig < -0.001 then
         CASTBAR_API:OnUnitSpellcastChannelStop(unit, nil, spellID)
     end
 end
@@ -121,7 +121,7 @@ function CASTBAR_API:AssignChannelTicks(unit, spellID, event)
     if UnitIsPlayer(unit) then
         if not cfg.otherFeatures.showChannelTicks then return end
 
-        if unit == "player" then
+        if UCB:IsPlayer(unit) then
             local classCFG = cfg.CLASSES[UCB.className]
             if not classCFG.showChannelTicks then return end
             local spellIDD = spellID
@@ -167,7 +167,7 @@ end
 
 ---------------------------------------------------- MAIN -------------------------------------------------
 function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID, castBarID, resumeCast)
-    if unit == "player" and Latency.sendTime then Latency.latency = GetTime() - Latency.sendTime else Latency.latency = nil end
+    if UCB:IsPlayer(unit, true) and Latency.sendTime then Latency.latency = GetTime() - Latency.sendTime else Latency.latency = nil end
     local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, Latency.latency)
     if not show then return end
     CASTBAR_API:AssignChannelTicks(unit, spellID, "START")
@@ -177,7 +177,7 @@ function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID, castBa
 end
 
 function CASTBAR_API:OnUnitSpellcastChannelUpdate(unit, castGUID, spellID, castBarID)
-    if unit == "player" and Latency.sendTime then Latency.latency = GetTime() - Latency.sendTime else Latency.latency = nil end
+    if UCB:IsPlayer(unit, true) and Latency.sendTime then Latency.latency = GetTime() - Latency.sendTime else Latency.latency = nil end
     local show = CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType, Latency.latency)
     if not show then return end
     CASTBAR_API:AssignChannelTicks(unit, spellID, "UPDATE")
@@ -202,7 +202,7 @@ function CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID, castBar
         bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars, bar._ucbSpellID = nil, nil, nil, nil, nil
         local classCFG = cfg.CLASSES[UCB.className]
         -- Player main, targets, focus,
-        if unit == "player" then
+        if UCB:IsPlayer(unit) then
             if not spellID then spellID = bar.current_spellID end
             if UCB.specID == 1467 and spellID == 356995 and classCFG.disintegrateDynamicTicks then
                 local barWidth = cfg.general.actualBarWidth

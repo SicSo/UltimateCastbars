@@ -471,7 +471,7 @@ local function BuildUninterruptableArgs(args, unit)
             },
         },
     }
-    if unit == "player" then
+    if UCB:IsPlayer(unit) then
         args.uninterruptibleGroup.args.filterGroup = UIStructures:BuildAbilityFilterSectionPlayer(cfg.blacklistWhitelist, unit, true, "Blacklist/Whitelist spells", 6)
     else
         args.uninterruptibleGroup.args.filterGroup = nil

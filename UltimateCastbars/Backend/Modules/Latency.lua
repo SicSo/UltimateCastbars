@@ -15,13 +15,13 @@ function Latency:OnSpellCastChanged(cancelledCast)
 end
 
 function Latency:OnSpellCastSent(unit, target, castGUID, spellID)
-    if unit ~= "player" then return end
+    if not UCB:IsPlayer(unit, true) then return end
     self.sendTime = self.startTime
     self.startTime = nil
 end
 
 function Latency:OnSpellCastSuccess(unit, castGUID, spellID, castBarID)
-    if unit ~= "player" then return end
+    if not UCB:IsPlayer(unit, true) then return end
     self.sendTime = nil
 end
 

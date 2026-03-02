@@ -162,7 +162,7 @@ local function _BuildAllSpellIds()
 end
 
 local function WhitelistBlacklistSetup(unit, cfg)
-     if unit == "player" then
+     if UCB:IsPlayer(unit) then
         cfg._whiteListSpellIDs = {}
         cfg._blackListSpellIDs = {}
         if cfg and cfg.enableAbilityFilter then
@@ -416,7 +416,7 @@ function BarUpdate_API:UpdateOtherFeatures(unit)
     local bar = UCB.castBar[unit]
     local cfg = GetCFG(unit, "otherFeatures")
 
-    if unit == "player" then
+    if UCB:IsPlayer(unit) then
         -- Spell que
         if cfg.showQueueWindow.normal or  cfg.showQueueWindow.channel or cfg.showQueueWindow.empowered then
             if not bar.queueWindowOverlay then
@@ -512,7 +512,7 @@ function BarUpdate_API:UpdateOthers(unit)
 
     -- Spell custom styles
     local spellStyling = classCFG.spellStyling
-    if unit == "player" then
+    if UCB:IsPlayer(unit) then
         spellStyling._customSpellStyles = {}
         for _, spellStyle in ipairs(spellStyling.styleSpells) do
             if spellStyle.enable and spellStyle.id then

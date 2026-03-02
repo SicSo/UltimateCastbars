@@ -195,7 +195,7 @@ local function BuildOtherArgs(args, unit)
         name = "Quick Navigation",
         inline = true,
         order = 0.1,
-        hidden = function() return unit ~= "player" end,
+        hidden = function() return not UCB:IsPlayer(unit) end,
         args = createQuickButtons(unit, {"channel", "spell_que", "latency", "mirror_inverse", "interruptedEffect", "cancelledEffect"}, createNames(), createPaths(), 0.8),
     }
     args.quickButtonsOther = {
@@ -203,11 +203,11 @@ local function BuildOtherArgs(args, unit)
         name = "Quick Navigation",
         inline = true,
         order = 0.1,
-        hidden = function() return unit == "player" end,
+        hidden = function() return UCB:IsPlayer(unit) end,
         args = createQuickButtons(unit, {"channel", "mirror_inverse", "interruptedEffect", "cancelledEffect"}, createNames(), createPaths(), 0.8),
     }
 
-    if unit == "player" then
+    if UCB:IsPlayer(unit) then
         args.spellQueGrp = {
             type   = "group",
             name   = "Spell Queue",
@@ -677,7 +677,7 @@ local function BuildOtherArgs(args, unit)
         }
     }
 
-    if unit == "player" then
+    if UCB:IsPlayer(unit) then
         args.cancelledGrp.args.filterGroup = UIStructures:BuildAbilityFilterSectionPlayer(cfg.cancelledEffect.blacklistWhitelist, unit, true, "Blacklist/Whitelist cancelled spells", 4)
     else
         args.cancelledGrp.args.filterGroup = nil

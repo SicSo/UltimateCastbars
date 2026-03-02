@@ -260,7 +260,7 @@ end
 -- Add sub options to all classes (player and non-player) using the wildcard token "*"
 Opt.ClassExtraBuilders["*"] = function(unit, classToken)
     local args = {}
-    if unit == "player" then
+    if UCB:IsPlayer(unit) then
         Opt:BuildChannelSectionPlayer(args, unit, classToken)
         Opt:BuildAbilityFilterSectionPlayer(args, unit, classToken) 
         Opt:BuildAbilityStylePlayer(args, unit, classToken)

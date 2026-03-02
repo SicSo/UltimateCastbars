@@ -222,7 +222,7 @@ end
 
 
 local function EnsureEnemyColourCached(unit, bar, styleCfg)
-    if unit == "player" then return end
+    if UCB:IsPlayer(unit) then return end
     local rgba = styleCfg and styleCfg.enemyColour
     if not rgba then return end
 
@@ -250,7 +250,7 @@ local function BuildCandidateFromStyle(unit, bar, styleCfg)
         cand.colourType = "class"
         cand.mode = "single"
 
-        if unit == "player" then
+        if UCB:IsPlayer(unit) then
             cand.rgba1 = UCB.classColour.RGBA
             cand.col1  = UCB.classColour.COL
         else
@@ -340,7 +340,7 @@ function BarUpdate_API:BuildColourCandidates(unit)
 
     local typeList = { "general", "normal", "channel", "empowered" }
     local typeListPlayer = {}
-    if unit == "player" then
+    if UCB:IsPlayer(unit) then
         local classCFG = GetCFG(unit).CLASSES[UCB.className]
         local spellStyling = classCFG and classCFG.spellStyling
         for _, spellStyle in ipairs(spellStyling.styleSpells) do
@@ -363,7 +363,7 @@ function BarUpdate_API:BuildColourCandidates(unit)
         store[typeKey] = BuildCandidateFromStyle(unit, bar, styleCfg)
     end
 
-    if unit == "player" then
+    if UCB:IsPlayer(unit) then
         for spellID, style in pairs(typeListPlayer) do
             store[spellID] = BuildCandidateFromStyle(unit, bar, style)
         end

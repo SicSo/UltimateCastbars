@@ -12,7 +12,7 @@ local function CastbarOnUpdate(bar, elapsed)
     local castType = bar._ucbCastType
     local vars = bar._ucbVars
     local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
-    if unit == "player" and remainig < -0.001 then
+    if UCB:IsPlayer(unit) and remainig < -0.001 then
         CASTBAR_API:OnUnitSpellcastEmpowerStop(unit)
     end
 end
@@ -170,7 +170,7 @@ end
 ---------------------------------------------------- MAIN -------------------------------------------------
 function CASTBAR_API:OnUnitSpellcastEmpowerStart(unit, castGUID, spellID, castBarID, resumeCast)
     -- Prevent Font of Magic (spellID 411212) from showing empower stages ???
-    if unit == "player" and spellID == 411212 then return end
+    if UCB:IsPlayer(unit) and spellID == 411212 then return end
     local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType)
     if not show then return end
     -- Set colours and other empower stage visuals

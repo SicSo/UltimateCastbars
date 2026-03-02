@@ -391,7 +391,7 @@ Opt.ClassExtraBuilders.EVOKER = function(unit, args)
                                     name = "Manual Tick Placements",
                                     inline = true,
                                     order = 4,
-                                    hidden = function() return unit=="player" end, -- only show if dynamic ticks is disabled, otherwise ticks are determined dynamically and this section would be confusing
+                                    hidden = function() return UCB:IsPlayer(unit) end, -- only show if dynamic ticks is disabled, otherwise ticks are determined dynamically and this section would be confusing
                                     args = {
                                         empowerManualTicksInfo = {
                                             type = "description",
@@ -437,7 +437,7 @@ Opt.ClassExtraBuilders.EVOKER = function(unit, args)
             },
         }
     
-    if unit == "player" then
+    if UCB:IsPlayer(unit) then
         -- For non-player units, empower effects are possibly innacurate but can still be shown if enabled, so we add a disclaimer
         args.evokerPanel.args.disintegrateGrp = {
             type = "group",

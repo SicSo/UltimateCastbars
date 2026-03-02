@@ -38,6 +38,34 @@ function UCB:SelectGroup(path, unit)
   end
 end
 
+local function startsWith(s, prefix)
+    return type(s) == "string" and s:sub(1, #prefix) == prefix
+end
+
+function UCB:IsPlayer(unit, exclusive)
+    if exclusive then
+        return unit == "player"
+    else
+        return startsWith(unit, "player")
+    end
+end
+
+function UCB:IsTarget(unit, exclusive)
+    if exclusive then
+        return unit == "target"
+    else
+        return startsWith(unit, "target")
+    end
+end
+
+function UCB:IsFocus(unit, exclusive)
+    if exclusive then
+        return unit == "focus"
+    else
+        return startsWith(unit, "focus")
+    end
+end
+
 --------------------------------------------------------------------------- CFG_API ---------------------------------------------------------------------------
 function UCB.CFG_API:GetPathValue(root, key)
     if root == nil then return nil end

@@ -90,7 +90,7 @@ local function CancelledCast(unit, castType, castGUID, spellID, interruptedBy, c
     local cfgCancelled = cfg.otherFeatures.cancelledEffect
 
     -- Spell filter
-    if unit == "player" then 
+    if UCB:IsPlayer(unit) then 
         if not CASTBAR_API:SpellFilter(spellID, cfgCancelled) then
             return 
         end
@@ -107,7 +107,7 @@ local function CancelledCast(unit, castType, castGUID, spellID, interruptedBy, c
        
         local curve = C_CurveUtil.CreateCurve()
         curve:AddPoint(0.0, 0.0)
-        if unit == "player" and Latency.latency then
+        if UCB:IsPlayer(unit) and Latency.latency then
             curve:AddPoint(Latency.latency ,  0)
             curve:AddPoint(Latency.latency + 0.0000001,  1.0)
         else
@@ -118,7 +118,7 @@ local function CancelledCast(unit, castType, castGUID, spellID, interruptedBy, c
         alpha = durationObject:EvaluateRemainingDuration(curve)
     else
         alpha = 1
-        if unit == "player" and Latency.latency then
+        if UCB:IsPlayer(unit) and Latency.latency then
             local durationObject = tags.var[unit].durationObject
             if durationObject:GetRemainingDuration() <= Latency.latency then
                 alpha = 0

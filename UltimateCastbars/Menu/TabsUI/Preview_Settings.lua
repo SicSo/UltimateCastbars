@@ -150,7 +150,7 @@ local function PreviewSettings(cfg, unit)
             setPreviewLatency = {
                 type    = "range",
                 name    = "Set Preview Latency",
-                hidden = function() return unit ~= "player" end,
+                hidden = function() return not UCB:IsPlayer(unit) end,
                 order   = 5,
                 width   = 1,
                 min     = 0,
@@ -262,7 +262,7 @@ local function BuildPreviewArgs(args, unit, opts)
                     end
                 end,
                 hidden = function()
-                    if unit == "player" then
+                    if UCB:IsPlayer(unit) then
                         return not UCB.allSpellTypes.channel or #UCB.allSpellTypes.channel == 0
                     end
                     return false
@@ -314,7 +314,7 @@ local function BuildPreviewArgs(args, unit, opts)
                     end
                 end,
                 hidden = function() 
-                    if unit == "player" then
+                    if UCB:IsPlayer(unit) then
                         return not UCB.allSpellTypes.empowered or #UCB.allSpellTypes.empowered == 0
                     end
                     return false

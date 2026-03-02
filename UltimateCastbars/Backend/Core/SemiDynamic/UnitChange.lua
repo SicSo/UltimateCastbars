@@ -5,7 +5,7 @@ UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 local CASTBAR_API = UCB.CASTBAR_API
 
 function CASTBAR_API:OnUnitChange(unit)
-    if unit == "player" then return end
+    if UCB:IsPlayer(unit, true) then return end
     local bar = UCB.castBar[unit]
     if not bar then return end
     local resumeCast = true

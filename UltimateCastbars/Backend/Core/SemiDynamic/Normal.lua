@@ -13,14 +13,14 @@ local function CastbarOnUpdate(bar, elapsed)
     local castType = bar._ucbCastType
     local vars = bar._ucbVars
     local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
-    if unit == "player" and remainig < -0.001 then
+    if UCB:IsPlayer(unit) and remainig < -0.001 then
         CASTBAR_API:OnUnitSpellcastStop(unit)
     end
 end
 
 ---------------------------------------------------- MAIN -------------------------------------------------
 function CASTBAR_API:OnUnitSpellcastStart(unit, castGUID, spellID, castBarID, resumeCast)
-    if unit == "player" and Latency.sendTime then Latency.latency = GetTime() - Latency.sendTime else Latency.latency = nil end
+    if UCB:IsPlayer(unit, true) and Latency.sendTime then Latency.latency = GetTime() - Latency.sendTime else Latency.latency = nil end
     local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, Latency.latency)
     if not show then return end
     -- Set colours

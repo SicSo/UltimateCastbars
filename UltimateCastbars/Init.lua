@@ -299,7 +299,7 @@ function UCB:EnableSpecSwapListener()
   end
 
   f:SetScript("OnEvent", function(_, event, unit)
-    if event == "PLAYER_SPECIALIZATION_CHANGED" and unit ~= "player" then return end
+    if event == "PLAYER_SPECIALIZATION_CHANGED" and not UCB:IsPlayer(unit, true) then return end
     UpdateSpec()
   end)
 

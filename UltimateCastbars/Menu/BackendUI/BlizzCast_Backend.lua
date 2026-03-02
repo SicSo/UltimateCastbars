@@ -24,9 +24,9 @@ end
 -- ============================================================
 -- Replace GetBlizzFrames() with:
 local function GetBlizzFrames(unit)
-    if unit == "player" then
+    if UCB:IsPlayer(unit, true) then
         return { _G.PlayerCastingBarFrame, _G.CastingBarFrame }
-    elseif unit == "target" then
+    elseif UCB:IsTarget(unit, true) then
         local out = {}
 
         -- Retail target frame spellbar (common)
@@ -43,7 +43,7 @@ local function GetBlizzFrames(unit)
         end
 
         return out
-    elseif unit == "focus" then
+    elseif UCB:IsFocus(unit, true) then
         local out = {}
 
         -- Retail focus frame spellbar (common)
@@ -220,7 +220,7 @@ local function ApplyHideState(f, shouldHide, dontForceShow, unit)
 	CacheFrameState(f)
 
 	-- Only UnitFrame spellbars should get showCastbar toggles.
-	local isUnitFrameSpellbar = (unit == "target" or unit == "focus")
+	local isUnitFrameSpellbar = (UCB:IsTarget(unit, true) or UCB:IsFocus(unit, true))
 
 	-- Cache original showCastbar only for unitframe spellbars
 	if isUnitFrameSpellbar and f.__ucbOrigShowCastbar == nil then

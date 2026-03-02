@@ -86,7 +86,7 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
 
     local icon_texture = tags:updateVarsPreview(unit, cfg, castType, spellID, duration, previewCFG.previewNotIntrerruptible, previewCFG.previewEmpowerStages, latency)
     local vars = tags.var[unit]
-    if unit == "player" then
+    if UCB:IsPlayer(unit) then
         -- Spell filter unint (make the spell int to avoid any unint effects)
         if not CASTBAR_API:SpellFilter(spellID, cfg.uninterruptible) then
             vars.nIntr = false
@@ -98,8 +98,8 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
 
     bar.icon:SetTexture(icon_texture)
 
-    if unit == "player" then
-        CASTBAR_API:AssignQueueWindow(cfg, castType)
+    if UCB:IsPlayer(unit) then
+        CASTBAR_API:AssignQueueWindow(unit, cfg, castType)
         CASTBAR_API:AssignLatencyWindow(bar, cfg, castType, latency)
     end
 

@@ -308,7 +308,7 @@ local function createSpellListStyle(cfg)
 end
 
 function STYLE_API:createCopySettingsSpellsTOMain(unit, cfg, base, bigCFG)
-    if unit ~= "player" then return nil end
+    if not UCB:IsPlayer(unit) then return nil end
     local spellStyling = bigCFG.CLASSES[UCB.className].spellStyling
     local values_list = createSpellListStyle(bigCFG)
     local castIndex = 1
