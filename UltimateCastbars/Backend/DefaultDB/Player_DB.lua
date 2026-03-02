@@ -477,6 +477,7 @@ UCB.Default_DB.player = {
         useQueueTexture = false,
         queueTexture = "Interface\\TargetingFrame\\UI-StatusBar",
         queueTextureName = "Blizzard",
+        queuePlacement = "over", -- "over" or "under"
 
         latency = {
             enabled = false,

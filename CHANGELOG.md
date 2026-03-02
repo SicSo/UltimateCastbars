@@ -3,6 +3,7 @@
 ### Added
 - Class colouring for backgeound
 - Option for border fill corners 
+- Added placement option for Spell queue window overlay
 
 ### Fixed
 - Cancelled overlay was not properly showing for channel casts when the cancelled effect duration ended during the cancelled channel window

@@ -419,8 +419,17 @@ function BarUpdate_API:UpdateOtherFeatures(unit)
     if UCB:IsPlayer(unit) then
         -- Spell que
         if cfg.showQueueWindow.normal or  cfg.showQueueWindow.channel or cfg.showQueueWindow.empowered then
-            if not bar.queueWindowOverlay then
-                bar.queueWindowOverlay = bar.frames.overlay:CreateTexture(nil, "OVERLAY", nil, 6)
+            if not bar.queueWindowOverlay or (bar.queueWindowOverlay and bar._queuePlacement ~= cfg.queuePlacement) then
+                if bar.queueWindowOverlay then
+                    bar.queueWindowOverlay:Hide()
+                    bar.queueWindowOverlay = nil
+                end
+                bar._queuePlacement = cfg.queuePlacement
+                if cfg.queuePlacement == "over" then
+                    bar.queueWindowOverlay = bar.frames.overlay:CreateTexture(nil, "OVERLAY", nil, 6)
+                else
+                    bar.queueWindowOverlay = bar.frames.underlay:CreateTexture(nil, "OVERLAY", nil, 6)
+                end
             end
             -- CVAR
             if cfg.queueMatchCVAR then
