@@ -27,6 +27,7 @@ local function createStyle()
         bgEnemyColour = {r=0, g=0, b=0, a=1},
 
         showBorder = false,
+        borderFillCorners = true,
         borderThickness = 1,
         borderColour = {r=1, g=1, b=1, a=1},
         borderOffsetTop = 0,
@@ -37,6 +38,7 @@ local function createStyle()
         
         showBorderIcon = false,
         syncBorderIcon = false,
+        borderFillCornersIcon = true,
         borderThicknessIcon = 1,
         borderColourIcon = {r=1, g=1, b=1, a=1},
         borderOffsetTopIcon = 0,
@@ -370,6 +372,7 @@ local target_db = {
         borderColour = {r=1, g=1, b=1, a=1},
         textureBorder = "Interface\\TargetingFrame\\UI-StatusBar",
         textureNameBorder = "Blizzard",
+        borderFillCorners = true,
         borderThickness = 1,
         borderOffsetTop = 0,
         borderOffsetBottom = 0,
@@ -378,6 +381,7 @@ local target_db = {
 
         showUninterruptibleBorderIcon = true,
         syncBorderIcon = true,
+        borderFillCornersIcon = true,
         textureBorderIcon = "Interface\\TargetingFrame\\UI-StatusBar",
         textureNameBorderIcon = "Blizzard",
         borderColourIcon = {r=1, g=1, b=1, a=1},

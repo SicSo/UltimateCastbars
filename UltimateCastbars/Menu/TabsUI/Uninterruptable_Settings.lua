@@ -283,6 +283,17 @@ local function BuildUninterruptableArgs(args, unit)
                                     CASTBAR_API:UpdateCastbar(unit)
                                 end,
                             },
+                            borderFillCorners = {
+                                type = "toggle",
+                                name = "Fill corners of border",
+                                desc = "If enabled, the corners of the border will be filled in. If disabled, the corners will be hollow.",
+                                order = 1.5,
+                                get = function() return cfg.borderFillCorners end,
+                                set = function(_, val)
+                                    cfg.borderFillCorners = val
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
                             borderColour = {
                                 type = "color",
                                 name = "Border Colour",
@@ -386,6 +397,18 @@ local function BuildUninterruptableArgs(args, unit)
                                             cfg.textureBorderIcon = LSM:Fetch(LSM.MediaType.STATUSBAR, val)
                                             CASTBAR_API:UpdateCastbar(unit)
                                         end,
+                                    },
+                                    borderFillCornersIcon = {
+                                        type = "toggle",
+                                        name = "Fill corners of border",
+                                        desc = "If enabled, the corners of the border will be filled in. If disabled, the corners will be hollow.",
+                                        order = 2.45,
+                                        get = function() return cfg.borderFillCornersIcon end,
+                                        set = function(_, val)
+                                            cfg.borderFillCornersIcon = val
+                                            CASTBAR_API:UpdateCastbar(unit)
+                                        end,
+                                        disabled = function() return cfg.syncBorderIcon == true end,
                                     },
                                     borderColourIcon = {
                                         type = "color",

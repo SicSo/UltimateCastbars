@@ -274,6 +274,17 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
             },
+            borderFillCorners = {
+                type  = "toggle",
+                name  = "Fill Corners",
+                order = 1.5,
+                get   = function() return cfg.borderFillCorners end,
+                set   = function(_, val)
+                    cfg.borderFillCorners = val
+                    CASTBAR_API:UpdateCastbar(unit)
+                end,
+                disabled = function() return not cfg.showBorder end,
+            },
             borderColour = {
                 type = "color",
                 name = "Color",
@@ -287,7 +298,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                     cfg.borderColour = {r=r,g=g,b=b,a=a}
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
-                disabled = function() return cfg.showBorder == false end,
+                disabled = function() return not cfg.showBorder end,
             },
             borderAlpha = {
                 type = "range",
@@ -305,7 +316,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                     cfg.borderColour = c
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
-                disabled = function() return cfg.showBorder == false end,
+                disabled = function() return not cfg.showBorder end,
             },
             borderThickness = {
                 type = "range",
@@ -320,13 +331,13 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                     STYLE_API:RebuildOffsets(args, cfg, unit, oldThickness, cfg.borderThicknessIcon)
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
-                disabled = function() return cfg.showBorder == false end,
+                disabled = function() return not cfg.showBorder end,
             },
             borderOffsetGrp = {
                 type   = "group",
                 name   = "Border Offsets",
                 order  = 5,
-                disabled = function() return cfg.showBorder == false end,
+                disabled = function() return not cfg.showBorder end,
                 args = STYLE_API:BuildBorderOffsetArgs(cfg, unit, cfg.borderThickness)
             },
         }
@@ -357,7 +368,18 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                     STYLE_API:RebuildOffsets(args, cfg, unit, cfg.borderThickness, cfg.borderThicknessIcon)
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
-                disabled = function() return cfg.showBorderIcon == false end,
+                disabled = function() return not cfg.showBorderIcon end,
+            },
+            borderFillCornersIcon = {
+                type  = "toggle",
+                name  = "Fill Corners",
+                order = 2.25,
+                get   = function() return cfg.borderFillCornersIcon end,
+                set   = function(_, val)
+                    cfg.borderFillCornersIcon = val
+                    CASTBAR_API:UpdateCastbar(unit)
+                end,
+                disabled = function() return not cfg.showBorderIcon or cfg.syncBorderIcon end,
             },
             borderColourIcon = {
                 type = "color",
@@ -372,7 +394,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                     cfg.borderColourIcon = {r=r,g=g,b=b,a=a}
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
-                disabled = function() return cfg.showBorderIcon == false or cfg.syncBorderIcon == true end,
+                disabled = function() return not cfg.showBorderIcon or cfg.syncBorderIcon end,
             },
             borderAlphaIcon = {
                 type = "range",

@@ -31,7 +31,8 @@ local function UpdateRectBorderFromCfg(holder, target, holderKey, cfgBlock, fram
         cfgBlock.colour,
         cfgBlock.thickness,
         cfgBlock.offsets,
-        frameLevelDelta or -1
+        frameLevelDelta or -1,
+        cfgBlock.fillCorners
     )
 end
 
@@ -57,6 +58,7 @@ local function UpdateUninterruptibleBorder(unit)
             top    = cfg.borderOffsetTop,
             bottom = cfg.borderOffsetBottom,
         },
+        fillCorners = cfg.borderFillCorners
     }
 
     -- Use the same holder/target = unint_frame so it borders that region.
@@ -79,6 +81,7 @@ local function UpdateUninterruptibleBorder(unit)
                 top    = cfg.borderOffsetTop,
                 bottom = cfg.borderOffsetBottom,
             },
+            fillCorners = cfg.borderFillCorners
         }
         BarUpdate_API:UpdateRectBorderFromCfg(mirror_frame, mirror_frame, "_rectBorder", mirrorBlock, -1)
     elseif mirror_frame then
@@ -108,6 +111,7 @@ local function UpdateUninterruptibleIconBorder(unit)
                 top    = cfg.borderOffsetTopIcon,
                 bottom = cfg.borderOffsetBottomIcon,
             },
+            fillCorners = cfg.borderFillCornersIcon
         }
     else
         borderBlock = {
@@ -121,6 +125,7 @@ local function UpdateUninterruptibleIconBorder(unit)
                 top    = cfg.borderOffsetTopIcon,
                 bottom = cfg.borderOffsetBottomIcon,
             },
+            fillCorners = cfg.borderFillCornersIcon
         }
     end
 

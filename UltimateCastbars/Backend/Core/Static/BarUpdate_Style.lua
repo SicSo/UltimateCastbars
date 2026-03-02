@@ -9,6 +9,35 @@ local GetCFG = UCB.GetValueConfig
 local BarUpdate_API = UCB.BarUpdate_API
 
 ----------------------------------------HELPER----------------------------------------
+local function SetTexCoord_Default(tex)
+    tex:SetTexCoord(0, 1, 0, 1)
+end
+
+-- Rotate 90° clockwise: pattern runs TOP->BOTTOM
+local function SetTexCoord_Rotate90CW(tex)
+    tex:SetTexCoord(
+        1, 0,  -- UL
+        1, 1,  -- LL
+        0, 0,  -- UR
+        0, 1   -- LR
+    )
+end
+
+-- Rotate 90° counter-clockwise: pattern runs BOTTOM->TOP
+local function SetTexCoord_Rotate90CCW(tex)
+    tex:SetTexCoord(
+        0, 1,  -- UL
+        0, 0,  -- LL
+        1, 1,  -- UR
+        1, 0   -- LR
+    )
+end
+
+-- Flip horizontally: makes bottom appear right->left
+local function SetTexCoord_FlipH(tex)
+    tex:SetTexCoord(1, 0, 0, 1)
+end
+
 local function ClampNonNeg(x)
     return (x and x > 0) and x or 0
 end
@@ -29,7 +58,7 @@ local function EnsureRectBorder(holder, key, frameLevelDelta)
     return f
 end
 
-function BarUpdate_API:ApplyRectBorder(holder, key, target, texture, colour, baseThickness, offsets, frameLevelDelta)
+function BarUpdate_API:ApplyRectBorder(holder, key, target, texture, colour, baseThickness, offsets, frameLevelDelta, makeCorners)
     local f = EnsureRectBorder(holder, key, frameLevelDelta)
 
     local t = baseThickness or 0
@@ -52,6 +81,11 @@ function BarUpdate_API:ApplyRectBorder(holder, key, target, texture, colour, bas
     if tL <= 0 then f.left:Hide() else setup(f.left) end
     if tR <= 0 then f.right:Hide() else setup(f.right) end
 
+    if tT > 0 then SetTexCoord_Default(f.top) end
+    if tB > 0 then SetTexCoord_FlipH(f.bottom) end
+    if tL > 0 then SetTexCoord_Rotate90CCW(f.left) end
+    if tR > 0 then SetTexCoord_Rotate90CW(f.right) end
+
     -- LEFT: outside, full height of target (not part of outside corner squares)
     if tL > 0 then
         f.left:ClearAllPoints()
@@ -68,19 +102,37 @@ function BarUpdate_API:ApplyRectBorder(holder, key, target, texture, colour, bas
         f.right:SetWidth(tR)
     end
 
-    -- TOP: outside, full width INCLUDING side thickness (fills corners)
+    -- TOP
     if tT > 0 then
         f.top:ClearAllPoints()
-        f.top:SetPoint("BOTTOMLEFT",  target, "TOPLEFT",  -tL, 0)
-        f.top:SetPoint("BOTTOMRIGHT", target, "TOPRIGHT",  tR, 0)
+
+        if makeCorners then
+            -- extend to cover corner squares (current behaviour)
+            f.top:SetPoint("BOTTOMLEFT",  target, "TOPLEFT",  -tL, 0)
+            f.top:SetPoint("BOTTOMRIGHT", target, "TOPRIGHT",  tR, 0)
+        else
+            -- no corners: stop at target width, leaving gaps
+            f.top:SetPoint("BOTTOMLEFT",  target, "TOPLEFT",  0, 0)
+            f.top:SetPoint("BOTTOMRIGHT", target, "TOPRIGHT", 0, 0)
+        end
+
         f.top:SetHeight(tT)
     end
 
-    -- BOTTOM: outside, full width INCLUDING side thickness (fills corners)
+    -- BOTTOM
     if tB > 0 then
         f.bottom:ClearAllPoints()
-        f.bottom:SetPoint("TOPLEFT",  target, "BOTTOMLEFT",  -tL, 0)
-        f.bottom:SetPoint("TOPRIGHT", target, "BOTTOMRIGHT",  tR, 0)
+
+        if makeCorners then
+            -- extend to cover corner squares (current behaviour)
+            f.bottom:SetPoint("TOPLEFT",  target, "BOTTOMLEFT",  -tL, 0)
+            f.bottom:SetPoint("TOPRIGHT", target, "BOTTOMRIGHT",  tR, 0)
+        else
+            -- no corners: stop at target width, leaving gaps
+            f.bottom:SetPoint("TOPLEFT",  target, "BOTTOMLEFT",  0, 0)
+            f.bottom:SetPoint("TOPRIGHT", target, "BOTTOMRIGHT", 0, 0)
+        end
+
         f.bottom:SetHeight(tB)
     end
 
@@ -114,7 +166,8 @@ local function UpdateBorderBar(unit, cfg)
             top    = cfg.borderOffsetTop,
             bottom = cfg.borderOffsetBottom,
         },
-        -1
+        -1,
+        cfg.borderFillCorners
     )
 end
 
@@ -127,11 +180,12 @@ local function UpdateIconBorder(unit, cfg)
         return
     end
 
-    local texture, colour, thickness, offs
+    local texture, colour, thickness, offs, fillCorners
     if cfg.syncBorderIcon then
         texture   = cfg.textureBorder
         colour    = cfg.borderColour
         thickness = cfg.borderThickness
+        fillCorners = cfg.borderFillCorners
         -- if you want icon to use icon offsets even when synced, keep these:
         offs = {
             left   = cfg.borderOffsetLeftIcon,
@@ -144,6 +198,7 @@ local function UpdateIconBorder(unit, cfg)
         texture   = cfg.textureBorderIcon
         colour    = cfg.borderColourIcon
         thickness = cfg.borderThicknessIcon
+        fillCorners = cfg.borderFillCornersIcon
         offs = {
             left   = cfg.borderOffsetLeftIcon,
             right  = cfg.borderOffsetRightIcon,
@@ -160,7 +215,8 @@ local function UpdateIconBorder(unit, cfg)
         colour,
         thickness,
         offs,
-        -3
+        -3,
+        fillCorners
     )
 end
 
@@ -328,7 +384,7 @@ function BarUpdate_API:ApplyColour(bar, typeKey)
     if not bar or not cand then return end
 
     bar._colourMode = cand.mode
-    bar._colourType = cand.colourType
+    bar._colourTywe = cand.colourType
     bar._bgColourMode = cand.bgColourMode
     bar._bgAlpha = cand.bgAlpha
     bar._bgEnemyColour = cand.bgEnemyColour
