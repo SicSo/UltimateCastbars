@@ -278,6 +278,35 @@ local function BuildCandidateFromStyle(unit, bar, styleCfg)
     return cand
 end
 
+local function UpdateSpark(bar, cfg)
+    bar.flags.effects.spark = true
+    local overlay  = bar.frames.overlay
+    local sparkCFG = cfg.effects.spark
+
+    local spark = bar.effects.spark
+    if not spark then
+        spark = overlay:CreateTexture(nil, "OVERLAY")
+        bar.effects.spark = spark
+        bar.effects.sparkDriver = CreateFrame("StatusBar", nil, bar)
+        local driver = bar.effects.sparkDriver
+        driver:SetAllPoints(bar.status)
+        driver:Hide()
+        driver:SetAlpha(0)
+        driver:SetStatusBarTexture(bar.status:GetStatusBarTexture():GetTexture())
+    end
+
+    spark:SetTexture(sparkCFG.texture)
+    spark:SetBlendMode(sparkCFG.blendMode)
+
+    local c = sparkCFG.colour
+    spark:SetVertexColor(c.r, c.g, c.b, c.a)
+
+    spark:SetWidth(sparkCFG.width)
+    spark:SetHeight(bar:GetHeight() * sparkCFG.heightMult)
+
+    spark:Show()
+end
+
 ----------------------------------------MAIN----------------------------------------
 function BarUpdate_API:UpdateStyle(unit, force, type, customStyle)
     local bar = UCB.castBar[unit]
@@ -322,6 +351,14 @@ function BarUpdate_API:UpdateStyle(unit, force, type, customStyle)
         bar.bg:Show()
     else
         bar.bg:Hide()
+    end
+
+    -- Effects
+    if cfg.effects.spark.enable then
+         UpdateSpark(bar, cfg)
+    elseif bar.effects.spark then
+         bar.effects.spark:Hide()
+         bar.flags.effects.spark = false
     end
     --Bar border
     UpdateBorderBar(unit, cfg)

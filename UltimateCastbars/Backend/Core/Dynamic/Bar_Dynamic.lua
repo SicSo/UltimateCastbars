@@ -200,7 +200,8 @@ function CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
     local elapsedTime = durationObject:GetElapsedDuration()
     -- progress for the bar fill
     local isChannel = (castType == "channel")
-    if (not inverted and not isChannel) or (inverted and isChannel) then
+    local useElapsed = (not inverted and not isChannel) or (inverted and isChannel)
+    if useElapsed then
         progress = elapsedTime
     else
         progress = remaining
@@ -209,6 +210,18 @@ function CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
     status_uint:SetValue(progress)
     status_untilKick:SetValue(progress)
     status:SetValue(progress)
+    --if bar.flags.effects.spark then
+    --    bar.effects.sparkDriver:SetValue(progress)
+    --end
+    
+    if bar.flags.effects.spark and bar.flags.mirrored then
+        if useElapsed then
+            bar.effects.sparkDriver:SetValue(remaining)
+        else
+            bar.effects.sparkDriver:SetValue(elapsedTime)
+        end
+    end
+
     -- Set dynamic texts
     UCB.tags:ApplyTextState(bar, "dynamic", unit, remaining, elapsedTime)
 

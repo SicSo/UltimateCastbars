@@ -71,9 +71,6 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
     local spellID = previewCFG.previewSpellID[castType]
     local latency = previewCFG.previewLatency
 
-    -- Set style based on cast type
-    CASTBAR_API:ApplyStyle(unit, cfg, spellID, castType)
-
     bar.current_spellID = spellID
 
     local duration = previewCFG.previewDuration
@@ -109,9 +106,8 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
     CASTBAR_API:MirrorBar(cfg, bar, castType)
     CASTBAR_API:InitCastbarVal(bar_status, castType, false, vars, otherCFG)
 
-    if not CASTBAR_API:SpellFilter(spellID, cfg.uninterruptible) then
-        vars.nIntr = false
-    end
+    -- Set style based on cast type
+    CASTBAR_API:ApplyStyle(bar, unit, cfg, spellID, castType, bar_status)
 
     CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
 

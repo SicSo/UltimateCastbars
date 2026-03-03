@@ -137,7 +137,10 @@ local function CreateCastBar(unit)
         castActive = false, -- Active cast
         mirrored = false, -- Whether mirror bars are enabled for this unit
         prevType = nil, -- Type of previous cast (normal/channel/empowered)
-        cancelledOrInterrupted = false -- Whether the current cast was cancelled or interrupted (used to prevent hiding the bar on spellcast stop event)    
+        cancelledOrInterrupted = false, -- Whether the current cast was cancelled or interrupted (used to prevent hiding the bar on spellcast stop event)
+        effects = {
+            spark = false, -- Whether the spark effect is currently active
+        }
     }
 
     -- Cast info
@@ -151,6 +154,9 @@ local function CreateCastBar(unit)
     bar.empoweredSegments = {}
     bar.empoweredColourCurve = C_CurveUtil.CreateColorCurve()
     bar.empoweredColourCurve:SetType(Enum.LuaCurveType.Step)
+
+    -- Effects
+    bar.effects = {}
 
     -- Set properties
     UpdateSequence(unit)

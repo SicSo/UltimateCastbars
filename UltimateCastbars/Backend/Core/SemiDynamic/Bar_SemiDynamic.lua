@@ -416,32 +416,51 @@ function CASTBAR_API:SpellFilter(spellID, cfg)
     end
 end
 
-function CASTBAR_API:ApplyStyle(unit, cfg, spellID, castType)
-    if not UCB:IsPlayer(unit) then
-        return
-    end
+function CASTBAR_API:ApplyStyle(bar, unit, cfg, spellID, castType, bar_status)
 
-    local classCFG = cfg.CLASSES[UCB.className]
-    local spellStyling = classCFG.spellStyling
+    local styleCFG = cfg.styleCastType.general
+    local otherCFG = cfg.otherFeatures
 
-    if not classCFG then
-        return
-    end
     local applied = false
-    if spellStyling.useStyleSpell then
-        if spellStyling._customSpellStyles and spellStyling._customSpellStyles[spellID] then
-            local style = spellStyling._customSpellStyles[spellID]
-            BarUpdate_API:RefreshBarStyleOnly(unit, style)
-            BarUpdate_API:UpdateStyle(unit, false, spellID, style)
-            applied = true
+    if UCB:IsPlayer(unit) then
+        local classCFG = cfg.CLASSES[UCB.className]
+        local spellStyling = classCFG.spellStyling
+
+        if spellStyling.useStyleSpell then
+            if spellStyling._customSpellStyles and spellStyling._customSpellStyles[spellID] then
+                styleCFG = spellStyling._customSpellStyles[spellID]
+                BarUpdate_API:RefreshBarStyleOnly(unit, styleCFG)
+                BarUpdate_API:UpdateStyle(unit, false, spellID, styleCFG)
+                applied = true
+            end
         end
     end
+
     if not applied then
         local castTypeStyleCFG = cfg.styleCastType
         if not castTypeStyleCFG.useGeneralStyle then
-            local styleCFG = castTypeStyleCFG[castType]
+            styleCFG = castTypeStyleCFG[castType]
             BarUpdate_API:RefreshBarStyleOnly(unit, styleCFG)
             BarUpdate_API:UpdateStyle(unit, false, castType, styleCFG)
+        end
+    end
+
+    if styleCFG.effects.spark.enable then
+
+        local spark = bar.effects.spark
+        local driver = bar.effects.sparkDriver
+
+        bar.effects.spark:Show()
+        spark:ClearAllPoints()
+
+        if otherCFG.mirrorBar[castType] then
+            driver:Show()
+            driver:SetMinMaxValues(bar_status:GetMinMaxValues())
+            driver:SetValue(bar_status:GetValue())
+            spark:SetPoint("CENTER", driver:GetStatusBarTexture(), "RIGHT", 0, 0)
+        else
+            driver:Hide()
+            spark:SetPoint("CENTER", bar_status:GetStatusBarTexture(), "RIGHT", 0, 0)
         end
     end
 end
@@ -467,9 +486,6 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, la
     -- Stop view of cancelled/interrupted casts
     CASTBAR_API:StopFrameTimer(UCB.castBar[unit], "cancelled")
     CASTBAR_API:StopFrameTimer(UCB.castBar[unit], "interrupted")
-
-    -- Set style based on cast type
-    CASTBAR_API:ApplyStyle(unit, cfg, spellID, castType)
 
     bar.current_spellID = spellID
 
@@ -505,6 +521,9 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, la
     CASTBAR_API:MirrorBar(cfg, bar, castType)
     CASTBAR_API:InitCastbarVal(bar_status, castType, resumeCast, vars, otherCFG)
 
+    -- Set style based on cast type
+    CASTBAR_API:ApplyStyle(bar, unit, cfg, spellID, castType, bar_status)
+
     CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
 
     CASTBAR_API:InterruptibleTick(bar, bar_status, vars, cfg, castType)
@@ -521,6 +540,7 @@ function CASTBAR_API:CastOnUpdateSetup(bar, unit, cfg, vars, castType, spellID, 
     bar._ucbCastType = castType
     bar._ucbVars = vars
     bar._ucbSpellID = spellID
+    if bar.flags.effects.spark then bar.effects.spark:Show() end
     bar:SetScript("OnUpdate", CastbarOnUpdate)
     bar.group:Show()
     bar.flags.prevType = castType

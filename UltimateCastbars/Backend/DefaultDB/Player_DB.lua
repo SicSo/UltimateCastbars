@@ -24,6 +24,18 @@ function UCB.Default_DB:createStyle()
         bgAlpha = 1,
         bgColourMode = "custom", -- "class", "custom"
 
+        effects = {
+            spark = {
+                enable = false,
+                texture = "Interface\\CastingBar\\UI-CastingBar-Spark",
+                textureName = "Blizzard Spark",
+                blendMode = "ADD",
+                colour = {r=1, g=1, b=1, a=0.8},
+                width = 20,
+                heightMult = 2.2
+            }
+        },
+
         showBorder = false,
         borderFillCorners = true,
         borderThickness = 1,

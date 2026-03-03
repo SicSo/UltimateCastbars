@@ -26,6 +26,18 @@ local function createStyle()
         bgColourMode = "custom", -- "class", "custom"
         bgEnemyColour = {r=0, g=0, b=0, a=1},
 
+        effects = {
+            spark = {
+                enable = false,
+                texture = "Interface\\CastingBar\\UI-CastingBar-Spark",
+                textureName = "Blizzard Spark",
+                blendMode = "ADD",
+                colour = {r=1, g=1, b=1, a=0.8},
+                width = 20,
+                heightMult = 2.2
+            }
+        },
+
         showBorder = false,
         borderFillCorners = true,
         borderThickness = 1,

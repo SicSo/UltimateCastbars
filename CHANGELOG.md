@@ -4,11 +4,14 @@
 - Class colouring for backgeound
 - Option for border fill corners 
 - Added placement option for Spell queue window overlay
+- Added spark effects for all bars
 
 ### Fixed
 - Cancelled overlay was not properly showing for channel casts when the cancelled effect duration ended during the cancelled channel window
 - Removed quick navigation buttons from non-player cast styles
 - Texture was not mapped based on the placement/orientation
+- Fixed target blacklist preview error
+- The style for target/focus was not updateing properly per cast type
 
 ---
 

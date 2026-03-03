@@ -258,11 +258,84 @@ function UIStructures:BuildStyleWindow(cfg, unit)
         }
     }
 
+    args.effects = {
+        type   = "group",
+        name   = "Effects",
+        inline = true,
+        order  = 4,
+        args   = {
+            sparkGrp = {
+                type   = "group",
+                name   = "Spark",
+                inline = true,
+                order  = 1,
+                args   = {
+                     spark = {
+                        type  = "toggle",
+                        name  = function() return "Use Spark ("..UIOptions.ColorText(UIOptions.red, "per frame update if MIRRORED")..")" end,
+                        order = 1,
+                        width = "full",
+                        get   = function() return cfg.effects.spark.enable end,
+                        set   = function(_, val)
+                            cfg.effects.spark.enable = val
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                    },
+                    sparkSettingsGrp = {
+                        type = "group",
+                        name = "",
+                        inline = true,
+                        order = 2,
+                        hidden = function() return not cfg.effects.spark.enable end,
+                        args = {
+                            sparkColour = {
+                                type = "color",
+                                name = "Colour",
+                                order = 1,
+                                hasAlpha = true,
+                                get = function()
+                                    local c = cfg.effects.spark.colour
+                                    return c.r, c.g, c.b, c.a
+                                end,
+                                set = function(_, r,g,b,a)
+                                    cfg.effects.spark.colour = {r=r,g=g,b=b,a=a}
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
+                            sparkWidth = {
+                                type = "range",
+                                name = "Width (default: 20)",
+                                min = 1, max = 100, step = 1,
+                                order = 2,
+                                get = function() return cfg.effects.spark.width end,
+                                set = function(_, val)
+                                    cfg.effects.spark.width = val
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
+                            sparkHeightMult = {
+                                type = "range",
+                                name = "Height multiplier (default 2.2)",
+                                min = 0.1, max = 5, step = 0.1,
+                                order = 3,
+                                get = function() return cfg.effects.spark.heightMult end,
+                                set = function(_, val)
+                                    cfg.effects.spark.heightMult = val
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
+                        },
+                    }
+                }
+            },
+        }
+    }
+
     args.grpBorder = {
         type   = "group",
         name   = "Border castbar",
         inline = true,
-        order  = 4,
+        order  = 5,
         args   = {
             showBorder = {
                 type  = "toggle",
@@ -346,7 +419,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
         type   = "group",
         name   = "Border icon",
         inline = true,
-        order  = 5,
+        order  = 6,
         args   = {
             showBorderIcon = {
                 type  = "toggle",
