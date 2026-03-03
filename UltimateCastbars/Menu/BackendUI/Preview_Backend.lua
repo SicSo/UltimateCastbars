@@ -10,7 +10,8 @@ local GetCFG = UCB.GetValueConfig
 local Preview_API = UCB.Preview_API
 local tags = UCB.tags
 
-
+Preview_API.previewActive = {}
+Preview_API.lastCastType = {}
 Preview_API.kickDurationObject = nil
 Preview_API.previewShowKickCD = {}
 

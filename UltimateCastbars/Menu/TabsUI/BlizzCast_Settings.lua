@@ -3,11 +3,13 @@ local _, UCB = ...
 UCB.Options = UCB.Options or {}
 UCB.UIOptions = UCB.UIOptions or {}
 UCB.DefBlizzCast = UCB.DefBlizzCast or {}
+UCB.Debug = UCB.Debug or {}
 
 local Opt = UCB.Options
 local UIOptions = UCB.UIOptions
 local DefBlizzCast = UCB.DefBlizzCast
 local GetCFG = UCB.GetValueConfig
+local Debug = UCB.Debug
 
 local function BuildDefaultBarArgs(args, unit, opts)
     local bigCFG = GetCFG(unit)
@@ -157,9 +159,9 @@ local function BuildDefaultBarArgs(args, unit, opts)
                 func = function()
                     local startDebug = not debugCFG.enabled
                     if startDebug then
-                        UCB:StartDebug()
+                        Debug:StartDebug()
                     else
-                        UCB:StopDebug()
+                        Debug:StopDebug()
                     end
                 end,
             }

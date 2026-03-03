@@ -13,6 +13,7 @@
 - Texture was not mapped based on the placement/orientation
 - Fixed target blacklist preview error
 - The style for target/focus was not updateing properly per cast type
+- Debug mode was not working on button press
 
 ---
 
