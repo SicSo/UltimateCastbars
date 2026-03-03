@@ -9,6 +9,7 @@ UCB.ACR = LibStub("AceConfigRegistry-3.0")
 UCB.ACD = LibStub("AceConfigDialog-3.0")
 UCB.ADBO = LibStub("AceDBOptions-3.0")
 UCB.LDB = LibStub("LibDataBroker-1.1")
+UCB.LA = LibStub("LibAnimate")
 UCB.ADDON_NAME = C_AddOns.GetAddOnMetadata("UltimateCastbars", "Title")
 
 --------------------------------------------------------------- UI/GUI ------------------------------------------------------------

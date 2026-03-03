@@ -8,4 +8,5 @@
     <Include file="LibSharedMedia-3.0/lib.xml" />
     <Script file="LibDeflate/LibDeflate.lua" />
     <Include file="AceGUI-3.0-SharedMediaWidgets/widget.xml" />
+    <Include file="LibAnimate/lib.xml" />
 </Ui>
