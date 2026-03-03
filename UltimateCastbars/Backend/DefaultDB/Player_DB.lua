@@ -442,7 +442,7 @@ UCB.Default_DB.player = {
         alphaBarUnKick = 0.5,
 
         showKickTick = false,
-        kickTickColour = {r=1, g=1, b=0, a=1}, -- yellow
+        kickTickColour = {r=1, g=0, b=0, a=1}, -- red
         kickTickUseTexture = false,
         kickTickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
         kickTickTextureName = "Blizzard",
@@ -597,13 +597,15 @@ UCB.Default_DB.player = {
         previewDuration = 30,
         previewNormalDefaultDuration = false,
         previewEmpowerStages = 5,
-        previewNotIntrerruptible = false,
         previewSpellID = {
             normal = 585,
             channel = 356995,
             empowered = 359073,
         },
         previewLatency = 0.123,
+        previewNotIntrerruptible = false,
+        previewShowKickCD = true,
+        previewKickCD = 2,
     },
 
     copySettings = {

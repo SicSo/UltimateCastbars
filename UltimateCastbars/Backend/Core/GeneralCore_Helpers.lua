@@ -1,7 +1,17 @@
 local ADDON_NAME, UCB = ...
 
 UCB.GeneralCore_Helpers = UCB.GeneralCore_Helpers or {}
+UCB.Preview_API = UCB.Preview_API or {}
+
 local GeneralHelpers = UCB.GeneralCore_Helpers
+local Preview_API = UCB.Preview_API
+
+local function hasTruthy(tbl)
+  for _, v in pairs(tbl) do
+    if v then return true end
+  end
+  return false
+end
 
 function GeneralHelpers:KickAlpha(notInterruptibleSecretBool, kickReadySecretBool, whenKickReady, alpha)
   local kickReadyVal, kickNotReadyVal
@@ -20,10 +30,18 @@ function GeneralHelpers:KickAlpha(notInterruptibleSecretBool, kickReadySecretBoo
   return C_CurveUtil.EvaluateColorValueFromBoolean(notInterruptibleSecretBool, 1, kickMatchesWhen)
 end
 
-function GeneralHelpers:GetKickTimer()
+function GeneralHelpers:GetKickTimer(unit)
   local spellID = UCB.kickID
   if not spellID then
     return nil, nil
+  end
+
+  if Preview_API.previewActive[unit] and Preview_API.previewShowKickCD[unit] then
+    local remaining = Preview_API.kickDurationObject and Preview_API.kickDurationObject:GetRemainingDuration()
+    if not remaining or remaining == 0 then
+      return spellID, C_DurationUtil.CreateDuration()
+    end
+    return spellID, Preview_API.kickDurationObject
   end
 
   if C_Spell.GetSpellCooldownDuration then

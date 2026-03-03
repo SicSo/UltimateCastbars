@@ -5,6 +5,7 @@
 - Option for border fill corners 
 - Added placement option for Spell queue window overlay
 - Added spark effects for all bars
+- Added kick CD preview
 
 ### Fixed
 - Cancelled overlay was not properly showing for channel casts when the cancelled effect duration ended during the cancelled channel window

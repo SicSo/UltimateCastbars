@@ -100,9 +100,9 @@ local function PreviewSettings(cfg, unit)
                 type    = "toggle",
                 name    = "Set Default Preview Duration for Normal Casts",
                 order   = 1,
-                width   = 1,
+                width   = 1.7,
                 get     = function() return cfg.previewSettings.previewNormalDefaultDuration end,
-                set     = function(_, value) 
+                set     = function(_, value)
                     cfg.previewSettings.previewNormalDefaultDuration = value
                     Preview_API:RestartPreview(unit)
                     end,
@@ -121,17 +121,6 @@ local function PreviewSettings(cfg, unit)
                     Preview_API:RestartPreview(unit)
                     end,
             },
-            setNotInterruptible = {
-                type    = "toggle",
-                name    = "Set Preview Not Interruptible",
-                order   = 3,
-                width   = 1,
-                get     = function() return cfg.previewSettings.previewNotIntrerruptible end,
-                set     = function(_, value) 
-                    cfg.previewSettings.previewNotIntrerruptible = value 
-                    Preview_API:RestartPreview(unit)
-                    end,
-            },
             setEmpowerStages = {
                 type    = "range",
                 name    = "Set Preview Empower Stages",
@@ -142,7 +131,7 @@ local function PreviewSettings(cfg, unit)
                 step    = 1,
                 get     = function() return cfg.previewSettings.previewEmpowerStages end,
                 set     = function(_, value) 
-                    cfg.previewSettings.previewEmpowerStages = value 
+                    cfg.previewSettings.previewEmpowerStages = value
                     Preview_API:RestartPreview(unit)
                     end,
                 hidden = function() return not UCB.allSpellTypes.empowered or #UCB.allSpellTypes.empowered == 0 end,
@@ -150,7 +139,7 @@ local function PreviewSettings(cfg, unit)
             setPreviewLatency = {
                 type    = "range",
                 name    = "Set Preview Latency",
-                hidden = function() return not UCB:IsPlayer(unit) end,
+                hidden = function() return not UCB:IsPlayer(unit) or not cfg.otherFeatures.latency.enabled end,
                 order   = 5,
                 width   = 1,
                 min     = 0,
@@ -161,6 +150,64 @@ local function PreviewSettings(cfg, unit)
                     cfg.previewSettings.previewLatency = value
                     Preview_API:RestartPreview(unit)
                     end,
+            },
+            uninterGrp = {
+                type = "group",
+                name = "Uninterruptible/Kick Settings",
+                inline = true,
+                order = 6,
+                args = {
+                    setNotInterruptible = {
+                        type    = "toggle",
+                        name    = "Set Preview Not Interruptible",
+                        order   = 1,
+                        width   = "full",
+                        get     = function() return cfg.previewSettings.previewNotIntrerruptible end,
+                        set     = function(_, value) 
+                            cfg.previewSettings.previewNotIntrerruptible = value 
+                            Preview_API:RestartPreview(unit)
+                            end,
+                    },
+                    previewShowKickCD = {
+                        type    = "toggle",
+                        name    = "Set Preview Kick CD",
+                        order   = 2,
+                        width   = 1,
+                        get     = function() return cfg.previewSettings.previewShowKickCD end,
+                        set     = function(_, value)
+                            cfg.previewSettings.previewShowKickCD = value
+                            Preview_API:RestartPreview(unit)
+                            end,
+                    },
+                    setKickCD = {
+                        type    = "range",
+                        name    = "Set Preview Kick CD",
+                        order   = 3,
+                        width   = 1,
+                        min     = 0,
+                        max     = 20,
+                        step    = 0.1,
+                        get     = function() return cfg.previewSettings.previewKickCD end,
+                        set     = function(_, value) 
+                            cfg.previewSettings.previewKickCD = value 
+                            Preview_API:RestartPreview(unit)
+                            end,
+                        hidden = function() return not cfg.previewSettings.previewShowKickCD end,
+                    },
+                    startKickTimer = {
+                        type    = "execute",
+                        name    = "Start Kick Timer",
+                        order   = 4,
+                        width   = 1,
+                        func    = function()
+                            if Preview_API.previewActive and Preview_API.previewActive[unit] then
+                                Preview_API:StartKickTimer(cfg.previewSettings.previewKickCD)
+                            end
+                            Preview_API:RestartPreview(unit)
+                        end,
+                        hidden = function() return not cfg.previewSettings.previewShowKickCD end,
+                    }
+                }
             }
         },
     }

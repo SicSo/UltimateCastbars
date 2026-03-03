@@ -49,7 +49,7 @@ function CASTBAR_API:InitCastbarVal(status, castType, resumeCast, vars, cfg)
     end
 end
 
-function CASTBAR_API:HideCastbar(bar, vars, cfg, starting_alpha)
+function CASTBAR_API:HideCastbar(bar, unit, vars, cfg, starting_alpha)
     local unintCFG = cfg.uninterruptible
     local notIntr = vars and vars.nIntr  -- secret boolean
 
@@ -57,7 +57,7 @@ function CASTBAR_API:HideCastbar(bar, vars, cfg, starting_alpha)
     local alphaKick = 1
    
     if unintCFG.disableBarUnKick or unintCFG.changeAlphaBarUnKick then
-        local spellID, kickDur = GeneralHelpers:GetKickTimer()
+        local spellID, kickDur = GeneralHelpers:GetKickTimer(unit)
         if not spellID or not kickDur then
             return
         end
@@ -282,7 +282,7 @@ function CASTBAR_API:SemiColourUpdate(unit, bar, cfg)
     end
 end
 
-function CASTBAR_API:InterruptibleTick(bar, bar_status, vars, cfg, castType)
+function CASTBAR_API:InterruptibleTick(bar, unit, bar_status, vars, cfg, castType)
     local unIntCFG = cfg.uninterruptible
     local otherCFG = cfg.otherFeatures
 
@@ -303,7 +303,7 @@ function CASTBAR_API:InterruptibleTick(bar, bar_status, vars, cfg, castType)
         return
     end
 
-    local spellID, kickDur = GeneralHelpers:GetKickTimer()
+    local spellID, kickDur = GeneralHelpers:GetKickTimer(unit)
     if not spellID or not kickDur then
         bar.interruptMarkerPoint:Hide()
         bar.interruptMarker:Hide()
@@ -526,7 +526,7 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, la
 
     CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
 
-    CASTBAR_API:InterruptibleTick(bar, bar_status, vars, cfg, castType)
+    CASTBAR_API:InterruptibleTick(bar, unit, bar_status, vars, cfg, castType)
 
     return true, cfg, bar, vars
 end
@@ -546,7 +546,7 @@ function CASTBAR_API:CastOnUpdateSetup(bar, unit, cfg, vars, castType, spellID, 
     bar.flags.prevType = castType
     bar.flags.castActive = true
 
-    CASTBAR_API:HideCastbar(bar, vars, cfg)
+    CASTBAR_API:HideCastbar(bar, unit, vars, cfg)
 end
 
 

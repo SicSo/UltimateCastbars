@@ -118,14 +118,14 @@ end
 
 -- Shows bar ONLY when: cast is interruptible AND kick is ready.
 -- Call this from your per-frame update while a cast is active.
-local function UpdateShowWhenKickAvailable(bar, vars, cfg, castType)
+local function UpdateShowWhenKickAvailable(bar, unit, vars, cfg, castType)
     local unIntCFG = cfg.uninterruptible
     if not unIntCFG.disableBarUnKick and not unIntCFG.showUntilKickTick and not unIntCFG.dynamicKickAlphaBar then
         return
     end
     if not bar or not vars then return end
 
-    local _, kickDur = GeneralHelpers:GetKickTimer()
+    local _, kickDur = GeneralHelpers:GetKickTimer(unit)
     if not kickDur then return end
     local notIntr   = vars and vars.nIntr
     local kickReady = kickDur:IsZero()
@@ -236,6 +236,6 @@ function CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
     end
 
     -- Show bar if kick is ready
-    UpdateShowWhenKickAvailable(bar, vars, cfg, castType)
+    UpdateShowWhenKickAvailable(bar, unit, vars, cfg, castType)
     return remaining
 end

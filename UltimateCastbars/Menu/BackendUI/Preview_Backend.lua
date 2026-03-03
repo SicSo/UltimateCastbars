@@ -11,6 +11,15 @@ local Preview_API = UCB.Preview_API
 local tags = UCB.tags
 
 
+Preview_API.kickDurationObject = nil
+Preview_API.previewShowKickCD = {}
+
+function Preview_API:StartKickTimer(seconds)
+    local d = C_DurationUtil.CreateDuration()
+    d:SetTimeFromStart(GetTime(), seconds)
+    Preview_API.kickDurationObject = d
+end
+
 
 local function CastbarOnUpdate(bar, elapsed)
     local unit = bar._ucbUnit
@@ -61,6 +70,7 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
     local bar = UCB.castBar[unit]
     Preview_API.previewActive[unit] = true
     Preview_API.lastCastType[unit] = castType
+    Preview_API.previewShowKickCD[unit] = previewCFG.previewShowKickCD
 
     CASTBAR_API:StopPrevCast(unit, bar, nil, nil, nil)
 
@@ -111,7 +121,7 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
 
     CASTBAR_API:UninterruptibleCast(bar, bar_status, vars)
 
-    CASTBAR_API:InterruptibleTick(bar, bar_status, vars, cfg, castType)
+    CASTBAR_API:InterruptibleTick(bar, unit, bar_status, vars, cfg, castType)
 
     if castType == "normal" then
         NormalCast(unit, bar)
@@ -134,7 +144,7 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
     bar.flags.prevType = castType
     bar.flags.castActive = true
 
-    CASTBAR_API:HideCastbar(bar, vars, cfg)
+    CASTBAR_API:HideCastbar(bar, unit, vars, cfg)
 end
 
 function Preview_API:HidePreviewCastBar(unit)

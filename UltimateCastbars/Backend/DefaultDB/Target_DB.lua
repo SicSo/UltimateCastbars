@@ -412,7 +412,7 @@ local target_db = {
         alphaBarUnKick = 0.5,
 
         showKickTick = true,
-        kickTickColour = {r=1, g=1, b=0, a=1}, -- yellow
+        kickTickColour = {r=1, g=0, b=0, a=1}, -- red
         kickTickUseTexture = false,
         kickTickTexture = "Interface\\TargetingFrame\\UI-StatusBar",
         kickTickTextureName = "Blizzard",
@@ -522,12 +522,14 @@ local target_db = {
         previewDuration = 30,
         previewNormalDefaultDuration = false,
         previewEmpowerStages = 5,
-        previewNotIntrerruptible = false,
         previewSpellID = {
             normal = 585,
             channel = 356995,
             empowered = 359073,
-        }
+        },
+        previewNotIntrerruptible = false,
+        previewShowKickCD = true,
+        previewKickCD = 2,
     },
 
      copySettings = {

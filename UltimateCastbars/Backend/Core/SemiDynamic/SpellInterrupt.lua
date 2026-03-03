@@ -75,7 +75,7 @@ function CASTBAR_API:ShowFrameTimer(bar, unit, type, duration, alpha)
   bar.frames.underlay:Hide()
 
   local cfg = UCB.GetValueConfig(unit)
-  CASTBAR_API:HideCastbar(bar, tags.var[unit], cfg)
+  CASTBAR_API:HideCastbar(bar, unit, tags.var[unit], cfg)
 
   frame.hideTimer = C_Timer.NewTimer(duration, function()
     frame.hideTimer = nil
