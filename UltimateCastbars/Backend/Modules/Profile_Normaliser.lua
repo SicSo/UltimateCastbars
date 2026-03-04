@@ -38,6 +38,39 @@ local function SetByPath(root, path, value)
 end
 
 -- -------- LSM helpers --------
+-- -------- direct asset existence checks --------
+local _probeTex
+local function TexturePathExists(path)
+  if type(path) ~= "string" or path == "" then return false end
+
+  if not _probeTex then
+    _probeTex = UIParent:CreateTexture(nil, "BACKGROUND")
+  end
+
+  _probeTex:SetTexture(nil)
+  _probeTex:SetTexture(path)
+  return _probeTex:GetTexture() ~= nil
+end
+
+local _probeFS
+local function FontPathExists(path)
+  if type(path) ~= "string" or path == "" then return false end
+
+  if not _probeFS then
+    _probeFS = UIParent:CreateFontString(nil, "BACKGROUND")
+  end
+
+  -- SetFont returns true/false
+  return _probeFS:SetFont(path, 12) == true
+end
+
+local function MediaPathExists(mediaType, path)
+  if mediaType == "font" then
+    return FontPathExists(path)
+  end
+  return TexturePathExists(path)
+end
+
 local function LSMFetch(mediaType, name)
   local LSM = GetLSM()
   if not LSM or type(name) ~= "string" or name == "" then return nil end
@@ -72,7 +105,7 @@ local function GetFallbackName(mediaType, fallbackByType)
 end
 
 -- Fix one scalar pair at (namePath -> pathPath), for the given mediaType
-local function EnsureScalarPair(unit, namePath, pathPath, mediaType, fallbackByType)
+local function EnsureScalarPair_Legacy(unit, namePath, pathPath, mediaType, fallbackByType)
   local curName = GetByPath(unit, namePath)
   local curPath = GetByPath(unit, pathPath)
 
@@ -101,8 +134,39 @@ local function EnsureScalarPair(unit, namePath, pathPath, mediaType, fallbackByT
   end
 end
 
+local function EnsureScalarPair(unit, namePath, pathPath, mediaType, fallbackByType)
+  local curName = GetByPath(unit, namePath)
+  local curPath = GetByPath(unit, pathPath)
+
+  -- 1) valid name -> enforce correct path
+  local fetched = LSMFetch(mediaType, curName)
+  if fetched then
+    SetByPath(unit, pathPath, fetched)
+    return
+  end
+
+  -- 2) name invalid -> if the path actually loads, keep it, and try reverse-map to LSM name
+  if MediaPathExists(mediaType, curPath) then
+    local guessed = LSMNameFromPath(mediaType, curPath)
+    if guessed then
+      local LSM = GetLSM()
+      SetByPath(unit, namePath, guessed)
+      SetByPath(unit, pathPath, LSM and LSM:Fetch(mediaType, guessed, false) or curPath)
+    end
+    return
+  end
+
+  -- 3) fallback
+  local LSM = GetLSM()
+  local fb = GetFallbackName(mediaType, fallbackByType)
+  SetByPath(unit, namePath, fb)
+  if LSM then
+    SetByPath(unit, pathPath, LSM:Fetch(mediaType, fb, false))
+  end
+end
+
 -- Fix one list pair (arrays of names/paths)
-local function EnsureListPair(unit, namePath, pathPath, mediaType, fallbackByType)
+local function EnsureListPair_Legacy(unit, namePath, pathPath, mediaType, fallbackByType)
   local names = GetByPath(unit, namePath)
   local paths = GetByPath(unit, pathPath)
 
@@ -126,6 +190,53 @@ local function EnsureListPair(unit, namePath, pathPath, mediaType, fallbackByTyp
       else
         names[i] = fb
         paths[i] = LSM and LSM:Fetch(mediaType, fb, false) or paths[i]
+      end
+    end
+  end
+end
+
+local function EnsureListPair(unit, namePath, pathPath, mediaType, fallbackByType)
+  local names = GetByPath(unit, namePath)
+  local paths = GetByPath(unit, pathPath)
+
+  if type(names) ~= "table" and type(paths) ~= "table" then return end
+  if type(names) ~= "table" then names = {} ; SetByPath(unit, namePath, names) end
+  if type(paths) ~= "table" then paths = {} ; SetByPath(unit, pathPath, paths) end
+
+  local fb = GetFallbackName(mediaType, fallbackByType)
+  local maxN = math.max(#names, #paths)
+  local LSM = GetLSM()
+
+  for i = 1, maxN do
+    local n = names[i]
+    local p = paths[i]
+
+    -- 1) valid name -> enforce correct path
+    local fetched = LSMFetch(mediaType, n)
+    if fetched then
+      paths[i] = fetched
+
+    else
+      -- 2a) name invalid but path loads -> keep it; optionally reverse-map to LSM name
+      if MediaPathExists(mediaType, p) then
+        local guessed = LSMNameFromPath(mediaType, p)
+        if guessed then
+          names[i] = guessed
+          paths[i] = LSM and LSM:Fetch(mediaType, guessed, false) or p
+        end
+
+      else
+        -- 2b) try reverse-map from path even if it didn't load (rarely useful, but harmless)
+        local guessed = LSMNameFromPath(mediaType, p)
+        if guessed then
+          names[i] = guessed
+          paths[i] = LSM and LSM:Fetch(mediaType, guessed, false) or p
+
+        else
+          -- 3) fallback
+          names[i] = fb
+          paths[i] = LSM and LSM:Fetch(mediaType, fb, false) or p
+        end
       end
     end
   end
@@ -156,21 +267,21 @@ function Normiliser:NormalizeUnitTextures_Legacy(unitTable, texture_map, fallbac
 end
 
 -- NEW: Generic normalizer that works for textures + fonts (supports wildcard groups: "...*")
-function Normiliser:NormalizeUnitLSM(unitTable, map, fallbackByType)
+function Normiliser:NormalizeUnitLSM_Legacy(unitTable, map, fallbackByType)
   if type(unitTable) ~= "table" or type(map) ~= "table" then return end
 
   local function NormalizeWildcardGroup(wildcardPath, entry)
-    -- "text.tagList.dynamic.*" -> base "text.tagList.dynamic"
-    local base = wildcardPath:gsub("%.%*$", "")
-    local tagMap = GetByPath(unitTable, base)
-    if type(tagMap) ~= "table" then return end
+  -- "text.tagList.dynamic.*" -> base "text.tagList.dynamic"
+  local base = wildcardPath:gsub("%.%*$", "")
+  local tagMap = GetByPath(unitTable, base)
+  if type(tagMap) ~= "table" then return end
 
-    local mediaType = entry.type or "font"
-    local nameKey   = entry.nameKey or entry.fontNameKey or "fontName"
-    local pathKey   = entry.pathKey or entry.fontPathKey or "font"
+  local mediaType = entry.type or "font"
+  local nameKey   = entry.nameKey or entry.fontNameKey or "fontName"
+  local pathKey   = entry.pathKey or entry.fontPathKey or "font"
 
-    local fb = GetFallbackName(mediaType, fallbackByType)
-    local LSM = GetLSM()
+  local fb = GetFallbackName(mediaType, fallbackByType)
+  local LSM = GetLSM()
     
     for _, tagTbl in pairs(tagMap) do
       if type(tagTbl) == "table" then
@@ -207,6 +318,82 @@ function Normiliser:NormalizeUnitLSM(unitTable, map, fallbackByType)
           if type(vName) == "table" or type(vPath) == "table" then
             EnsureListPair(unitTable, namePath, pathPath, mediaType, fallbackByType)
           else
+            EnsureScalarPair(unitTable, namePath, pathPath, mediaType, fallbackByType)
+          end
+        end
+      end
+    end
+  end
+end
+
+function Normiliser:NormalizeUnitLSM(unitTable, map, fallbackByType)
+  if type(unitTable) ~= "table" or type(map) ~= "table" then return end
+
+  local function NormalizeWildcardGroup(wildcardPath, entry)
+    -- "text.tagList.dynamic.*" -> base "text.tagList.dynamic"
+    local base = wildcardPath:gsub("%.%*$", "")
+    local tagMap = GetByPath(unitTable, base)
+    if type(tagMap) ~= "table" then return end
+
+    local mediaType = entry.type or "font"
+    local nameKey   = entry.nameKey or entry.fontNameKey or "fontName"
+    local pathKey   = entry.pathKey or entry.fontPathKey or "font"
+
+    local fb = GetFallbackName(mediaType, fallbackByType)
+    local LSM = GetLSM()
+
+    for _, tagTbl in pairs(tagMap) do
+      if type(tagTbl) == "table" then
+        local curName = tagTbl[nameKey]
+        local curPath = tagTbl[pathKey]
+
+        -- 1) valid name -> enforce correct path
+        local fetched = LSMFetch(mediaType, curName)
+        if fetched then
+          tagTbl[pathKey] = fetched
+        else
+          -- 2) if stored path actually loads, keep it; optionally reverse-map to an LSM name
+          if MediaPathExists(mediaType, curPath) then
+            local guessed = LSMNameFromPath(mediaType, curPath)
+            if guessed then
+              tagTbl[nameKey] = guessed
+              tagTbl[pathKey] = LSM and LSM:Fetch(mediaType, guessed, false) or curPath
+            end
+          else
+            -- 3) try reverse-map from path; otherwise fallback
+            local guessed = LSMNameFromPath(mediaType, curPath)
+            if guessed then
+              tagTbl[nameKey] = guessed
+              tagTbl[pathKey] = LSM and LSM:Fetch(mediaType, guessed, false) or curPath
+            else
+              tagTbl[nameKey] = fb
+              tagTbl[pathKey] = LSM and LSM:Fetch(mediaType, fb, false) or curPath
+            end
+          end
+        end
+      end
+    end
+  end
+
+  for namePath, entry in pairs(map) do
+    if type(namePath) == "string" and type(entry) == "table" then
+      -- wildcard group (fonts tag lists)
+      if namePath:sub(-2) == ".*" then
+        NormalizeWildcardGroup(namePath, entry)
+      else
+        -- normal scalar/list pair (namePath -> entry.path)
+        local pathPath  = entry.path
+        local mediaType = entry.type or "statusbar"
+        if type(pathPath) == "string" then
+          local vName = GetByPath(unitTable, namePath)
+          local vPath = GetByPath(unitTable, pathPath)
+
+          -- Detect list vs scalar by the current stored values
+          if type(vName) == "table" or type(vPath) == "table" then
+            -- list pairs: your EnsureListPair now handles LSM name + direct-path existence checks
+            EnsureListPair(unitTable, namePath, pathPath, mediaType, fallbackByType)
+          else
+            -- scalar pairs: your EnsureScalarPair now handles LSM name + direct-path existence checks
             EnsureScalarPair(unitTable, namePath, pathPath, mediaType, fallbackByType)
           end
         end
