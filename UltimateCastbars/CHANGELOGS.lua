@@ -1,6 +1,13 @@
 local _, UCB = ...
 
 UCB.CHANGELOG_TEXT = [=[
+## Version 0.9.7 - [04-03-2026]
+
+### Fixed
+- Colour modes were not behaving as intended
+
+---
+
 ## Version 0.9.6 - [04-03-2026]
 
 ### Added
