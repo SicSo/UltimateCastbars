@@ -1,14 +1,32 @@
 local _, UCB = ...
 
 UCB.CHANGELOG_TEXT = [=[
-## Version 0.9.5 - [01-03-2026]
+## Version 0.9.6 - [04-03-2026]
 
 ### Added
-- (no notes)
+- Class colouring for backgeound
+- Option for border fill corners 
+- Added placement option for Spell queue window overlay
+- Added spark effects for all bars
+- Added kick CD preview
+- Added assets: fonts, statusbar, background, borders
+
+### Changed
+- Updated textures/font checks at profile imports/updates
+
+### Fixed
+- Cancelled overlay was not properly showing for channel casts when the cancelled effect duration ended during the cancelled channel window
+- Removed quick navigation buttons from non-player cast styles
+- Texture was not mapped based on the placement/orientation
+- Fixed target blacklist preview error
+- The style for target/focus was not updateing properly per cast type
+- Debug mode was not working on button press
 
 ---
 
-## Added
+## Version 0.9.5 - [01-03-2026]
+
+### Added
 - Dynamic tick support for Preservation Disintegrate
 - Blacklist/Whitelist for cancelled spells on player bar
 - Blacklist/Whitelist for uninterrupted spells on player bar
@@ -21,11 +39,11 @@ UCB.CHANGELOG_TEXT = [=[
 - Latency overlay for player bar with options for show rules, colour for nomal and channel casts
 - Latency tag "lat"
 
-## Changed
+### Changed
 - **PER CLASS SPELL FILTERING GOT RESET**
 - Small UI improvements
 
-## Fixed
+### Fixed
 - State refresh for spec swaps
 - Cancelled effect was appearing for hidden spells on player bar
 - durationObject could be nil when cancelling channel casts

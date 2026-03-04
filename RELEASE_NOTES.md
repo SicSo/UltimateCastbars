@@ -1,26 +1,22 @@
-## Version 0.9.5 - [01-03-2026]
+## Version 0.9.6 - [04-03-2026]
 
 ### Added
-- Dynamic tick support for Preservation Disintegrate
-- Blacklist/Whitelist for cancelled spells on player bar
-- Blacklist/Whitelist for uninterrupted spells on player bar
-- Option to blacklist/whitelist all spells from player spell list
-- Per cast type styling options
-- Copy style settings between cast types
-- Copy style settings between spells
-- Copy style settings between spells and cast types
-- Per spell styling for player bar (class specific)
-- Latency overlay for player bar with options for show rules, colour for nomal and channel casts
-- Latency tag "lat"
+- Class colouring for backgeound
+- Option for border fill corners 
+- Added placement option for Spell queue window overlay
+- Added spark effects for all bars
+- Added kick CD preview
+- Added assets: fonts, statusbar, background, borders
 
 ### Changed
-- **PER CLASS SPELL FILTERING GOT RESET**
-- Small UI improvements
+- Updated textures/font checks at profile imports/updates
 
 ### Fixed
-- State refresh for spec swaps
-- Cancelled effect was appearing for hidden spells on player bar
-- durationObject could be nil when cancelling channel casts
-- Preview was not properly displaying on settings update
-- Preview was not properly refreshing after preview settings were changed
+- Cancelled overlay was not properly showing for channel casts when the cancelled effect duration ended during the cancelled channel window
+- Removed quick navigation buttons from non-player cast styles
+- Texture was not mapped based on the placement/orientation
+- Fixed target blacklist preview error
+- The style for target/focus was not updateing properly per cast type
+- Debug mode was not working on button press
+
 ---

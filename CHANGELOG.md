@@ -1,5 +1,10 @@
 ## Unreleased
 
+---
+
+
+## Version 0.9.6 - [04-03-2026]
+
 ### Added
 - Class colouring for backgeound
 - Option for border fill corners 
