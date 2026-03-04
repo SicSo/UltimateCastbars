@@ -6,13 +6,6 @@ UCB.Preview_API = UCB.Preview_API or {}
 local GeneralHelpers = UCB.GeneralCore_Helpers
 local Preview_API = UCB.Preview_API
 
-local function hasTruthy(tbl)
-  for _, v in pairs(tbl) do
-    if v then return true end
-  end
-  return false
-end
-
 function GeneralHelpers:KickAlpha(notInterruptibleSecretBool, kickReadySecretBool, whenKickReady, alpha)
   local kickReadyVal, kickNotReadyVal
   if whenKickReady then

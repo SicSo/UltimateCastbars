@@ -26,7 +26,7 @@ function UCB.Default_DB:createStyle()
 
         effects = {
             spark = {
-                enable = false,
+                enable = true,
                 texture = "Interface\\CastingBar\\UI-CastingBar-Spark",
                 textureName = "Blizzard Spark",
                 blendMode = "ADD",
@@ -580,6 +580,7 @@ UCB.Default_DB.player = {
                 channel = 0.5,
                 empowered = 0.5,
             },
+            useManualChannelError = false,
             channelError = 100,
 
             blacklistWhitelist = {

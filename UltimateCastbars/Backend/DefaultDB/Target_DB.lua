@@ -515,6 +515,7 @@ local target_db = {
                 empowered = 0.5,
             },
             channelError = 100,
+            useManualChannelError = true,
         },
     },
 

@@ -77,6 +77,8 @@ function CASTBAR_API:ShowFrameTimer(bar, unit, type, duration, alpha)
   local cfg = UCB.GetValueConfig(unit)
   CASTBAR_API:HideCastbar(bar, unit, tags.var[unit], cfg)
 
+  --UCB.LA:Animate(bar.group, "headShake", {duration = 1.0})
+
   frame.hideTimer = C_Timer.NewTimer(duration, function()
     frame.hideTimer = nil
     frame:Hide()
@@ -103,17 +105,23 @@ local function CancelledCast(unit, castType, castGUID, spellID, interruptedBy, c
     if castType == "empowered" then
         alpha = GeneralHelpers:NotSecretTo0_1(complete)
     elseif castType == "channel" then
+        local channelLatency = -1
+        if  UCB:IsPlayer(unit) and Latency.latency then
+            channelLatency = Latency.latency
+        end
+        if cfgCancelled.useManualChannelError then
+            channelLatency = cfgCancelled.channelError/1000
+        end
+
         local durationObject = tags.var[unit].durationObject
-       
         local curve = C_CurveUtil.CreateCurve()
         curve:AddPoint(0.0, 0.0)
-        if UCB:IsPlayer(unit) and Latency.latency then
-            curve:AddPoint(Latency.latency ,  0)
-            curve:AddPoint(Latency.latency + 0.0000001,  1.0)
+
+        if channelLatency ~= -1 then
+            curve:AddPoint(channelLatency,  0)
+            curve:AddPoint(channelLatency + 0.0000001,  1.0)
         else
-            local channelLatency = cfgCancelled.channelError/1000
-            curve:AddPoint(channelLatency - 0.0000001,  0)
-            curve:AddPoint(channelLatency,  1.0)
+            curve:AddPoint(0.0000001,  1.0)
         end
         alpha = durationObject:EvaluateRemainingDuration(curve)
     else

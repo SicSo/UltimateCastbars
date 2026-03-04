@@ -153,33 +153,46 @@ local function BuildKickedCancelledArgs(unit, cfg, castType, type, order)
                             CASTBAR_API:UpdateCastbar(unit)
                         end,
                 },
-                gap3 = {
-                        hidden = function() return type ~= "cancelled" and castType ~= "cancelled" end,
-                        type = "description",
-                        name = "",
-                        order = 5.5,
-                        width = "full",
-                    },
-                description = {
-                        hidden = function() return type ~= "cancelled" and castType ~= "cancelled" end,
-                        type = "description",
-                        name = function() return UIOptions.ColorText(UIOptions.turquoise, "This option is used to determine whether a channelled cast was cancelled or not. If the cast stops with less time remaining than this threshold, it will be considered finished. (1s = 1000ms)") end,
-                        order = 6,
-                    },
-                channelError = {
+                channelErrorGrp = {
                         hidden = function() return type ~= "cancelled" and castType ~= "channel" end,
-                        type = "range",
-                        name = function() return "Channel latency (ms)" end,
-                        desc = function() return "This option is used to determine whether a channelled cast was cancelled or not. If the cast stops with less time remaining than this threshold, it will be considered finished. (1s = 1000ms)" end,
-                        min = 0, max = 1000, step = 1,
-                        order = 7,
-                        width = 1.5,
-                        get = function() return cfg.channelError end,
-                        set = function(_, val)
-                            cfg.channelError = val
-                            CASTBAR_API:UpdateCastbar(unit)
-                         end,
-                }
+                        type = "group",
+                        name = "Channel Error Threshold",
+                        inline = true,
+                        order = 5,
+                        args = {
+                            description = {
+                                type = "description",
+                                name = function() return UIOptions.ColorText(UIOptions.turquoise, "This option is used to determine whether a channelled cast was cancelled or not. If the cast stops with less time remaining than this threshold, it will be considered finished. This is done to combat latency.\nFor Player castbars, computed latency will be used by default. If you have many false positives enable this and adjust until you are happy with the outcome.\n(1s = 1000ms)") end,
+                                order = 1,
+                                width = "full"
+                            },
+                        useChannelError = {
+                                type = "toggle",
+                                name = function() return "Use channel error threshold" end,
+                                desc = function() return "When enabled, the channel error threshold will be used to determine whether a channelled cast was cancelled or not. If the cast stops with less time remaining than this threshold, it will be considered finished." end,
+                                order = 2,
+                                width = 1.5,
+                                get = function() return cfg.useManualChannelError end,
+                                set = function(_, val)
+                                    cfg.useManualChannelError = val
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
+                        channelError = {
+                                type = "range",
+                                name = function() return "Channel latency (ms)" end,
+                                desc = function() return "This option is used to determine whether a channelled cast was cancelled or not. If the cast stops with less time remaining than this threshold, it will be considered finished. (1s = 1000ms)" end,
+                                min = 0, max = 1000, step = 1,
+                                order = 3,
+                                width = 1.5,
+                                get = function() return cfg.channelError end,
+                                set = function(_, val)
+                                    cfg.channelError = val
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            }
+                        }
+                },
             }
         }
     }
