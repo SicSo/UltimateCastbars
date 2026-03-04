@@ -246,6 +246,20 @@ local function BuildCandidateFromStyle(unit, bar, styleCfg)
     cand.bgAlpha = {use = styleCfg.bgUseCustomAlpha, alpha = styleCfg.bgAlpha}
     cand.bgEnemyColour = styleCfg.bgEnemyColour
 
+    if styleCfg.colourMode == "custom" then
+        -- custom
+        cand.colourType = "custom"
+        if styleCfg.gradientEnable then
+            cand.mode  = "gradient"
+            cand.rgba1 = styleCfg.customColour
+            cand.rgba2 = styleCfg.customColour2
+        else
+            cand.mode  = "single"
+            cand.rgba1 = styleCfg.customColour
+        end
+        return cand
+    end
+
     if styleCfg.colourMode == "class" then
         cand.colourType = "class"
         cand.mode = "single"
@@ -264,16 +278,8 @@ local function BuildCandidateFromStyle(unit, bar, styleCfg)
         return cand
     end
 
-    -- custom
-    cand.colourType = "custom"
-    if styleCfg.gradientEnable then
-        cand.mode  = "gradient"
-        cand.rgba1 = styleCfg.customColour
-        cand.rgba2 = styleCfg.customColour2
-    else
-        cand.mode  = "single"
-        cand.rgba1 = styleCfg.customColour
-    end
+    cand.colourType = "ombre"
+    cand.mode = "ombre"
 
     return cand
 end
@@ -421,7 +427,7 @@ function BarUpdate_API:ApplyColour(bar, typeKey)
     if not bar or not cand then return end
 
     bar._colourMode = cand.mode
-    bar._colourTywe = cand.colourType
+    bar._colourType = cand.colourType
     bar._bgColourMode = cand.bgColourMode
     bar._bgAlpha = cand.bgAlpha
     bar._bgEnemyColour = cand.bgEnemyColour

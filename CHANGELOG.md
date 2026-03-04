@@ -1,5 +1,8 @@
 ## Unreleased
 
+### Fixed
+- Colour modes were not behaving as intended
+
 ---
 
 

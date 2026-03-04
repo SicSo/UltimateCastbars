@@ -200,13 +200,8 @@ function CASTBAR_API:SemiColourUpdate(unit, bar, cfg)
     if UCB:IsPlayer(unit) then
         if colourMode == "single" then
             local r, g, b, a = bar._r, bar._g, bar._b, bar._a
-            local col1 = bar._c1
             status:SetStatusBarColor(r, g, b, a)
             if doMirror then mtex:SetVertexColor(r, g, b, a) end
-            if canGradient then
-                tex:SetGradient("HORIZONTAL", col1, col1)
-                if doMirror then mtex:SetGradient("HORIZONTAL", col1, col1) end
-            end
         elseif colourMode == "gradient" then
             local r1, g1, b1, a1 = bar._r1, bar._g1, bar._b1, bar._a1
             local col1 = bar._c1
@@ -230,24 +225,18 @@ function CASTBAR_API:SemiColourUpdate(unit, bar, cfg)
                     if doMirror then mtex:SetGradient("HORIZONTAL", col1, col1) end
                 end
             else
-                local r, g, b, a, col1, RGBA
+                local r, g, b, a, RGBA
                 if UnitIsPlayer(unit) then
                     local _, classFile = UnitClass(unit)
                     local classColourVal = UCB.UIOptions.classColoursList[classFile]
                     RGBA = classColourVal.RGBA
-                    col1 = classColourVal.COL
                 else
                     local defaultEnemyColour = bar._enemyColour
                     RGBA = defaultEnemyColour.RGBA
-                    col1 = defaultEnemyColour.COL
                 end
                 r, g, b, a = RGBA.r, RGBA.g, RGBA.b ,RGBA.a
                 status:SetStatusBarColor(r, g, b, a)
                 if doMirror then mtex:SetVertexColor(r, g, b, a) end
-                if canGradient then
-                    tex:SetGradient("HORIZONTAL", col1, col1)
-                    if doMirror then mtex:SetGradient("HORIZONTAL", col1, col1) end
-                end
             end
         elseif colourMode == "gradient" then
             local r1, g1, b1, a1 = bar._r1, bar._g1, bar._b1, bar._a1
