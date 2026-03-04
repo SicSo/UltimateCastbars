@@ -273,7 +273,7 @@ function GUIWidgets:OpenChangelogWindow(windowTitle, mdText)
 
             local arrow = header:CreateTexture(nil, "ARTWORK")
             arrow:SetSize(16, 16)
-            arrow:SetTexture("Interface\\AddOns\\UltimateCastbars\\gfx\\Icons\\chevron-right.tga")
+            arrow:SetTexture("Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\chevron-right-rounded.tga")
             arrow:SetVertexColor(1, 0.82, 0, 1) -- gold tint
 
             local verFS = header:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
@@ -307,8 +307,8 @@ function GUIWidgets:OpenChangelogWindow(windowTitle, mdText)
             row.inUse = true
 
             row.expanded = (i == 1) -- newest open by default
-            local RIGHT = "Interface\\AddOns\\UltimateCastbars\\gfx\\Icons\\chevron-right.tga"
-            local DOWN  = "Interface\\AddOns\\UltimateCastbars\\gfx\\Icons\\chevron-down.tga"
+            local RIGHT = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\chevron-right-rounded.tga"
+            local DOWN  = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\chevron-down-rounded.tga"
 
             row.arrow:SetTexture(row.expanded and DOWN or RIGHT)
             row.arrow:SetVertexColor(1, 0.82, 0, 1)

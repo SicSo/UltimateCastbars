@@ -555,7 +555,7 @@ function GUIWidgets:AttachTopRightChangelogButton(aceGuiFrame)
         width    = 150,
         height   = 18,
         iconSize = 14,
-        icon     = "Interface\\AddOns\\UltimateCastbars\\gfx\\Icons\\changelog.png", -- <-- your icon
+        icon     = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\changelog.png", -- <-- your icon
         text     = "Changelogs",
         onClick  = function(b) 
             self:OpenChangelogWindow("UltimateCastbars Changelog", (UCB and UCB.CHANGELOG_TEXT) or "")
