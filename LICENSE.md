@@ -4,7 +4,7 @@ Copyright (c) 2026 SicSo.
 
 # 1) Summary / Scope
 
-Except for the **Third party libraries** listed in Section 4, and **Inspired functionality** in Section 3, **all contents of this addon** (the “Software”) — including original source code, media, and documentation — are **All Rights Reserved** by the Author.
+Except for the **Third party libraries and assets** listed in Section 4, and **Inspired functionality** in Section 3, **all contents of this addon** (the “Software”) — including original source code, media, and documentation — are **All Rights Reserved** by the Author.
 
 **Third party components are NOT covered by the All Rights Reserved grant.**  
 They remain under their own license specified below, and the full License text is included below.
@@ -330,3 +330,24 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+### SharedMedia by Elkano 
+
+#### Link: https://www.curseforge.com/wow/addons/sharedmedia
+
+#### Files and folders included in this license:
+
+- gfx/Assets/Statusbar/ShareMedia/
+- gfx/Assets/Border/ShareMedia/
+- gfx/Assets/Background/ShareMedia/
+
+#### License
+
+All Rights Reserved unless otherwise explicitly stated.
+
+---
+
+### Fonts
+
+#### Link: https://github.com/SicSo/UltimateCastbars/tree/main/UltimateCastbars/gfx/Assets/Font/Font.md
+
+---

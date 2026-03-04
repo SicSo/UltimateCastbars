@@ -153,5 +153,12 @@ function GUI:BuildUnitOptionsArgs(unit)
             order = 8,
             args = UCB.Options.BuildGeneralSettingsDefaultBarArgs(unit, { includePerTabEnable = false }),
         },
+
+        internalSettings = {
+            type = "group",
+            name = "Internal Settings",
+            order = 9,
+            args = UCB.Options.BuildGeneralSettingsInternalArgs(unit, { includePerTabEnable = false }),
+        },
     }
 end

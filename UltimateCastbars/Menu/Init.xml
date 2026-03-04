@@ -34,6 +34,7 @@
 	<Script file="TabsUI/Visibility_Settings.lua"/>
 	<Script file="TabsUI/Uninterruptable_Settings.lua"/>
 	<Script file="TabsUI/Copy_Settings.lua"/>
+	<Script file="TabsUI/Internal_Settings.lua"/>
 
 	<!-- Class Settings -->
 	<Script file="TabsUI/ClassOptions/GeneralClass_Settings.lua"/>

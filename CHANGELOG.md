@@ -6,6 +6,7 @@
 - Added placement option for Spell queue window overlay
 - Added spark effects for all bars
 - Added kick CD preview
+- Added assets: fonts, statusbar, background, borders
 
 ### Changed
 - Updated textures/font checks at profile imports/updates

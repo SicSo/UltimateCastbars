@@ -13,6 +13,9 @@
 # Media & utility libraries
 Libs\Init.xml
 
+# Assets
+gfx\Assets\assets.xml
+
 CHANGELOGS.lua
 Global_StaticVars.lua
 Global_Functions.lua

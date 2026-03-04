@@ -15,6 +15,8 @@ function UltimateCastBars:OnInitialize()
         UCB.db:SetProfile(name)
     end
 
+    UCB:LoadAssets(UCB.db.profile.misc.loadAssets)
+
     -- Normalize/upgrade the CURRENT active profile (and keep extra tags)
     local ok, err = UCB:NormalizeCurrentProfileToSchema()
     if not ok and err then

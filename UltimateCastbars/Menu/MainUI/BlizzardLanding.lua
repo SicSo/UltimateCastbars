@@ -187,7 +187,7 @@ local function BuildLandingPanel()
     local panel = CreateFrame("Frame", "UltimateCastbars_LandingPanel", UIParent)
     panel.name = "Ultimate Castbars" -- shown name in Interface Options (Classic)
 
-    local expressway = "Interface\\AddOns\\UltimateCastbars\\gfx\\Fonts\\Expressway.ttf"
+    local expressway = "Interface\\AddOns\\UltimateCastbars\\gfx\\Assets\\Font\\Expressway.ttf"
 
     -- Background dark overlay (similar vibe)
     local bg = panel:CreateTexture(nil, "BACKGROUND")

@@ -16,6 +16,12 @@ local Default_Values = {
             _addonList = {}
         },
         misc = {
+            loadAssets = {
+                statusbar = true,
+                background = true,
+                border = true,
+                font = true,
+            },
             lastUIPath = {},
             __schemaVersion = 0, -- for migrations
         }
