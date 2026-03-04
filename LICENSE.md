@@ -348,6 +348,6 @@ All Rights Reserved unless otherwise explicitly stated.
 
 ### Fonts
 
-#### Link: https://github.com/SicSo/UltimateCastbars/tree/main/UltimateCastbars/gfx/Assets/Font/Font.md
+#### Link: https://github.com/SicSo/UltimateCastbars/blob/main/UltimateCastbars/gfx/Assets/Font/Font.html
 
 ---
