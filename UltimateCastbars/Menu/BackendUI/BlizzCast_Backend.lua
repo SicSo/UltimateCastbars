@@ -22,7 +22,18 @@ end
 -- ============================================================
 -- Helpers: Blizzard frames
 -- ============================================================
--- Replace GetBlizzFrames() with:
+local function GetExtraHideFrames(unit)
+    local out = {}
+
+    if UCB:IsPlayer(unit, true) then
+        if _G.OverlayPlayerCastingBarFrame then
+            out[#out + 1] = _G.OverlayPlayerCastingBarFrame
+        end
+    end
+
+    return out
+end
+
 local function GetBlizzFrames(unit)
     if UCB:IsPlayer(unit, true) then
         return { _G.PlayerCastingBarFrame, _G.CastingBarFrame }
@@ -194,26 +205,6 @@ end
 -- ============================================================
 -- Hide
 -- ============================================================
-local function ApplyHideState_Legacy(f, shouldHide, dontForceShow)
-	if not f then return end
-	CacheFrameState(f)
-
-	if shouldHide then
-		if f.SetParent then f:SetParent(UCB.defaultCastbarFrame) end
-		if f.SetAlpha then pcall(function() f:SetAlpha(0) end) end
-		if f.Hide then f:Hide() end
-	else
-		-- Don’t restore points here. Only prep visibility.
-		local o = f.__pcbOrig
-		if f.SetParent and o and o.parent then f:SetParent(o.parent) end
-		if f.SetAlpha then pcall(function() f:SetAlpha((o and o.alpha) or 1) end) end
-
-		-- If dontForceShow==true, DO NOT call Show().
-		if not dontForceShow and f.Show then
-			f:Show()
-		end
-	end
-end
 
 local function ApplyHideState(f, shouldHide, dontForceShow, unit)
 	if not f then return end
@@ -238,12 +229,11 @@ local function ApplyHideState(f, shouldHide, dontForceShow, unit)
 
 		-- PLAYER: do NOT touch showCastbar (taint risk).
 		-- Also avoid SetParent if this is the global CastingBarFrame.
-		if f == _G.CastingBarFrame then
-			-- safest: just hide/alpha; no reparent
-			if f.SetAlpha then pcall(function() f:SetAlpha(0) end) end
-			if f.Hide then f:Hide() end
-			return
-		end
+		if f == _G.CastingBarFrame or f == _G.OverlayPlayerCastingBarFrame then
+            if f.SetAlpha then pcall(function() f:SetAlpha(0) end) end
+            if f.Hide then f:Hide() end
+            return
+        end
 
 		-- If it's PlayerCastingBarFrame and you're ok with it:
 		-- avoid reparent; just hide/alpha (reparenting is also a taint magnet)
@@ -275,6 +265,10 @@ local function ApplyHideState(f, shouldHide, dontForceShow, unit)
 		return
 	end
 
+    if f == _G.OverlayPlayerCastingBarFrame then
+        return
+    end
+
 	if f.Show then f:Show() end
 end
 
@@ -293,9 +287,16 @@ function DefBlizzCast:RefreshBlizzardCastbarHide(unit, showBar)
         dontForceShow = not IsUnitCastingOrChanneling(unit)
     end
 
-    for _, f in ipairs(GetBlizzFrames(unit)) do
-        f.__ucbOwnerUnit = unit
+    local frames = GetBlizzFrames(unit)
+    local extras = GetExtraHideFrames(unit)
+
+    for i = 1, #extras do
+        frames[#frames + 1] = extras[i]
+    end
+
+    for _, f in ipairs(frames) do
         if f then
+            f.__ucbOwnerUnit = unit
             if not f.__ucbHideHooked then
                 f.__ucbHideHooked = true
 
@@ -304,7 +305,7 @@ function DefBlizzCast:RefreshBlizzardCastbarHide(unit, showBar)
                     if not owner then return end
                     local c = GetCFG(owner)
                     if c and c.defaultBar and c.defaultBar.enabled == false then
-                        ApplyHideState(self, true, nil, unit)
+                        ApplyHideState(self, true, nil, owner)
                     end
                 end)
 
@@ -314,7 +315,7 @@ function DefBlizzCast:RefreshBlizzardCastbarHide(unit, showBar)
                         if not owner then return end
                         local c = GetCFG(owner)
                         if c and c.defaultBar and c.defaultBar.enabled == false then
-                            ApplyHideState(self, true, nil, unit)
+                            ApplyHideState(self, true, nil, owner)
                         end
                     end)
                 end

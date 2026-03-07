@@ -3,6 +3,9 @@
 ### Added
 - Full dynamic size for sync frames
 
+### Fixed
+- OverlayPlayerCastingBarFrame was not being hidden on player unit
+
 ---
 
 
