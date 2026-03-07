@@ -121,3 +121,9 @@ UCB.tags.tagGroups = {
         interrupted = {}
     }
 }
+
+UCB.BarUpdate_API = UCB.BarUpdate_API or {}
+
+UCB.BarUpdate_API.cacheAnchorFrames = {}
+UCB.BarUpdate_API.cacheWidthFrames = {}
+UCB.BarUpdate_API.cacheHeightFrames = {}

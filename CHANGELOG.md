@@ -1,5 +1,8 @@
 ## Unreleased
 
+### Added
+- Full dynamic size for sync frames
+
 ---
 
 

@@ -3,27 +3,93 @@ UCB.BarUpdate_API = UCB.BarUpdate_API or {}
 
 local BarUpdate_API = UCB.BarUpdate_API
 
+BarUpdate_API.cacheAnchorFrames = BarUpdate_API.cacheAnchorFrames or {}
+BarUpdate_API.cacheWidthFrames = BarUpdate_API.cacheWidthFrames or {}
+BarUpdate_API.cacheHeightFrames = BarUpdate_API.cacheHeightFrames or {}
+local cacheAnchorFrames = BarUpdate_API.cacheAnchorFrames
+local cacheWidthFrames = BarUpdate_API.cacheWidthFrames
+local cacheHeightFrames = BarUpdate_API.cacheHeightFrames
+
+BarUpdate_API.sizeWatchers = BarUpdate_API.sizeWatchers or setmetatable({}, { __mode = "k" })
+local sizeWatchers = BarUpdate_API.sizeWatchers
+
 ----------------------------------------HELPER----------------------------------------
-local function AnchorWhenReady(frameToAnchor, cfg, opts)
-    cfg._anchorCustomError = false
-    local maxTries = opts.maxTries or 100 -- ~10s if interval is 0.1
+local function NewFrameRecord()
+    return {
+        name = nil,
+        address = nil,
+        anchorFrom = nil,
+        anchorTo = nil,
+    }
+end
+
+local function EnsureFrameRecord(tbl, unit)
+    if not tbl[unit] then
+        tbl[unit] = NewFrameRecord()
+    end
+    return tbl[unit]
+end
+
+local function AnchorWhenReady(unit, frameToAnchor, cfg, opts)
+    opts = opts or {}
+
+    local maxTries = opts.maxTries or 100
     local interval = opts.interval or 0.1
     local delay = opts.delay or 0.1
 
     if not UCB.firstBuild then
-        delay = 0 -- skip delay on subsequent updates
+        delay = 0
     end
+
+    local cache = EnsureFrameRecord(cacheAnchorFrames, unit)
+
+    local wantedName, wantedAnchor
+    if cfg.useDefaultAnchor or not cfg.anchorName or cfg.anchorName == "" then
+        wantedName = cfg._defaultAnchor
+        wantedAnchor = _G[cfg._defaultAnchor]
+    else
+        wantedName = cfg.anchorName
+        wantedAnchor = _G[cfg.anchorName]
+        if not wantedAnchor then
+            wantedName = cfg._defaultAnchor
+            wantedAnchor = _G[cfg._defaultAnchor]
+        end
+    end
+
+    local wantedAnchorTo, wantedAnchorFrom
+    if cfg.useDefaultAnchor then
+        wantedAnchorTo = cfg.anchorToDefault or "CENTER"
+        wantedAnchorFrom = cfg.anchorFromDefault or "CENTER"
+    else
+        wantedAnchorTo = cfg.anchorTo or "CENTER"
+        wantedAnchorFrom = cfg.anchorFrom or "CENTER"
+    end
+
+    if cache.name == wantedName
+        and cache.address == wantedAnchor
+        and cache.anchorTo == wantedAnchorTo
+        and cache.anchorFrom == wantedAnchorFrom
+    then
+        return
+    end
+
+    cfg._anchorCustomError = false
 
     local tries = 0
     local function try()
         tries = tries + 1
 
-        local anchor
+        local resolvedName, anchor
         if cfg.useDefaultAnchor or not cfg.anchorName or cfg.anchorName == "" then
-        anchor = _G[cfg._defaultAnchor]
+            resolvedName = cfg._defaultAnchor
+            anchor = _G[cfg._defaultAnchor]
         else
-        anchor = _G[cfg.anchorName]
-        if not anchor then anchor = _G[cfg._defaultAnchor] end
+            resolvedName = cfg.anchorName
+            anchor = _G[cfg.anchorName]
+            if not anchor then
+                resolvedName = cfg._defaultAnchor
+                anchor = _G[cfg._defaultAnchor]
+            end
         end
 
         local anchorTo, anchorFrom
@@ -35,22 +101,34 @@ local function AnchorWhenReady(frameToAnchor, cfg, opts)
             anchorFrom = cfg.anchorFrom or "CENTER"
         end
 
-        -- If user wants a specific anchor but it isn't available yet, keep waiting
         if (not cfg.useDefaultAnchor) and cfg.anchorName and cfg.anchorName ~= "" and _G[cfg.anchorName] == nil then
-        if tries < maxTries then
-            C_Timer.After(interval, try)
-        else
-            -- give up and use UIParent
-            cfg._anchorCustomError = true
-            anchor = _G[cfg._defaultAnchor]
-            frameToAnchor:ClearAllPoints()
-            frameToAnchor:SetPoint(anchorFrom, anchor, anchorTo, cfg.offsetX, cfg.offsetY or 0)
+            if tries < maxTries then
+                C_Timer.After(interval, try)
+            else
+                cfg._anchorCustomError = true
+                resolvedName = cfg._defaultAnchor
+                anchor = _G[cfg._defaultAnchor] or UIParent
+
+                frameToAnchor:ClearAllPoints()
+                frameToAnchor:SetPoint(anchorFrom, anchor, anchorTo, cfg.offsetX or 0, cfg.offsetY or 0)
+
+                cache.name = resolvedName
+                cache.address = anchor
+                cache.anchorFrom = anchorFrom
+                cache.anchorTo = anchorTo
+            end
+            return
         end
-        return
-        end
+
+        anchor = anchor or UIParent
 
         frameToAnchor:ClearAllPoints()
         frameToAnchor:SetPoint(anchorFrom, anchor, anchorTo, cfg.offsetX or 0, cfg.offsetY or 0)
+
+        cache.name = resolvedName
+        cache.address = anchor
+        cache.anchorFrom = anchorFrom
+        cache.anchorTo = anchorTo
     end
 
     if delay > 0 then
@@ -58,7 +136,6 @@ local function AnchorWhenReady(frameToAnchor, cfg, opts)
     else
         try()
     end
-
 end
 
 local function BorderExtents(show, thickness, offL, offR, offT, offB)
@@ -271,7 +348,7 @@ local function ComputeSize(bar, genCfg, styleCfg, syncedW, syncedH)
 end
 
 
-local function LayoutIconAndBar2(bar, cfg)
+local function LayoutIconAndBar(bar, cfg)
     local group = bar.group
     local iconAnchor = cfg.iconAnchor
     local showIcon = cfg.showCastIcon
@@ -341,26 +418,219 @@ local function LayoutIconAndBar2(bar, cfg)
     bar:SetSize(barW, barH)
 end
 
-local function SizeWhenReady(bar, genCfg, styleCfg, opts)
-    opts = opts or {}
-    local interval = opts.interval or 0.1
-    local maxTries = opts.maxTries or 100
-    local minW     = opts.minWidth  or 1
-    local minH     = opts.minHeight or 1
-    local delay    = opts.delay     or 0.1
+local function ReadFrameWidth(frame)
+    if not frame then return nil end
 
-    if not UCB.firstBuild then
-        delay = 0 -- skip delay on subsequent updates
+    local w
+    if frame.GetRect then
+        local _, _, rw = frame:GetRect()
+        w = rw
+    end
+    if (not w) and frame.GetWidth then
+        w = frame:GetWidth()
+    end
+    return w
+end
+
+local function ReadFrameHeight(frame)
+    if not frame then return nil end
+
+    local h
+    if frame.GetRect then
+        local _, _, _, rh = frame:GetRect()
+        h = rh
+    end
+    if (not h) and frame.GetHeight then
+        h = frame:GetHeight()
+    end
+    return h
+end
+
+local function RefreshSizeFromSources(unit)
+    local bar = UCB.castBar[unit]
+    if not bar then return end
+
+    local bigCFG = UCB.GetValueConfig(unit)
+    if not bigCFG then return end
+
+    local genCfg = bigCFG.general
+    local styleCfg = bigCFG.styleCastType.general
+
+    local widthCache = EnsureFrameRecord(cacheWidthFrames, unit)
+    local heightCache = EnsureFrameRecord(cacheHeightFrames, unit)
+
+    local syncedW, syncedH
+
+    genCfg._widthFrameError = false
+    genCfg._heightFrameError = false
+
+    if not genCfg.manualWidth then
+        if widthCache.address then
+            syncedW = ReadFrameWidth(widthCache.address)
+            if syncedW then
+                local minSyncW = genCfg.widthMinValue or 0
+                if syncedW < minSyncW then syncedW = minSyncW end
+            else
+                genCfg._widthFrameError = true
+            end
+        elseif genCfg.widthInput and genCfg.widthInput ~= "" then
+            genCfg._widthFrameError = true
+        end
     end
 
-    -- Apply defaults immediately (manual sizes) so bar isn't broken while waiting
-    --ComputeSize(bar, genCfg, nil, nil)
-    ComputeSize(bar, genCfg, styleCfg, nil, nil)
+    if not genCfg.manualHeight then
+        if heightCache.address then
+            syncedH = ReadFrameHeight(heightCache.address)
+            if syncedH then
+                local minSyncH = genCfg.heightMinValue or 0
+                if syncedH < minSyncH then syncedH = minSyncH end
+            else
+                genCfg._heightFrameError = true
+            end
+        elseif genCfg.heightInput and genCfg.heightInput ~= "" then
+            genCfg._heightFrameError = true
+        end
+    end
 
-    local needW = (not genCfg.manualWidth)  and genCfg.widthInput  and genCfg.widthInput  ~= ""
+    genCfg._lastSyncedW = syncedW
+    genCfg._lastSyncedH = syncedH
+
+    ComputeSize(bar, genCfg, styleCfg, syncedW, syncedH)
+    LayoutIconAndBar(bar, genCfg)
+end
+
+local function EnsureSizeWatcher(frame)
+    if not frame then return end
+
+    local watcher = sizeWatchers[frame]
+    if watcher then
+        return watcher
+    end
+
+    watcher = {
+        hooked = true,
+        units = {},
+    }
+    sizeWatchers[frame] = watcher
+
+    frame:HookScript("OnSizeChanged", function()
+        for unit in pairs(watcher.units) do
+            RefreshSizeFromSources(unit)
+        end
+    end)
+
+    --[[
+    frame:HookScript("OnSizeChanged", function()
+        for unit in pairs(watcher.units) do
+            RefreshSizeFromSources(unit)
+
+            local bar = UCB.castBar[unit]
+            local bigCFG = UCB.GetValueConfig(unit)
+            if bar and bigCFG then
+                AnchorWhenReady(unit, bar.group, bigCFG.general, {
+                    interval = bigCFG.general.anchorFrameInterval,
+                    maxTries = bigCFG.general.anchorFrameTries,
+                    delay = 0,
+                })
+            end
+        end
+    end)
+    --]]
+
+    return watcher
+end
+
+local function SubscribeUnitToSizeFrame(unit, frame)
+    if not frame then return end
+
+    local watcher = EnsureSizeWatcher(frame)
+    watcher.units[unit] = true
+end
+
+local function UnsubscribeUnitFromSizeFrame(unit, frame)
+    if not frame then return end
+
+    local watcher = sizeWatchers[frame]
+    if watcher then
+        watcher.units[unit] = nil
+    end
+end
+
+local function UpdateWidthSource(unit, genCfg)
+    local cache = EnsureFrameRecord(cacheWidthFrames, unit)
+
+    local wantedName, wantedFrame
+    if not genCfg.manualWidth and genCfg.widthInput and genCfg.widthInput ~= "" then
+        wantedName = genCfg.widthInput
+        wantedFrame = _G[wantedName]
+    else
+        wantedName = nil
+        wantedFrame = nil
+    end
+
+    if cache.name == wantedName and cache.address == wantedFrame then
+        return
+    end
+
+    if cache.address then
+        UnsubscribeUnitFromSizeFrame(unit, cache.address)
+    end
+
+    cache.name = wantedName
+    cache.address = wantedFrame
+
+    if wantedFrame then
+        SubscribeUnitToSizeFrame(unit, wantedFrame)
+    end
+end
+
+local function UpdateHeightSource(unit, genCfg)
+    local cache = EnsureFrameRecord(cacheHeightFrames, unit)
+
+    local wantedName, wantedFrame
+    if not genCfg.manualHeight and genCfg.heightInput and genCfg.heightInput ~= "" then
+        wantedName = genCfg.heightInput
+        wantedFrame = _G[wantedName]
+    else
+        wantedName = nil
+        wantedFrame = nil
+    end
+
+    if cache.name == wantedName and cache.address == wantedFrame then
+        return
+    end
+
+    if cache.address then
+        UnsubscribeUnitFromSizeFrame(unit, cache.address)
+    end
+
+    cache.name = wantedName
+    cache.address = wantedFrame
+
+    if wantedFrame then
+        SubscribeUnitToSizeFrame(unit, wantedFrame)
+    end
+end
+
+local function SizeWhenReady(unit, bar, genCfg, styleCfg, opts)
+    opts = opts or {}
+
+    local interval = opts.interval or 0.1
+    local maxTries = opts.maxTries or 100
+    local delay = opts.delay or 0.1
+
+    if not UCB.firstBuild then
+        delay = 0
+    end
+
+    local needW = (not genCfg.manualWidth) and genCfg.widthInput and genCfg.widthInput ~= ""
     local needH = (not genCfg.manualHeight) and genCfg.heightInput and genCfg.heightInput ~= ""
 
+    -- Immediate best-effort apply so bar is never broken
+    ComputeSize(bar, genCfg, styleCfg, genCfg._lastSyncedW, genCfg._lastSyncedH)
+
     if not needW and not needH then
+        RefreshSizeFromSources(unit)
         return
     end
 
@@ -368,80 +638,27 @@ local function SizeWhenReady(bar, genCfg, styleCfg, opts)
     local function try()
         tries = tries + 1
 
-        local syncedW, syncedH
+        UpdateWidthSource(unit, genCfg)
+        UpdateHeightSource(unit, genCfg)
 
-        -- WIDTH source
-        if needW then
-            local fw = _G[genCfg.widthInput]
-            if fw then
-                local w
-                if fw.GetRect then
-                    local _, _, rw = fw:GetRect()
-                    w = rw
-                end
-                if (not w) and fw.GetWidth then
-                    w = fw:GetWidth()
-                end
+        local widthCache = EnsureFrameRecord(cacheWidthFrames, unit)
+        local heightCache = EnsureFrameRecord(cacheHeightFrames, unit)
 
-                if w then
-                    local minSyncW = genCfg.widthMinValue or 0
-                    if w < minSyncW then w = minSyncW end
-                    if w >= minW then
-                        syncedW = w
-                    end
-                end
-            end
-        end
-
-        -- HEIGHT source
-        if needH then
-            local fh = _G[genCfg.heightInput]
-            if fh then
-                local h
-                if fh.GetRect then
-                    local _, _, _, rh = fh:GetRect()
-                    h = rh
-                end
-                if (not h) and fh.GetHeight then
-                    h = fh:GetHeight()
-                end
-
-                if h then
-                    local minSyncH = genCfg.heightMinValue or 0
-                    if h < minSyncH then h = minSyncH end
-                    if h >= minH then
-                        syncedH = h
-                    end
-                end
-            end
-        end
-
-        local wReady = (not needW) or (syncedW ~= nil)
-        local hReady = (not needH) or (syncedH ~= nil)
+        local wReady = (not needW) or (widthCache.address ~= nil)
+        local hReady = (not needH) or (heightCache.address ~= nil)
 
         if wReady and hReady then
-            -- Ready: compute + apply using synced values
-            --ComputeSize(bar, genCfg, syncedW, syncedH)
-            
-            genCfg._lastSyncedW = syncedW
-            genCfg._lastSyncedH = syncedH
-
-            ComputeSize(bar, genCfg, styleCfg, syncedW, syncedH)
+            RefreshSizeFromSources(unit)
             return
         end
 
         if tries < maxTries then
             C_Timer.After(interval, try)
         else
-            -- Timeout: fall back and set errors for whatever wasn't ready
-            genCfg._widthFrameError  = needW and (syncedW == nil) or false
-            genCfg._heightFrameError = needH and (syncedH == nil) or false
+            genCfg._widthFrameError = needW and (widthCache.address == nil) or false
+            genCfg._heightFrameError = needH and (heightCache.address == nil) or false
 
-            genCfg._lastSyncedW = syncedW
-            genCfg._lastSyncedH = syncedH
-
-            --ComputeSize(bar, genCfg, syncedW, syncedH)
-            ComputeSize(bar, genCfg, styleCfg, syncedW, syncedH)
+            RefreshSizeFromSources(unit)
         end
     end
 
@@ -460,13 +677,19 @@ function BarUpdate_API:UpdateBarIcon(unit)
     local styleCfg = bigCFG.styleCastType.general
 
     -- Determine width and apply
-    SizeWhenReady(bar, genCfg, styleCfg, {interval=genCfg.syncFrameInterval, maxTries=genCfg.syncFrameTries, minWidth=1, minHeight = 1})
-
-    -- Apply icon/bar layout (update icon)
-    LayoutIconAndBar2(bar, genCfg)
+    --SizeWhenReady(bar, genCfg, styleCfg, {interval=genCfg.syncFrameInterval, maxTries=genCfg.syncFrameTries, minWidth=1, minHeight = 1})
+    SizeWhenReady(unit, bar, genCfg, styleCfg, {
+        interval = genCfg.syncFrameInterval,
+        maxTries = genCfg.syncFrameTries,
+        delay = 0.1,
+    })
 
     -- Determine anchor frame and attach
-    AnchorWhenReady(bar.group, genCfg, {interval=genCfg.anchorFrameInterval, maxTries=genCfg.anchorFrameTries, delay=genCfg.anchorDelay})
+    AnchorWhenReady(unit, bar.group, genCfg, {
+        interval = genCfg.anchorFrameInterval,
+        maxTries = genCfg.anchorFrameTries,
+        delay = genCfg.anchorDelay,
+    })
 end
 
 function BarUpdate_API:RefreshBarStyleOnly(unit, newStyleCfg)
@@ -494,7 +717,7 @@ function BarUpdate_API:RefreshBarStyleOnly(unit, newStyleCfg)
     end
 
     ComputeSize(bar, genCfg, newStyleCfg, syncedW, syncedH)
-    LayoutIconAndBar2(bar, genCfg)
+    LayoutIconAndBar(bar, genCfg)
 
     genCfg._widthFrameError  = oldWErr
     genCfg._heightFrameError = oldHErr
