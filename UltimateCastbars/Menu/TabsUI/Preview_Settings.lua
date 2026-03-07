@@ -24,6 +24,7 @@ local function PreviewSpells(cfg)
                     local spellID = cfg.previewSettings.previewSpellID.normal
                     return "Normal Spell for Preview("..Preview_API:IconTagForSpell(spellID, 16)..")"
                 end,
+                dialogControl = "UCB_SearchDropdown",
                 order   = 1,
                 width   = 1.3,
                 values  = function() 
@@ -31,7 +32,7 @@ local function PreviewSpells(cfg)
                     for _, spellID in ipairs(UCB.allSpellTypes.normal or {}) do
                         local spellName = C_Spell.GetSpellInfo(spellID).name
                         if spellName then
-                            list[spellID] = spellName
+                            list[spellID] = { text = spellName, icon = select(1, C_Spell.GetSpellTexture(spellID)) }
                         end
                     end
                     return list
@@ -196,6 +197,7 @@ local function PreviewSettings(cfg, unit)
                     },
                     startKickTimer = {
                         type    = "execute",
+                        dialogControl = "UCB_Button",
                         name    = "Start Kick Timer",
                         order   = 4,
                         width   = 1,
@@ -224,7 +226,8 @@ local function BuildPreviewArgs(args, unit, opts)
         order  = 1,
         args   = {
             previewbuttonCast = {
-                type  = "execute",
+                type = "execute",
+                dialogControl = "UCB_Button",
                 name  = "Preview Cast",
                 order = 1,
                 width = 1,
@@ -271,7 +274,8 @@ local function BuildPreviewArgs(args, unit, opts)
             },
 
             previewbuttonChannel = {
-                type  = "execute",
+                type = "execute",
+                dialogControl = "UCB_Button",
                 name  = "Preview Channel",
                 order = 2,
                 width = 1,
@@ -323,7 +327,8 @@ local function BuildPreviewArgs(args, unit, opts)
              },
 
             previewbuttonEmpower = {
-                type  = "execute",
+                type = "execute",
+                dialogControl = "UCB_Button",
                 name  = "Preview Empower",
                 order = 3,
                 width = 1,
@@ -374,7 +379,8 @@ local function BuildPreviewArgs(args, unit, opts)
                 width = 0.3
             },
             showSettings = {
-                type  = "execute",
+                type = "execute",
+                dialogControl = "UCB_Button",
                 name  = function() 
                     if Preview_API.showSettingsToggle then
                         return UCB.UIOptions.ColorText(UCB.UIOptions.red, "Hide").." Preview Settings"

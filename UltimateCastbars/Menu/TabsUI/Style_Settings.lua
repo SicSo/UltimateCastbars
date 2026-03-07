@@ -31,7 +31,7 @@ function STYLE_API:createQuickButtons(unit, tabs)
     local buttons = {}
     for index, castType in ipairs(tabs) do
         buttons["btn_"..castType] = {
-            type = "execute",
+            type = "execute",dialogControl = "UCB_Button",
             name = function() return UIOptions.MakeTitle(castType).." casts" end,
             desc = function() return "Jump to the "..castType.." cast style settings." end,
             width = 0.8,
@@ -76,7 +76,7 @@ local function BuildCustomisationArgs(args, unit)
         inline = true,
         args = {
             headerMode = {
-                type = "header",
+                type = "header",  dialogControl = "UCB_Heading",
                 name = function() 
                     if castTypeStyleCFG.useGeneralStyle then
                         return "Using "..UIOptions.ColorText(UIOptions.turquoise, "general").." style settings for all cast types"
@@ -149,7 +149,7 @@ local function BuildCustomisationArgs(args, unit)
                 inline = true,
                 args = {
                      editHeader = {
-                        type = "header",
+                        type = "header",  dialogControl = "UCB_Heading",
                         name = function() return "Settings for "..UIOptions.ColorText(UIOptions.turquoise , UIOptions.MakeTitle(unit).." - NORMAL").." casts" end,
                         order = 1,
                     },
@@ -188,7 +188,7 @@ local function BuildCustomisationArgs(args, unit)
                 inline = true,
                 args = {
                     editHeader = {
-                        type = "header",
+                        type = "header",  dialogControl = "UCB_Heading",
                         name = function() return "Settings for "..UIOptions.ColorText(UIOptions.turquoise , UIOptions.MakeTitle(unit).." - CHANNEL").." casts" end,
                         order = 1,
                     },
@@ -227,7 +227,7 @@ local function BuildCustomisationArgs(args, unit)
                 inline = true,
                 args = {
                     editHeader = {
-                        type = "header",
+                        type = "header",  dialogControl = "UCB_Heading",
                         name = function() return "Settings for "..UIOptions.ColorText(UIOptions.turquoise , UIOptions.MakeTitle(unit).." - EMPOWERED").." casts" end,
                         order = 1,
                     },

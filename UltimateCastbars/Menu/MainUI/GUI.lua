@@ -4,12 +4,14 @@ UCB.GUIWidgets = UCB.GUIWidgets or {}
 UCB.GUI = UCB.GUI or {}
 UCB.UI = UCB.UI or {}
 UCB.GUI.Helpers = UCB.GUI.Helpers or {}
+UCB.Theme = UCB.Theme or {}
 
 -- GUIWidgets should be loaded before this file (or you can require it first)
 local GUIWidgets = UCB.GUIWidgets
 local UI = UCB.UI
 local GUI = UCB.GUI
 local GUI_Helpers = UCB.GUI.Helpers
+local Theme = UCB.Theme
 
 GUI.optionsTable = GUI.optionsTable or {}
 GUI._optionsRegistered = GUI._optionsRegistered or {}
@@ -151,7 +153,9 @@ function GUI:FullRebuildRootUI(path)
         if parent.SetFullWidth then parent:SetFullWidth(true) end
         if parent.SetFullHeight then parent:SetFullHeight(true) end
 
-        UCB.ACD:Open(self.appName, parent)
+        Theme:AceGUIOverride(function()
+            UCB.ACD:Open(self.appName, parent)
+        end)
     end
 
     -- notify + restore selection (next frame)
@@ -207,9 +211,6 @@ function GUI:CloseGUI()
     end
 
     if Container then
-        if GUIWidgets and GUIWidgets.DetachFooterBar then
-            GUIWidgets:DetachFooterBar(Container)
-        end
         UCB.AG:Release(Container)
         Container = nil
     end
@@ -257,7 +258,7 @@ function GUI:OpenGUI(selectPath)
     self.isGUIOpen = true
     self._currentSelectedTab = nil
 
-    Container = UCB.AG:Create("Frame")
+    Container = UCB.AG:Create("UCB_Frame")
     Container:SetTitle(UI.text.name.." - v"..UI.text.version)
     Container:SetLayout("Fill")
     Container:SetWidth(1000)
@@ -294,10 +295,7 @@ function GUI:OpenGUI(selectPath)
             UCB.ACD:Close(self.appName)
         end
 
-        --if GUIWidgets and GUIWidgets.DetachBottomLeftLinks then
-        if GUIWidgets and GUIWidgets.DetachFooterBar then
-            --GUIWidgets:DetachBottomLeftLinks(widget)
-            GUIWidgets:DetachFooterBar(widget)
+        if GUIWidgets and GUIWidgets.DetachHeaderButtons then
             GUIWidgets:DetachHeaderButtons(widget)
 
         end
@@ -312,7 +310,7 @@ function GUI:OpenGUI(selectPath)
         collectgarbage("collect")
     end)
 
-    GUIWidgets:AttachFooterBar(Container, {
+    Container:SetFooterData({
         logo  = UI.icons.logo,
         title = UI.text.name,
         madeByName = UI.text.madeByM,
@@ -350,7 +348,7 @@ function GUI:OpenGUI(selectPath)
     
     GUIWidgets:AttachTopRightChangelogButton(Container)
 
-    local holder = UCB.AG:Create("SimpleGroup")
+    local holder = UCB.AG:Create("UCB_SimpleGroup")
     holder:SetFullWidth(true)
     holder:SetFullHeight(true)
     holder:SetLayout("Fill")
@@ -362,7 +360,9 @@ function GUI:OpenGUI(selectPath)
     if UCB.ACD and UCB.ACD.Close then
         UCB.ACD:Close(self.appName)
     end
-    UCB.ACD:Open(self.appName, holder)
+    Theme:AceGUIOverride(function()
+        UCB.ACD:Open(self.appName, holder)
+    end)
 
     UCB:NotifyChange()
 

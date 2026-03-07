@@ -26,6 +26,8 @@ UCB.Normiliser = UCB.Normiliser or {}
 UCB.UIStructures = UCB.UIStructures or {}
 UCB.Migration = UCB.Migration or {}
 UCB.Latency = UCB.Latency or {}
+UCB.UITextures = UCB.UITextures or {}
+UCB.Theme = UCB.Theme or {}
 
 -- Sub APIs
 UCB.CLASS_API.Evoker = UCB.CLASS_API.Evoker or {}
@@ -181,6 +183,10 @@ local function GetSpellType(spellID)
     if spellID and spellID ~= 0 then
         local tooltip = C_TooltipInfo.GetSpellByID(spellID)
         local castText = tooltip and tooltip.lines and tooltip.lines[3] and tooltip.lines[3].leftText
+
+        if not castText then
+          return nil
+        end
 
         if castText:lower():find("cast") then
             return "normal"

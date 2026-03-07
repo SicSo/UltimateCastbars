@@ -45,7 +45,7 @@ local function BuildOthersGroup(unit, classToken, order)
                 order = 1,
                 args = {
                     btn_channel = {
-                        type = "execute",
+                        type = "execute",dialogControl = "UCB_Button",
                         name = "Channel Spells",
                         desc = "Jump to the Channel Spells section.",
                         width = "full",
@@ -57,7 +57,7 @@ local function BuildOthersGroup(unit, classToken, order)
                 },
             },
             headerRecommendation = {
-                type = "header",
+                type = "header",  dialogControl = "UCB_Heading",
                 name = "If you have specific class requests or suggestions, please let me know! :)",
                 order = 2,
             }
@@ -167,7 +167,7 @@ local function BuildClassButtonMatrix(unit, classes, excludeToken, groupName, gr
         for _, ct in ipairs(classes) do
             if not excludeToken or ct ~= excludeToken then
             btns["btn_" .. ct] = {
-                type = "execute",
+                type = "execute",dialogControl = "UCB_Button",
                 name = function()
                 return Colorize(GetClassDisplayName(ct), GetClassColorAARRGGBB(ct))
                 end,
@@ -218,7 +218,7 @@ function Opt.BuildClassSettingsArgs(unit, opts)
         inline = true,
         args = {
             btn_currentClass = {
-                type = "execute",
+                type = "execute",dialogControl = "UCB_Button",
                 name = function()
                     return Colorize(GetClassDisplayName(UCB.className), GetClassColorAARRGGBB(UCB.className))
                 end,

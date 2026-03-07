@@ -129,7 +129,7 @@ local function BuildDefaultBarArgs(args, unit, opts)
         inline = true,
         args = {
             title = {
-                type = "header",
+                type = "header",  dialogControl = "UCB_Heading",
                 name = function()
                     local addonsDisabled = debugCFG._addonList and #debugCFG._addonList or 0
                     if addonsDisabled > 0 then
@@ -147,7 +147,7 @@ local function BuildDefaultBarArgs(args, unit, opts)
                 order = 1.5,
             },
             debugButton = {
-                type = "execute",
+                type = "execute",dialogControl = "UCB_Button",
                 name = function()
                     if not debugCFG.enabled then
                         return "Start debug mode"

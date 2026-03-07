@@ -1,5 +1,25 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlGUIS:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 	
+	<!-- Theme -->
+		<!-- Custom Templates -->
+	<Include file="Theme/CustomWidgets/BlackThreeSlice.xml"/>
+	<Script file="Theme/CustomWidgets/BlackThreeSlice.lua"/>
+		<!-- General files -->
+	<Script file="Theme/General.lua"/>
+	<Script file="Theme/AceConfig.lua"/>
+		<!-- Containers -->
+	<Script file="Theme/Containers/UCB_ScrollFrame.lua"/>
+	<Script file="Theme/Containers/UCB_TabGroup.lua"/>
+	<Script file="Theme/Containers/UCB_TreeGroup.lua"/>
+	<Script file="Theme/Containers/UCB_SimpleGroup.lua"/>
+	<Script file="Theme/Containers/UCB_InlineGroup.lua"/>
+	<Script file="Theme/Containers/UCB_Frame.lua"/>
+	<Script file="Theme/Containers/UCB_Frame1.lua"/>
+		<!-- Widgets -->
+	<Script file="Theme/Widgets/UCB_Button.lua"/>
+	<Script file="Theme/Widgets/UCB_Heading.lua"/>
+	<Script file="Theme/Widgets/UCB_CheckBox.lua"/>
+	<Script file="Theme/Widgets/UCB_SearchDropdown.lua"/>
 	
 	<!-- UI Main -->
 	<Script file="MainUI/GUI_Helpers.lua"/>
@@ -20,11 +40,12 @@
 	<Script file="BackendUI/Uninterruptable_Backend.lua"/>
 	<Script file="BackendUI/Copy_Backend.lua"/>
 	
-	<!-- UI Settings -->
+	<!-- UI Frontend -->
+		<!-- General helpers -->
 	<Script file="TabsUI/GenericStructures/PlayerSpells_Helper.lua"/>
 	<Script file="TabsUI/GenericStructures/BlacklistWhitelistTable.lua"/>
 	<Script file="TabsUI/GenericStructures/StyleWindow.lua"/>
-
+		<!-- Main tabs -->
 	<Script file="TabsUI/BlizzCast_Settings.lua"/>
 	<Script file="TabsUI/General_Settings.lua"/>
 	<Script file="TabsUI/OtherFeatures_Settings.lua"/>
@@ -35,8 +56,7 @@
 	<Script file="TabsUI/Uninterruptable_Settings.lua"/>
 	<Script file="TabsUI/Copy_Settings.lua"/>
 	<Script file="TabsUI/Internal_Settings.lua"/>
-
-	<!-- Class Settings -->
+		<!-- Class Tabs -->
 	<Script file="TabsUI/ClassOptions/GeneralClass_Settings.lua"/>
 	<Script file="TabsUI/ClassOptions/Evoker_Settings.lua"/>
 	<Script file="TabsUI/ClassOptions/ChannelClass_Settings.lua"/>

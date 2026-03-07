@@ -360,7 +360,7 @@ Opt.ClassExtraBuilders.EVOKER = function(unit, args)
                             disabled = function() return not cfg.enableEmpowerEffects end,
                             args = {
                                 empowerHeader = {
-                                    type = "header",
+                                    type = "header",  dialogControl = "UCB_Heading",
                                     name = "Empower spell settings",
                                     order = 1,
                                 },
@@ -400,7 +400,7 @@ Opt.ClassExtraBuilders.EVOKER = function(unit, args)
                                             width = "full",
                                         },
                                         mpowerManualTicksReset = {
-                                            type = "execute",
+                                            type = "execute",dialogControl = "UCB_Button",
                                             name = "Reset Manual Ticks",
                                             desc = "Reset manual tick placements to default.",
                                             width = "full",
@@ -446,7 +446,7 @@ Opt.ClassExtraBuilders.EVOKER = function(unit, args)
             order = 2,
             args = {
                 disintegrateHeader = {
-                    type = "header",
+                    type = "header",  dialogControl = "UCB_Heading",
                     name = "Disintegrate Ticks",
                     order = 1,
                 },

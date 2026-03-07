@@ -83,7 +83,7 @@ local function BuildSpellStyle(args, unit, cfg, bigCFG, class, indexedSpellStyle
         hidden = function() return not cfg.useStyleSpell end,
         args = {
             header = {
-                type = "header",
+                type = "header",  dialogControl = "UCB_Heading",
                 name = function() 
                     local shown = spellStyle and spellStyle.enable and UIOptions.ColorText(UIOptions.green, "Enabled") or UIOptions.ColorText(UIOptions.red, "Disabled")
                     return "Spell " .. UIOptions.ColorText(UIOptions.turquoise, (spellStyle.name or "Unknown")) .. " - (" .. UIOptions.ColorText(UIOptions.turquoise, tostring(spellStyle.id or "")) .. ") (" .. shown..")" end,
@@ -96,7 +96,7 @@ local function BuildSpellStyle(args, unit, cfg, bigCFG, class, indexedSpellStyle
                 inline = true,
                 args = {
                     back = {
-                        type = "execute",
+                        type = "execute",dialogControl = "UCB_Button",
                         name = "Back to table",
                         order = 1,
                         func = function() 
@@ -224,7 +224,7 @@ local function BuildAbilityRows(args, mainGrp, cfg, unit, class, bigCFG)
                 v4 = { type = "description", name = "|", order = 8, width = 0.05 },
 
                 settings = {
-                    type = "execute",
+                    type = "execute",dialogControl = "UCB_Button",
                     name = "Settings",
                     order = 9,
                     width = 0.60,
@@ -237,7 +237,7 @@ local function BuildAbilityRows(args, mainGrp, cfg, unit, class, bigCFG)
                 v5 = { type = "description", name = "|", order = 10, width = 0.05 },
 
                 remove = {
-                    type = "execute",
+                    type = "execute",dialogControl = "UCB_Button",
                     name = "Remove",
                     order = 11,
                     width = 0.60,
@@ -319,7 +319,7 @@ local function buildMainGroup(args, cfg, unit, class, bigCFG)
                             v1 = { type = "description", name = "", order = 2.5, width = 0.2 },
 
                             addBtn = {
-                                type = "execute",
+                                type = "execute",dialogControl = "UCB_Button",
                                 name = "Add Spell ID",
                                 order = 3,
                                 width = 1.5,

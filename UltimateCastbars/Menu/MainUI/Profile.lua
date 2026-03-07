@@ -277,7 +277,7 @@ function GUI:BuildProfilesOptions()
                                 width = 0.1,
                             },
                             importButton = {
-                                type = "execute",
+                                type = "execute",dialogControl = "UCB_Button",
                                 name = function()
                                     local p = Profiles._importProfileName
                                     if not p or p == "" then p = "(current)" end
@@ -308,7 +308,7 @@ function GUI:BuildProfilesOptions()
                                 inline = true,
                                 args = {
                                 importCurrent = {
-                                    type = "execute",
+                                    type = "execute",dialogControl = "UCB_Button",
                                     name = "Import Into Current Profile",
                                     order = 3,
                                     confirm = true,
@@ -349,7 +349,7 @@ function GUI:BuildProfilesOptions()
                                 set = function(_, v) Profiles._newProfileName = (v or ""):match("^%s*(.-)%s*$") end,
                             },
                             importAsNew = {
-                                type = "execute",
+                                type = "execute",dialogControl = "UCB_Button",
                                 name = "Import as New Profile",
                                 order = 1.7,
                                 confirm = true,
@@ -433,7 +433,7 @@ function GUI:BuildProfilesOptions()
                         width = 0.1,
                     },
                     exportButton = {
-                        type = "execute",
+                        type = "execute",dialogControl = "UCB_Button",
                         name = "Generate Export String for Selected Profile",
                         order = 3,
                         width = 1.5,
@@ -459,7 +459,7 @@ function GUI:BuildProfilesOptions()
                         width = 0.1,
                     },
                     exportCurrent = {
-                        type = "execute",
+                        type = "execute",dialogControl = "UCB_Button",
                         name = "Export Current Profile",
                         order = 4,
                         width = 1.5,

@@ -43,7 +43,7 @@ local function createQuickButtons(unit, tabs, names, paths, buttonSize)
     local buttons = {}
     for index, tab in ipairs(tabs) do
         buttons["btn_"..tab] = {
-            type = "execute",
+            type = "execute",dialogControl = "UCB_Button",
             name = function() return UIOptions.MakeTitle(names[tab]) end,
             desc = function() return "Jump to "..UIOptions.MakeTitle(names[tab]) end,
             width = buttonSize,

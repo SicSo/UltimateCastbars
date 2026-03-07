@@ -53,7 +53,7 @@ local function CopyMain(unit, copy_paths)
                 width = 0.3
             },
             copyButton = {
-                type = "execute",
+                type = "execute",dialogControl = "UCB_Button",
                 name = function() return "Copy Settings into "..UCB:UnitDisplayName(unit) end,
                 desc = "Copy settings from the selected unit to this unit.",
                 order = 3,
@@ -127,7 +127,7 @@ local function BuildCopySettingsArgs(args, unit, opts)
         width = 0.5
     }
     mainCopy.args.showHideButton = {
-        type = "execute",
+        type = "execute",dialogControl = "UCB_Button",
         name = function() return (COPY_API.showCategoryToggles and UCB.UIOptions.ColorText(UCB.UIOptions.red, "Hide") or UCB.UIOptions.ColorText(UCB.UIOptions.green, "Show")).." Copy Settings" end,
         desc = "Show or hide the copy settings options.",
         order = 5,
@@ -153,7 +153,7 @@ local function BuildCopySettingsArgs(args, unit, opts)
                 hidden = function() return not COPY_API.showCategoryToggles end,
                 args = {
                     selectAllButton = {
-                        type = "execute",
+                        type = "execute",dialogControl = "UCB_Button",
                         name = "Select All Categories",
                         desc = "Select all categories to copy from the selected unit.",
                         order = 1,
@@ -172,7 +172,7 @@ local function BuildCopySettingsArgs(args, unit, opts)
                         width = 0.3
                     },
                     deselectAllButton = {
-                        type = "execute",
+                        type = "execute",dialogControl = "UCB_Button",
                         name = "Deselect All Categories",
                         desc = "Deselect all categories to copy from the selected unit.",
                         order = 2,

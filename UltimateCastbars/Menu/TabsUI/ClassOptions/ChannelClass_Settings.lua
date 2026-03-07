@@ -165,7 +165,7 @@ local function BuildRows(channelTable, cfg, unit)
                 v5 = { type = "description", name = "|", order = 10, width = 0.05 },
 
                 remove = {
-                    type = "execute",
+                    type = "execute",dialogControl = "UCB_Button",
                     name = "Remove",
                     order = 11,
                     width = 0.60,
@@ -235,7 +235,7 @@ local function BuildChannelTable(args, unit, class)
                 order = 1,
                 args = {
                     selectedSpell = {
-                        type = "header",
+                        type = "header",  dialogControl = "UCB_Heading",
                         name = function ()
                             local spellInfo = C_Spell.GetSpellInfo(cfg._channelSelect)
                             if spellInfo then
@@ -310,7 +310,7 @@ local function BuildChannelTable(args, unit, class)
                     v1 = { type = "description", name = "", order = 3.5, width = 0.2 },
 
                     addBtn = {
-                        type = "execute",
+                        type = "execute",dialogControl = "UCB_Button",
                         name = "Add Spell",
                         order = 4,
                         width = 1.5,
@@ -370,7 +370,7 @@ function Opt:BuildChannelSectionPlayer(args, unit, class)
         order = 3,
         args = {
             titleWarning = {
-                type = "header",
+                type = "header",  dialogControl = "UCB_Heading",
                 name = UIOptions.ColorText(UIOptions.red, "To use the channeling options, you need to enable them in the Other Features section first.") ,
                 order = 0.5,
                 width = "full",
@@ -521,7 +521,7 @@ function Opt:BuildChannelSectionNonPlayer(args, unit, class)
         order = 3,
         args = {
             titleWarning = {
-                type = "header",
+                type = "header",  dialogControl = "UCB_Heading",
                 name = UIOptions.ColorText(UIOptions.red, "To use the channeling options, you need to enable them in the Other Features section first.") ,
                 order = 0.5,
                 width = "full",

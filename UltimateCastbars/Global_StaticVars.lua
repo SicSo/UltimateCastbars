@@ -386,6 +386,19 @@ UCB.UIOptions.yellow = "FFFFFF00"
 UCB.UIOptions.grey = "FF808080"
 UCB.UIOptions.purple = "FFFF00FF"
 UCB.UIOptions.orange = "FFFFA500"
+UCB.UIOptions.gold = "FFFFD700"
+
+UCB.UIOptions.WHITE     = { r = 1.000000, g = 1.000000, b = 1.000000 }
+UCB.UIOptions.BLACK     = { r = 0.000000, g = 0.000000, b = 0.000000 }
+UCB.UIOptions.BLUE      = { r = 0.000000, g = 0.000000, b = 1.000000 }
+UCB.UIOptions.PURPLE    = { r = 1.000000, g = 0.000000, b = 1.000000 }
+UCB.UIOptions.TURQUOISE = { r = 0.000000, g = 1.000000, b = 1.000000 }
+UCB.UIOptions.RED       = { r = 1.000000, g = 0.000000, b = 0.000000 }
+UCB.UIOptions.GREEN     = { r = 0.000000, g = 1.000000, b = 0.000000 }
+UCB.UIOptions.YELLOW    = { r = 1.000000, g = 1.000000, b = 0.000000 }
+UCB.UIOptions.GREY      = { r = 0.501961, g = 0.501961, b = 0.501961 }
+UCB.UIOptions.ORANGE    = { r = 1.000000, g = 0.647059, b = 0.000000 }
+UCB.UIOptions.GOLD      = { r = 1.000000, g = 0.843137, b = 0.000000 }
 
 
 function UCB.UIOptions:ClassFileToColors(classFile, alpha)
@@ -423,6 +436,14 @@ local function BuildClassColorLookup(alpha)
 end
 
 UCB.UIOptions.classColoursList = BuildClassColorLookup(1)
+
+
+UCB.UITextures = UCB.UITextures or {}
+UCB.UITextures.DownChevron = "Interface\\AddOns\\UltimateCastbars\\gfx\\chevron-down-rounded.tga"
+UCB.UITextures.UpChevron = "Interface\\AddOns\\UltimateCastbars\\gfx\\chevron-up-rounded.tga"
+UCB.UITextures.RightChevron = "Interface\\AddOns\\UltimateCastbars\\gfx\\chevron-right-rounded.tga"
+UCB.UITextures.ChangelogIcon = "Interface\\AddOns\\UltimateCastbars\\gfx\\changelog.png"
+
 
 
 ------------------------------------------------------------ Profiles ------------------------------------------------------------

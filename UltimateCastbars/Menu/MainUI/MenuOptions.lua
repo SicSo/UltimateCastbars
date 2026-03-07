@@ -57,6 +57,7 @@ function GUI:BuildUnitOptionsArgs(unit)
                 enabled = {
                     type = "toggle",
                     name = "Enable",
+                    dialogControl = "UCB_CheckBox",
                     order = 1,
                     width = "full",
                     get = function() return GetEnabled(unit) end,
@@ -66,7 +67,7 @@ function GUI:BuildUnitOptionsArgs(unit)
                     end,
                 },
                 unitTitle = {
-                    type = "header",
+                    type = "header",  dialogControl = "UCB_Heading",
                     name = "Now modifying: ".. UIOptions.ColorText(UIOptions.turquoise, UCB:UnitDisplayName(unit)),
                     order = 1.5,
                 },

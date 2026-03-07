@@ -261,7 +261,7 @@ function STYLE_API:createCopySettingsMainTOMain(unit, cfg, base)
                 width = 0.1,
             },
             copyFromSource = {
-                type = "execute",
+                type = "execute",dialogControl = "UCB_Button",
                 name = function() return "Copy from "..UIOptions.ColorText(UIOptions.turquoise, UIOptions.MakeTitle(copyFromCastType)) end,
                 desc = "Copy the current cast type style settings to the other cast types.",
                 order = 2,
@@ -278,7 +278,7 @@ function STYLE_API:createCopySettingsMainTOMain(unit, cfg, base)
                 width = 0.1,
             },
             resetDefault = {
-                type = "execute",
+                type = "execute",dialogControl = "UCB_Button",
                 name = "Reset to default",
                 desc = "Reset the current cast type style settings to default.",
                 order = 3,
@@ -338,7 +338,7 @@ function STYLE_API:createCopySettingsSpellsTOMain(unit, cfg, base, bigCFG)
                 width = 0.1,
             },
             copyFromSource = {
-                type = "execute",
+                type = "execute",dialogControl = "UCB_Button",
                 name = function() return "Copy from "..UIOptions.ColorText(UIOptions.turquoise, UIOptions.MakeTitle(values_list[castIndex])) end,
                 desc = "Copy the current spell style settings to the other spells.",
                 order = 2,
@@ -400,7 +400,7 @@ function STYLE_API:createCopySettingsSpellTOSpell(unit, cfg, base_index)
                 width = 0.1,
             },
             copyFromSource = {
-                type = "execute",
+                type = "execute",dialogControl = "UCB_Button",
                 name = function() return "Copy from "..UIOptions.ColorText(UIOptions.turquoise, UIOptions.MakeTitle(values_list[src_index])) end,
                 desc = "Copy the current spell style settings to the other spells.",
                 order = 2,
@@ -417,7 +417,7 @@ function STYLE_API:createCopySettingsSpellTOSpell(unit, cfg, base_index)
                 width = 0.1,
             },
             resetDefault = {
-                type = "execute",
+                type = "execute",dialogControl = "UCB_Button",
                 name = "Reset to default",
                 desc = "Reset the current cast type style settings to default.",
                 order = 3,
@@ -461,7 +461,7 @@ function STYLE_API:createCopySettingsMainToSpell(unit, cfg, base_index, styleCFG
                 width = 0.1,
             },
             copyFromSource = {
-                type = "execute",
+                type = "execute",dialogControl = "UCB_Button",
                 name = function() return "Copy from "..UIOptions.ColorText(UIOptions.turquoise, UIOptions.MakeTitle(copyFromCastType)) end,
                 desc = "Copy the current cast type style settings to the other cast types.",
                 order = 2,

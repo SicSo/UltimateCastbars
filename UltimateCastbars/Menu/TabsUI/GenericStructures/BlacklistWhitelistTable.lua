@@ -75,7 +75,7 @@ local function BuildAbilityRows(abilityTable, cfg, unit)
                 v4 = { type = "description", name = "|", order = 8, width = 0.05 },
 
                 remove = {
-                    type = "execute",
+                    type = "execute",dialogControl = "UCB_Button",
                     name = "Remove",
                     order = 9,
                     width = 0.60,
@@ -135,7 +135,7 @@ local function BuildAbilityFilterTable(cfg, unit, disabled)
         args = {
             -- MODE HEADER + SWITCH BUTTON
             modeHeader = {
-                type = "header",
+                type = "header",  dialogControl = "UCB_Heading",
                 name = function()
                     if cfg.blackList then
                         return "Mode: "..UIOptions.ColorText(UIOptions.red, "Blacklist")
@@ -147,7 +147,7 @@ local function BuildAbilityFilterTable(cfg, unit, disabled)
             },
 
             switchMode = {
-                type = "execute",
+                type = "execute",dialogControl = "UCB_Button",
                 name = "Switch mode",
                 order = 0.5,
                 width = 1.5,
@@ -217,7 +217,7 @@ local function BuildAbilityFilterTable(cfg, unit, disabled)
                     v1 = { type = "description", name = "", order = 2.5, width = 0.2 },
 
                     addBtn = {
-                        type = "execute",
+                        type = "execute",dialogControl = "UCB_Button",
                         name = "Add Spell ID",
                         order = 3,
                         width = 1.5,

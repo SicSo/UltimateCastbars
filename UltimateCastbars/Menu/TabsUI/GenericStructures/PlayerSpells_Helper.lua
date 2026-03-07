@@ -67,7 +67,7 @@ function UIStructures:createSelectBlock(cfg, order)
         order = order,
         args = {
             selectedSpell = {
-                type = "header",
+                type = "header",  dialogControl = "UCB_Heading",
                 name = function()
                     local info = UIStructures:_SafeSpellInfo(cfg._abilitySelect)
                     if info then

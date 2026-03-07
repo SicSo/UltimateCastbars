@@ -27,7 +27,7 @@ local function BuildTagButtons(unit)
       local tcfg = GetCFG(unit, "text").textList[key]
 
       btns["btn_" .. key] = {
-        type  = "execute",
+        type = "execute",dialogControl = "UCB_Button",
         name  = function() return tostring(tcfg.name) end, -- now live
         order = order,
         width = "quarter",
@@ -55,7 +55,7 @@ local function tagUI(key, unit)
     local cfg = bigCFG.textList[key]
     
     args.deleteButton = {
-        type = "execute",
+        type = "execute",dialogControl = "UCB_Button",
         name = "Delete Tag",
         order = 0,
         confirm = function() return "Are you sure you want to delete this tag?" end,
@@ -105,7 +105,7 @@ local function tagUI(key, unit)
         },
     }
     args.titleOptions = {
-        type = "header",
+        type = "header",  dialogControl = "UCB_Heading",
         name = "Tag Customisation Options",
         order = 1.5,
     }
@@ -301,7 +301,7 @@ local function tagUI(key, unit)
                 order = 2,
             },
             tagType = {
-                type = "header",
+                type = "header",  dialogControl = "UCB_Heading",
                 name = function() return "Tag Type: "..UIOptions.ColorText(UIOptions[cfg._typeColour], cfg._type) end,
                 order = 3,
             },
@@ -533,7 +533,7 @@ local function addTagUI(unit)
                     end,
             },
             addButton = {
-                type = "execute",
+                type = "execute",dialogControl = "UCB_Button",
                 name = "Add New Tag",
                 order = 2,
                 func = function()

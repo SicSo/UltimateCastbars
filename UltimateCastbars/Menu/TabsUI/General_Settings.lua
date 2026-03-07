@@ -29,7 +29,7 @@ local function BuildFramePickerArgs(args, unit)
                         "You can copy the value from the textbox above and paste it into the 'Custom Anchor Frame', 'Custom Width Frame' or 'Custom Height Frame' field."
                 },
                 frameClickedLast = {
-                    type = "header",
+                    type = "header",  dialogControl = "UCB_Heading",
                     name = function()
                         return "Frame clicked last: "..UIOptions.ColorText(UIOptions.turquoise, g.frameLastClicked)
                     end,
@@ -37,7 +37,7 @@ local function BuildFramePickerArgs(args, unit)
                     order = 1,
                 },
                 grabButton = {
-                    type = "execute",
+                    type = "execute",dialogControl = "UCB_Button",
                     name = "Grab Mouseover Frame",
                     order = 2,
                     width = 1.5,
@@ -92,7 +92,7 @@ local function BuildPositionArgs(args, unit)
                         order = 1,
                         args = {
                             anchorNameHeader = {
-                                type = "header",
+                                type = "header",  dialogControl = "UCB_Heading",
                                 name = function()
                                     local defaultName = g._defaultAnchor or "UIParent"
 
@@ -185,7 +185,7 @@ local function BuildPositionArgs(args, unit)
                             width = 0.1
                             },
                             clearFramesList = {
-                                type = "execute",
+                                type = "execute",dialogControl = "UCB_Button",
                                 name = "Clear Frame List",
                                 order = 5,
                                 width = 1,
@@ -503,7 +503,7 @@ local function BuildSizeArgs(args, unit)
                 end,
                 args = {
                     widthFrameTitle = {
-                        type = "header",
+                        type = "header",  dialogControl = "UCB_Heading",
                         name = function()
                             local str1
                             local widthFrame = g._widthFrameRef or GeneralSettings_API:getFrame(g.widthInput) or UIParent
@@ -523,7 +523,7 @@ local function BuildSizeArgs(args, unit)
                         width = "full",
                     },
                     widthFrameStats = {
-                        type = "header",
+                        type = "header",  dialogControl = "UCB_Heading",
                         name = function ()
                             local frame = g._widthFrameRef or GeneralSettings_API:getFrame(g.widthInput) or UIParent
                             if frame and frame ~= UIParent then
@@ -615,7 +615,7 @@ local function BuildSizeArgs(args, unit)
                 end,
                 args = {
                     heigthFrameTitle = {
-                        type = "header",
+                        type = "header",  dialogControl = "UCB_Heading",
                         name = function()
                             local str1
                             local heightFrame = g._heightFrameRef or GeneralSettings_API:getFrame(g.heightInput) or UIParent
@@ -635,7 +635,7 @@ local function BuildSizeArgs(args, unit)
                         width = "full",
                     },
                     heightFrameStats = {
-                        type = "header",
+                        type = "header",  dialogControl = "UCB_Heading",
                         name = function ()
                             local frame = g._heightFrameRef or GeneralSettings_API:getFrame(g.heightInput) or UIParent
                             if frame and frame ~= UIParent then
@@ -800,7 +800,7 @@ local function BuildSizeArgs(args, unit)
                 },
             },
             buttonClearList = {
-                type = "execute",
+                type = "execute",dialogControl = "UCB_Button",
                 name = "Clear Frame List",
                 order = 4,
                 width = 1,

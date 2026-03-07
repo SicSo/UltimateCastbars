@@ -3,6 +3,9 @@ local _, UCB = ...
 
 UCB.CFG_API = UCB.CFG_API or {}
 UCB.UIOptions = UCB.UIOptions or {}
+UCB.Theme = UCB.Theme or {}
+
+local Theme = UCB.Theme
 
 function UCB.UIOptions.ColorText(hex, text)
     if not text then return "" end
@@ -29,13 +32,15 @@ function UCB:NotifyChange()
 end
 
 function UCB:SelectGroup(path, unit)
-  if UCB.ACD then
-    if unit == nil then
-      UCB.ACD:SelectGroup(UCB.GUI.appName, unpack(path))
-    else
-      UCB.ACD:SelectGroup(UCB.GUI.appName, unit, unpack(path))
-    end
-  end
+    Theme:AceGUIOverride(function()
+        if UCB.ACD then
+            if unit == nil then
+                UCB.ACD:SelectGroup(UCB.GUI.appName, unpack(path))
+            else
+                UCB.ACD:SelectGroup(UCB.GUI.appName, unit, unpack(path))
+            end
+        end
+    end)
 end
 
 local function startsWith(s, prefix)
