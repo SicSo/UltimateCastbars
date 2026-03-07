@@ -20,6 +20,8 @@ local function NewFrameRecord()
         address = nil,
         anchorFrom = nil,
         anchorTo = nil,
+        offsetX = nil,
+        offsetY = nil,
     }
 end
 
@@ -69,6 +71,8 @@ local function AnchorWhenReady(unit, frameToAnchor, cfg, opts)
         and cache.address == wantedAnchor
         and cache.anchorTo == wantedAnchorTo
         and cache.anchorFrom == wantedAnchorFrom
+        and cache.offsetX == (cfg.offsetX or 0)
+        and cache.offsetY == (cfg.offsetY or 0)
     then
         return
     end
@@ -116,6 +120,8 @@ local function AnchorWhenReady(unit, frameToAnchor, cfg, opts)
                 cache.address = anchor
                 cache.anchorFrom = anchorFrom
                 cache.anchorTo = anchorTo
+                cache.offsetX = cfg.offsetX or 0
+                cache.offsetY = cfg.offsetY or 0
             end
             return
         end
@@ -129,6 +135,8 @@ local function AnchorWhenReady(unit, frameToAnchor, cfg, opts)
         cache.address = anchor
         cache.anchorFrom = anchorFrom
         cache.anchorTo = anchorTo
+        cache.offsetX = cfg.offsetX or 0
+        cache.offsetY = cfg.offsetY or 0
     end
 
     if delay > 0 then
