@@ -114,7 +114,7 @@ local function AnchorWhenReady(unit, frameToAnchor, cfg, opts)
                 anchor = _G[cfg._defaultAnchor] or UIParent
 
                 frameToAnchor:ClearAllPoints()
-                frameToAnchor:SetPoint(anchorFrom, anchor, anchorTo, cfg.offsetX or 0, cfg.offsetY or 0)
+                frameToAnchor:SetPoint(cfg.anchorFromDefault, anchor, cfg.anchorToDefault, cfg.offsetX or 0, cfg.offsetY or 0)
 
                 cache.name = resolvedName
                 cache.address = anchor

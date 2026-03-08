@@ -55,13 +55,18 @@ function UCB:EnsureSpellcastEventFrame()
     end
 
     f1:SetScript("OnEvent", function(_, event, unit, castGUID, spellID, castBarID)
-      if not UCB.trackedUnits[unit] and unit ~= "pet" then return end
-      if unit == "pet" and not IsPetUsingVehicleUnit(unit) then 
-        return
-      else
-        UCB.usePetForPlayer = true
+      if unit == "pet" then
+        if not UCB.trackedUnits.player or not IsPetUsingVehicleUnit(unit) then
+          return
+        end
         unit = "player"
+        UCB.usePetForPlayer = true
+      else
+        if not UCB.trackedUnits[unit] then
+          return
+        end
       end
+      --if not UCB.trackedUnits[unit] then return end
       local resumeCast = false
 
       local method = events[event]
@@ -103,12 +108,15 @@ function UCB:EnsureSpellcastEventFrame()
     end
 
     f3:SetScript("OnEvent", function(_, event, unit, ...)
-      if not UCB.trackedUnits[unit] and unit ~= "pet" then return end
-      if unit == "pet" and not IsPetUsingVehicleUnit(unit) then 
-        return
-      else
-        UCB.usePetForPlayer = true
+      if unit == "pet" then
+        if not UCB.trackedUnits.player or  not IsPetUsingVehicleUnit(unit) then
+          return
+        end
         unit = "player"
+      else
+        if not UCB.trackedUnits[unit] then
+          return
+        end
       end
       
       local method = UCB.interruptEvents[event]
@@ -327,6 +335,9 @@ function UCB:EnableSpecSwapListener()
   f:SetScript("OnEvent", function(_, event, unit)
     if event == "PLAYER_SPECIALIZATION_CHANGED" and not UCB:IsPlayer(unit, true) then return end
     UpdateSpec()
+    C_Timer.After(0.1, function()
+        SetUpSpellTypes()
+    end)
   end)
 
   self.eventFrame.specSwap = f
@@ -347,7 +358,7 @@ local function GatherInfo()
         ResolveFrames()
 
         -- small delay helps tooltip/spellbook settle on first load
-        C_Timer.After(0.1, function()
+        C_Timer.After(0.3, function()
             SetUpSpellTypes()
         end)
     end)

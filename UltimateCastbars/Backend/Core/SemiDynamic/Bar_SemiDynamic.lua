@@ -461,6 +461,7 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, la
 
     -- Spell filter
     if not CASTBAR_API:SpellFilterClass(unit, spellID, cfg) then
+        UCB.usePetForPlayer = false
         return false, nil, nil, nil
     end
 
