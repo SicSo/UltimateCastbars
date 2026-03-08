@@ -5,6 +5,7 @@
 
 ### Fixed
 - OverlayPlayerCastingBarFrame was not being hidden on player unit
+- In some vehicles, you become pet so PetCastingBar is used for player, the addon supports this now (hide pet in vehicle and show pet abilities as player)
 
 ---
 

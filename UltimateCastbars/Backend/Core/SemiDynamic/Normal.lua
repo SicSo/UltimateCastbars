@@ -20,7 +20,7 @@ end
 
 ---------------------------------------------------- MAIN -------------------------------------------------
 function CASTBAR_API:OnUnitSpellcastStart(unit, castGUID, spellID, castBarID, resumeCast)
-    if UCB:IsPlayer(unit, true) and Latency.sendTime then Latency.latency = GetTime() - Latency.sendTime else Latency.latency = nil end
+    if not UCB.usePetForPlayer and UCB:IsPlayer(unit, true) and Latency.sendTime then Latency.latency = GetTime() - Latency.sendTime else Latency.latency = nil end
     local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, Latency.latency)
     if not show then return end
     -- Set colours

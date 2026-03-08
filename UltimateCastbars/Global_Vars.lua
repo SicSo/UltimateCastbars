@@ -25,6 +25,8 @@ UCB.castTypesStyle = {
     "empowered"
 }
 
+UCB.usePetForPlayer = false
+
 UCB.events = {
   UNIT_SPELLCAST_START          = "OnUnitSpellcastStart",
   UNIT_SPELLCAST_STOP           = "OnUnitSpellcastStop",

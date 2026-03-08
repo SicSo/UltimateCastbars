@@ -295,6 +295,10 @@ function tags:updateVars(unit, type, spellID, cfg, latency)
     if vars.empStages then
         table.wipe(vars.empStages)
     end
+    if unit == "player" and UCB.usePetForPlayer then
+        unit = "pet"
+        UCB.usePetForPlayer = false
+    end
     if type == "normal" or type == "channel" then 
         if type == "normal" then
             durationObject = UnitCastingDuration(unit)

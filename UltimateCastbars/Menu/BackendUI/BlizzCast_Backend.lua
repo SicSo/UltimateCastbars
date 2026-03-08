@@ -5,16 +5,53 @@ UCB.DefBlizzCast = UCB.DefBlizzCast or {}
 local GetCFG = UCB.GetValueConfig
 local DefBlizzCast = UCB.DefBlizzCast
 
+local ENABLE_PET_CASTING_BAR_HIDE = true
+
 local function RegisterEventSafe(frame, eventName)
     if not frame or not eventName then return false end
     local ok = pcall(frame.RegisterEvent, frame, eventName)
     return ok
 end
 
+local function GetActivePlayerCastUnit()
+    if UnitExists and UnitExists("vehicle") and UnitHasVehicleUI and UnitHasVehicleUI("player") then
+        return "vehicle"
+    end
+    return "player"
+end
 
 local function IsUnitCastingOrChanneling(unit)
+    if UCB:IsPlayer(unit, true) then
+        unit = GetActivePlayerCastUnit()
+    end
+
     if UnitCastingInfo and UnitCastingInfo(unit) then return true end
     if UnitChannelInfo and UnitChannelInfo(unit) then return true end
+    return false
+end
+
+local function ShouldHidePetCastingBar(unit)
+    if not ENABLE_PET_CASTING_BAR_HIDE then
+        return false
+    end
+
+    if not UCB:IsPlayer(unit, true) then
+        return false
+    end
+
+    local cfg = GetCFG(unit)
+    if not (cfg and cfg.defaultBar) then
+        return false
+    end
+
+    if cfg.defaultBar.enabled ~= false then
+        return false
+    end
+
+    if UnitExists and UnitExists("vehicle") and UnitHasVehicleUI and UnitHasVehicleUI("player") then
+        return true
+    end
+
     return false
 end
 
@@ -22,12 +59,47 @@ end
 -- ============================================================
 -- Helpers: Blizzard frames
 -- ============================================================
+
+local function EnsureVehicleHideEventFrame()
+    if UCB.__ucbVehicleHideEvents then return end
+
+    local ef = CreateFrame("Frame")
+    UCB.__ucbVehicleHideEvents = ef
+
+    RegisterEventSafe(ef, "UNIT_ENTERED_VEHICLE")
+    RegisterEventSafe(ef, "UNIT_EXITED_VEHICLE")
+    RegisterEventSafe(ef, "PLAYER_GAINS_VEHICLE_DATA")
+    RegisterEventSafe(ef, "PLAYER_LOSES_VEHICLE_DATA")
+    RegisterEventSafe(ef, "UPDATE_VEHICLE_ACTIONBAR")
+    RegisterEventSafe(ef, "UNIT_ENTERING_VEHICLE")
+    RegisterEventSafe(ef, "UNIT_EXITING_VEHICLE")
+
+    ef:SetScript("OnEvent", function(_, _, unitTarget)
+        if unitTarget and unitTarget ~= "player" then return end
+
+        DefBlizzCast:ApplyDefaultBlizzCastbar("player", false)
+
+        if C_Timer and C_Timer.After then
+            C_Timer.After(0, function()
+                DefBlizzCast:ApplyDefaultBlizzCastbar("player", false)
+            end)
+            C_Timer.After(0.1, function()
+                DefBlizzCast:ApplyDefaultBlizzCastbar("player", false)
+            end)
+        end
+    end)
+end
+
 local function GetExtraHideFrames(unit)
     local out = {}
 
     if UCB:IsPlayer(unit, true) then
         if _G.OverlayPlayerCastingBarFrame then
             out[#out + 1] = _G.OverlayPlayerCastingBarFrame
+        end
+
+        if ShouldHidePetCastingBar(unit) and _G.PetCastingBarFrame then
+            out[#out + 1] = _G.PetCastingBarFrame
         end
     end
 
@@ -229,7 +301,9 @@ local function ApplyHideState(f, shouldHide, dontForceShow, unit)
 
 		-- PLAYER: do NOT touch showCastbar (taint risk).
 		-- Also avoid SetParent if this is the global CastingBarFrame.
-		if f == _G.CastingBarFrame or f == _G.OverlayPlayerCastingBarFrame then
+		if f == _G.CastingBarFrame
+        or f == _G.OverlayPlayerCastingBarFrame
+        or (ShouldHidePetCastingBar(unit) and f == _G.PetCastingBarFrame) then
             if f.SetAlpha then pcall(function() f:SetAlpha(0) end) end
             if f.Hide then f:Hide() end
             return
@@ -265,7 +339,8 @@ local function ApplyHideState(f, shouldHide, dontForceShow, unit)
 		return
 	end
 
-    if f == _G.OverlayPlayerCastingBarFrame then
+    if f == _G.OverlayPlayerCastingBarFrame
+    or (ShouldHidePetCastingBar(unit) and f == _G.PetCastingBarFrame) then
         return
     end
 
@@ -281,6 +356,11 @@ function DefBlizzCast:RefreshBlizzardCastbarHide(unit, showBar)
 
     local shouldHide = (cfg.defaultBar.enabled == false)
 
+    local shouldHideExtras = shouldHide
+    if UCB:IsPlayer(unit, true) then
+        shouldHideExtras = shouldHide or (cfg.defaultBar.useBlizzardDefaults == false)
+    end
+
     -- On initialApply we only want to show if a cast/channel is active
     local dontForceShow = false
     if showBar == false and shouldHide == false then
@@ -290,13 +370,11 @@ function DefBlizzCast:RefreshBlizzardCastbarHide(unit, showBar)
     local frames = GetBlizzFrames(unit)
     local extras = GetExtraHideFrames(unit)
 
-    for i = 1, #extras do
-        frames[#frames + 1] = extras[i]
-    end
-
     for _, f in ipairs(frames) do
         if f then
             f.__ucbOwnerUnit = unit
+            f.__ucbIsExtraHideFrame = nil
+
             if not f.__ucbHideHooked then
                 f.__ucbHideHooked = true
 
@@ -304,24 +382,75 @@ function DefBlizzCast:RefreshBlizzardCastbarHide(unit, showBar)
                     local owner = self.__ucbOwnerUnit
                     if not owner then return end
                     local c = GetCFG(owner)
-                    if c and c.defaultBar and c.defaultBar.enabled == false then
-                        ApplyHideState(self, true, nil, owner)
-                    end
+                    if not (c and c.defaultBar) then return end
+
+                    local hideNow = (c.defaultBar.enabled == false)
+                    ApplyHideState(self, hideNow, nil, owner)
                 end)
 
                 if hooksecurefunc then
-                    hooksecurefunc(f, "Show", function(self)
-                        local owner = self.__ucbOwnerUnit
-                        if not owner then return end
-                        local c = GetCFG(owner)
-                        if c and c.defaultBar and c.defaultBar.enabled == false then
-                            ApplyHideState(self, true, nil, owner)
-                        end
-                    end)
+                    if f.SetShown then
+                        hooksecurefunc(f, "SetShown", function(self, shown)
+                            if not shown then return end
+                            local owner = self.__ucbOwnerUnit
+                            if not owner then return end
+                            local c = GetCFG(owner)
+                            if not (c and c.defaultBar) then return end
+
+                            local hideNow = (c.defaultBar.enabled == false)
+                            ApplyHideState(self, hideNow, nil, owner)
+                        end)
+                    end
                 end
             end
 
             ApplyHideState(f, shouldHide, dontForceShow, unit)
+        end
+    end
+
+    for _, f in ipairs(extras) do
+        if f then
+            f.__ucbOwnerUnit = unit
+            f.__ucbIsExtraHideFrame = true
+
+            if not f.__ucbHideHooked then
+                f.__ucbHideHooked = true
+
+                f:HookScript("OnShow", function(self)
+                    local owner = self.__ucbOwnerUnit
+                    if not owner then return end
+                    local c = GetCFG(owner)
+                    if not (c and c.defaultBar) then return end
+
+                    local hideNow = (c.defaultBar.enabled == false)
+                    if UCB:IsPlayer(owner, true) then
+                        hideNow = hideNow or (c.defaultBar.useBlizzardDefaults == false)
+                    end
+
+                    ApplyHideState(self, hideNow, nil, owner)
+                end)
+
+                if hooksecurefunc then
+                    if f.SetShown then
+                        hooksecurefunc(f, "SetShown", function(self, shown)
+                            if not shown then return end
+                            local owner = self.__ucbOwnerUnit
+                            if not owner then return end
+                            local c = GetCFG(owner)
+                            if not (c and c.defaultBar) then return end
+
+                            local hideNow = (c.defaultBar.enabled == false)
+                            if UCB:IsPlayer(owner, true) then
+                                hideNow = hideNow or (c.defaultBar.useBlizzardDefaults == false)
+                            end
+
+                            ApplyHideState(self, hideNow, nil, owner)
+                        end)
+                    end
+                end
+            end
+
+            ApplyHideState(f, shouldHideExtras, dontForceShow, unit)
         end
     end
 end
@@ -516,7 +645,7 @@ local function ApplyCustomNowAndNextFrame(unit)
 end
 
 
-function DefBlizzCast:ApplyDefaultBlizzCastbar(unit, showBar)
+function DefBlizzCast:ApplyDefaultBlizzCastbar_Legacy(unit, showBar)
     local cfg = GetCFG(unit)
     if not cfg then return end
     DefBlizzCast:EnsureDefaultBarKeys(unit)
@@ -532,6 +661,27 @@ function DefBlizzCast:ApplyDefaultBlizzCastbar(unit, showBar)
         DefBlizzCast:RefreshBlizzardCastbarLayoutMode(unit, showBar)
     else
         -- force custom and beat late Blizzard anchoring
+        ApplyCustomNowAndNextFrame(unit)
+    end
+end
+
+function DefBlizzCast:ApplyDefaultBlizzCastbar(unit, showBar)
+    local cfg = GetCFG(unit)
+    if not cfg then return end
+    DefBlizzCast:EnsureDefaultBarKeys(unit)
+
+    if UCB:IsPlayer(unit, true) then
+        EnsureVehicleHideEventFrame()
+    end
+
+    local db = cfg.defaultBar
+
+    DefBlizzCast:RefreshBlizzardCastbarHide(unit, showBar)
+    if db.enabled == false then return end
+
+    if db.useBlizzardDefaults then
+        DefBlizzCast:RefreshBlizzardCastbarLayoutMode(unit, showBar)
+    else
         ApplyCustomNowAndNextFrame(unit)
     end
 end

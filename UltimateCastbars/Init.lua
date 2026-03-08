@@ -36,6 +36,14 @@ UCB.Options.ClassExtraBuilders = UCB.Options.ClassExtraBuilders or {}
 UCB.CASTBAR_API.CreateCastbar = UCB.CASTBAR_API.UpdateCastbar -- for backward compatibility
 
 
+local function IsPetUsingVehicleUnit(unit)
+    return unit == "pet"
+        and UnitExists
+        and UnitExists("vehicle")
+        and UnitHasVehicleUI
+        and UnitHasVehicleUI("player")
+end
+
 function UCB:EnsureSpellcastEventFrame()
   if UCB.eventFrame.spellcast and UCB.eventFrame.swap then return end
 
@@ -47,7 +55,13 @@ function UCB:EnsureSpellcastEventFrame()
     end
 
     f1:SetScript("OnEvent", function(_, event, unit, castGUID, spellID, castBarID)
-      if not UCB.trackedUnits[unit] then return end
+      if not UCB.trackedUnits[unit] and unit ~= "pet" then return end
+      if unit == "pet" and not IsPetUsingVehicleUnit(unit) then 
+        return
+      else
+        UCB.usePetForPlayer = true
+        unit = "player"
+      end
       local resumeCast = false
 
       local method = events[event]
@@ -89,7 +103,13 @@ function UCB:EnsureSpellcastEventFrame()
     end
 
     f3:SetScript("OnEvent", function(_, event, unit, ...)
-      if not UCB.trackedUnits[unit] then return end
+      if not UCB.trackedUnits[unit] and unit ~= "pet" then return end
+      if unit == "pet" and not IsPetUsingVehicleUnit(unit) then 
+        return
+      else
+        UCB.usePetForPlayer = true
+        unit = "player"
+      end
       
       local method = UCB.interruptEvents[event]
       local api = UCB.CASTBAR_API
