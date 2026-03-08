@@ -135,9 +135,10 @@ function CASTBAR_API:AssignQueueWindow(unit, cfg, typeCast)
     local mirror = otherCFG.mirrorBar[typeCast]
 
     local switch = (inverted or mirror) and not (inverted and mirror)  -- if either is true, but not both
+    local queWindow = BarUpdate_API.queueWindow / 1000
 
-    if otherCFG.showQueueWindow[typeCast] then
-        local queWindow = BarUpdate_API.queueWindow / 1000
+    if otherCFG.showQueueWindow[typeCast] and queWindow < tags.var[unit].dTime then
+        
         local px = cfg.general.actualBarWidth * (queWindow / tags.var[unit].dTime)
         queueWindowOverlay:SetWidth(px)
         queueWindowOverlay:ClearAllPoints()
@@ -168,7 +169,7 @@ end
 
     local switch = (inverted or mirror) and not (inverted and mirror)  -- if either is true, but not both
 
-    if latencyCFG.enabled and latencyCFG.show[castType] then
+    if latencyCFG.enabled and latencyCFG.show[castType] and latency < tags.var[unit].dTime then
         local px = cfg.general.actualBarWidth * (latency / tags.var[unit].dTime)
         latencyOverlay:SetWidth(px)
         latencyOverlay:ClearAllPoints()
