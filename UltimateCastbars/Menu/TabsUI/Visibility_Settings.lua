@@ -36,7 +36,7 @@ local function BuildLayeringArgs(args, unit)
                 end,
             },
             frameLevel = {
-                type  = "range",
+                type  = "range", dialogControl = "UCB_Slider",
                 name  = "Frame Level",
                 desc  = "Only affects draw order among frames in the same strata. Higher level appears above.",
                 min   = UIOptions.frameLevelMin, max = UIOptions.frameLevelMax, step = 1,

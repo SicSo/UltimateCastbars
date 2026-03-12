@@ -73,7 +73,7 @@ local function BuildKickedCancelledArgs(unit, cfg, castType, type, order)
         order = order,
         args = {
             showEffect = {
-                type  = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name  = function() return UIOptions.ColorText(UIOptions.turquoise, castTypeName).." casts: show "..UIOptions.ColorText(UIOptions.turquoise, type).." effects" end,
                 order = 1,
                 width = "full",
@@ -91,7 +91,7 @@ local function BuildKickedCancelledArgs(unit, cfg, castType, type, order)
                 hidden = function() return not cfg.enableEffect[castType] end,
                 args = {
                     useMainTextureForEffect = {
-                        type  = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name  = function() return "Use main texture for effect" end,
                         order = 1,
                         width = "full",
@@ -122,7 +122,7 @@ local function BuildKickedCancelledArgs(unit, cfg, castType, type, order)
                         width = "0.3",
                     },
                     effectColor = {
-                        type = "color",
+                        type = "color", dialogControl = "UCB_ColorPicker",
                         name = function() return castTypeName.." cast effect colour" end,
                         hasAlpha = true,
                         order = 3,
@@ -142,7 +142,7 @@ local function BuildKickedCancelledArgs(unit, cfg, castType, type, order)
                         width = "0.3",
                     },
                     displayTimer = {
-                        type = "range",
+                        type = "range", dialogControl = "UCB_Slider",
                         name = function() return "Duration to display effect for "..castType.." casts (s)" end,
                         min = 0, max = 5, step = 0.05,
                         order = 4,
@@ -167,7 +167,7 @@ local function BuildKickedCancelledArgs(unit, cfg, castType, type, order)
                                 width = "full"
                             },
                         useChannelError = {
-                                type = "toggle",
+                                type = "toggle", dialogControl = "UCB_CheckBox",
                                 name = function() return "Use channel error threshold" end,
                                 desc = function() return "When enabled, the channel error threshold will be used to determine whether a channelled cast was cancelled or not. If the cast stops with less time remaining than this threshold, it will be considered finished." end,
                                 order = 2,
@@ -179,7 +179,7 @@ local function BuildKickedCancelledArgs(unit, cfg, castType, type, order)
                                 end,
                             },
                         channelError = {
-                                type = "range",
+                                type = "range", dialogControl = "UCB_Slider",
                                 name = function() return "Channel latency (ms)" end,
                                 desc = function() return "This option is used to determine whether a channelled cast was cancelled or not. If the cast stops with less time remaining than this threshold, it will be considered finished. (1s = 1000ms)" end,
                                 min = 0, max = 1000, step = 1,
@@ -239,7 +239,7 @@ local function BuildOtherArgs(args, unit)
                             order = 1,
                         },
                         queueWindowCVAR = {
-                            type  = "range",
+                            type  = "range", dialogControl = "UCB_Slider",
                             name  = "Window Duration (ms) - CVAR",
                             min   = UIOptions.queueWindowMin, max = UIOptions.queueWindowMax, step = 10,
                             order = 2,
@@ -270,7 +270,7 @@ local function BuildOtherArgs(args, unit)
                             order = 1.5,
                             args = {
                                 showQueueWindow = {
-                                    type  = "toggle",
+                                    type = "toggle", dialogControl = "UCB_CheckBox",
                                     name  = "Normal Spells",
                                     order = 1,
                                     width = 1,
@@ -281,7 +281,7 @@ local function BuildOtherArgs(args, unit)
                                     end,
                                 },
                                 showQueueWindowChannel = {
-                                    type  = "toggle",
+                                    type = "toggle", dialogControl = "UCB_CheckBox",
                                     name  = "Channeled Spells",
                                     order = 2,
                                     width = 1,
@@ -292,7 +292,7 @@ local function BuildOtherArgs(args, unit)
                                     end,
                                 },
                                 showQueueWindowEmpowered = {
-                                    type  = "toggle",
+                                    type = "toggle", dialogControl = "UCB_CheckBox",
                                     name  = "Empowered Spells",
                                     order = 3,
                                     width = 1,
@@ -311,7 +311,7 @@ local function BuildOtherArgs(args, unit)
                             order = 5,
                             args = {
                                 queueMatchCVAR = {
-                                    type  = "toggle",
+                                    type = "toggle", dialogControl = "UCB_CheckBox",
                                     name  = "Match CVAR Duration",
                                     desc  = "When enabled, the visual spell queue window duration will match the SPELL QUEUE WINDOW CVAR value.",
                                     order = 1,
@@ -322,7 +322,7 @@ local function BuildOtherArgs(args, unit)
                                     end,
                                 },
                                 queueWindow = {
-                                    type  = "range",
+                                    type  = "range", dialogControl = "UCB_Slider",
                                     name  = "Window Duration (ms)",
                                     min   = UIOptions.queueWindowMin, max = UIOptions.queueWindowMax, step = 10,
                                     order = 2,
@@ -365,7 +365,7 @@ local function BuildOtherArgs(args, unit)
                             order = 7,
                             args = {
                                 queueWindowColor = {
-                                    type = "color",
+                                    type = "color", dialogControl = "UCB_ColorPicker",
                                     name = "Window Colour",
                                     hasAlpha = true,
                                     order = 1,
@@ -379,7 +379,7 @@ local function BuildOtherArgs(args, unit)
                                     end,
                                 },
                                 useQueueTexture = {
-                                    type  = "toggle",
+                                    type = "toggle", dialogControl = "UCB_CheckBox",
                                     name  = "Use texture for queue window",
                                     order = 2,
                                     width = "full",
@@ -421,7 +421,7 @@ local function BuildOtherArgs(args, unit)
                     order = 1,
                 },
                 enableLatency = {
-                    type  = "toggle",
+                    type = "toggle", dialogControl = "UCB_CheckBox",
                     name  = "Enable Latency Overlay",
                     order = 2,
                     width = "full",
@@ -439,7 +439,7 @@ local function BuildOtherArgs(args, unit)
                     disabled = function() return not cfg.latency.enabled end,
                     args = {
                         showLatencyNormal = {
-                            type  = "toggle",
+                            type = "toggle", dialogControl = "UCB_CheckBox",
                             name  = "On normal casts",
                             order = 1,
                             width = 1.5,
@@ -450,7 +450,7 @@ local function BuildOtherArgs(args, unit)
                             end,
                         },
                         showLatencyChannel = {
-                            type  = "toggle",
+                            type = "toggle", dialogControl = "UCB_CheckBox",
                             name  = "On channeled casts",
                             order = 2,
                             width = 1.5,
@@ -470,7 +470,7 @@ local function BuildOtherArgs(args, unit)
                     disabled = function() return not cfg.latency.enabled end,
                     args = {
                         latencyColor = {
-                            type = "color",
+                            type = "color", dialogControl = "UCB_ColorPicker",
                             name = "Overlay Colour",
                             hasAlpha = true,
                             order = 1,
@@ -484,7 +484,7 @@ local function BuildOtherArgs(args, unit)
                             end,
                         },
                         useLatencyTexture = {
-                            type  = "toggle",
+                            type = "toggle", dialogControl = "UCB_CheckBox",
                             name  = "Use texture for overlay",
                             order = 2,
                             get   = function() return cfg.latency.useTexture end,
@@ -528,7 +528,7 @@ local function BuildOtherArgs(args, unit)
                 order = 1,
             },
             showChannelTicks = {
-                type  = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name  = "Show Channel Ticks (ON for class tick options)",
                 order = 2,
                 width = 1.8,
@@ -539,7 +539,7 @@ local function BuildOtherArgs(args, unit)
                 end,
             },
             channelTickColour = {
-                type = "color",
+                type = "color", dialogControl = "UCB_ColorPicker",
                 name = "Tick Colour",
                 desc = "Colour used for tick markers during channeled spells.",
                 hasAlpha = true,
@@ -556,7 +556,7 @@ local function BuildOtherArgs(args, unit)
                 
             },
             channelTickWidth = {
-                type = "range",
+                type = "range", dialogControl = "UCB_Slider",
                 name = "Tick Width",
                 desc = "Thickness of tick markers during channeled spells.",
                 min = UIOptions.channelTickWidthMin, max = UIOptions.channelTickWidthMax, step = 0.5,
@@ -575,7 +575,7 @@ local function BuildOtherArgs(args, unit)
                 order = 5,
                 args = {
                     useTickTexture = {
-                        type  = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name  = "Use texture for ticks",
                         order = 1,
                         get   = function() return cfg.useTickTexture end,
@@ -621,7 +621,7 @@ local function BuildOtherArgs(args, unit)
                         order = 1,
                     },
                     inverseBarCast = {
-                        type  = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name  = "Enable Inverse Bar Normal Cast (drain)",
                         order = 2,
                         width = "full",
@@ -632,7 +632,7 @@ local function BuildOtherArgs(args, unit)
                         end,
                     },
                     inverseBarChannel = {
-                        type  = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name  = "Enable Inverse Bar Channelled Cast (fill)",
                         order = 3,
                         width = "full",
@@ -643,7 +643,7 @@ local function BuildOtherArgs(args, unit)
                         end,
                     },
                     inverseBarEmpowered = {
-                        type  = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name  = "Enable Inverse Bar Empowered Cast (drain)",
                         order = 4,
                         width = "full",
@@ -667,7 +667,7 @@ local function BuildOtherArgs(args, unit)
                         order = 1,
                     },
                     mirrorBarCast = {
-                        type  = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name  = "Enable Mirror Bar Normal Cast",
                         order = 2,
                         width = "full",
@@ -678,7 +678,7 @@ local function BuildOtherArgs(args, unit)
                         end,
                     },
                     mirrorBarChannel = {
-                        type  = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name  = "Enable Mirror Bar Channelled Cast",
                         order = 3,
                         width = "full",
@@ -689,7 +689,7 @@ local function BuildOtherArgs(args, unit)
                         end,
                     },
                     mirrorBarEmpowered = {
-                        type  = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name  = "Enable Mirror Bar Empowered Cast",
                         order = 4,
                         width = "full",

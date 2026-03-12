@@ -468,10 +468,13 @@ local function Constructor()
 	menuFrame:Hide()
 
 	-- Search box inside menu
-	local searchBox = CreateFrame("EditBox", nil, menuFrame, "InputBoxTemplate")
+	local searchBox = CreateFrame("EditBox", nil, menuFrame, "UCBInputBoxTemplate")
 	searchBox:SetAutoFocus(false)
 	searchBox:SetHeight(20)
 	searchBox:SetTextInsets(6, 6, 0, 0)
+	searchBox:SetLeftTexCoord(0.25, 1, 0.25, 0.78125)
+    searchBox:SetRightTexCoord(0, 0.75, 0.25, 0.78125)
+    searchBox:SetMiddleTexCoord(0, 0.25, 0.25, 0.78125)
 
 	-- Empty label
 	local empty = menuFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")

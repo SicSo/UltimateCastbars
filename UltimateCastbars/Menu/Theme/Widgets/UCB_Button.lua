@@ -83,12 +83,16 @@ Constructor
 local function Constructor()
     local name = "AceGUI30Button" .. AceGUI:GetNextWidgetNum(Type)
     --local frame = CreateFrame("Button", name, UIParent, "SharedGoldRedButtonSmallTemplate")
-    local frame = CreateFrame("Button", name, UIParent, "UCB_BlackThreeSlice")
+    --local frame = CreateFrame("Button", name, UIParent, "UCB_BlackThreeSlice")
+    local frame = CreateFrame("Button", name, UIParent, "UCBButtonTemplate")
+
+    --frame:SetSideWidth(30)
+    
     --local info  = C_XMLUtil.GetTemplateInfo("SharedButtonSmallTemplate")
     --print(info.sourceLocation)
 
     --for _, template in ipairs(C_XMLUtil.GetTemplates()) do
-    --    if template.type == "Button" then
+     --   if template.type == "Slider" then
     --        print(template.name, template.type)
     --    end
     --end

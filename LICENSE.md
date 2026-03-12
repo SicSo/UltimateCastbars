@@ -115,7 +115,9 @@ For permissions outside this license, contact: Discord: sicso
 
 ### Description
 
-The following section includes original code that was inspired by current existing addons. As the original addon has a different license, it is only fair they remain with that license in the public domain.
+The following section includes original code that was inspired by current existing addons. As the original addon has a different license, it is only fair they remain with that license.
+
+### MIT
 
 #### [DisintegrateTicks](https://www.curseforge.com/wow/addons/disintegrateticks) by Xepheris
 #### [Universal Frame Anchor](https://www.curseforge.com/wow/addons/frame-anchor-ui-builder) by obk_wow
@@ -150,6 +152,22 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+### ARR
+
+#### [DandersFrames](https://www.curseforge.com/wow/addons/danders-frames) by Danders
+
+#### Files included in this license:
+
+- Menu/Theme/Widgets/Helper_ColourPopup/lua
+- Menu/Theme/Widgets/UCB_ColourPicker.lua
+- Menu/Theme/Widgets/UCB_SearchDropdown.lua
+
+Anything **not** listed above remains **All Rights Reserved** under Section 2.
+
+### License
+
+All Rights Reserved unless otherwise explicitly stated.
 
 
 # 4) Third party libraries

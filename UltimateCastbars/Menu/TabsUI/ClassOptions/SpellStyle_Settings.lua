@@ -150,7 +150,7 @@ local function BuildSpellStyle(args, unit, cfg, bigCFG, class, indexedSpellStyle
                 width = "full",
             },
             enableSpellStyle = {
-                type = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name = "Enable style for this spell",
                 order = 2,
                 width = 1.2,
@@ -208,7 +208,7 @@ local function BuildAbilityRows(args, mainGrp, cfg, unit, class, bigCFG)
                 v3 = { type = "description", name = "|", order = 6, width = 0.05 },
 
                 enable = {
-                    type = "toggle",
+                    type = "toggle", dialogControl = "UCB_CheckBox",
                     name = "",
                     order = 7,
                     width = 0.30,
@@ -266,7 +266,7 @@ local function buildMainGroup(args, cfg, unit, class, bigCFG)
         order = 1,
         args = {
             useStyleSpell = {
-                type = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name = "Use specific spell styles",
                 desc = "If enabled, the cast bar will use the style settings of a specific spell instead of the general cast type style settings.",
                 order = 1,
@@ -308,7 +308,7 @@ local function buildMainGroup(args, cfg, unit, class, bigCFG)
                         order = 2,
                         args = {
                             spellId = {
-                                type = "input",
+                                type = "input", dialogControl = "UCB_EditBox",
                                 name = "Add by Spell ID",
                                 order = 2,
                                 width = 1.5,

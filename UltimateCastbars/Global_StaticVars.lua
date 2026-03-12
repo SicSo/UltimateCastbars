@@ -430,8 +430,10 @@ local function BuildClassColorLookup(alpha)
     end
 
     for classFile in pairs(RAID_CLASS_COLORS) do
-        local rgbaList, colorObj = UCB.UIOptions:ClassFileToColors(classFile, alpha)
-        t[classFile] = { RGBA = rgbaList, COL = colorObj , HEX = string.format("%02X%02X%02X%02X", math.floor(rgbaList.a * 255 + 0.5), math.floor(rgbaList.r * 255 + 0.5), math.floor(rgbaList.g * 255 + 0.5), math.floor(rgbaList.b * 255 + 0.5)) }
+        if classFile ~= "ADVENTURER" and classFile ~= "TRAVELER" then 
+          local rgbaList, colorObj = UCB.UIOptions:ClassFileToColors(classFile, alpha)
+          t[classFile] = { RGBA = rgbaList, COL = colorObj , HEX = string.format("%02X%02X%02X%02X", math.floor(rgbaList.a * 255 + 0.5), math.floor(rgbaList.r * 255 + 0.5), math.floor(rgbaList.g * 255 + 0.5), math.floor(rgbaList.b * 255 + 0.5)) }
+        end
     end
 
     return t

@@ -90,6 +90,28 @@ UCB_ASSETS.statusbar = {
     ["UCB: Wglass"]           = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\ShareMedia\\Wglass.tga",
     ["UCB: Wisps"]            = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\ShareMedia\\Wisps.tga",
     ["UCB: Xeon"]             = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\ShareMedia\\Xeon.tga",
+
+    ["UCB: BC_dt1e"] = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_disabled-tier1-empower-2x.png",
+    ["UCB: BC_dt2e"] = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_disabled-tier2-empower-2x.png",
+    ["UCB: BC_dt3e"] = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_disabled-tier3-empower-2x.png",
+    ["UCB: BC_dt4e"] = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_disabled-tier4-empower-2x.png",
+    ["UCB: BC_fac"]  = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_filling-applyingcrafting-2x.png",
+    ["UCB: BC_fc"]   = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_filling-channel-2x.png",
+    ["UCB: BC_fs"]   = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_filling-standard-2x.png",
+    ["UCB: BC_fac2"] = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_full-applyingcrafting-2x.png",
+    ["UCB: BC_fc2"]  = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_full-channel-2x.png",
+    ["UCB: BC_fs2"]  = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_full-standard-2x.png",
+    ["UCB: BC_gt1e"] = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_glow-tier1-empower-2x.png",
+    ["UCB: BC_gt2e"] = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_glow-tier2-empower-2x.png",
+    ["UCB: BC_gt3e"] = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_glow-tier3-empower-2x.png",
+    ["UCB: BC_gt4e"] = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_glow-tier4-empower-2x.png",
+    ["UCB: BC_i"]    = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_interrupted-2x.png",
+    ["UCB: BC_phb"]  = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_pressandhold-background-2x.png",
+    ["UCB: BC_t1e"]  = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_tier1-empower-2x.png",
+    ["UCB: BC_t2e"]  = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_tier2-empower-2x.png",
+    ["UCB: BC_t3e"]  = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_tier3-empower-2x.png",
+    ["UCB: BC_t4e"]  = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_tier4-empower-2x.png",
+    ["UCB: BC_u"]    = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Statusbar\\UCB\\blizzcast_uninterruptable-2x.png",
 }
 
 UCB_ASSETS.border = {
@@ -103,4 +125,6 @@ UCB_ASSETS.background = {
     ["UCB: Copper"]       = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Background\\ShareMedia\\copper.tga",
     ["UCB: Moo"]          = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Background\\ShareMedia\\moo.tga",
     ["UCB: Smoke"]        = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Background\\ShareMedia\\smoke.tga",
+
+    ["UCB: BC_b"]  = "Interface\\Addons\\UltimateCastbars\\gfx\\Assets\\Background\\UCB\\blizzcast_background-2x.png",
 }

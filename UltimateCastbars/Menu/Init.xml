@@ -4,6 +4,12 @@
 		<!-- Custom Templates -->
 	<Include file="Theme/CustomWidgets/BlackThreeSlice.xml"/>
 	<Script file="Theme/CustomWidgets/BlackThreeSlice.lua"/>
+	<Include file="Theme/CustomWidgets/UCBSlider.xml"/>
+	<Script file="Theme/CustomWidgets/UCBSlider.lua"/>
+	<Include file="Theme/CustomWidgets/UCBInputBox.xml"/>
+	<Script file="Theme/CustomWidgets/UCBInputBox.lua"/>
+	<Include file="Theme/CustomWidgets/UCBButton.xml"/>
+	<Script file="Theme/CustomWidgets/UCBButton.lua"/>
 		<!-- General files -->
 	<Script file="Theme/General.lua"/>
 	<Script file="Theme/AceConfig.lua"/>
@@ -20,6 +26,10 @@
 	<Script file="Theme/Widgets/UCB_Heading.lua"/>
 	<Script file="Theme/Widgets/UCB_CheckBox.lua"/>
 	<Script file="Theme/Widgets/UCB_SearchDropdown.lua"/>
+	<Script file="Theme/Widgets/UCB_Slider.lua"/>
+	<Script file="Theme/Widgets/UCB_EditBox.lua"/>
+	<Script file="Theme/Widgets/Helper_ColourPopup.lua"/>
+	<Script file="Theme/Widgets/UCB_ColourPicker.lua"/>
 	
 	<!-- UI Main -->
 	<Script file="MainUI/GUI_Helpers.lua"/>

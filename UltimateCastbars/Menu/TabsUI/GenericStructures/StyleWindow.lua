@@ -97,7 +97,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
             },
             customEnemyColour = nil,
             gradientEnable = {
-                type = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name = "Enable Gradient",
                 order = 2,
                 get = function() return cfg.gradientEnable == true end,
@@ -108,7 +108,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 hidden = function() return cfg.colourMode ~= "custom" end,
             },
             customColour = {
-                type = "color",
+                type = "color", dialogControl = "UCB_ColorPicker",
                 name = function() if cfg.gradientEnable then return "Gradient Start" else return "Colour" end end,
                 order = 3,
                 width = 0.8,
@@ -124,7 +124,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 hidden = function() return cfg.colourMode ~= "custom" end,
             },
             customColour2 = {
-                type = "color",
+                type = "color", dialogControl = "UCB_ColorPicker",
                 name = "Gradient End",
                 order = 4,
                 width = 0.8,
@@ -144,7 +144,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
 
     if not UCB:IsPlayer(unit) then
         args.grpColours.args.customEnemyColour = {
-                type = "color",
+                type = "color", dialogControl = "UCB_ColorPicker",
                 name = function() return "Enemy colour (NPC)" end,
                 order = 2,
                 hasAlpha = true,
@@ -167,7 +167,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
         order  = 3,
         args   = {
             showBackground = {
-                type  = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name  = "Show Background",
                 order = 1,
                 get   = function() return cfg.showBackground end,
@@ -189,7 +189,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 hidden = function() return not cfg.showBackground end,
             },
             bgColour = {
-                type = "color",
+                type = "color", dialogControl = "UCB_ColorPicker",
                 name = "Color",
                 order = 3,
                 hidden = function() return cfg.bgColourMode ~= "custom" end,
@@ -205,7 +205,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 disabled = function() return cfg.showBackground == false end,
             },
             bgEnemyColour = {
-                type = "color",
+                type = "color", dialogControl = "UCB_ColorPicker",
                 name = "Enemy colour (NPC)",
                 order = 3,
                 hidden = function() return cfg.bgColourMode ~= "class" or UCB:IsPlayer(unit) end,
@@ -227,7 +227,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 inline = true,
                 args = {
                     bgUseCustomAlpha = {
-                        type = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name = "Use custom transparency",
                         order = 1,
                         get = function() return cfg.bgUseCustomAlpha == true end,
@@ -238,7 +238,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                         disabled = function() return cfg.showBackground == false end,
                     },
                     bgAlpha = {
-                        type = "range",
+                        type = "range", dialogControl = "UCB_Slider",
                         name = "Transparency",
                         min = UIOptions.alphaMin, max = UIOptions.alphaMax, step = 0.01,
                         order = 2,
@@ -271,7 +271,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 order  = 1,
                 args   = {
                      spark = {
-                        type  = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name  = function() return "Use Spark ("..UIOptions.ColorText(UIOptions.red, "per frame update if MIRRORED")..")" end,
                         order = 1,
                         width = "full",
@@ -289,7 +289,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                         hidden = function() return not cfg.effects.spark.enable end,
                         args = {
                             sparkColour = {
-                                type = "color",
+                                type = "color", dialogControl = "UCB_ColorPicker",
                                 name = "Colour",
                                 order = 1,
                                 hasAlpha = true,
@@ -303,7 +303,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                                 end,
                             },
                             sparkWidth = {
-                                type = "range",
+                                type = "range", dialogControl = "UCB_Slider",
                                 name = "Width (default: 20)",
                                 min = 1, max = 100, step = 1,
                                 order = 2,
@@ -314,7 +314,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                                 end,
                             },
                             sparkHeightMult = {
-                                type = "range",
+                                type = "range", dialogControl = "UCB_Slider",
                                 name = "Height multiplier (default 2.2)",
                                 min = 0.1, max = 5, step = 0.1,
                                 order = 3,
@@ -338,7 +338,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
         order  = 5,
         args   = {
             showBorder = {
-                type  = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name  = "Show Border",
                 order = 1,
                 get   = function() return cfg.showBorder end,
@@ -348,7 +348,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 end,
             },
             borderFillCorners = {
-                type  = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name  = "Fill Corners",
                 order = 1.5,
                 get   = function() return cfg.borderFillCorners end,
@@ -359,7 +359,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 disabled = function() return not cfg.showBorder end,
             },
             borderColour = {
-                type = "color",
+                type = "color", dialogControl = "UCB_ColorPicker",
                 name = "Color",
                 order = 2,
                 hasAlpha = true,
@@ -374,7 +374,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 disabled = function() return not cfg.showBorder end,
             },
             borderAlpha = {
-                type = "range",
+                type = "range", dialogControl = "UCB_Slider",
                 name = "Transparency",
                 min = UIOptions.alphaMin, max = UIOptions.alphaMax, step = 0.01,
                 order = 3,
@@ -392,7 +392,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 disabled = function() return not cfg.showBorder end,
             },
             borderThickness = {
-                type = "range",
+                type = "range", dialogControl = "UCB_Slider",
                 name = "Thickness",
                 min = UIOptions.borderThicknessMin, max = UIOptions.borderThicknessMax, step = 0.5,
                 order = 4,
@@ -422,7 +422,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
         order  = 6,
         args   = {
             showBorderIcon = {
-                type  = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name  = "Show Border Icon",
                 order = 1,
                 get   = function() return cfg.showBorderIcon end,
@@ -432,7 +432,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 end,
             },
             syncBorderIcon = {
-                type  = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name  = "Sync with Castbar Border",
                 order = 2,
                 get   = function() return cfg.syncBorderIcon end,
@@ -444,7 +444,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 disabled = function() return not cfg.showBorderIcon end,
             },
             borderFillCornersIcon = {
-                type  = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name  = "Fill Corners",
                 order = 2.25,
                 get   = function() return cfg.borderFillCornersIcon end,
@@ -455,7 +455,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 disabled = function() return not cfg.showBorderIcon or cfg.syncBorderIcon end,
             },
             borderColourIcon = {
-                type = "color",
+                type = "color", dialogControl = "UCB_ColorPicker",
                 name = "Colour",
                 order = 2.5,
                 hasAlpha = true,
@@ -470,7 +470,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 disabled = function() return not cfg.showBorderIcon or cfg.syncBorderIcon end,
             },
             borderAlphaIcon = {
-                type = "range",
+                type = "range", dialogControl = "UCB_Slider",
                 name = "Transparency",
                 min = UIOptions.alphaMin, max = UIOptions.alphaMax, step = 0.01,
                 order = 3,
@@ -487,7 +487,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 disabled = function() return cfg.showBorderIcon == false or cfg.syncBorderIcon == true end,
             },
             borderThicknessIcon = {
-                type = "range",
+                type = "range", dialogControl = "UCB_Slider",
                 name = "Thickness",
                 min = UIOptions.borderThicknessMin, max = UIOptions.borderThicknessMax, step = 0.5,
                 order = 4,

@@ -60,7 +60,7 @@ local function BuildAbilityRows(abilityTable, cfg, unit)
                 v3 = { type = "description", name = "|", order = 6, width = 0.05 },
 
                 enable = {
-                    type = "toggle",
+                    type = "toggle", dialogControl = "UCB_CheckBox",
                     name = "",
                     order = 7,
                     width = 0.30,
@@ -169,7 +169,7 @@ local function BuildAbilityFilterTable(cfg, unit, disabled)
             },
 
             manualTableToggle = {
-                type = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name = "Use Manual Table (instead of other options)",
                 order = 0.7,
                 width = 2,
@@ -182,7 +182,7 @@ local function BuildAbilityFilterTable(cfg, unit, disabled)
             },
 
             playerSpellListToggle = {
-                type = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name = "Use Player Spell List (instead of other options)",
                 order = 0.8,
                 width = 2,
@@ -206,7 +206,7 @@ local function BuildAbilityFilterTable(cfg, unit, disabled)
                 order = 2,
                 args = {
                     spellId = {
-                        type = "input",
+                        type = "input", dialogControl = "UCB_EditBox",
                         name = "Add by Spell ID",
                         order = 2,
                         width = 1.5,
@@ -282,7 +282,7 @@ function UIStructures:BuildAbilityFilterSectionPlayer(cfg, unit, disabled, name,
         order = order or 1,
         args = {
             enableAbilityFilter = {
-                type  = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name  = "Enable Blacklist/Whitelist",
                 order = 0,
                 width = 2,

@@ -6,6 +6,10 @@ UCB.UIOptions = UCB.UIOptions or {}
 local Theme = UCB.Theme
 local UIOptions = UCB.UIOptions
 
+local TICK_NORMAL   = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\Ticks\\tick.png"
+local TICK_HOVER    = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\Ticks\\tick_hover.png"
+local TICK_DISABLED = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\Ticks\\tick_disabled.png"
+
 
 --[[-----------------------------------------------------------------------------
 Checkbox Widget
@@ -36,15 +40,36 @@ local function AlignImage(self)
 	end
 end
 
+local function UpdateCheckTexture(self)
+	if not self.check then return end
+
+	-- disabled wins
+	if self.disabled then
+		self.check:SetTexture(TICK_DISABLED)
+	elseif self.isMouseOver then
+		self.check:SetTexture(TICK_HOVER)
+	else
+		self.check:SetTexture(TICK_NORMAL)
+	end
+
+	self.check:SetTexCoord(0, 1, 0, 1)
+end
+
 --[[-----------------------------------------------------------------------------
 Scripts
 -------------------------------------------------------------------------------]]
 local function Control_OnEnter(frame)
-	frame.obj:Fire("OnEnter")
+	local self = frame.obj
+	self.isMouseOver = true
+	UpdateCheckTexture(self)
+	self:Fire("OnEnter")
 end
 
 local function Control_OnLeave(frame)
-	frame.obj:Fire("OnLeave")
+	local self = frame.obj
+	self.isMouseOver = false
+	UpdateCheckTexture(self)
+	self:Fire("OnLeave")
 end
 
 local function CheckBox_OnMouseDown(frame)
@@ -103,6 +128,9 @@ local methods = {
 
 	["SetDisabled"] = function(self, disabled)
 		self.disabled = disabled
+
+		UpdateCheckTexture(self)
+
 		if disabled then
 			self.frame:Disable()
 			self.text:SetTextColor(0.5, 0.5, 0.5)
@@ -127,11 +155,14 @@ local methods = {
 	["SetValue"] = function(self, value)
 		local check = self.check
 		self.checked = value
+
+		UpdateCheckTexture(self)
+
 		if value then
 			SetDesaturation(check, false)
 			check:Show()
 		else
-			--Nil is the unknown tristate value
+			-- Nil is the unknown tristate value
 			if self.tristate and value == nil then
 				SetDesaturation(check, true)
 				check:Show()
@@ -153,10 +184,9 @@ local methods = {
 	end,
 
 	["SetType"] = function(self, type)
-		local gold = UIOptions.GOLD
 		local checkbg = self.checkbg
 		local check = self.check
-		local highlight = self.highlight
+		--local highlight = self.highlight
 
 		local size
 		if type == "radio" then
@@ -166,20 +196,18 @@ local methods = {
 			check:SetTexture(130843) -- Interface\\Buttons\\UI-RadioButton
 			check:SetTexCoord(0.25, 0.5, 0, 1)
 			check:SetBlendMode("ADD")
-			highlight:SetTexture(130843) -- Interface\\Buttons\\UI-RadioButton
-			highlight:SetTexCoord(0.5, 0.75, 0, 1)
+			--highlight:SetTexture(130843) -- Interface\\Buttons\\UI-RadioButton
+			--highlight:SetTexCoord(0.5, 0.75, 0, 1)
 		else
 			size = 24
 			checkbg:SetTexture(130755) -- Interface\\Buttons\\UI-CheckBox-Up
 			checkbg:SetTexCoord(0, 1, 0, 1)
 
-			--check:SetTexture(130751) -- Interface\\Buttons\\UI-CheckBox-Check
-			check:SetTexture("Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\rounded-tick.tga")
-			check:SetVertexColor(gold.r, gold.g, gold.b, 1)
-			check:SetTexCoord(0, 1, 0, 1)
 			check:SetBlendMode("BLEND")
-			highlight:SetTexture(130753) -- Interface\\Buttons\\UI-CheckBox-Highlight
-			highlight:SetTexCoord(0, 1, 0, 1)
+			UpdateCheckTexture(self)
+
+			--highlight:SetTexture(130753) -- Interface\\Buttons\\UI-CheckBox-Highlight
+			--highlight:SetTexCoord(0, 1, 0, 1)
 		end
 		checkbg:SetHeight(size)
 		checkbg:SetWidth(size)
@@ -263,16 +291,19 @@ local function Constructor()
 	frame:SetScript("OnMouseUp", CheckBox_OnMouseUp)
 
 	local checkbg = frame:CreateTexture(nil, "ARTWORK")
-	checkbg:SetWidth(24)
-	checkbg:SetHeight(24)
+	checkbg:SetWidth(30)
+	checkbg:SetHeight(30)
 	checkbg:SetPoint("TOPLEFT")
 	checkbg:SetTexture(130755) -- Interface\\Buttons\\UI-CheckBox-Up
 
 	local check = frame:CreateTexture(nil, "OVERLAY")
-	check:SetAllPoints(checkbg)
+	--check:SetAllPoints(checkbg)
+	check:SetSize(23, 23)              -- smaller tick
+	check:SetPoint("CENTER", checkbg, "CENTER", 1, 1)  -- move right 2, up 2
 	--check:SetTexture(130751) -- Interface\\Buttons\\UI-CheckBox-Check
-	check:SetTexture("Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\rounded-tick.tga")
-	check:SetVertexColor(gold.r, gold.g, gold.b, 1)
+	--check:SetTexture("Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\rounded-tick.tga")
+	check:SetTexture(TICK_NORMAL)
+	--check:SetVertexColor(gold.r, gold.g, gold.b, 1)
 
 	local text = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 	text:SetJustifyH("LEFT")
@@ -280,10 +311,10 @@ local function Constructor()
 	text:SetPoint("LEFT", checkbg, "RIGHT")
 	text:SetPoint("RIGHT")
 
-	local highlight = frame:CreateTexture(nil, "HIGHLIGHT")
-	highlight:SetTexture(130753) -- Interface\\Buttons\\UI-CheckBox-Highlight
-	highlight:SetBlendMode("ADD")
-	highlight:SetAllPoints(checkbg)
+	--local highlight = frame:CreateTexture(nil, "HIGHLIGHT")
+	--highlight:SetTexture(130753) -- Interface\\Buttons\\UI-CheckBox-Highlight
+	--highlight:SetBlendMode("ADD")
+	--highlight:SetAllPoints(checkbg)
 
 	local image = frame:CreateTexture(nil, "OVERLAY")
 	image:SetHeight(16)
@@ -291,13 +322,14 @@ local function Constructor()
 	image:SetPoint("LEFT", checkbg, "RIGHT", 1, 0)
 
 	local widget = {
-		checkbg   = checkbg,
-		check     = check,
-		text      = text,
-		highlight = highlight,
-		image     = image,
-		frame     = frame,
-		type      = Type
+		checkbg     = checkbg,
+		check       = check,
+		text        = text,
+		--highlight   = highlight,
+		image       = image,
+		frame       = frame,
+		type        = Type,
+		isMouseOver = false,
 	}
 	for method, func in pairs(methods) do
 		widget[method] = func

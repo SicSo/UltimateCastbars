@@ -321,7 +321,8 @@ function GUI:OpenGUI(selectPath)
                 icon=UI.icons.github,
                 title="GitHub",
                 url=UI.links.github,
-                width = 90,
+                textSize = 12,
+                width = 100,
             },
             {
                 id="discord",
@@ -329,7 +330,8 @@ function GUI:OpenGUI(selectPath)
                 icon=UI.icons.discord,
                 title="Discord",
                 url=UI.links.discord,
-                width = 90,
+                textSize = 12,
+                width = 100,
             },
             {
                 id="donate",
@@ -341,7 +343,8 @@ function GUI:OpenGUI(selectPath)
                     { label = "PayPal",  url = UI.links.paypal },
                     { label = "Patreon", url = UI.links.patreon },
                 },
-                width = 90,
+                textSize = 12,
+                width = 100,
             },
         }
     })
@@ -353,6 +356,9 @@ function GUI:OpenGUI(selectPath)
     holder:SetFullHeight(true)
     holder:SetLayout("Fill")
     Container:AddChild(holder)
+
+    UCB.Container = Container
+    Container:SetScale(cfg.misc.UIScale or 1)
 
     self._rootHolder = holder
 

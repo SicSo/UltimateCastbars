@@ -42,7 +42,7 @@ local function BuildEmpowerColoursArgs(unit)
             width = "full",
         },
         enableBarTextures = {
-            type = "toggle",
+            type = "toggle", dialogControl = "UCB_CheckBox",
             name = "Enable segment tick textures",
             order = 2,
             width = "full",
@@ -53,7 +53,7 @@ local function BuildEmpowerColoursArgs(unit)
             end,
         },
         enableBackTextures = {
-            type = "toggle",
+            type = "toggle", dialogControl = "UCB_CheckBox",
             name = "Enable segment background textures",
             order = 3,
             width = "full",
@@ -84,7 +84,7 @@ local function BuildEmpowerColoursArgs(unit)
         -- Column 1: Tick (no tick for stage 0-1, so spacer on row 1)
         if stage ~= 1 then
             row["tick" .. stage] = {
-                type = "color",
+                type = "color", dialogControl = "UCB_ColorPicker",
                 name = "Tick",
                 hasAlpha = true,
                 width = "third",
@@ -110,7 +110,7 @@ local function BuildEmpowerColoursArgs(unit)
 
         -- Column 2: Segment background colour
         row["segBack" .. stage] = {
-            type = "color",
+            type = "color", dialogControl = "UCB_ColorPicker",
             name = "Background",
             hasAlpha = true,
             width = "third",
@@ -128,7 +128,7 @@ local function BuildEmpowerColoursArgs(unit)
 
         -- Column 3: Segment castbar colour
         row["segCast" .. stage] = {
-            type = "color",
+            type = "color", dialogControl = "UCB_ColorPicker",
             name = "Castbar",
             hasAlpha = true,
             width = "third",
@@ -228,7 +228,7 @@ end
 local function CreateTicksEmpowered(args, unit, cfg)
    local args = {
             empowerManualTick1 = {
-                type = "range",
+                type = "range", dialogControl = "UCB_Slider",
                 name = "Stage 1 Tick Placement (% of cast time)",
                 desc = "Placement for the tick between stage 0 and 1 (in %, relative to cast start)",
                 order = 1,
@@ -249,7 +249,7 @@ local function CreateTicksEmpowered(args, unit, cfg)
                 end,
             },
             empowerManualTick2 = {
-                type = "range",
+                type = "range", dialogControl = "UCB_Slider",
                 name = "Stage 2 Tick Placement (% of cast time)",
                 desc = "Placement for the tick between stage 1 and 2 (in %, relative to cast start)",
                 order = 2,
@@ -270,7 +270,7 @@ local function CreateTicksEmpowered(args, unit, cfg)
                 end,
             },
             empowerManualTick3 = {
-                type = "range",
+                type = "range", dialogControl = "UCB_Slider",
                 name = "Stage 3 Tick Placement (% of cast time)",
                 desc = "Placement for the tick between stage 2 and 3 (in %, relative to cast start)",
                 order = 3,
@@ -291,7 +291,7 @@ local function CreateTicksEmpowered(args, unit, cfg)
                 end,
             },
             empowerManualTick4 = {
-                type = "range",
+                type = "range", dialogControl = "UCB_Slider",
                 name = "Stage 4 Tick Placement (% of cast time)",
                 desc = "Placement for the tick between stage 3 and 4 (in %, relative to cast start)",
                 order = 4,
@@ -336,7 +336,7 @@ Opt.ClassExtraBuilders.EVOKER = function(unit, args)
                     order = 3,
                     args = {
                         enableEmpowerEffects = {
-                            type = "toggle",
+                            type = "toggle", dialogControl = "UCB_CheckBox",
                             name = "Enable Empower Effects (for non player will be possibly innacurate)",
                             desc = "Show empower stages and ticks on the castbar for Evoker spells like Eternity Surge, Fire Breath, etc.",
                             order = 1,
@@ -372,7 +372,7 @@ Opt.ClassExtraBuilders.EVOKER = function(unit, args)
                                     args = BuildEmpowerSpellLineArgs(),
                                 },
                                 empowerTickWidth = {
-                                    type = "range",
+                                    type = "range", dialogControl = "UCB_Slider",
                                     name = "Empower Tick Width",
                                     desc = "Width of each tick mark on the Empowered Cast Bar.",
                                     width = "full",
@@ -457,7 +457,7 @@ Opt.ClassExtraBuilders.EVOKER = function(unit, args)
                     width = "full",
                 },
                 disintegrateDynamicTicks = {
-                    type = "toggle",
+                    type = "toggle", dialogControl = "UCB_CheckBox",
                     name = "  Dynamic Disintegrate Ticks (recommended)",
                     desc = "When enabled, tick count is determined and placed dynamically based on Xepheris WA and addon logic.",
                     order = 3,

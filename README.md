@@ -25,6 +25,8 @@ Thanks to Xepheris for [DisintegrateTicks](https://www.curseforge.com/wow/addons
 
 Thanks to obk_wow for [Universal Frame Anchor](https://www.curseforge.com/wow/addons/frame-anchor-ui-builder) on which was based the frame picker, send some love his way if you liked that feature.
 
+Thanks to Danders and his team for [DandersFrames](https://www.curseforge.com/wow/addons/danders-frames) on which was based the colour picker and dropdown UI menu options, donate [here](https://www.paypal.com/paypalme/dandersframesaddon) if you liked those features.
+
 ---
 
 ## Table of Contents

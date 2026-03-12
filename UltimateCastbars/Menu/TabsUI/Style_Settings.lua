@@ -86,7 +86,7 @@ local function BuildCustomisationArgs(args, unit)
                 order = 0,
             },
             useGeneralSettings = {
-                type = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name = "Use general settings",
                 desc = "Use the general settings for this cast type instead of custom ones.",
                 order = 1,

@@ -22,6 +22,12 @@ local Default_Values = {
                 border = true,
                 font = true,
             },
+            colourPicker = {
+                savedColours = {},
+                recentColours = {},
+                squarePicker = true
+            },
+            UIScale = 1.0,
             lastUIPath = {},
             __schemaVersion = 0, -- for migrations
         }

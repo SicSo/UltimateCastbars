@@ -60,7 +60,7 @@ local function BuildFramePickerArgs(args, unit)
                 width = 0.1
                 },
                 frameLastClickedCopy = {
-                    type = "input",
+                    type = "input", dialogControl = "UCB_EditBox",
                     name = "Frame clicked",
                     width = 1.2,
                     order = 3,
@@ -115,7 +115,7 @@ local function BuildPositionArgs(args, unit)
                                 order = 1,
                             },
                             toggleDefault = {
-                                type = "toggle",
+                                type = "toggle", dialogControl = "UCB_CheckBox",
                                 name = "Use Default Anchor - UIParent (anchorFrom and anchorTo will use different values between default/custom)",
                                 order = 2,
                                 width = "full",
@@ -131,7 +131,7 @@ local function BuildPositionArgs(args, unit)
                                 end,
                             },
                             anchorCustomInput = {
-                                type = "input",
+                                type = "input", dialogControl = "UCB_EditBox",
                                 name = "Custom Anchor Frame",
                                 order = 3,
                                 width = 1.2,
@@ -212,7 +212,7 @@ local function BuildPositionArgs(args, unit)
                                         width = "full",
                                     },
                                     anchorDelay = {
-                                        type = "range",
+                                        type = "range", dialogControl = "UCB_Slider",
                                         name = "Anchor Resolve Delay (s)",
                                         order = 1,
                                         width = 1,
@@ -232,7 +232,7 @@ local function BuildPositionArgs(args, unit)
                                     width = 0.1
                                     },
                                     anchorTries = {
-                                        type = "range",
+                                        type = "range", dialogControl = "UCB_Slider",
                                         name = "Anchor Resolve Max Tries",
                                         order = 2,
                                         width = 1,
@@ -252,7 +252,7 @@ local function BuildPositionArgs(args, unit)
                                     width = 0.1
                                     },
                                     anchorInterval = {
-                                        type = "range",
+                                        type = "range", dialogControl = "UCB_Slider",
                                         name = "Anchor Resolve Interval (s)",
                                         order = 3,
                                         width = 1,
@@ -333,7 +333,7 @@ local function BuildPositionArgs(args, unit)
                 order = 2,
                 args = {
                     offsetX = {
-                        type  = "range",
+                        type  = "range", dialogControl = "UCB_Slider",
                         name  = "X",
                         min   = UIOptions.offsetMin_bar, max = UIOptions.offsetMax_bar, step = 1,
                         order = 2,
@@ -345,7 +345,7 @@ local function BuildPositionArgs(args, unit)
                         end,
                     },
                     offsetY = {
-                        type  = "range",
+                        type  = "range", dialogControl = "UCB_Slider",
                         name  = "Y",
                         min   = UIOptions.offsetMin_bar, max = UIOptions.offsetMax_bar, step = 1,
                         order = 3,
@@ -378,7 +378,7 @@ local function BuildSizeArgs(args, unit)
                 order = 1,
                 args = {
                     manualWidthToogle = {
-                        type = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name = "Use manual Width",
                         order = 1,
                         width = 1,
@@ -389,7 +389,7 @@ local function BuildSizeArgs(args, unit)
                         end,
                     },
                     manualHeightToogle = {
-                        type = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name = "Use manual Height",
                         order = 2,
                         width = 1,
@@ -400,7 +400,7 @@ local function BuildSizeArgs(args, unit)
                         end,
                     },
                     borderWidthToogle = {
-                        type = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name = "Include Border in Width",
                         order = 3,
                         width = 1,
@@ -411,7 +411,7 @@ local function BuildSizeArgs(args, unit)
                         end,
                     },
                     borderHeightToogle = {
-                        type = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name = "Include Border in Height",
                         order = 4,
                         width = 1,
@@ -436,7 +436,7 @@ local function BuildSizeArgs(args, unit)
                                 width = "full",
                             },
                             syncDelay = {
-                                type = "range",
+                                type = "range", dialogControl = "UCB_Slider",
                                 name = "Sync Delay (s)",
                                 order = 1,
                                 width = 1,
@@ -456,7 +456,7 @@ local function BuildSizeArgs(args, unit)
                             width = 0.1
                             },
                             numTries = {
-                                type = "range",
+                                type = "range", dialogControl = "UCB_Slider",
                                 name = "Sync Max Tries",
                                 order = 2,
                                 width = 1,
@@ -476,7 +476,7 @@ local function BuildSizeArgs(args, unit)
                             width = 0.1
                             },
                             interval = {
-                                type = "range",
+                                type = "range", dialogControl = "UCB_Slider",
                                 name = "Sync Interval (s)",
                                 order = 3,
                                 width = 1,
@@ -540,7 +540,7 @@ local function BuildSizeArgs(args, unit)
                         end,
                     },
                     widthFrameInput = {
-                        type = "input",
+                        type = "input", dialogControl = "UCB_EditBox",
                         name = "Custom Width Frame",
                         order = 3,
                         width = 1.2,
@@ -592,7 +592,7 @@ local function BuildSizeArgs(args, unit)
                     width = 0.1
                     },
                     widthMinValue = {
-                        type = "range",
+                        type = "range", dialogControl = "UCB_Slider",
                         name = "Width Min Value",
                         min = UIOptions.widthMin_bar, max = UIOptions.widthMax_bar, step = 1,
                         order = 5,
@@ -652,7 +652,7 @@ local function BuildSizeArgs(args, unit)
                         end,
                     },
                     heightFrameInput = {
-                        type = "input",
+                        type = "input", dialogControl = "UCB_EditBox",
                         name = "Custom Height Frame",
                         order = 3,
                         width = 1.2,
@@ -704,7 +704,7 @@ local function BuildSizeArgs(args, unit)
                     width = 0.1
                     },
                     heightMinValue = {
-                        type = "range",
+                        type = "range", dialogControl = "UCB_Slider",
                         name = "Height Min Value",
                         min = UIOptions.heightMin_bar, max = UIOptions.heightMax_bar, step = 1,
                         order = 5,
@@ -727,7 +727,7 @@ local function BuildSizeArgs(args, unit)
                 end,
                 args = {
                     barWidth = {
-                        type  = "range",
+                        type  = "range", dialogControl = "UCB_Slider",
                         name  = "Manual Width",
                         min   = UIOptions.widthMin_bar, max = UIOptions.widthMax_bar, step = 1,
                         order = 2,
@@ -742,7 +742,7 @@ local function BuildSizeArgs(args, unit)
                         end,
                     },
                     barHeight = {
-                        type  = "range",
+                        type  = "range", dialogControl = "UCB_Slider",
                         name  = "Manual Height",
                         min   = UIOptions.heightMin_bar, max = UIOptions.heightMax_bar, step = 1,
                         order = 3,
@@ -768,7 +768,7 @@ local function BuildSizeArgs(args, unit)
                 end,
                 args = {
                     barWidth = {
-                        type  = "range",
+                        type  = "range", dialogControl = "UCB_Slider",
                         name  = "Offset Width",
                         min   = UIOptions.widthOffsetMin_bar, max = UIOptions.widthOffsetMax_bar, step = 1,
                         order = 2,
@@ -783,7 +783,7 @@ local function BuildSizeArgs(args, unit)
                         end,
                     },
                     barHeight = {
-                        type  = "range",
+                        type  = "range", dialogControl = "UCB_Slider",
                         name  = "Offset Height",
                         min   = UIOptions.heightOffsetMin_bar, max = UIOptions.heightOffsetMax_bar, step = 1,
                         order = 3,
@@ -824,7 +824,7 @@ local function createOffsetX(unit, args)
 
     if g.iconAnchor == "LEFT" then
         return {
-            type  = "range",
+            type  = "range", dialogControl = "UCB_Slider",
             name = "X",
             min = 0, max = UIOptions.offsetMax_icon, step = 1,
             order = 2,
@@ -837,7 +837,7 @@ local function createOffsetX(unit, args)
         }
     elseif g.iconAnchor == "RIGHT" then
         return {
-            type  = "range",
+            type  = "range", dialogControl = "UCB_Slider",
             name = "X",
             min = UIOptions.offsetMin_icon, max = 0, step = 1,
             order = 2,
@@ -850,7 +850,7 @@ local function createOffsetX(unit, args)
         }
     else
         return {
-            type  = "range",
+            type  = "range", dialogControl = "UCB_Slider",
             name  = "X",
             min   = UIOptions.offsetMin_bar, max = UIOptions.offsetMax_bar, step = 1,
             order = 2,
@@ -876,7 +876,7 @@ local function createOffsetY(unit, args)
 
     if g.iconAnchor == "TOP" then
         return {
-            type  = "range",
+            type  = "range", dialogControl = "UCB_Slider",
             name = "Y",
             min = 0, max = UIOptions.offsetMax_icon, step = 1,
             order = 3,
@@ -889,7 +889,7 @@ local function createOffsetY(unit, args)
         }
     elseif g.iconAnchor == "BOTTOM" then
         return {
-            type  = "range",
+            type  = "range", dialogControl = "UCB_Slider",
             name = "Y",
             min = UIOptions.offsetMin_icon, max = 0, step = 1,
             order = 3,
@@ -902,7 +902,7 @@ local function createOffsetY(unit, args)
         }
     else
         return {
-            type  = "range",
+            type  = "range", dialogControl = "UCB_Slider",
             name  = "Y",
             min   = UIOptions.offsetMin_bar, max = UIOptions.offsetMax_bar, step = 1,
             order = 3,
@@ -931,7 +931,7 @@ local function BuildIconArgs(args, unit)
         order = 3,
         args = {
             showCastIcon = {
-                type  = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name  = "Show Cast Icon",
                 order = 1,
                 get   = function() return g.showCastIcon end,
@@ -984,7 +984,7 @@ local function BuildIconArgs(args, unit)
                         order = 2,
                         args = {
                             syncIconBar = {
-                                type  = "toggle",
+                                type = "toggle", dialogControl = "UCB_CheckBox",
                                 name  = "Sync Icon Size to Bar Height",
                                 order = 1,
                                 width = 1.2,
@@ -995,7 +995,7 @@ local function BuildIconArgs(args, unit)
                                 end,
                             },
                             iconWidth = {
-                                type  = "range",
+                                type  = "range", dialogControl = "UCB_Slider",
                                 name  = "Icon Width",
                                 min   = UIOptions.widthMin_icon, max = UIOptions.widthMax_icon, step = 1,
                                 order = 2,
@@ -1009,7 +1009,7 @@ local function BuildIconArgs(args, unit)
                                 end,
                             },
                             iconHeight = {
-                                type  = "range",
+                                type  = "range", dialogControl = "UCB_Slider",
                                 name  = "Icon Height",
                                 min   = UIOptions.heightMin_icon, max = UIOptions.heightMax_icon, step = 1,
                                 order = 3,

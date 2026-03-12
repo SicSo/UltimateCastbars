@@ -92,7 +92,7 @@ function UIStructures:createSelectBlock(cfg, order)
             },
 
             selectedSpellId = {
-                type = "input",
+                type = "input", dialogControl = "UCB_EditBox",
                 name = "Selected Spell ID",
                 order = 3,
                 width = 1.5,

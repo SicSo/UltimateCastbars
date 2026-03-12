@@ -55,9 +55,8 @@ function GUI:BuildUnitOptionsArgs(unit)
             inline = true,
             args = {
                 enabled = {
-                    type = "toggle",
+                    type = "toggle", dialogControl = "UCB_CheckBox",
                     name = "Enable",
-                    dialogControl = "UCB_CheckBox",
                     order = 1,
                     width = "full",
                     get = function() return GetEnabled(unit) end,

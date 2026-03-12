@@ -98,7 +98,7 @@ local function PreviewSettings(cfg, unit)
         order  = 3,
         args   = {
             setCustomDuration = {
-                type    = "toggle",
+                type    = "toggle", dialogControl = "UCB_CheckBox",
                 name    = "Set Default Preview Duration for Normal Casts",
                 order   = 1,
                 width   = 1.7,
@@ -109,7 +109,7 @@ local function PreviewSettings(cfg, unit)
                     end,
             },
             setDuration = {
-                type    = "range",
+                type    = "range", dialogControl = "UCB_Slider",
                 name    = "Set Default Preview Duration(s)",
                 order   = 2,
                 width   = 1,
@@ -123,7 +123,7 @@ local function PreviewSettings(cfg, unit)
                     end,
             },
             setEmpowerStages = {
-                type    = "range",
+                type    = "range", dialogControl = "UCB_Slider",
                 name    = "Set Preview Empower Stages",
                 order   = 4,
                 width   = 1,
@@ -138,7 +138,7 @@ local function PreviewSettings(cfg, unit)
                 hidden = function() return not UCB.allSpellTypes.empowered or #UCB.allSpellTypes.empowered == 0 end,
             },
             setPreviewLatency = {
-                type    = "range",
+                type    = "range", dialogControl = "UCB_Slider",
                 name    = "Set Preview Latency",
                 hidden = function() return not UCB:IsPlayer(unit) or not cfg.otherFeatures.latency.enabled end,
                 order   = 5,
@@ -159,7 +159,7 @@ local function PreviewSettings(cfg, unit)
                 order = 6,
                 args = {
                     setNotInterruptible = {
-                        type    = "toggle",
+                        type    = "toggle", dialogControl = "UCB_CheckBox",
                         name    = "Set Preview Not Interruptible",
                         order   = 1,
                         width   = "full",
@@ -170,7 +170,7 @@ local function PreviewSettings(cfg, unit)
                             end,
                     },
                     previewShowKickCD = {
-                        type    = "toggle",
+                        type    = "toggle", dialogControl = "UCB_CheckBox",
                         name    = "Set Preview Kick CD",
                         order   = 2,
                         width   = 1,
@@ -181,7 +181,7 @@ local function PreviewSettings(cfg, unit)
                             end,
                     },
                     setKickCD = {
-                        type    = "range",
+                        type    = "range", dialogControl = "UCB_Slider",
                         name    = "Set Preview Kick CD",
                         order   = 3,
                         width   = 1,

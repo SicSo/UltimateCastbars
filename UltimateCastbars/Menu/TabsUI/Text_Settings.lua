@@ -83,7 +83,7 @@ local function tagUI(key, unit)
         args = {
             -- ---- Name (input)
             name = {
-                type = "input",
+                type = "input", dialogControl = "UCB_EditBox",
                 name = "Name",
                 order = 1,
                 width = "full",
@@ -92,7 +92,7 @@ local function tagUI(key, unit)
             },
             -- ---- Enabled toggle
             show = {
-                type = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name = "Show",
                 order = 2,
                 width = "full",
@@ -122,7 +122,7 @@ local function tagUI(key, unit)
                 order = 0,
             },
             setCast  = {
-                type = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name = "Cast",
                 order = 1,
                 get = function() return cfg.mainType == "cast" end,
@@ -135,7 +135,7 @@ local function tagUI(key, unit)
                     end,
             },
             setInterrupted = {
-                type = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name = "Interrupted",
                 order = 2,
                 get = function() return cfg.mainType == "interrupted" end,
@@ -148,7 +148,7 @@ local function tagUI(key, unit)
                     end,
             },
             setCancelled = {
-                type = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name = "Cancelled",
                 order = 3,
                 get = function() return cfg.mainType == "cancelled" end,
@@ -177,7 +177,7 @@ local function tagUI(key, unit)
                 order = 0,
             },
             showOnInterrupted = {
-                type = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name = "Show on Interrupted",
                 order = 1,
                 get = function() return cfg.showOnEffect.interrupted end,
@@ -187,7 +187,7 @@ local function tagUI(key, unit)
                     end,
             },
             showOnCancelled = {
-                type = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name = "Show on Cancelled",
                 order = 2,
                 get = function() return cfg.showOnEffect.cancelled end,
@@ -205,7 +205,7 @@ local function tagUI(key, unit)
         inline = true,
         args = {
             showNormal = {
-                type = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name = "Normal Casts",
                 order = 1,
                 get = function() return cfg.showType.normal end,
@@ -218,7 +218,7 @@ local function tagUI(key, unit)
                     end,
             },
             showChannel = {
-                type = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name = "Channelled Casts",
                 order = 2,
                 get = function() return cfg.showType.channel end,
@@ -231,7 +231,7 @@ local function tagUI(key, unit)
                     end,
             },
             showEmpowered = {
-                type = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name = "Empowered Casts",
                 order = 3,
                 get = function() return cfg.showType.empowered end,
@@ -254,7 +254,7 @@ local function tagUI(key, unit)
         args = {
             -- ---- Tag text (input)
             tagText = {
-                type = "input",
+                type = "input", dialogControl = "UCB_EditBox",
                 name = "Tag Text",
                 order = 1,
                 width = "full",
@@ -381,7 +381,7 @@ local function tagUI(key, unit)
         inline = true,
         args = {
             textOffsetX = {
-                type = "range",
+                type = "range", dialogControl = "UCB_Slider",
                 name = "X",
                 order = 1,
                 min = UIOptions.textOffsetMin, max = UIOptions.textOffsetMax, step = 1,
@@ -392,7 +392,7 @@ local function tagUI(key, unit)
                     end,
             },
             textOffsetY = {
-                type = "range",
+                type = "range", dialogControl = "UCB_Slider",
                 name = "Y",
                 order = 2,
                 min = UIOptions.textOffsetMin, max = UIOptions.textOffsetMax, step = 1,
@@ -429,7 +429,7 @@ local function tagUI(key, unit)
         args = {
             font = Text_API:MakeLSMFontOption(cfg, 0.5, nil, function() return cfg.show == false end, unit),
             textSize = {
-                type = "range",
+                type = "range", dialogControl = "UCB_Slider",
                 name = "Text Size",
                 order = 1,
                 min = UIOptions.sizeMin_text, max = UIOptions.sizeMax_text, step = 2,
@@ -454,7 +454,7 @@ local function tagUI(key, unit)
                     end,
             },
             shadowOffset = {
-                type = "range",
+                type = "range", dialogControl = "UCB_Slider",
                 name = "Shadow Offset",
                 order = 3,
                 min = UIOptions.shadowOffsetMin, max = UIOptions.shadowOffsetMax, step = 1,
@@ -469,7 +469,7 @@ local function tagUI(key, unit)
                 end,
             },
             shadowColour = {
-                type = "color",
+                type = "color", dialogControl = "UCB_ColorPicker",
                 name = "Shadow Color",
                 order = 4,
                 hasAlpha = true,
@@ -490,7 +490,7 @@ local function tagUI(key, unit)
 
             -- ---- Color picker
             colour = {
-                type = "color",
+                type = "color", dialogControl = "UCB_ColorPicker",
                 name = "Text Color",
                 order = 5,
                 hasAlpha = true,
@@ -523,7 +523,7 @@ local function addTagUI(unit)
         inline = true,
         args = {
             name = {
-                type = "input",
+                type = "input", dialogControl = "UCB_EditBox",
                 name = "Name",
                 order = 1,
                 width = "full",
@@ -533,7 +533,8 @@ local function addTagUI(unit)
                     end,
             },
             addButton = {
-                type = "execute",dialogControl = "UCB_Button",
+                type = "execute",
+                dialogControl = "UCB_Button",
                 name = "Add New Tag",
                 order = 2,
                 func = function()
@@ -576,7 +577,7 @@ local function addTagUI(unit)
                 inline = true,
                 args = {
                     useGeneralFont = {
-                        type = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name = "Use General Font",
                         order = 1,
                         get = function() return generalCFG.useGeneralFont end,
@@ -586,7 +587,7 @@ local function addTagUI(unit)
                             end,
                     },
                     useGlobalFont = {
-                        type = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name = "Use Global Font",
                         order = 2,
                         get = function() return generalCFG.useGlobalFont end,
@@ -606,7 +607,7 @@ local function addTagUI(unit)
                 inline = true,
                 args = {
                     useGeneralSize = {
-                        type = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name = "Use General Size",
                         order = 1,
                         get = function() return generalCFG.useGeneralSize end,
@@ -616,7 +617,7 @@ local function addTagUI(unit)
                             end,
                     },
                     textSize = {
-                        type = "range",
+                        type = "range", dialogControl = "UCB_Slider",
                         name = "Text Size",
                         order = 2,
                         min = UIOptions.sizeMin_text, max = UIOptions.sizeMax_text, step = 2,
@@ -636,7 +637,7 @@ local function addTagUI(unit)
                 inline = true,
                 args = {
                     useGeneralOutline = {
-                        type = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name = "Use General Outline",
                         order = 1,
                         get = function() return generalCFG.useGeneralOutline end,
@@ -661,7 +662,7 @@ local function addTagUI(unit)
                         disabled = function() return not generalCFG.useGeneralOutline end,
                     },
                     shadowOffset = {
-                        type = "range",
+                        type = "range", dialogControl = "UCB_Slider",
                         name = "Shadow Offset",
                         order = 3,
                         min = UIOptions.shadowOffsetMin, max = UIOptions.shadowOffsetMax, step = 1,
@@ -676,7 +677,7 @@ local function addTagUI(unit)
                         end,
                     },
                     shadowColour = {
-                        type = "color",
+                        type = "color", dialogControl = "UCB_ColorPicker",
                         name = "Shadow Colour",
                         order = 4,
                         hasAlpha = true,
@@ -703,7 +704,7 @@ local function addTagUI(unit)
                 inline = true,
                 args = {
                     useGeneralColor = {
-                        type = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name = "Use General Color",
                         order = 1,
                         get = function() return generalCFG.useGeneralColor end,
@@ -713,7 +714,7 @@ local function addTagUI(unit)
                             end,
                     },
                     colour = {
-                        type = "color",
+                        type = "color", dialogControl = "UCB_ColorPicker",
                         name = "Text Color",
                         order = 2,
                         hasAlpha = true,

@@ -14,9 +14,9 @@ local wipe = table.wipe
 
 local CreateFrame, UIParent, PlaySound = CreateFrame, UIParent, PlaySound
 
-local FOOTER_SCALE         = 1.3
-local FOOTER_BAR_HEIGHT    = 34 * FOOTER_SCALE
-local FOOTER_BAR_OFFSET    = 8  * FOOTER_SCALE
+local FOOTER_SCALE         = 1
+local FOOTER_BAR_HEIGHT    = 45
+local FOOTER_BAR_OFFSET    = 10
 local FOOTER_TOTAL_BOTTOM  = FOOTER_BAR_HEIGHT + FOOTER_BAR_OFFSET + 4
 
 -- ---------------------------------------------------------------------------
@@ -97,8 +97,8 @@ end
 
 local function CreateFooterButton(parent, opts)
 	local btn = CreateFrame("Button", nil, parent, "BackdropTemplate")
-	btn:SetHeight(22 * FOOTER_SCALE)
-	btn:SetWidth((opts.width or 110) * FOOTER_SCALE)
+	btn:SetHeight(30)
+	btn:SetWidth((opts.width or 110))
 
 	btn:SetBackdrop({
 		bgFile = "Interface\\Buttons\\WHITE8x8",
@@ -110,20 +110,20 @@ local function CreateFooterButton(parent, opts)
 	btn:SetBackdropBorderColor(0.25, 0.25, 0.25, 0.80)
 
 	local icon = btn:CreateTexture(nil, "ARTWORK")
-	icon:SetSize(14 * FOOTER_SCALE, 14 * FOOTER_SCALE)
-	icon:SetPoint("LEFT", 6 * FOOTER_SCALE, 0)
+	icon:SetSize(18, 18)
+	icon:SetPoint("LEFT", 8, 0)
 	if opts.icon then icon:SetTexture(opts.icon) end
 	btn.icon = icon
 
 	local text = btn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	text:SetPoint("LEFT", icon, "RIGHT", 6 * FOOTER_SCALE, 0)
+	text:SetPoint("LEFT", icon, "RIGHT", 8, 0)
 	text:SetText(opts.text or "")
 	btn.text = text
 
 	do
 		local fontPath, fontSize, fontFlags = text:GetFont()
 		if fontPath and fontSize then
-			text:SetFont(fontPath, fontSize * FOOTER_SCALE, fontFlags)
+			text:SetFont(fontPath, opts.textSize or fontSize, fontFlags)
 		end
 	end
 
@@ -189,6 +189,10 @@ local methods = {
 		self.title = title
 		self.titletext:SetText(title or "")
 		self.titlebg:SetWidth((self.titletext:GetWidth() or 0) + 10)
+	end,
+
+	SetScale = function(self, scale)
+		self.frame:SetScale(scale)
 	end,
 
 	Hide = function(self) self.frame:Hide() end,
@@ -262,7 +266,7 @@ local methods = {
 
 		local links = (footerData and footerData.links) or {}
 		local totalWidth = 0
-		local gap = 8 * FOOTER_SCALE
+		local gap = 10
 
 		for i, link in ipairs(links) do
 			local btn = CreateFooterButton(center, {
@@ -296,6 +300,9 @@ local methods = {
 -- ---------------------------------------------------------------------------
 local function Constructor()
 	local goldR, goldG, goldB = GetGold()
+
+	local titleTextSize = 14
+	local madebyTextSize = 12
 
 	local frame = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
 	frame:Hide()
@@ -366,21 +373,21 @@ local function Constructor()
 	footerBar:SetBackdropBorderColor(goldR, goldG, goldB, 1)
 
 	local footerLogo = footerBar:CreateTexture(nil, "ARTWORK")
-	footerLogo:SetSize(20 * FOOTER_SCALE, 20 * FOOTER_SCALE)
-	footerLogo:SetPoint("LEFT", footerBar, "LEFT", 5 * FOOTER_SCALE, 0)
+	footerLogo:SetSize(26, 26)
+	footerLogo:SetPoint("LEFT", footerBar, "LEFT", 7, 0)
 
 	local footerTitle = footerBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	footerTitle:SetPoint("LEFT", footerLogo, "RIGHT", 3 * FOOTER_SCALE, 0)
+	footerTitle:SetPoint("LEFT", footerLogo, "RIGHT", 4, 0)
 	footerTitle:SetText("Addon")
 	do
 		local fontPath, fontSize, fontFlags = footerTitle:GetFont()
 		if fontPath and fontSize then
-			footerTitle:SetFont(fontPath, fontSize * FOOTER_SCALE, fontFlags)
+			footerTitle:SetFont(fontPath, titleTextSize, fontFlags)
 		end
 	end
 
 	local madeByPrefix = footerBar:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	madeByPrefix:SetPoint("LEFT", footerTitle, "RIGHT", 8 * FOOTER_SCALE, 0)
+	madeByPrefix:SetPoint("LEFT", footerTitle, "RIGHT", 10, 0)
 	madeByPrefix:SetText("Made by ")
 	madeByPrefix:SetTextColor(0.85, 0.85, 0.85, 0.90)
 
@@ -392,23 +399,23 @@ local function Constructor()
 	do
 		local fp, fs, ff = madeByPrefix:GetFont()
 		if fp and fs then
-			madeByPrefix:SetFont(fp, fs * FOOTER_SCALE, ff)
+			madeByPrefix:SetFont(fp, madebyTextSize, ff)
 		end
 		local np, ns, nf = madeByName:GetFont()
 		if np and ns then
-			madeByName:SetFont(np, ns * FOOTER_SCALE, nf)
+			madeByName:SetFont(np, madebyTextSize, nf)
 		end
 	end
 
 	local footerCenter = CreateFrame("Frame", nil, footerBar)
-	footerCenter:SetHeight(22 * FOOTER_SCALE)
+	footerCenter:SetHeight(30)
 	footerCenter:SetPoint("CENTER", footerBar, "CENTER", 0, 0)
 	footerCenter:SetWidth(1)
 
 	-- Close button now lives inside footer
 	local closebutton = CreateFrame("Button", nil, footerBar, "UCB_BlackThreeSlice")
 	closebutton:SetScript("OnClick", Button_OnClick)
-	closebutton:SetPoint("RIGHT", footerBar, "RIGHT", -8 * FOOTER_SCALE, 0)
+	closebutton:SetPoint("RIGHT", footerBar, "RIGHT", -10, 0)
 	closebutton:SetSize(100, 30)
 	closebutton:SetText(CLOSE)
 

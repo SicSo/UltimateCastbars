@@ -30,7 +30,7 @@ local function BuildUninterruptableArgs(args, unit)
                 width = "full",
             },
             hideBarUnInt = {
-                type = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name  = "Hide bar for uninterruptible casts",
                 desc  = "If enabled, the cast bar will not be shown for uninterruptible casts. Only the uninterruptible effects (fill, background, etc.) will be shown.",
                 order = 1,
@@ -49,7 +49,7 @@ local function BuildUninterruptableArgs(args, unit)
                 disabled = function() return cfg.disableBarUnInt end,
                 args = {
                     uninterruptibleChnageAlpha = {
-                        type = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name = "Change transparency uninterruptible",
                         desc = "If enabled, the transparency of the cast bar will be changed for uninterruptible casts to make them more distinguishable.",
                         order = 1,
@@ -68,7 +68,7 @@ local function BuildUninterruptableArgs(args, unit)
                         hidden = function() return not cfg.changeAlphaBarUnint or cfg.disableBarUnInt end,
                         args = {
                             includeIconAlphaUnint = {
-                                type  = "toggle",
+                                type = "toggle", dialogControl = "UCB_CheckBox",
                                 name  = "Include cast icon",
                                 desc  = "If enabled, the cast icon will also have its transparency changed for uninterruptible casts.",
                                 order = 1,
@@ -80,7 +80,7 @@ local function BuildUninterruptableArgs(args, unit)
                                 end,
                             },
                             uninterruptibleAlpha = {
-                                type = "range",
+                                type = "range", dialogControl = "UCB_Slider",
                                 name = "Uninterruptible cast bar transparency",
                                 min = UIOptions.alphaMin, max = UIOptions.alphaMax, step = 0.01,
                                 order = 2,
@@ -103,7 +103,7 @@ local function BuildUninterruptableArgs(args, unit)
                 disabled = function() return cfg.disableBarUnInt end,
                 args = {
                      uninterruptibleFill = {
-                        type  = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name  = "Show custom fill for uninterruptible casts",
                         desc  = "Fill the uninterruptible cast bar to show progress.",
                         order = 1,
@@ -142,7 +142,7 @@ local function BuildUninterruptableArgs(args, unit)
                                 width = 0.2,
                             },
                             fillColour = {
-                                type = "color",
+                                type = "color", dialogControl = "UCB_ColorPicker",
                                 name = "Fill colour",
                                 desc = "Colour of the uninterruptable cast bar fill.",
                                 order = 2,
@@ -168,7 +168,7 @@ local function BuildUninterruptableArgs(args, unit)
                 disabled = function() return cfg.disableBarUnInt end,
                 args = {
                     uninterruptibleBackground = {
-                        type  = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name  = "Show overlay for uninterruptible casts",
                         desc  = "Show an overlay for the uninterruptible cast bar.",
                         order = 3,
@@ -188,7 +188,7 @@ local function BuildUninterruptableArgs(args, unit)
                         hidden = function() return not cfg.showUninterruptibleBackground or cfg.disableBarUnInt end,
                         args = {
                             backgroundUseTexture = {
-                                type = "toggle",
+                                type = "toggle", dialogControl = "UCB_CheckBox",
                                 name = "Use texture for overlay",
                                 desc = "If enabled, the overlay will use a texture. If disabled, it will use a solid colour.",
                                 order = 1,
@@ -225,7 +225,7 @@ local function BuildUninterruptableArgs(args, unit)
                                 width = 0.2,
                             },
                             backgroundColour = {
-                                type = "color",
+                                type = "color", dialogControl = "UCB_ColorPicker",
                                 name = "Overlay colour",
                                 desc = "Colour of the uninterruptible cast bar overlay.",
                                 order = 3,
@@ -251,7 +251,7 @@ local function BuildUninterruptableArgs(args, unit)
                 disabled = function() return cfg.disableBarUnInt end,
                 args = {
                     uninterruptibleBorder = {
-                        type  = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name  = "Show border for uninterruptible casts",
                         desc  = "Show a border for uninterruptible casts.",
                         order = 1,
@@ -284,7 +284,7 @@ local function BuildUninterruptableArgs(args, unit)
                                 end,
                             },
                             borderFillCorners = {
-                                type = "toggle",
+                                type = "toggle", dialogControl = "UCB_CheckBox",
                                 name = "Fill corners of border",
                                 desc = "If enabled, the corners of the border will be filled in. If disabled, the corners will be hollow.",
                                 order = 1.5,
@@ -295,7 +295,7 @@ local function BuildUninterruptableArgs(args, unit)
                                 end,
                             },
                             borderColour = {
-                                type = "color",
+                                type = "color", dialogControl = "UCB_ColorPicker",
                                 name = "Border Colour",
                                 order = 2,
                                 hasAlpha = true,
@@ -309,7 +309,7 @@ local function BuildUninterruptableArgs(args, unit)
                                 end,
                             },
                             borderAlpha = {
-                                type = "range",
+                                type = "range", dialogControl = "UCB_Slider",
                                 name = "Transparency",
                                 min = UIOptions.alphaMin, max = UIOptions.alphaMax, step = 0.01,
                                 order = 3,
@@ -326,7 +326,7 @@ local function BuildUninterruptableArgs(args, unit)
                                 end,
                             },
                             borderThickness = {
-                                type = "range",
+                                type = "range", dialogControl = "UCB_Slider",
                                 name = "Thickness",
                                 min = UIOptions.borderThicknessMin, max = UIOptions.borderThicknessMax, step = 0.5,
                                 order = 4,
@@ -357,7 +357,7 @@ local function BuildUninterruptableArgs(args, unit)
                         hidden = function() return not cfg.showUninterruptibleBorder or cfg.disableBarUnInt end,
                         args   = {
                             showBorderIcon = {
-                                type  = "toggle",
+                                type = "toggle", dialogControl = "UCB_CheckBox",
                                 name  = "Show border icon for uninterruptible casts",
                                 order = 1,
                                 get   = function() return cfg.showUninterruptibleBorderIcon end,
@@ -374,7 +374,7 @@ local function BuildUninterruptableArgs(args, unit)
                                 hidden = function() return not cfg.showUninterruptibleBorderIcon end,
                                 args = {
                                     syncBorderIcon = {
-                                        type  = "toggle",
+                                        type = "toggle", dialogControl = "UCB_CheckBox",
                                         name  = "Sync border icon with Castbar Border",
                                         order = 2,
                                         get   = function() return cfg.syncBorderIcon end,
@@ -399,7 +399,7 @@ local function BuildUninterruptableArgs(args, unit)
                                         end,
                                     },
                                     borderFillCornersIcon = {
-                                        type = "toggle",
+                                        type = "toggle", dialogControl = "UCB_CheckBox",
                                         name = "Fill corners of border",
                                         desc = "If enabled, the corners of the border will be filled in. If disabled, the corners will be hollow.",
                                         order = 2.45,
@@ -411,7 +411,7 @@ local function BuildUninterruptableArgs(args, unit)
                                         disabled = function() return cfg.syncBorderIcon == true end,
                                     },
                                     borderColourIcon = {
-                                        type = "color",
+                                        type = "color", dialogControl = "UCB_ColorPicker",
                                         name = "Colour",
                                         order = 2.5,
                                         hasAlpha = true,
@@ -426,7 +426,7 @@ local function BuildUninterruptableArgs(args, unit)
                                         disabled = function() return cfg.syncBorderIcon == true  end,
                                     },
                                     borderAlphaIcon = {
-                                        type = "range",
+                                        type = "range", dialogControl = "UCB_Slider",
                                         name = "Transparency",
                                         min = UIOptions.alphaMin, max = UIOptions.alphaMax, step = 0.01,
                                         order = 3,
@@ -443,7 +443,7 @@ local function BuildUninterruptableArgs(args, unit)
                                         disabled = function() return cfg.syncBorderIcon == true end,
                                     },
                                     borderThicknessIcon = {
-                                        type = "range",
+                                        type = "range", dialogControl = "UCB_Slider",
                                         name = "Thickness",
                                         min = UIOptions.borderThicknessMin, max = UIOptions.borderThicknessMax, step = 0.5,
                                         order = 4,
@@ -491,7 +491,7 @@ local function BuildUninterruptableArgs(args, unit)
                 width = "full",
             },
             disableBarUnKick = {
-                type = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name  = "Hide bar for kickable/interruptible casts if you can't kick/interrupt. Shows bar ONLY when the kick is available. "..UIOptions.ColorText(UIOptions.red,"(Per frame updates)"),
                 desc  = "If enabled, the cast bar will not be shown for casts that can be kicked or interrupted. Only the kick/interrupt tick and until kick/interrupt tick (if enabled) will be shown.",
                 order = 1,
@@ -510,7 +510,7 @@ local function BuildUninterruptableArgs(args, unit)
                 disabled = function() return cfg.disableBarUnKick end,
                 args = {
                      changeAlphaBarUnKick = {
-                        type = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name = "Change transparency when not kickable/interruptible",
                         desc = "If enabled, the transparency of the cast bar will be changed for casts that can be kicked or interrupted but currently can't be to make them more distinguishable.",
                         order = 1,
@@ -535,7 +535,7 @@ local function BuildUninterruptableArgs(args, unit)
                                 width = "full",
                             },
                             dynamicKickAlphaBar = {
-                                type = "toggle",
+                                type = "toggle", dialogControl = "UCB_CheckBox",
                                 name = "Dynamic transparency for kickable/interruptible casts "..UCB.UIOptions.ColorText(UIOptions.red,"(Per frame updates)"),
                                 desc = "If enabled, the transparency of the cast bar will change dynamically based on whether the cast can currently be kicked or interrupted if the cast is kickable or interruptible.",
                                 order = 0.5,
@@ -547,7 +547,7 @@ local function BuildUninterruptableArgs(args, unit)
                                 end,
                             },
                             includeIconAlphaUnKick = {
-                                type  = "toggle",
+                                type = "toggle", dialogControl = "UCB_CheckBox",
                                 name  = "Include cast icon",
                                 desc  = "If enabled, the cast icon will also have its transparency changed for casts that can be kicked or interrupted but currently can't be.",
                                 order = 1,
@@ -559,7 +559,7 @@ local function BuildUninterruptableArgs(args, unit)
                                 end,
                             },
                             unKickableAlpha = {
-                                type = "range",
+                                type = "range", dialogControl = "UCB_Slider",
                                 name = "Not kickable/interruptible cast bar transparency",
                                 min = UIOptions.alphaMin, max = UIOptions.alphaMax, step = 0.01,
                                 order = 2,
@@ -582,7 +582,7 @@ local function BuildUninterruptableArgs(args, unit)
                 disabled = function() return cfg.disableBarUnKick end,
                 args = {
                     kickTickEnabled = {
-                        type  = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name  = "Show kick/interrupt tick",
                         desc  = "Show ticks on the cast bar for when a cast can be kicked or interrupted.",
                         order = 1,
@@ -601,7 +601,7 @@ local function BuildUninterruptableArgs(args, unit)
                         hidden = function() return not cfg.showKickTick end,
                         args = {
                             kickTickUseTexture = {
-                                type = "toggle",
+                                type = "toggle", dialogControl = "UCB_CheckBox",
                                 name = "Use texture for kick/interrupt tick",
                                 desc = "If enabled, the kick/interrupt tick will use a texture. If disabled, it will use a solid colour.",
                                 order = 1,
@@ -639,7 +639,7 @@ local function BuildUninterruptableArgs(args, unit)
                                 width = 0.2,
                             },
                             kickTickColour = {
-                                type = "color",
+                                type = "color", dialogControl = "UCB_ColorPicker",
                                 name = "Kick/Interrupt tick colour",
                                 desc = "Colour of the kick/interrupt ticks.",
                                 order = 3,
@@ -654,7 +654,7 @@ local function BuildUninterruptableArgs(args, unit)
                                 end,
                             },
                             kickTickWidth = {
-                                type = "range",
+                                type = "range", dialogControl = "UCB_Slider",
                                 name = "Kick/Interrupt tick width",
                                 desc = "Width of the kick/interrupt tick in pixels.",
                                 order = 4,
@@ -680,7 +680,7 @@ local function BuildUninterruptableArgs(args, unit)
                 disabled = function() return cfg.disableBarUnKick end,
                 args = {
                     untilKickTickEnabled = {
-                        type  = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name  = "Show custom fillbar until kick/interrupt tick "..UIOptions.ColorText(UIOptions.red,"(Per frame updates)"),
                         desc  = "Show a tick on the cast bar for the point at which the cast can no longer be kicked or interrupted.",
                         order = 1,
@@ -718,7 +718,7 @@ local function BuildUninterruptableArgs(args, unit)
                                 width = 0.2,
                             },
                             untilKickTickColour = {
-                                type = "color",
+                                type = "color", dialogControl = "UCB_ColorPicker",
                                 name = "Until kick/interrupt tick colour",
                                 desc = "Colour of the until kick/interrupt tick.",
                                 order = 2,
@@ -744,7 +744,7 @@ local function BuildUninterruptableArgs(args, unit)
                 disabled = function() return cfg.disableBarUnKick end,
                 args = {
                     untilKickTickOverlayShow = {
-                        type = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name = "Show overlay for bar until kick/interrupt tick",
                         desc = "Show an overlay for the until kick/interrupt tick to make it more visible.",
                         order = 1,
@@ -763,7 +763,7 @@ local function BuildUninterruptableArgs(args, unit)
                         hidden = function() return not cfg.showUntilKickTickBackground end,
                         args = {
                             untilKickTickOverlayUseTexture = {
-                                type = "toggle",
+                                type = "toggle", dialogControl = "UCB_CheckBox",
                                 name = "Use texture for until kick/interrupt tick overlay",
                                 desc = "If enabled, the until kick/interrupt tick overlay will use a texture. If disabled, it will use a solid colour.",
                                 order = 1,
@@ -801,7 +801,7 @@ local function BuildUninterruptableArgs(args, unit)
                                 width = 0.2,
                             },
                             untilKickTickOverlayColour = {
-                                type = "color",
+                                type = "color", dialogControl = "UCB_ColorPicker",
                                 name = "Until kick/interrupt tick overlay colour",
                                 desc = "Colour of the until kick/interrupt tick overlay.",
                                 order = 3,

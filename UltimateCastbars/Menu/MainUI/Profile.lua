@@ -249,7 +249,7 @@ function GUI:BuildProfilesOptions()
                         " You can either import into an existing profile (overwriting it), or create a new profile from the import string. The import string is a compressed and encoded representation of the profile data.",
                     },
                     box = {
-                        type = "input",
+                        type = "input", dialogControl = "UCB_EditBox",
                         name = "Import String",
                         order = 2,
                         width = "full",
@@ -341,7 +341,7 @@ function GUI:BuildProfilesOptions()
                         order = 4,
                         args = {
                             newProfileName = {
-                                type = "input",
+                                type = "input", dialogControl = "UCB_EditBox",
                                 name = "New Profile Name",
                                 order = 1,
                                 width = "full",
@@ -482,7 +482,7 @@ function GUI:BuildProfilesOptions()
                         end,
                     },
                     box = {
-                        type = "input",
+                        type = "input", dialogControl = "UCB_EditBox",
                         name = "Export String",
                         order = 5,
                         width = "full",

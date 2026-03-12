@@ -24,7 +24,7 @@ local function BuildDefaultBarArgs(args, unit, opts)
         disabled = false,
         args = {
             hideDefaultBar = {
-                type  = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name  = "Show Default Castbar",
                 order = 1,
                 get   = function() return cfg.enabled end,
@@ -41,7 +41,7 @@ local function BuildDefaultBarArgs(args, unit, opts)
                 width = "full",
             },
             shorBarOnEnable = {
-                type  = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name  = "Show static bar on enable",
                 desc  = "When enabled, the default castbar show in its last state without pressing a cast when toggled on. Casting makes it dynamic again.",
                 order = 3,
@@ -62,7 +62,7 @@ local function BuildDefaultBarArgs(args, unit, opts)
         disabled = function() return cfg.enabled == false end,
         args = {
             useBlizzardDefaults = {
-                type  = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name  = "Use Blizzard default size & position",
                 desc  = "When enabled, the default castbar uses Blizzard's original saved placement and scale. Disable to use custom settings below.",
                 order = 1,
@@ -84,7 +84,7 @@ local function BuildDefaultBarArgs(args, unit, opts)
                 disabled = function() return cfg.useBlizzardDefaults == true end,
                 args = {
                     blizzBarScale = {
-                        type  = "range",
+                        type  = "range", dialogControl = "UCB_Slider",
                         name  = "Scale",
                         min   = UIOptions.blizzScaleMin, max = UIOptions.blizzScaleMax, step = 0.01,
                         order = 1,
@@ -95,7 +95,7 @@ local function BuildDefaultBarArgs(args, unit, opts)
                         end,
                     },
                     offsetX = {
-                        type = "range",
+                        type = "range", dialogControl = "UCB_Slider",
                         name = "X Offset",
                         min = UIOptions.blizzOffsetMin, max = UIOptions.blizzOffsetMax, step = 1,
                         order = 2,
@@ -107,7 +107,7 @@ local function BuildDefaultBarArgs(args, unit, opts)
                         end,
                     },
                     offsetY = {
-                        type = "range",
+                        type = "range", dialogControl = "UCB_Slider",
                         name = "Y Offset",
                         min = UIOptions.blizzOffsetMin, max = UIOptions.blizzOffsetMax, step = 1,
                         order = 3,

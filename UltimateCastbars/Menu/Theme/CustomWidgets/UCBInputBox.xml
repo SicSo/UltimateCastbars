@@ -1,0 +1,60 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\UI.xsd">
+
+	<EditBox name="UCBInputBoxScriptTemplate" enableMouse="true" virtual="true">
+		<Scripts>
+			<OnTabPressed function="EditBox_OnTabPressed"/>
+			<OnEscapePressed function="EditBox_ClearFocus"/>
+			<OnEditFocusLost function="EditBox_ClearHighlight"/>
+			<OnEditFocusGained function="EditBox_HighlightText"/>
+		</Scripts>
+	</EditBox>
+
+	<EditBox name="UCBInputBoxVisualTemplate" mixin="UCBInputBoxMixin" virtual="true">
+		<Size x="120" y="25"/>
+
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Left" file="Interface\AddOns\UltimateCastbars\gfx\UITextures\InputBox\LeftNormal.png">
+					<Size x="5" y="0"/>
+					<Anchors>
+						<Anchor point="TOPLEFT"/>
+						<Anchor point="BOTTOMLEFT"/>
+					</Anchors>
+				</Texture>
+
+				<Texture parentKey="Right" file="Interface\AddOns\UltimateCastbars\gfx\UITextures\InputBox\RightNormal.png">
+					<Size x="5" y="0"/>
+					<Anchors>
+						<Anchor point="TOPRIGHT"/>
+						<Anchor point="BOTTOMRIGHT"/>
+					</Anchors>
+				</Texture>
+
+				<Texture parentKey="Middle" file="Interface\AddOns\UltimateCastbars\gfx\UITextures\InputBox\MidNormal.png">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.Left" relativePoint="TOPRIGHT"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Right" relativePoint="BOTTOMLEFT"/>
+					</Anchors>
+					<TexCoords left="0" right="1" top="0" bottom="1"/>
+				</Texture>
+			</Layer>
+		</Layers>
+
+		<FontString inherits="ChatFontNormal"/>
+
+		<TextInsets left="10" right="10" bottom="0" top="0"/>
+
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnEnable method="OnEnable"/>
+			<OnDisable method="OnDisable"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnEditFocusGained method="OnEditFocusGained"/>
+			<OnEditFocusLost method="OnEditFocusLost"/>
+		</Scripts>
+	</EditBox>
+
+	<EditBox name="UCBInputBoxTemplate" inherits="UCBInputBoxScriptTemplate, UCBInputBoxVisualTemplate" autoFocus="false" virtual="true"/>
+</Ui>

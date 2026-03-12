@@ -59,7 +59,7 @@ function STYLE_API:BuildBorderOffsetArgs(cfg, unit, oldThickness)
 
     return {
         borderOffsetTop = {
-            type  = "range",
+            type  = "range", dialogControl = "UCB_Slider",
             name  = "Top",
             min   = minV,
             max   = maxV,
@@ -72,7 +72,7 @@ function STYLE_API:BuildBorderOffsetArgs(cfg, unit, oldThickness)
             end,
         },
         borderOffsetBottom = {
-            type  = "range",
+            type  = "range", dialogControl = "UCB_Slider",
             name  = "Bottom",
             min   = minV,
             max   = maxV,
@@ -85,7 +85,7 @@ function STYLE_API:BuildBorderOffsetArgs(cfg, unit, oldThickness)
             end,
         },
         borderOffsetLeft = {
-            type  = "range",
+            type  = "range", dialogControl = "UCB_Slider",
             name  = "Left",
             min   = minV,
             max   = maxV,
@@ -98,7 +98,7 @@ function STYLE_API:BuildBorderOffsetArgs(cfg, unit, oldThickness)
             end,
         },
         borderOffsetRight = {
-            type  = "range",
+            type  = "range", dialogControl = "UCB_Slider",
             name  = "Right",
             min   = minV,
             max   = maxV,
@@ -150,7 +150,7 @@ function STYLE_API:BuildBorderOffsetIconArgs(cfg, unit, oldThickness, oldThickne
 
     return {
         borderOffsetTopIcon = {
-            type  = "range",
+            type  = "range", dialogControl = "UCB_Slider",
             name  = "Top",
             min   = minV,
             max   = maxV,
@@ -163,7 +163,7 @@ function STYLE_API:BuildBorderOffsetIconArgs(cfg, unit, oldThickness, oldThickne
             end,
         },
         borderOffsetBottomIcon = {
-            type  = "range",
+            type  = "range", dialogControl = "UCB_Slider",
             name  = "Bottom",
             min   = minV,
             max   = maxV,
@@ -176,7 +176,7 @@ function STYLE_API:BuildBorderOffsetIconArgs(cfg, unit, oldThickness, oldThickne
             end,
         },
         borderOffsetLeftIcon = {
-            type  = "range",
+            type  = "range", dialogControl = "UCB_Slider",
             name  = "Left",
             min   = minV,
             max   = maxV,
@@ -189,7 +189,7 @@ function STYLE_API:BuildBorderOffsetIconArgs(cfg, unit, oldThickness, oldThickne
             end,
         },
         borderOffsetRightIcon = {
-            type  = "range",
+            type  = "range", dialogControl = "UCB_Slider",
             name  = "Right",
             min   = minV,
             max   = maxV,

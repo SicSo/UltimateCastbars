@@ -32,7 +32,7 @@ local function BuildChannelSettings(unit, class)
                 width = "full",
             },
             channelTickColour = {
-                type = "color",
+                type = "color", dialogControl = "UCB_ColorPicker",
                 name = "Tick Colour",
                 desc = "Colour used for tick markers during channeled spells.",
                 hasAlpha = true,
@@ -48,7 +48,7 @@ local function BuildChannelSettings(unit, class)
                 
             },
             channelTickWidth = {
-                type = "range",
+                type = "range", dialogControl = "UCB_Slider",
                 name = "Tick Width",
                 desc = "Thickness of tick markers during channeled spells.",
                 min = UIOptions.channelTickWidthMin, max = UIOptions.channelTickWidthMax, step = 0.5,
@@ -67,7 +67,7 @@ local function BuildChannelSettings(unit, class)
                 order = 4,
                 args = {
                     useTickTexture = {
-                        type  = "toggle",
+                        type = "toggle", dialogControl = "UCB_CheckBox",
                         name  = "Use texture for ticks",
                         order = 1,
                         get   = function() return cfg.useTickTexture end,
@@ -138,7 +138,7 @@ local function BuildRows(channelTable, cfg, unit)
                 v3 = { type = "description", name = "|", order = 6, width = 0.05 },
 
                 ticks = {
-                    type = "range",
+                    type = "range", dialogControl = "UCB_Slider",
                     name = "",
                     order = 7,
                     width = 0.90,
@@ -152,7 +152,7 @@ local function BuildRows(channelTable, cfg, unit)
                 v4 = { type = "description", name = "|", order = 8, width = 0.05 },
 
                 enable = {
-                    type = "toggle",
+                    type = "toggle", dialogControl = "UCB_CheckBox",
                     name = "",
                     order = 9,
                     width = 0.30,
@@ -260,7 +260,7 @@ local function BuildChannelTable(args, unit, class)
                         width = "full",
                     },
                     slectedSpellId = {
-                        type = "input",
+                        type = "input", dialogControl = "UCB_EditBox",
                         name = "Selected Spell ID",
                         order = 3,
                         width = 1.5,
@@ -299,7 +299,7 @@ local function BuildChannelTable(args, unit, class)
                 order = 2,
                 args = {
                     spellId = {
-                        type = "input",
+                        type = "input", dialogControl = "UCB_EditBox",
                         name = "Spell ID",
                         order = 3,
                         width = 1.5,
@@ -377,7 +377,7 @@ function Opt:BuildChannelSectionPlayer(args, unit, class)
                 hidden = function() return bigCFG.otherFeatures.showChannelTicks end,
             },
             channelToogle = {
-                type  = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name  = "Enable channeling options",
                 order = 1,
                 width = 1.5,
@@ -389,7 +389,7 @@ function Opt:BuildChannelSectionPlayer(args, unit, class)
                 disabled = function() return not bigCFG.otherFeatures.showChannelTicks end,
             },
             useMainSettings = {
-                type  = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name  = "Use Other Features settings for channeling",
                 order = 2,
                 width = 1.5,
@@ -434,7 +434,7 @@ local function BuildChannelSpecSettings(args, unit, class)
                         order = 1,
                         args = {
                             enableTick = {
-                                type = "toggle",
+                                type = "toggle", dialogControl = "UCB_CheckBox",
                                 name = function() return "Enable ticks for ".. UCB.UIOptions.ColorText(UCB.UIOptions.classColoursList[class].HEX, class) end,
                                 order = 1,
                                 width = 2,
@@ -445,7 +445,7 @@ local function BuildChannelSpecSettings(args, unit, class)
                                 end,
                             },
                             tickNumber = {
-                                type = "range",
+                                type = "range", dialogControl = "UCB_Slider",
                                 name = function() return "Number of ticks for "..UCB.UIOptions.ColorText(UCB.UIOptions.classColoursList[class].HEX, class) end,
                                 order = 2,
                                 width = 1.5,
@@ -481,7 +481,7 @@ local function BuildChannelSpecSettings(args, unit, class)
             order = specID,
             args = {
                 enableTick = {
-                    type = "toggle",
+                    type = "toggle", dialogControl = "UCB_CheckBox",
                     name = function() return "Enable ticks for "..UCB.UIOptions.ColorText(UCB.UIOptions.classColoursList[class].HEX, spec_data[specID]).." (overrides class-wide)" end,
                     order = 1,
                     width = 2,
@@ -492,7 +492,7 @@ local function BuildChannelSpecSettings(args, unit, class)
                     end,
                 },
                 tickNumber = {
-                    type = "range",
+                    type = "range", dialogControl = "UCB_Slider",
                     name = function () return"Number of ticks for "..UCB.UIOptions.ColorText(UCB.UIOptions.classColoursList[class].HEX, spec_data[specID]) end,
                     order = 2,
                     width = 1.5,
@@ -528,7 +528,7 @@ function Opt:BuildChannelSectionNonPlayer(args, unit, class)
                 hidden = function() return bigCFG.otherFeatures.showChannelTicks end,
             },
             channelToogle = {
-                type  = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name  = "Enable channeling options",
                 order = 1,
                 width = 1.5,
@@ -540,7 +540,7 @@ function Opt:BuildChannelSectionNonPlayer(args, unit, class)
                 disabled = function() return not bigCFG.otherFeatures.showChannelTicks end,
             },
             useMainSettings = {
-                type  = "toggle",
+                type = "toggle", dialogControl = "UCB_CheckBox",
                 name  = "Use Other Features settings for channeling",
                 order = 2,
                 width = 1.5,

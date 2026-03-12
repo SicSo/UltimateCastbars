@@ -313,7 +313,7 @@ options.choose = {
 }
 
 options.enabled = {
-	type = "toggle",
+	type = "toggle", dialogControl = "UCB_CheckBox",
 	name = "|cffffd200"..L_ENABLED.."|r",
 	desc = function()
 		local desc = L_ENABLED_DESC

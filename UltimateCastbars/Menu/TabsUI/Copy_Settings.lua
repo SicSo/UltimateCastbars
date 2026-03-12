@@ -95,7 +95,7 @@ local function CreateCategoriesToggle(unit)
     for _, key in ipairs(categoriesOrder) do
         local label = categories[key] or key
         args[key] = {
-            type = "toggle",
+            type = "toggle", dialogControl = "UCB_CheckBox",
             name = label,
             desc = "Include "..label.." in the copy.",
             order = i,

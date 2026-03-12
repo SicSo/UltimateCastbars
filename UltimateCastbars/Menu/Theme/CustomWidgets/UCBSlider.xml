@@ -1,0 +1,126 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\UI.xsd">
+
+	<!-- Base slider -->
+	<Slider name="UCBSliderTemplate" orientation="HORIZONTAL" mixin="UCBSliderMixin" enableMouse="true" virtual="true">
+		<Size x="200" y="15"/>
+
+		<KeyValues>
+			<KeyValue key="obeyStepOnDrag" value="true" type="boolean"/>
+		</KeyValues>
+
+		<Layers>
+			<Layer>
+				<Texture parentKey="Left" file="Interface\AddOns\UltimateCastbars\gfx\UITextures\Slider\LeftNormal.png">
+					<Size x="8" y="15"/>
+					<Anchors>
+						<Anchor point="LEFT"/>
+					</Anchors>
+				</Texture>
+
+				<Texture parentKey="Right" file="Interface\AddOns\UltimateCastbars\gfx\UITextures\Slider\RightNormal.png">
+					<Size x="8" y="15"/>
+					<Anchors>
+						<Anchor point="RIGHT"/>
+					</Anchors>
+				</Texture>
+
+				<Texture parentKey="Middle" file="Interface\AddOns\UltimateCastbars\gfx\UITextures\Slider\MidNormal.png">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.Left" relativePoint="TOPRIGHT"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Right" relativePoint="BOTTOMLEFT"/>
+					</Anchors>
+					<TexCoords left="0.0" right="1.0" top="0.0" bottom="1.0"/>
+				</Texture>
+			</Layer>
+		</Layers>
+
+		<ThumbTexture parentKey="Thumb" file="Interface\AddOns\UltimateCastbars\gfx\UITextures\Slider\ThumbNormal.png">
+			<Size x="16" y="16"/>
+		</ThumbTexture>
+
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+		</Scripts>
+	</Slider>
+
+	<!-- Slider + stepper wrapper -->
+	<Frame name="UCBSliderWithSteppersTemplate" mixin="UCBSliderWithSteppersMixin" enableMouse="true" virtual="true">
+		<Size x="250" y="15"/>
+
+		<Frames>
+			<Slider parentKey="Slider" inherits="UCBSliderTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="19"/>
+					<Anchor point="BOTTOMRIGHT" x="-19"/>
+				</Anchors>
+			</Slider>
+
+			<Button parentKey="Back" enableMouse="true">
+				<Size x="15" y="12"/>
+				<Anchors>
+					<Anchor point="RIGHT" relativeKey="$parent.Slider" relativePoint="LEFT" x="-2"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="Icon" file="Interface\AddOns\UltimateCastbars\gfx\UITextures\Slider\ChevronThick.png">
+							<Size x="15" y="12"/>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Button>
+
+			<Button parentKey="Forward" enableMouse="true">
+				<Size x="15" y="12"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeKey="$parent.Slider" relativePoint="RIGHT" x="2"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="Icon" file="Interface\AddOns\UltimateCastbars\gfx\UITextures\Slider\ChevronThick.png">
+							<Size x="15" y="12"/>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Button>
+		</Frames>
+
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString parentKey="LeftText" inherits="GameFontNormal" parentArray="Labels" hidden="true">
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent.Slider" relativePoint="LEFT" x="-25"/>
+					</Anchors>
+				</FontString>
+
+				<FontString parentKey="RightText" inherits="GameFontNormal" parentArray="Labels" hidden="true">
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.Slider" relativePoint="RIGHT" x="25"/>
+					</Anchors>
+				</FontString>
+
+				<FontString parentKey="TopText" inherits="GameFontNormal" parentArray="Labels" hidden="true">
+					<Anchors>
+						<Anchor point="BOTTOM" relativeKey="$parent.Slider" relativePoint="TOP" y="-9"/>
+					</Anchors>
+				</FontString>
+
+				<FontString parentKey="MinText" inherits="GameFontNormal" parentArray="Labels" hidden="true">
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent.Slider" relativePoint="BOTTOMLEFT" y="6"/>
+					</Anchors>
+				</FontString>
+
+				<FontString parentKey="MaxText" inherits="GameFontNormal" parentArray="Labels" hidden="true">
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent.Slider" relativePoint="BOTTOMRIGHT" y="6"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+		</Scripts>
+	</Frame>
+</Ui>
