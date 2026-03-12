@@ -12,6 +12,18 @@ UCB.eventFrame = {} -- Event frames per unit
 
 UCB.firstBuild = true
 
+UCB.unitNames = {
+    player = "",
+    target = "",
+    focus = "",
+}
+
+UCB.unitColours = {
+    player = {r = 1, g = 1, b = 1, a=0},
+    target = {r = 1, g = 1, b = 1, a=0},
+    focus = {r = 1, g = 1, b = 1, a=0},
+}
+
 UCB.units = {
     "player",
     "target",

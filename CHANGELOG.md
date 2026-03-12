@@ -2,6 +2,8 @@
 
 ### Added
 - Full dynamic size for sync frames
+- \[pName], \[tName], \[fName] tags 
+- Added toggle for class colouring for names
 
 ### Fixed
 - OverlayPlayerCastingBarFrame was not being hidden on player unit

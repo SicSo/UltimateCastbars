@@ -10,6 +10,10 @@ function CASTBAR_API:OnUnitChange(unit)
     if not bar then return end
     local resumeCast = true
 
+    -- Update stored name for the unit
+    UCB.unitNames[unit] = UnitName(unit)
+    UCB.unitColours[unit] = UCB:UnitClassColour(unit)
+
     -- Hide any previous casts
     CASTBAR_API:StopPrevCast(unit, bar, nil, nil, nil)
     

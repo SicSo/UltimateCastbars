@@ -265,8 +265,8 @@ local function BuildCandidateFromStyle(unit, bar, styleCfg)
         cand.mode = "single"
 
         if UCB:IsPlayer(unit) then
-            cand.rgba1 = UCB.classColour.RGBA
-            cand.col1  = UCB.classColour.COL
+            cand.rgba1 = UCB.charColour.RGBA
+            cand.col1  = UCB.charColour.COL
         else
             EnsureEnemyColourCached(unit, bar, styleCfg)
             -- If you WANT class-per-unit for nameplates etc, don’t set rgba1/col1
@@ -346,7 +346,7 @@ function BarUpdate_API:UpdateStyle(unit, force, type, customStyle)
         if cfg.bgColourMode == "custom" then
             c = cfg.bgColour
         else
-            c = UCB.classColour.RGBA
+            c = UCB.charColour.RGBA
         end
 
         if cfg.bgUseCustomAlpha then

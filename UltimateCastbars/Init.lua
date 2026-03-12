@@ -200,10 +200,11 @@ end
 
 local function SetUpPlayerInfo()
     local _, class = UnitClass("player")
-    UCB.classColour = UCB.UIOptions.classColoursList[class]
     UCB.className = class
+    UCB.charColour = UCB.UIOptions.classColoursList[class]
+    UCB.unitColours.player = UCB.charColour.RGBA
+    UCB.unitNames.player = UnitName("player")
     UCB.specID = PlayerUtil.GetCurrentSpecID()
-    UCB.charName = UnitName("player")
 end
 
 

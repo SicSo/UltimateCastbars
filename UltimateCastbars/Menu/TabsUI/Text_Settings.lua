@@ -278,7 +278,10 @@ local function tagUI(key, unit)
                        UIOptions.ColorText(UIOptions.turquoise, "[dPerTime]").." - Duration Time Percentage (just 100)\n"..
                        UIOptions.ColorText(UIOptions.turquoise, "[nIntr:X]").." - Unintreruptable spell (X reprsents the text displayed, by ommiting it is Unintr. IT WILL SHOW OR HIDE THE ENTIRE TAG BASED ON Unintreruptable.)\n"..
                        UIOptions.ColorText(UIOptions.turquoise, "[nIntrInv:X]").." - Intreruptable spell (X reprsents the text displayed, by ommiting it is Intr. IT WILL SHOW OR HIDE THE ENTIRE TAG BASED ON Intreruptable.)\n"..
-                       UIOptions.ColorText(UIOptions.turquoise, "[lat:X]").." - Latency - ONLY PLAYER (in seconds, X repesents the number of decimals and can be ommited for the use of [lat], default is 1 decimal; text is seen as default.)\n",
+                       UIOptions.ColorText(UIOptions.turquoise, "[lat:X]").." - Latency - ONLY PLAYER (in seconds, X repesents the number of decimals and can be ommited for the use of [lat], default is 1 decimal; text is seen as default.)\n".. 
+                       UIOptions.ColorText(UIOptions.turquoise, "[pName:X]").." - Player Name (X repesents the number of maximum allowed characters and can be ommited for the use [pName], default is full name)\n" ..
+                       UIOptions.ColorText(UIOptions.turquoise, "[tName:X]").." - Target Name (X repesents the number of maximum allowed characters and can be ommited for the use [tName], default is full name)\n" ..
+                       UIOptions.ColorText(UIOptions.turquoise, "[fName:X]").." - Focus Name (X repesents the number of maximum allowed characters and can be ommited for the use [fName], default is full name)\n",
                 width = "full",
                 order = 2,
             },
@@ -296,7 +299,10 @@ local function tagUI(key, unit)
                        UIOptions.ColorText(UIOptions.turquoise, "[dPerTime]").." - Duration Time Percentage (just 100)\n"..
                        UIOptions.ColorText(UIOptions.turquoise, "[nIntr:X]").." - Unintreruptable spell (X reprsents the text displayed, by ommiting it is Unintr. IT WILL SHOW OR HIDE THE ENTIRE TAG BASED ON Unintreruptable.)\n"..
                        UIOptions.ColorText(UIOptions.turquoise, "[nIntrInv:X]").." - Intreruptable spell (X reprsents the text displayed, by ommiting it is Intr. IT WILL SHOW OR HIDE THE ENTIRE TAG BASED ON Intreruptable.)\n"..
-                       UIOptions.ColorText(UIOptions.turquoise, "[lat:X]").." - Latency - ONLY PLAYER (in seconds, X repesents the number of decimals and can be ommited for the use of [lat], default is 1 decimal; text is seen as default.)\n",
+                       UIOptions.ColorText(UIOptions.turquoise, "[lat:X]").." - Latency - ONLY PLAYER (in seconds, X repesents the number of decimals and can be ommited for the use of [lat], default is 1 decimal; text is seen as default.)\n".. 
+                       UIOptions.ColorText(UIOptions.turquoise, "[pName:X]").." - Player Name (X repesents the number of maximum allowed characters and can be ommited for the use [pName], default is full name)\n" ..
+                       UIOptions.ColorText(UIOptions.turquoise, "[tName:X]").." - Target Name (X repesents the number of maximum allowed characters and can be ommited for the use [tName], default is full name)\n" ..
+                       UIOptions.ColorText(UIOptions.turquoise, "[fName:X]").." - Focus Name (X repesents the number of maximum allowed characters and can be ommited for the use [fName], default is full name)\n",
                 width = "full",
                 order = 2,
             },
@@ -312,7 +318,7 @@ local function tagUI(key, unit)
                        UIOptions.ColorText(UIOptions.green, "Static").." tags contain only static text inputed by the user so they are loaded once or when they are chnaged through the UI.\n".. 
                        UIOptions.ColorText(UIOptions.yellow, "Semi-Dynamic").." tags contain at least one of the preset tags provided which come with a smaller penalty beacuse they are loaded once every cast.\n"..
                        UIOptions.ColorText(UIOptions.red, "Dynamic").." tags contain at least one of the preset tags provided which come with a largest penalty because they are loaded every frame.\n"..
-                       "Each peset tag has its own class of penalty due to its nature. "..UIOptions.ColorText(UIOptions.red,"DYNAMIC")..": [rTime], [rPerTime], [rTimeInv], [rPerTimeInv]; "..UIOptions.ColorText(UIOptions.yellow,"SEMI-DYNAMIC")..": [sName], [dTime], [dPerTime], [cIntr], [cIntrInv], [lat].\n"..
+                       "Each peset tag has its own class of penalty due to its nature. "..UIOptions.ColorText(UIOptions.red,"DYNAMIC")..": [rTime], [rPerTime], [rTimeInv], [rPerTimeInv]; "..UIOptions.ColorText(UIOptions.yellow,"SEMI-DYNAMIC")..": [sName], [dTime], [dPerTime], [cIntr], [cIntrInv], [lat], [tName], [fName]. rest are"..UIOptions.ColorText(UIOptions.green, "STATIC")..".\n"..
                        "If the state of a "..UIOptions.ColorText(UIOptions.green, "STATIC").." tag is conditionally changed based on type of cast (normal/channel/empowered) it will be converted to a "..UIOptions.ColorText(UIOptions.yellow,"SEMI-DYNAMIC").." tag automatically.",
                 width = "full",
                 order = 4,
@@ -326,6 +332,25 @@ local function tagUI(key, unit)
                        "All peset tags or static text have the same class of penalty. Previously dynamic tags will be frozen in their last state.",
                 width = "full",
                 order = 4,
+            },
+        }
+    }
+
+    args.grpAdditionalOptions = {
+        type = "group",
+        name = "Extra Options",
+        order = 3.5,
+        inline = true,
+        args = {
+            classColour = {
+                type = "toggle", dialogControl = "UCB_CheckBox",
+                name = "Use class colour for names",
+                order = 1,
+                get = function() return cfg.extraOptions.useClassColour end,
+                set = function(_, v)
+                    cfg.extraOptions.useClassColour = v
+                    CASTBAR_API:UpdateCastbar(unit)
+                    end,
             },
         }
     }

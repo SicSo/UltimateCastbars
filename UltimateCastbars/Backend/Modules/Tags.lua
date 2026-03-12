@@ -34,8 +34,8 @@ TAG_FN["[lat]"] = function(v, limNum)
     return FormatDecimals(v.lat, limNum)
 end
 
-TAG_FN["[kName]"] = function(v, limNum)
-    if (v.kColour) and v.kColour.GenerateHexColor then
+TAG_FN["[kName]"] = function(v, limNum, _, _, _, useClassColour)
+    if (v.kColour) and v.kColour.GenerateHexColor and useClassColour then
         return UCB.UIOptions.ColorText(v.kColour:GenerateHexColor(), FirstNChars(v.kName, limNum))
     end
     return FirstNChars(v.kName, limNum)
@@ -43,6 +43,27 @@ end
 
 TAG_FN["[sName]"] = function(v, limNum)
     return FirstNChars(v.sName, limNum)
+end
+
+TAG_FN["[pName]"] = function(v, limNum, _, _, _, useClassColour)
+    if UCB.unitColours.player and UCB.unitColours.player.GenerateHexColor and useClassColour then
+        return UCB.UIOptions.ColorText(UCB.unitColours.player:GenerateHexColor(), FirstNChars(UCB.unitNames.player, limNum))
+    end
+    return FirstNChars(UCB.unitNames.player, limNum)
+end
+
+TAG_FN["[tName]"] = function(v, limNum, _, _, _, useClassColour)
+    if UCB.unitColours.target and UCB.unitColours.target.GenerateHexColor and useClassColour then
+        return UCB.UIOptions.ColorText(UCB.unitColours.target:GenerateHexColor(), FirstNChars(UCB.unitNames.target, limNum))
+    end
+    return FirstNChars(UCB.unitNames.target, limNum)
+end
+
+TAG_FN["[fName]"] = function(v, limNum, _, _, _, useClassColour)
+    if UCB.unitColours.focus and UCB.unitColours.focus.GenerateHexColor and useClassColour then
+        return UCB.UIOptions.ColorText(UCB.unitColours.focus:GenerateHexColor(), FirstNChars(UCB.unitNames.focus, limNum))
+    end
+    return FirstNChars(UCB.unitNames.focus, limNum)
 end
 
 TAG_FN["[dTime]"] = function(v, limNum)
@@ -154,7 +175,9 @@ local function join(t, sep, n)
   return s
 end
 
-function tags:processCompiled(ops, unit, remainingTime, elpasedTime, alpha)
+function tags:processCompiled(ops, unit, remainingTime, elpasedTime, tagOptions)
+    local alpha = tagOptions.alpha
+    local useClassColour = tagOptions.useClassColour
     local v = self.var[unit]
 
     local out = self._out
@@ -166,7 +189,7 @@ function tags:processCompiled(ops, unit, remainingTime, elpasedTime, alpha)
         local op = ops[i]
         outN = outN + 1
         if type(op) == "table" then
-            out[outN] = op.fn(v, op.limNum, remainingTime, elpasedTime, op.limRaw)
+            out[outN] = op.fn(v, op.limNum, remainingTime, elpasedTime, op.limRaw, useClassColour)
         else
             out[outN] = op
         end
@@ -276,7 +299,7 @@ function tags:splitTags(s, openDelim, closeDelim)
             if token == "[rTime]" or token == "[rPerTime]" or token == "[rTimeInv]" or token == "[rPerTimeInv]" then
                 state = "dynamic"
             elseif state ~= "semiDynamic" then
-                if token == "[dTime]" or token == "[dPerTime]" or token == "[sName]" or token == "[nIntr]" or token == "[nIntrInv]" or token == "[lat]" then
+                if token == "[dTime]" or token == "[dPerTime]" or token == "[sName]" or token == "[nIntr]" or token == "[nIntrInv]" or token == "[lat]" or token == "[tName]" or token == "[fName]" then
                     state = "semiDynamic"
                 end
             end
@@ -414,7 +437,8 @@ function tags:PrepareTextState(tagGroups, bar, state, castType)
                     limits  = tagOptions._limits,
                     compiled = tagOptions._compiled,
                     showOnEffect = tagOptions.showOnEffect,
-                    alpha = tagOptions.colour.a
+                    alpha = tagOptions.colour.a,
+                    useClassColour = tagOptions.extraOptions.useClassColour
                 }
             else
                 fs:Hide()
@@ -490,7 +514,7 @@ function tags:ApplyTextState(bar, state, unit, remaining, elapsed)
 
     for i = 1, #active do
         local t = active[i]
-        local text, alphaText = tags:processCompiled(t.compiled, unit, remaining, elapsed, t.alpha)
+        local text, alphaText = tags:processCompiled(t.compiled, unit, remaining, elapsed, t)
         t.fs:SetText(text)
         if (alphaText) then
             t.fs:SetAlpha(alphaText)

@@ -177,6 +177,10 @@ local target_db = {
             _formula = {},
             _limits = {},
 
+            extraOptions = {
+                useClassColour = true,
+            }
+
         },
         textList = {
             tag1 = {
@@ -212,6 +216,10 @@ local target_db = {
                 },
 
                 mainType = "cast",
+
+                extraOptions = {
+                    useClassColour = true,
+                }
             },
             tag2 = {
                 name = "Timer (decrease)",
@@ -245,6 +253,10 @@ local target_db = {
                 },
 
                 mainType = "cast",
+
+                extraOptions = {
+                    useClassColour = true,
+                }
             },
             tag3 = {
                 name = "Timer (increase)",
@@ -278,6 +290,10 @@ local target_db = {
                 },
 
                 mainType = "cast",
+
+                extraOptions = {
+                    useClassColour = true,
+                }
             },
             tag4 = {
                 name = "Cancelled",
@@ -311,6 +327,10 @@ local target_db = {
                 },
 
                 mainType = "cancelled",
+
+                extraOptions = {
+                    useClassColour = true,
+                }
             },
             tag5 = {
                 name = "Interrupted By",
@@ -344,6 +364,10 @@ local target_db = {
                 },
 
                 mainType = "interrupted",
+                
+                extraOptions = {
+                    useClassColour = true,
+                }
             },
         },
     },

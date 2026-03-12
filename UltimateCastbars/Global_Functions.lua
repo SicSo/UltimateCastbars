@@ -71,6 +71,15 @@ function UCB:IsFocus(unit, exclusive)
     end
 end
 
+function UCB:UnitClassColour(unit)
+    local class = UnitClass(unit)
+    local colour = {r = 1, g = 1, b = 1, a=0}
+    if class ~= nil then
+        colour = C_ClassColor.GetClassColor(class)
+    end
+    return colour
+end
+
 --------------------------------------------------------------------------- CFG_API ---------------------------------------------------------------------------
 function UCB.CFG_API:GetPathValue(root, key)
     if root == nil then return nil end

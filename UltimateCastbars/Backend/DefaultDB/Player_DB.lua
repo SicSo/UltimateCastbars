@@ -208,6 +208,10 @@ UCB.Default_DB.player = {
             },
 
             mainType = "cast",
+
+            extraOptions = {
+                useClassColour = true,
+            }
         },
         textList = {
             tag1 = {
@@ -243,6 +247,10 @@ UCB.Default_DB.player = {
                 },
 
                 mainType = "cast",
+
+                extraOptions = {
+                    useClassColour = true,
+                }
             },
             tag2 = {
                 name = "Timer (decrease)",
@@ -276,6 +284,10 @@ UCB.Default_DB.player = {
                 },
 
                 mainType = "cast",
+
+                extraOptions = {
+                    useClassColour = true,
+                }
             },
             tag3 = {
                 name = "Timer (increase)",
@@ -309,6 +321,10 @@ UCB.Default_DB.player = {
                 },
 
                 mainType = "cast",
+
+                extraOptions = {
+                    useClassColour = true,
+                }
             },
             tag4 = {
                 name = "Cancelled",
@@ -342,6 +358,10 @@ UCB.Default_DB.player = {
                 },
 
                 mainType = "cancelled",
+
+                extraOptions = {
+                    useClassColour = true,
+                }
             },
             tag5 = {
                 name = "Interrupted By",
@@ -375,6 +395,10 @@ UCB.Default_DB.player = {
                 },
 
                 mainType = "interrupted",
+
+                extraOptions = {
+                    useClassColour = true,
+                }
             },
         },
     },
