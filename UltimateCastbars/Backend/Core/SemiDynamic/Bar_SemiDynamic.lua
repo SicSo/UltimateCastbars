@@ -5,12 +5,14 @@ UCB.BarUpdate_API = UCB.BarUpdate_API or {}
 UCB.tags     = UCB.tags     or {}
 UCB.Preview_API = UCB.Preview_API or {}
 UCB.GeneralCore_Helpers = UCB.GeneralCore_Helpers or {}
+UCB.Latency = UCB.Latency or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
 local tags = UCB.tags
 local BarUpdate_API = UCB.BarUpdate_API
 local Preview_API = UCB.Preview_API
 local GeneralHelpers = UCB.GeneralCore_Helpers
+local Latency = UCB.Latency
 
 
 -- Tries to stop previous casts
@@ -155,7 +157,7 @@ function CASTBAR_API:AssignQueueWindow(unit, cfg, typeCast)
     end
 end
 
- function CASTBAR_API:AssignLatencyWindow(bar, cfg, castType, latency)
+ function CASTBAR_API:AssignLatencyWindow(bar, cfg, castType, latency, vars)
     local latencyOverlay = bar.latencyOverlay
     if not latencyOverlay then return end
     if latency == nil then latencyOverlay:Hide() return end
@@ -169,8 +171,14 @@ end
 
     local switch = (inverted or mirror) and not (inverted and mirror)  -- if either is true, but not both
 
-    if latencyCFG.enabled and latencyCFG.show[castType] and latency < tags.var[unit].dTime then
-        local px = cfg.general.actualBarWidth * (latency / tags.var[unit].dTime)
+    if latencyCFG.useWorldLatency then
+        latency = Latency.worldLatency
+    end
+    vars.latency = latency  -- store latency in vars for tag access
+    local disaplyLatency = math.min(latency, latencyCFG.maxLatency / 1000) -- cap latency to maxLatency setting (converted to seconds)
+
+    if latencyCFG.enabled and latencyCFG.show[castType] and disaplyLatency < tags.var[unit].dTime then
+        local px = cfg.general.actualBarWidth * (disaplyLatency / tags.var[unit].dTime)
         latencyOverlay:SetWidth(px)
         latencyOverlay:ClearAllPoints()
 
@@ -479,6 +487,7 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, la
     CASTBAR_API:StopFrameTimer(UCB.castBar[unit], "interrupted")
 
     bar.current_spellID = spellID
+    bar.current_castGUID = castGUID
 
     -- Update internal vars with spellInfo
     local icon_texture = tags:updateVars(unit, castType, spellID, cfg, latency)
@@ -503,7 +512,7 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, la
 
     if UCB:IsPlayer(unit) then
         CASTBAR_API:AssignQueueWindow(unit, cfg, castType)
-        CASTBAR_API:AssignLatencyWindow(bar, cfg, castType, latency)
+        CASTBAR_API:AssignLatencyWindow(bar, cfg, castType, latency, vars)
     end
 
     local bar_status = bar.status
