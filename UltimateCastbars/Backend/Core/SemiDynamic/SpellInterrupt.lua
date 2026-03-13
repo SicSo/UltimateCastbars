@@ -58,8 +58,9 @@ function CASTBAR_API:ShowFrameTimer(bar, unit, type, duration, alpha)
         bar.gate_effects:SetAlpha(alpha)
     end
 
-  frame:Show()
-  bar.group:Show()
+    frame:Show()
+    bar.group:Show()
+
 
   -- if you show it again, cancel any previous hide timer
   if frame.hideTimer then
@@ -77,12 +78,22 @@ function CASTBAR_API:ShowFrameTimer(bar, unit, type, duration, alpha)
   local cfg = UCB.GetValueConfig(unit)
   CASTBAR_API:HideCastbar(bar, unit, tags.var[unit], cfg)
 
+    -- Hide Background
+    local otherFeaturesCFG = cfg.otherFeatures
+    if otherFeaturesCFG.permanentBackgrodund.enable and otherFeaturesCFG.permanentBackgrodund.hideWhenCasting then
+        bar.background_frame:Hide()
+    end
+
   --UCB.LA:Animate(bar.group, "headShake", {duration = 1.0})
 
   frame.hideTimer = C_Timer.NewTimer(duration, function()
     frame.hideTimer = nil
     frame:Hide()
     bar.group:Hide()
+    local otherFeaturesCFG = cfg.otherFeatures
+    if otherFeaturesCFG.permanentBackgrodund.enable and otherFeaturesCFG.permanentBackgrodund.hideWhenCasting then
+        bar.background_frame:Show()
+    end
   end)
 end
 

@@ -158,6 +158,10 @@ function Preview_API:HidePreviewCastBar(unit)
     local bar = UCB.castBar[unit]
     bar.group:Hide()
     bar:SetScript("OnUpdate", nil)
+    local otherFeaturesCFG = cfg.otherFeatures
+    if otherFeaturesCFG.enable and otherFeaturesCFG.hideWhenCasting then
+        bar.background_frame:Show()
+    end
     bar.flags.castActive = false
     bar.flags.prevType = nil
     bar.current_spellID = nil

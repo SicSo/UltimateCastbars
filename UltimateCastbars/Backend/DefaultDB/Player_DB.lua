@@ -82,6 +82,15 @@ local function createClassSettings()
         spellStyling = {
             useStyleSpell = false,
             styleSpells = {},
+            customStyles = {
+                classSpells = {
+                    enableClassSpells = false,
+                    enableNonClassSpells = false,
+                    classSpellList = {},
+                    classSpellsStyle = UCB.Default_DB:createStyle(),
+                    classNonSpellsStyle = UCB.Default_DB:createStyle(),
+                },
+            }
         }
 
     }
@@ -410,6 +419,13 @@ UCB.Default_DB.player = {
         normal = UCB.Default_DB:createStyle(),
         channel = UCB.Default_DB:createStyle(),
         empowered = UCB.Default_DB:createStyle(),
+
+        tradeSpells = {
+            enableTradeSpells = false,
+            enableNonTradeSpells = false,
+            tradeSpellsStyle = UCB.Default_DB:createStyle(),
+            tradeNonSpellsStyle = UCB.Default_DB:createStyle(),
+        },
     },
 
     visibility = {
@@ -617,6 +633,14 @@ UCB.Default_DB.player = {
                 blackListSpells = {},
                 whiteListSpells = {},
             }
+        },
+
+        permanentBackgrodund = {
+            enable = false,
+            hideWhenCasting = true,
+            includeBorderInWidth = true,
+            includeBorderInHeight = true,
+            style = UCB.Default_DB:createStyle()
         },
     },
 

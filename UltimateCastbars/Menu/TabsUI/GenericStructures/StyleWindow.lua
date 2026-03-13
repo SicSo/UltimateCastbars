@@ -401,7 +401,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 set = function(_, val)
                     local oldThickness = cfg.borderThickness
                     cfg.borderThickness = val
-                    STYLE_API:RebuildOffsets(args, cfg, unit, oldThickness, cfg.borderThicknessIcon)
+                    STYLE_API:RebuildOffsets(args, cfg, unit, oldThickness, cfg.borderThicknessIcon, {bar=true, icon=true})
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
                 disabled = function() return not cfg.showBorder end,
@@ -438,7 +438,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 get   = function() return cfg.syncBorderIcon end,
                 set   = function(_, val)
                     cfg.syncBorderIcon = val
-                    STYLE_API:RebuildOffsets(args, cfg, unit, cfg.borderThickness, cfg.borderThicknessIcon)
+                    STYLE_API:RebuildOffsets(args, cfg, unit, cfg.borderThickness, cfg.borderThicknessIcon, {bar=true, icon=true})
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
                 disabled = function() return not cfg.showBorderIcon end,
@@ -496,7 +496,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                 set = function(_, val)
                     local oldThicknessIcon = cfg.borderThicknessIcon
                     cfg.borderThicknessIcon = val
-                    STYLE_API:RebuildOffsets(args, cfg, unit, cfg.borderThickness, oldThicknessIcon)
+                    STYLE_API:RebuildOffsets(args, cfg, unit, cfg.borderThickness, oldThicknessIcon, {bar=true, icon=true})
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
                 disabled = function() return cfg.showBorderIcon == false or cfg.syncBorderIcon == true end,

@@ -64,6 +64,14 @@ local function CreateCastBar(unit)
     bar.group = group  -- handy reference
     bar.gate_effects = gate_effects
 
+    -- Permanent background
+    local background_frame = CreateFrame("Frame", ADDON_NAME.."_"..unit.."BackgroundFrame", anchor)
+    background_frame.bg = background_frame:CreateTexture(nil, "BACKGROUND", nil, 3)
+    background_frame.bg:SetAllPoints()
+    background_frame.bg:Hide()
+    bar.background_frame = background_frame
+    background_frame:SetAllPoints(group)
+
     -- Status bar (fill bar)
     bar.status = CreateFrame("StatusBar", nil, bar, "BackdropTemplate")
     bar.status:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)

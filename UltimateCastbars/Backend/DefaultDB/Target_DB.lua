@@ -541,6 +541,14 @@ local target_db = {
             channelError = 100,
             useManualChannelError = true,
         },
+
+        permanentBackgrodund = {
+            enable = false,
+            hideWhenCasting = true,
+            includeBorderInWidth = true,
+            includeBorderInHeight = true,
+            style = UCB.Default_DB:createStyle()
+        },
     },
 
     previewSettings = {

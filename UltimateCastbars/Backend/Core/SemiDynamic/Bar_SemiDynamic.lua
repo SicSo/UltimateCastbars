@@ -482,6 +482,12 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, la
     local bar = UCB.castBar[unit]
     CASTBAR_API:StopPrevCast(unit, bar, nil, nil, nil)
 
+    -- Hide Background
+    local otherCFG = cfg.otherFeatures
+    if otherCFG.permanentBackgrodund.enable and otherCFG.permanentBackgrodund.hideWhenCasting then
+        bar.background_frame:Hide()
+    end
+
     -- Stop view of cancelled/interrupted casts
     CASTBAR_API:StopFrameTimer(UCB.castBar[unit], "cancelled")
     CASTBAR_API:StopFrameTimer(UCB.castBar[unit], "interrupted")
@@ -517,7 +523,6 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, la
 
     local bar_status = bar.status
     bar_status:SetMinMaxValues(0, vars.dTime)
-    local otherCFG = cfg.otherFeatures
     CASTBAR_API:MirrorBar(cfg, bar, castType)
     CASTBAR_API:InitCastbarVal(bar_status, castType, resumeCast, vars, otherCFG)
 

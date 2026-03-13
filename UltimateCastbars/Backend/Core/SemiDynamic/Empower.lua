@@ -198,6 +198,10 @@ function CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID, castBar
     if bar and bar.flags.castActive then
         bar.group:Hide()
         bar:SetScript("OnUpdate", nil)
+        local otherFeaturesCFG = cfg.otherFeatures
+        if otherFeaturesCFG.permanentBackgrodund.enable and otherFeaturesCFG.permanentBackgrodund.hideWhenCasting then
+            bar.background_frame:Show()
+        end
         bar.flags.castActive = false
         bar.flags.prevType = nil
         bar.current_spellID = nil

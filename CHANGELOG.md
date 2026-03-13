@@ -7,6 +7,7 @@
 - World latency tag \[wLat] (seconds) and \[wLAT] (ms)
 - Option to use world latency instead of player latency for overlay and tags
 - Added option to cap latency display to a max value (for both overlay and tags)
+- Permanent background option
 
 ### Changed
 - Latency is computed based on the highest bnetween world latency and computed latency

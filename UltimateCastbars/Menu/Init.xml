@@ -58,7 +58,6 @@
 		<!-- Main tabs -->
 	<Script file="TabsUI/BlizzCast_Settings.lua"/>
 	<Script file="TabsUI/General_Settings.lua"/>
-	<Script file="TabsUI/OtherFeatures_Settings.lua"/>
 	<Script file="TabsUI/Preview_Settings.lua"/>
 	<Script file="TabsUI/Style_Settings.lua"/>
 	<Script file="TabsUI/Text_Settings.lua"/>
@@ -66,6 +65,14 @@
 	<Script file="TabsUI/Uninterruptable_Settings.lua"/>
 	<Script file="TabsUI/Copy_Settings.lua"/>
 	<Script file="TabsUI/Internal_Settings.lua"/>
+			<!-- Other features tabs -->
+	<Script file="TabsUI/OtherFeatures/Inverse_Mirror.lua"/>
+	<Script file="TabsUI/OtherFeatures/Cancelled_Interrupted.lua"/>
+	<Script file="TabsUI/OtherFeatures/ChannelTick.lua"/>
+	<Script file="TabsUI/OtherFeatures/SpellQueue.lua"/>
+	<Script file="TabsUI/OtherFeatures/Latency.lua"/>
+	<Script file="TabsUI/OtherFeatures/PermanentBackground.lua"/>
+	<Script file="TabsUI/OtherFeatures/OtherFeatures_Settings.lua"/>
 		<!-- Class Tabs -->
 	<Script file="TabsUI/ClassOptions/GeneralClass_Settings.lua"/>
 	<Script file="TabsUI/ClassOptions/Evoker_Settings.lua"/>

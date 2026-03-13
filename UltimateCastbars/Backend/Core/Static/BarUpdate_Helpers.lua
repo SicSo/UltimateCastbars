@@ -486,6 +486,9 @@ function BarUpdate_API:UpdateOtherFeatures(unit)
 
     -- Whitelist/Blacklist cancelled
     WhitelistBlacklistSetup(unit, cancelCFG.blacklistWhitelist)
+
+    -- Permanent background
+    BarUpdate_API:UpdateStylePermanentBack(unit)
 end
 
 function BarUpdate_API:UpdateOthers(unit)

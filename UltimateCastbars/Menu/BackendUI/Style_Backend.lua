@@ -23,9 +23,13 @@ function STYLE_API:DeepCopy(dst, src)
     end
 end
 
-function STYLE_API:RebuildOffsets(args, cfg, unit, oldThickness, oldThicknessIcon)
-    args.grpBorder.args.borderOffsetGrp.args = self:BuildBorderOffsetArgs(cfg, unit, oldThickness)
-    args.grpBorderIcon.args.borderOffsetGrp.args = self:BuildBorderOffsetIconArgs(cfg, unit, oldThickness, oldThicknessIcon)
+function STYLE_API:RebuildOffsets(args, cfg, unit, oldThickness, oldThicknessIcon, opts)
+    if opts.bar then
+        args.grpBorder.args.borderOffsetGrp.args = self:BuildBorderOffsetArgs(cfg, unit, oldThickness)
+    end
+    if opts.icon then
+        args.grpBorderIcon.args.borderOffsetGrp.args = self:BuildBorderOffsetIconArgs(cfg, unit, oldThickness, oldThicknessIcon)
+    end
 end
 
 function STYLE_API:BuildBorderOffsetArgs(cfg, unit, oldThickness)

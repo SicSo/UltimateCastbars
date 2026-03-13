@@ -265,6 +265,73 @@ local function buildMainGroup(args, cfg, unit, class, bigCFG)
         inline = true,
         order = 1,
         args = {
+            buttonsAll = {
+                type = "group",
+                name = "Quick navigation",
+                order = 0.5,
+                inline = true,
+                hidden = function() return bigCFG.styleCastType.useGeneralStyle end,
+                args = STYLE_API:createQuickButtons(unit, { "general", "normal", "channel", "empowered"}),
+            },
+            buttonsGeneral = {
+                type = "group",
+                name = "Quick navigation",
+                order = 0.5,
+                inline = true,
+                hidden = function() return not bigCFG.styleCastType.useGeneralStyle end,
+                args = STYLE_API:createQuickButtons(unit, { "general" }),
+            },
+            --[[
+            customStyles = {
+                type = "group",
+                name = "Custom spell styles",
+                order = 0.8,
+                inline = true,
+                args = {
+                    
+                    perClassSpellStyleGrp = {
+                        type = "group", 
+                        name = "Custom styling for class spells",
+                        order = 1,
+                        inline = true,
+                        args = {
+                            enableStyle = {
+                                type = "toggle", dialogControl = "UCB_CheckBox",
+                                name = "Enable custom class spell styles",
+                                desc = "If enabled, you can set specific spells of your class to use their own custom style instead of the general cast type style.",
+                                order = 1,
+                                width = 1.2,
+                                get = function() return cfg.useClassSpellStyle end,
+                                set = function(_, value)
+                                    cfg.useClassSpellStyle = value
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
+                            gap = {
+                                type = "description",
+                                name = "",
+                                order = 1.5,
+                                width = 0.2,
+                            },
+                            settingsButton = {
+                                type = "execute", dialogControl = "UCB_Button",
+                                name = "Manage class spell styles",
+                                order = 2,
+                                width = 1.2,
+                                func = function()
+                                    BuildSpellStyle(args, unit, cfg, bigCFG, class)
+                                    GoToStyle(unit, class)
+                                end,
+                            },
+                        },
+                    },
+                   
+                    perNonClassSpellStyleGrp = {
+
+                    },
+                }
+            },
+             --]]
             useStyleSpell = {
                 type = "toggle", dialogControl = "UCB_CheckBox",
                 name = "Use specific spell styles",
@@ -276,22 +343,6 @@ local function buildMainGroup(args, cfg, unit, class, bigCFG)
                     cfg.useStyleSpell = value
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
-            },
-            buttonsAll = {
-                type = "group",
-                name = "Quick navigation",
-                order = 1.5,
-                inline = true,
-                hidden = function() return bigCFG.styleCastType.useGeneralStyle end,
-                args = STYLE_API:createQuickButtons(unit, { "general", "normal", "channel", "empowered"}),
-            },
-            buttonsGeneral = {
-                type = "group",
-                name = "Quick navigation",
-                order = 1.5,
-                inline = true,
-                hidden = function() return not bigCFG.styleCastType.useGeneralStyle end,
-                args = STYLE_API:createQuickButtons(unit, { "general" }),
             },
             contentGrp = {
                 type = "group",
