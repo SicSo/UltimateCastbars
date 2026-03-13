@@ -38,9 +38,7 @@ UCB.CASTBAR_API.CreateCastbar = UCB.CASTBAR_API.UpdateCastbar -- for backward co
 
 local function IsPetUsingVehicleUnit(unit)
     return unit == "pet"
-        and UnitExists
         and UnitExists("vehicle")
-        and UnitHasVehicleUI
         and UnitHasVehicleUI("player")
 end
 

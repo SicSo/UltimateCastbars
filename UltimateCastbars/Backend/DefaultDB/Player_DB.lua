@@ -81,7 +81,7 @@ local function createClassSettings()
 
         spellStyling = {
             useStyleSpell = false,
-            styleSpells = {}
+            styleSpells = {},
         }
 
     }
@@ -522,6 +522,8 @@ UCB.Default_DB.player = {
                 channel = true,
                 empowered = false,
             },
+            useWorldLatency = false,
+            maxLatency = 500, -- in ms, capping latency
             colour = {r=0, g=1, b=1, a=0.5}, -- cyan, semi-transparent
             useTexture = false,
             texture = "Interface\\TargetingFrame\\UI-StatusBar",

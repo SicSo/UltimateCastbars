@@ -4,6 +4,12 @@
 - Full dynamic size for sync frames
 - \[pName], \[tName], \[fName] tags 
 - Added toggle for class colouring for names
+- World latency tag \[wLat] (seconds) and \[wLAT] (ms)
+- Option to use world latency instead of player latency for overlay and tags
+- Added option to cap latency display to a max value (for both overlay and tags)
+
+### Changed
+- Latency is computed based on the highest bnetween world latency and computed latency
 
 ### Fixed
 - OverlayPlayerCastingBarFrame was not being hidden on player unit

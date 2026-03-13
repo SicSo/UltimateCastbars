@@ -167,8 +167,8 @@ end
 
 ---------------------------------------------------- MAIN -------------------------------------------------
 function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID, castBarID, resumeCast)
-    if UCB:IsPlayer(unit, true) and Latency.sendTime then Latency.latency = GetTime() - Latency.sendTime else Latency.latency = nil end
-    local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, Latency.latency)
+    if UCB:IsPlayer(unit, true) and Latency.sendTime then Latency.latency = GetTimePreciseSec() - Latency.sendTime else Latency.latency = 0 end
+    local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, math.max(Latency.worldLatency, Latency.latency))
     if not show then return end
     CASTBAR_API:AssignChannelTicks(unit, spellID, "START")
     -- Set colours
@@ -177,8 +177,8 @@ function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID, castBa
 end
 
 function CASTBAR_API:OnUnitSpellcastChannelUpdate(unit, castGUID, spellID, castBarID)
-    if UCB:IsPlayer(unit, true) and Latency.sendTime then Latency.latency = GetTime() - Latency.sendTime else Latency.latency = nil end
-    local show = CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType, Latency.latency)
+    if UCB:IsPlayer(unit, true) and Latency.sendTime then Latency.latency = GetTimePreciseSec() - Latency.sendTime else Latency.latency = 0 end
+    local show = CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType, math.max(Latency.worldLatency, Latency.latency))
     if not show then return end
     CASTBAR_API:AssignChannelTicks(unit, spellID, "UPDATE")
 end

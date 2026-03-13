@@ -462,11 +462,55 @@ local function BuildOtherArgs(args, unit)
                         },
                     },
                 },
-                latencyOptionsGrp = {
+                latencyAdditionalSettingsGrp = {
+                    type = "group",
+                    name = "Additional Settings",
+                    inline = true,
+                    order = 4,
+                    disabled = function() return not cfg.latency.enabled end,
+                    args = {
+                        worldLatencyInfo = {
+                            type = "description",
+                            name = UIOptions.ColorText(UIOptions.turquoise,"World latency is the latency between your client and the server, as reported by the game. Computed latency is calculated based on the time difference between when you send a spellcast command and when the server responds with the cast start event. If you have a high world latency, computed latency may be inaccurate and cause the overlay to be mistimed. You can choose to use world latency instead, but this may cause the overlay to be longer than your actual latency." ),
+                            order = 1,
+                        },
+                        useWorldLatency = {
+                            type = "toggle", dialogControl = "UCB_CheckBox",
+                            name  = "Use world latency (instead of computed latency)",
+                            order = 2,
+                            width = 2,
+                            get   = function() return cfg.latency.useWorldLatency end,
+                            set   = function(_, val)
+                                cfg.latency.useWorldLatency = val
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                        maxLatencyInfo = {
+                            type = "description",
+                            name = UIOptions.ColorText(UIOptions.turquoise,"This option caps the maximum latency that will be displayed by the overlay. This is useful if you have a high latency/latency errors and don't want the overlay to be too long." ),
+                            order = 3,
+                        },
+                        maxLatency = {
+                            type = "range", dialogControl = "UCB_Slider",
+                            name = "Max latency to display (ms)",
+                            desc = "This option caps the maximum latency that will be displayed by the overlay. This is useful if you have a high latency and don't want the overlay to be too long.",
+                            min = 0, max = 2000, step = 10,
+                            order = 4,
+                            width = 2,
+                            get = function() return cfg.latency.maxLatency end,
+                            set = function(_, val)
+                                cfg.latency.maxLatency = val
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                    },
+                },
+
+                latencyStyleOptionsGrp = {
                     type   = "group",
                     name   = "Latency Overlay Options",
                     inline = true,
-                    order  = 4,
+                    order  = 5,
                     disabled = function() return not cfg.latency.enabled end,
                     args = {
                         latencyColor = {

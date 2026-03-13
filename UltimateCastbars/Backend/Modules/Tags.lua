@@ -4,9 +4,11 @@ local _, UCB = ...
 UCB.tags = UCB.tags or {}
 UCB.UIOptions = UCB.UIOptions or {}
 UCB.GeneralCore_Helpers = UCB.GeneralCore_Helpers or {}
+UCB.Latency = UCB.Latency or {}
 
 local tags = UCB.tags
 local GeneralHelpers = UCB.GeneralCore_Helpers
+local Latency = UCB.Latency
 
 local function FormatDecimals(n, x)
     if x ==-1 then x=1 end
@@ -30,8 +32,21 @@ end
 
 local TAG_FN = {}
 
+TAG_FN["[wLat]"] = function(v, limNum)
+    return FormatDecimals(Latency.worldLatency/1000, limNum)
+end
+
+TAG_FN["[wLAT]"] = function(v, limNum)
+    return FormatDecimals(Latency.worldLatency, limNum)
+end
+
+
 TAG_FN["[lat]"] = function(v, limNum)
     return FormatDecimals(v.lat, limNum)
+end
+
+TAG_FN["[LAT]"] = function(v, limNum)
+    return FormatDecimals(v.lat * 1000, limNum)
 end
 
 TAG_FN["[kName]"] = function(v, limNum, _, _, _, useClassColour)
@@ -118,7 +133,7 @@ function tags:compileFormula(formula, limits, mainType, unit)
             fn = nil
         end
 
-        if part == "[lat]" and not UCB:IsPlayer(unit) then
+        if (part == "[lat]" or part == "[LAT]") and not UCB:IsPlayer(unit) then
             fn = nil
         end
 
@@ -299,7 +314,7 @@ function tags:splitTags(s, openDelim, closeDelim)
             if token == "[rTime]" or token == "[rPerTime]" or token == "[rTimeInv]" or token == "[rPerTimeInv]" then
                 state = "dynamic"
             elseif state ~= "semiDynamic" then
-                if token == "[dTime]" or token == "[dPerTime]" or token == "[sName]" or token == "[nIntr]" or token == "[nIntrInv]" or token == "[lat]" or token == "[tName]" or token == "[fName]" then
+                if token == "[dTime]" or token == "[dPerTime]" or token == "[sName]" or token == "[nIntr]" or token == "[nIntrInv]" or token == "[lat]" or token == "[LAT]"  or token == "[wLat]" or token == "[wLAT]" or token == "[tName]" or token == "[fName]" then
                     state = "semiDynamic"
                 end
             end
@@ -325,10 +340,10 @@ function tags:updateVars(unit, type, spellID, cfg, latency)
     if type == "normal" or type == "channel" then 
         if type == "normal" then
             durationObject = UnitCastingDuration(unit)
-            name, _, texture, _, _, _, _, notInterruptible = UnitCastingInfo(unit)
+            name, _, texture, _, _, _, _, notInterruptible, _, _, _ = UnitCastingInfo(unit)
         else
             durationObject = UnitChannelDuration(unit)
-            name, _, texture, _, _, _, notInterruptible = UnitChannelInfo(unit)
+            name, _, texture, _, _, _, notInterruptible, _, _, _, _ = UnitChannelInfo(unit)
         end
     else
         name, _, texture, _, _, _, notInterruptible = UnitChannelInfo(unit)
