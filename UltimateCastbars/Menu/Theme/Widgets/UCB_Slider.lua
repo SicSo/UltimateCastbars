@@ -6,8 +6,8 @@ UCB.UIOptions = UCB.UIOptions or {}
 local Theme = UCB.Theme
 local UIOptions = UCB.UIOptions
 
-local SLIDER_BUTTON_NORMAL   = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\Slider\\ThumbNormal.png"
-local SLIDER_BUTTON_DISABLED = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\Slider\\ThumbDisabled.png"
+local SLIDER_BUTTON_NORMAL   = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\Slider\\ThumbNew.png"
+local SLIDER_BUTTON_DISABLED = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\Slider\\ThumbNewDisabled.png"
 
 --[[-----------------------------------------------------------------------------
 Slider Widget
@@ -65,7 +65,7 @@ local function UpdateSliderThumbTexture(self)
 	if thumb then
 	--	thumb:SetDrawLayer("OVERLAY")
 	--	thumb:SetSize(26, 26)
-		thumb:SetRotation(math.rad(90))
+		--thumb:SetRotation(math.rad(90))
 	end
 end
 
@@ -441,7 +441,7 @@ local function Constructor()
 	editbox:SetScript("OnEnterPressed", EditBox_OnEnterPressed)
 	editbox:SetScript("OnEscapePressed", EditBox_OnEscapePressed)
 
-	editbox:SyncUniformSideWidthsToHeight(152, 741)
+	--editbox:SyncUniformSideWidthsToHeight(152, 741)
 
 	local widget = {
 		label       = label,
@@ -478,13 +478,13 @@ local function Constructor()
 	realSlider:SetThumbTexture(SLIDER_BUTTON_NORMAL)
 	realSlider:SyncUniformSideWidthsToHeight(35, 31)
 
-	slider:SetSliderThumbSize(23, 23)
+	slider:SetSliderThumbSize(10, 20)
 
 	local thumb = realSlider:GetThumbTexture()
 	if thumb then
 	--	thumb:SetDrawLayer("OVERLAY")
 	--	thumb:SetSize(20, 20)
-		thumb:SetRotation(math.rad(90))
+		--thumb:SetRotation(math.rad(90))
 	end
 
 	realSlider:SetScript("OnValueChanged", Slider_OnValueChanged)

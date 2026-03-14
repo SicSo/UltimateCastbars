@@ -10,8 +10,17 @@
 - Permanent background option
 - Width and height control for text (manual or percentage-based)
 
+### User Interface
+- Updated tick style
+- Updated buttons style
+- Updated sliders style
+- Updated main window
+- Updated group styles
+- Added new colour picker
+- Added UI scaling slider
+
 ### Changed
-- Latency is computed based on the highest bnetween world latency and computed latency
+- Latency is computed based on the highest between world latency and computed latency
 
 ### Fixed
 - OverlayPlayerCastingBarFrame was not being hidden on player unit

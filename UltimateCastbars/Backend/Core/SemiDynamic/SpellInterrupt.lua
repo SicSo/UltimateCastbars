@@ -118,7 +118,7 @@ local function CancelledCast(unit, castType, castGUID, spellID, interruptedBy, c
     elseif castType == "channel" then
         local channelLatency = -1
         if  UCB:IsPlayer(unit) and Latency.latency then
-            channelLatency = Latency.latency
+            channelLatency = math.max(Latency.worldLatency, Latency.latency)
         end
         if cfgCancelled.useManualChannelError then
             channelLatency = cfgCancelled.channelError/1000

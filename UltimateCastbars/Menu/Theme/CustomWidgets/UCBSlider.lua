@@ -12,9 +12,9 @@ local DEFAULT_SLIDER_LEFT_DISABLED    = "Interface\\AddOns\\UltimateCastbars\\gf
 local DEFAULT_SLIDER_MIDDLE_DISABLED  = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\Slider\\MidDisabled.png"
 local DEFAULT_SLIDER_RIGHT_DISABLED   = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\Slider\\RightDisabled.png"
 
-
-local CHEVRON_NORMAL   = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\Slider\\ChevronThick.png"
-local CHEVRON_DISABLED = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\Slider\\ChevronThickDisabled.png"
+local CHEVRON_NORMAL   = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\Slider\\ChevronNormal.png"
+local CHEVRON_HOVER    = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\Slider\\ChevronHover.png"
+local CHEVRON_DISABLED = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\Slider\\ChevronDisabled.png"
 
 function UCBSliderMixin:OnLoad()
 	self:SetObeyStepOnDrag(self.obeyStepOnDrag);
@@ -375,21 +375,37 @@ function UCBSliderWithSteppersMixin:OnLoad()
 	self.Back:SetScript("OnEnter", function(button)
 		if button:IsEnabled() then
 			AddHover();
+			if button.Icon then
+				button.Icon:SetTexture(CHEVRON_HOVER);
+				button.Icon:SetRotation(math.rad(-90));
+			end
 		end
 	end);
 
 	self.Back:SetScript("OnLeave", function(button)
 		RemoveHover();
+		if button.Icon then
+			button.Icon:SetTexture(button:IsEnabled() and CHEVRON_NORMAL or CHEVRON_DISABLED);
+			button.Icon:SetRotation(math.rad(-90));
+		end
 	end);
 
 	self.Forward:SetScript("OnEnter", function(button)
 		if button:IsEnabled() then
 			AddHover();
+			if button.Icon then
+				button.Icon:SetTexture(CHEVRON_HOVER);
+				button.Icon:SetRotation(math.rad(90));
+			end
 		end
 	end);
 
 	self.Forward:SetScript("OnLeave", function(button)
 		RemoveHover();
+		if button.Icon then
+			button.Icon:SetTexture(button:IsEnabled() and CHEVRON_NORMAL or CHEVRON_DISABLED);
+			button.Icon:SetRotation(math.rad(90));
+		end
 	end);
 
 	if self.Back.Icon then

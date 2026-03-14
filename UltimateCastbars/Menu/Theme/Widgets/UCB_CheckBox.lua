@@ -6,9 +6,9 @@ UCB.UIOptions = UCB.UIOptions or {}
 local Theme = UCB.Theme
 local UIOptions = UCB.UIOptions
 
-local TICK_NORMAL   = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\Ticks\\tick.png"
-local TICK_HOVER    = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\Ticks\\tick_hover.png"
-local TICK_DISABLED = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\Ticks\\tick_disabled.png"
+local TICK_NORMAL   = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\Ticks\\TickNormal.png"
+local TICK_HOVER    = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\Ticks\\TickHover.png"
+local TICK_DISABLED = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\Ticks\\TickDisabled.png"
 
 
 --[[-----------------------------------------------------------------------------
@@ -282,8 +282,6 @@ local function Constructor()
 	local frame = CreateFrame("Button", nil, UIParent)
 	frame:Hide()
 
-	local gold = UIOptions.GOLD
-
 	frame:EnableMouse(true)
 	frame:SetScript("OnEnter", Control_OnEnter)
 	frame:SetScript("OnLeave", Control_OnLeave)
@@ -298,12 +296,11 @@ local function Constructor()
 
 	local check = frame:CreateTexture(nil, "OVERLAY")
 	--check:SetAllPoints(checkbg)
-	check:SetSize(23, 23)              -- smaller tick
-	check:SetPoint("CENTER", checkbg, "CENTER", 1, 1)  -- move right 2, up 2
+	check:SetSize(21.7, 16.1)              -- smaller tick
+	check:SetPoint("CENTER", checkbg, "CENTER", 2, 1)  -- move right 2, up 2
 	--check:SetTexture(130751) -- Interface\\Buttons\\UI-CheckBox-Check
 	--check:SetTexture("Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\rounded-tick.tga")
 	check:SetTexture(TICK_NORMAL)
-	--check:SetVertexColor(gold.r, gold.g, gold.b, 1)
 
 	local text = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 	text:SetJustifyH("LEFT")

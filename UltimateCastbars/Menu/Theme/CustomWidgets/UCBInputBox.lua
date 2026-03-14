@@ -1,33 +1,38 @@
-UCBInputBoxMixin = {};
+UCBInputBoxMixin = {}
 
 local function ApplyRegionTexture(region, info)
 	if not region or not info then
 		return;
 	end
 
+	local isMiddle = region == region:GetParent().Middle;
+
 	if info.file then
-		region:SetTexture(info.file);
+		if isMiddle then
+			region:SetTexture(info.file, "REPEAT", "CLAMP");
+		else
+			region:SetTexture(info.file);
+		end
 	end
 
-	if info.texCoord then
+	if not isMiddle and info.texCoord then
 		region:SetTexCoord(unpack(info.texCoord));
-	elseif info.pixelTexCoord and info.textureSize then
-		local texWidth = info.textureSize[1];
-		local texHeight = info.textureSize[2];
-		local l, r, t, b = unpack(info.pixelTexCoord);
-
-		region:SetTexCoord(
-			l / texWidth,
-			r / texWidth,
-			t / texHeight,
-			b / texHeight
-		);
+	elseif isMiddle and info.texCoord then
+		region:SetTexCoord(unpack(info.texCoord));
 	end
 
-	if region == region:GetParent().Middle then
+	if isMiddle then
 		region:SetHorizTile(true);
 		region:SetVertTile(false);
 	end
+end
+
+local function GetTextureAspectWidthFromHeight(fileWidth, fileHeight, targetHeight)
+	if not fileWidth or not fileHeight or fileHeight == 0 or not targetHeight then
+		return nil;
+	end
+
+	return (fileWidth / fileHeight) * targetHeight;
 end
 
 function UCBInputBoxMixin:OnLoad()
@@ -42,51 +47,73 @@ function UCBInputBoxMixin:OnLoad()
 	self.textureStates = self.textureStates or {
 		normal = {
 			left = {
-				file = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\InputBox\\SmallLeftNormal.png",
+				file = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\EditBox\\SmallLeft.png",
 				texCoord = { 0, 1, 0, 1 },
+				fileWidth = 850,
+				fileHeight = 599,
 			},
 			middle = {
-				file = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\InputBox\\SmallMidNormal.png",
-				texCoord = { 0, 0.25, 0, 1 },
+				file = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\EditBox\\SmallMid.png",
+				texCoord = { 0.75, 1, 0, 1 },
+				fileWidth = 3607,
+				fileHeight = 599,
 			},
 			right = {
-				file = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\InputBox\\SmallRightNormal.png",
+				file = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\EditBox\\SmallRight.png",
 				texCoord = { 0, 1, 0, 1 },
+				fileWidth = 850,
+				fileHeight = 599,
 			},
 		},
 
 		active = {
 			left = {
-				file = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\InputBox\\SmallLeftGlow.png",
+				file = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\EditBox\\SmallLeftHover.png",
 				texCoord = { 0, 1, 0, 1 },
+				fileWidth = 850,
+				fileHeight = 599,
 			},
 			middle = {
-				file = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\InputBox\\SmallMidGlow.png",
-				texCoord = { 0, 0.25, 0, 1 },
+				file = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\EditBox\\SmallMidHover.png",
+				texCoord = { 0.75, 1, 0, 1 },
+				fileWidth = 3607,
+				fileHeight = 599,
 			},
 			right = {
-				file = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\InputBox\\SmallRightGlow.png",
+				file = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\EditBox\\SmallRightHover.png",
 				texCoord = { 0, 1, 0, 1 },
+				fileWidth = 850,
+				fileHeight = 599,
 			},
 		},
 
 		disabled = {
 			left = {
-				file = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\InputBox\\SmallLeftDisabled.png",
+				file = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\EditBox\\SmallLeftDisabled.png",
 				texCoord = { 0, 1, 0, 1 },
+				fileWidth = 850,
+				fileHeight = 599,
 			},
 			middle = {
-				file = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\InputBox\\SmallMidDisabled.png",
-				texCoord = { 0, 0.25, 0, 1 },
+				file = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\EditBox\\SmallMidDisabled.png",
+				texCoord = { 0.75, 1, 0, 1 },
+				fileWidth = 3607,
+				fileHeight = 599,
 			},
 			right = {
-				file = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\InputBox\\SmallRightDisabled.png",
+				file = "Interface\\AddOns\\UltimateCastbars\\gfx\\UITextures\\EditBox\\SmallRightDisabled.png",
 				texCoord = { 0, 1, 0, 1 },
+				fileWidth = 850,
+				fileHeight = 599,
 			},
 		},
 	};
 
 	self:UpdateVisualState();
+end
+
+function UCBInputBoxMixin:OnSizeChanged()
+	self:SyncSideWidthsFromHeight();
 end
 
 function UCBInputBoxMixin:OnEnable()
@@ -119,171 +146,6 @@ function UCBInputBoxMixin:OnEditFocusLost()
 	self:UpdateVisualState();
 end
 
-function UCBInputBoxMixin:UpdateVisualState()
-	local stateName = self:GetTextureState();
-	local state = self.textureStates and self.textureStates[stateName];
-	if not state then
-		return;
-	end
-
-	if self.Left and state.left and state.left.file then
-		self.Left:SetTexture(state.left.file);
-		if state.left.texCoord then
-			self.Left:SetTexCoord(unpack(state.left.texCoord));
-		end
-	end
-
-	if self.Middle and state.middle and state.middle.file then
-		self.Middle:SetTexture(state.middle.file);
-		if state.middle.texCoord then
-			self.Middle:SetTexCoord(unpack(state.middle.texCoord));
-		end
-		self.Middle:SetHorizTile(true);
-		self.Middle:SetVertTile(false);
-	end
-
-	if self.Right and state.right and state.right.file then
-		self.Right:SetTexture(state.right.file);
-		if state.right.texCoord then
-			self.Right:SetTexCoord(unpack(state.right.texCoord));
-		end
-	end
-end
-
-function UCBInputBoxMixin:SetTextures(leftFile, middleFile, rightFile)
-	if leftFile and self.Left then
-		self.Left:SetTexture(leftFile);
-	end
-
-	if middleFile and self.Middle then
-		self.Middle:SetTexture(middleFile);
-		self.Middle:SetHorizTile(true);
-		self.Middle:SetVertTile(false);
-	end
-
-	if rightFile and self.Right then
-		self.Right:SetTexture(rightFile);
-	end
-end
-
-function UCBInputBoxMixin:SetLeftTexCoord(left, right, top, bottom)
-	if self.Left then
-		self.Left:SetTexCoord(left, right, top, bottom);
-	end
-end
-
-function UCBInputBoxMixin:SetRightTexCoord(left, right, top, bottom)
-	if self.Right then
-		self.Right:SetTexCoord(left, right, top, bottom);
-	end
-end
-
-function UCBInputBoxMixin:SetMiddleTexCoord(left, right, top, bottom)
-	if self.Middle then
-		self.Middle:SetTexCoord(left, right, top, bottom);
-		self.Middle:SetHorizTile(true);
-		self.Middle:SetVertTile(false);
-	end
-end
-
-function UCBInputBoxMixin:SetLeftTexCoordPixels(textureWidth, textureHeight, left, right, top, bottom)
-	if self.Left then
-		self.Left:SetTexCoord(
-			left / textureWidth,
-			right / textureWidth,
-			top / textureHeight,
-			bottom / textureHeight
-		);
-	end
-end
-
-function UCBInputBoxMixin:SetRightTexCoordPixels(textureWidth, textureHeight, left, right, top, bottom)
-	if self.Right then
-		self.Right:SetTexCoord(
-			left / textureWidth,
-			right / textureWidth,
-			top / textureHeight,
-			bottom / textureHeight
-		);
-	end
-end
-
-function UCBInputBoxMixin:SetMiddleTexCoordPixels(textureWidth, textureHeight, left, right, top, bottom)
-	if self.Middle then
-		self.Middle:SetTexCoord(
-			left / textureWidth,
-			right / textureWidth,
-			top / textureHeight,
-			bottom / textureHeight
-		);
-		self.Middle:SetHorizTile(true);
-		self.Middle:SetVertTile(false);
-	end
-end
-
-function UCBInputBoxMixin:SetSideWidths(leftWidth, rightWidth)
-	if self.Left and leftWidth then
-		self.Left:SetWidth(leftWidth)
-	end
-
-	if self.Right and rightWidth then
-		self.Right:SetWidth(rightWidth)
-	end
-end
-
-function UCBInputBoxMixin:SetupTextures(textureInfo)
-	if not textureInfo then
-		return;
-	end
-
-	self:SetTextures(
-		textureInfo.leftFile,
-		textureInfo.middleFile,
-		textureInfo.rightFile
-	);
-
-	if textureInfo.leftTexCoord and self.Left then
-		self.Left:SetTexCoord(unpack(textureInfo.leftTexCoord));
-	end
-
-	if textureInfo.rightTexCoord and self.Right then
-		self.Right:SetTexCoord(unpack(textureInfo.rightTexCoord));
-	end
-
-	if textureInfo.middleTexCoord and self.Middle then
-		self.Middle:SetTexCoord(unpack(textureInfo.middleTexCoord));
-		self.Middle:SetHorizTile(true);
-		self.Middle:SetVertTile(false);
-	end
-
-	if textureInfo.middlePixelTexCoord and textureInfo.middleTextureSize and self.Middle then
-		local texWidth = textureInfo.middleTextureSize[1];
-		local texHeight = textureInfo.middleTextureSize[2];
-		local l, r, t, b = unpack(textureInfo.middlePixelTexCoord);
-
-		self:SetMiddleTexCoordPixels(texWidth, texHeight, l, r, t, b);
-	end
-end
-
-function UCBInputBoxMixin:SetupTextureStates(textureStates)
-	if not textureStates then
-		return;
-	end
-
-	self.textureStates = textureStates;
-	self:UpdateVisualState();
-end
-
-function UCBInputBoxMixin:SetForcedTextureState(state)
-	self._forcedTextureState = state;
-	self:UpdateVisualState();
-end
-
-function UCBInputBoxMixin:ClearForcedTextureState()
-	self._forcedTextureState = nil;
-	self:UpdateVisualState();
-end
-
 function UCBInputBoxMixin:GetTextureState()
 	if not self:IsEnabled() then
 		return "disabled";
@@ -300,21 +162,46 @@ function UCBInputBoxMixin:GetTextureState()
 	return "normal";
 end
 
-function UCBInputBoxMixin:SyncSideWidthsToHeight(leftTextureWidth, leftTextureHeight, rightTextureWidth, rightTextureHeight)
+function UCBInputBoxMixin:GetCurrentStateData()
+	local stateName = self:GetTextureState();
+	return self.textureStates and self.textureStates[stateName];
+end
+
+function UCBInputBoxMixin:SyncSideWidthsFromHeight()
+	local state = self:GetCurrentStateData();
+	if not state then
+		return;
+	end
+
 	local height = self:GetHeight();
 	if not height or height <= 0 then
 		return;
 	end
 
-	if self.Left and leftTextureWidth and leftTextureHeight and leftTextureHeight > 0 then
-		self.Left:SetWidth(height * (leftTextureWidth / leftTextureHeight));
+	local leftInfo = state.left;
+	local rightInfo = state.right;
+
+	local leftWidth = leftInfo and GetTextureAspectWidthFromHeight(leftInfo.fileWidth, leftInfo.fileHeight, height);
+	local rightWidth = rightInfo and GetTextureAspectWidthFromHeight(rightInfo.fileWidth, rightInfo.fileHeight, height);
+
+	if leftWidth and self.Left then
+		self.Left:SetWidth(leftWidth);
 	end
 
-	if self.Right and rightTextureWidth and rightTextureHeight and rightTextureHeight > 0 then
-		self.Right:SetWidth(height * (rightTextureWidth / rightTextureHeight));
+	if rightWidth and self.Right then
+		self.Right:SetWidth(rightWidth);
 	end
 end
 
-function UCBInputBoxMixin:SyncUniformSideWidthsToHeight(textureWidth, textureHeight)
-	self:SyncSideWidthsToHeight(textureWidth, textureHeight, textureWidth, textureHeight);
+function UCBInputBoxMixin:UpdateVisualState()
+	local state = self:GetCurrentStateData();
+	if not state then
+		return;
+	end
+
+	ApplyRegionTexture(self.Left, state.left);
+	ApplyRegionTexture(self.Middle, state.middle);
+	ApplyRegionTexture(self.Right, state.right);
+
+	self:SyncSideWidthsFromHeight();
 end
