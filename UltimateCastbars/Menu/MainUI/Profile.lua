@@ -197,12 +197,18 @@ local function ImportFilteredProfile(targetProfileName, serialized)
 end
 
 
-local function GetProfileValues()
+local function GetProfileValues(excludeCurrent)
     local vals = {}
     if not UCB.db or not UCB.db.GetProfiles then return vals end
+    local current = nil
+    if excludeCurrent and UCB.db.GetCurrentProfile then
+        current = UCB.db:GetCurrentProfile()
+    end
     local list = UCB.db:GetProfiles()
     for _, name in ipairs(list) do
-        vals[name] = name
+        if name ~= current then
+            vals[name] = name
+        end
     end
     return vals
 end
@@ -232,6 +238,60 @@ function GUI:BuildProfilesOptions()
     Profiles._exportProfileName = Profiles._exportProfileName or currentProfile
     Profiles._importProfileName = Profiles._importProfileName or currentProfile
     Profiles._newProfileName = Profiles._newProfileName or ""
+
+    --for key, var in pairs(profilesMgmt.args.copyfrom) do
+    --   print("UCB: ProfileMgmt key:", key, "value:", var) -- optional debug
+    --end
+
+    profilesMgmt.args.copyfrom = {
+        type = "select",
+        name = "Copy From",
+        desc = "Copy selected settings from another profile into the current profile.",
+        order = 60,
+        values = function()
+            return GetProfileValues(true)
+        end,
+        get = function()
+            return nil
+        end,
+        set = function(_, sourceKey)
+            local db = UCB.db
+            local src = db and db.profiles and db.profiles[sourceKey]
+            local dst = db and db.profile
+            local current = db and db.GetCurrentProfile and db:GetCurrentProfile()
+
+            if not sourceKey or sourceKey == "" then
+                return
+            end
+
+            if sourceKey == current then
+                print("UCB: You cannot copy from the current active profile.")
+                return
+            end
+
+            if type(src) ~= "table" or type(dst) ~= "table" then
+                print("UCB: Invalid source or destination profile.")
+                return
+            end
+
+            UCB.Copy:WipeTable(dst)
+            UCB.Copy:CopyBySchema(dst, src, UCB:GetDefaultDB().profile)
+
+            local ok, err = UCB:NormalizeCurrentProfileToSchema()
+            if not ok and err then
+                print("UCB: Normalize failed: " .. tostring(err))
+            end
+
+            UCB:UpdateAllCastBars()
+            print("UCB: Copied settings from profile: " .. tostring(sourceKey))
+        end,
+        --confirm = function(_, sourceKey)
+        --    return sourceKey and sourceKey ~= ""
+        --end,
+        --confirmText = function(_, sourceKey)
+        --    return "Copy selected settings from '" .. tostring(sourceKey) .. "' into the current profile?"
+        --end,
+    }
 
 
     return {

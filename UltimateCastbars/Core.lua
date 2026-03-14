@@ -29,16 +29,6 @@ function UltimateCastBars:OnInitialize()
         UCB:NormalizeCurrentProfileToSchema()
         UCB:UpdateAllCastBars()
     end)
-    UCB.db.RegisterCallback(UCB, "OnProfileCopied", function(_, db, sourceKey)
-        local src = db.profiles and db.profiles[sourceKey]
-        local dst = db.profile
-
-        UCB.Copy:WipeTable(dst)
-        UCB.Copy:CopyBySchema(dst, src, UCB:GetDefaultDB().profile) -- or your defaults.profile table
-
-        UCB:NormalizeCurrentProfileToSchema()
-        UCB:UpdateAllCastBars()
-    end)
     UCB.db.RegisterCallback(UCB, "OnProfileReset", function()
         UCB:NormalizeCurrentProfileToSchema()
         UCB:UpdateAllCastBars()
