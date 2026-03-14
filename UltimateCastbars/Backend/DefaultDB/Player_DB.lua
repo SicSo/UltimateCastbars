@@ -220,7 +220,23 @@ UCB.Default_DB.player = {
 
             extraOptions = {
                 useClassColour = true,
-            }
+            },
+
+            sizeControl = {
+                widthControl = {
+                    enable = false,
+                    type = "percentage",
+                    perValue = 100,
+                    customValue = 300,
+                },
+                heightControl = {
+                    enable = false,
+                    wrapText = false,
+                    type = "percentage",
+                    perValue = 100,
+                    customValue = 300,
+                },
+            },
         },
         textList = {
             tag1 = {
@@ -259,7 +275,23 @@ UCB.Default_DB.player = {
 
                 extraOptions = {
                     useClassColour = true,
-                }
+                },
+
+                sizeControl = {
+                    widthControl = {
+                        enable = false,
+                        type = "percentage",
+                        perValue = 100,
+                        customValue = 300,
+                    },
+                    heightControl = {
+                        enable = false,
+                        wrapText = false,
+                        type = "percentage",
+                        perValue = 100,
+                        customValue = 300,
+                    },
+                },
             },
             tag2 = {
                 name = "Timer (decrease)",
@@ -296,7 +328,24 @@ UCB.Default_DB.player = {
 
                 extraOptions = {
                     useClassColour = true,
-                }
+                },
+
+                sizeControl = {
+                    widthControl = {
+                        enable = false,
+                        type = "percentage",
+                        perValue = 100,
+                        customValue = 300,
+                    },
+                    heightControl = {
+                        enable = false,
+                        wrapText = false,
+                        type = "percentage",
+                        perValue = 100,
+                        customValue = 300,
+                    },
+                },
+
             },
             tag3 = {
                 name = "Timer (increase)",
@@ -333,7 +382,23 @@ UCB.Default_DB.player = {
 
                 extraOptions = {
                     useClassColour = true,
-                }
+                },
+
+                sizeControl = {
+                    widthControl = {
+                        enable = false,
+                        type = "percentage",
+                        perValue = 100,
+                        customValue = 300,
+                    },
+                    heightControl = {
+                        enable = false,
+                        wrapText = false,
+                        type = "percentage",
+                        perValue = 100,
+                        customValue = 300,
+                    },
+                },
             },
             tag4 = {
                 name = "Cancelled",
@@ -370,7 +435,23 @@ UCB.Default_DB.player = {
 
                 extraOptions = {
                     useClassColour = true,
-                }
+                },
+
+                sizeControl = {
+                    widthControl = {
+                        enable = false,
+                        type = "percentage",
+                        perValue = 100,
+                        customValue = 300,
+                    },
+                    heightControl = {
+                        enable = false,
+                        wrapText = false,
+                        type = "percentage",
+                        perValue = 100,
+                        customValue = 300,
+                    },
+                },
             },
             tag5 = {
                 name = "Interrupted By",
@@ -407,7 +488,24 @@ UCB.Default_DB.player = {
 
                 extraOptions = {
                     useClassColour = true,
-                }
+                },
+
+                sizeControl = {
+                    widthControl = {
+                        enable = false,
+                        type = "percentage",
+                        perValue = 100,
+                        customValue = 300,
+                    },
+                    heightControl = {
+                        enable = false,
+                        wrapText = false,
+                        type = "percentage",
+                        perValue = 100,
+                        customValue = 300,
+                    },
+                },
+
             },
         },
     },

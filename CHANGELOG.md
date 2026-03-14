@@ -8,6 +8,7 @@
 - Option to use world latency instead of player latency for overlay and tags
 - Added option to cap latency display to a max value (for both overlay and tags)
 - Permanent background option
+- Width and height control for text (manual or percentage-based)
 
 ### Changed
 - Latency is computed based on the highest bnetween world latency and computed latency

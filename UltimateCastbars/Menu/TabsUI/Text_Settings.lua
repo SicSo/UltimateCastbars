@@ -361,6 +361,177 @@ local function tagUI(key, unit)
         }
     }
 
+    args.grpSizeControl = {
+        type = "group",
+        name = "Size Control",
+        order = 3.75,
+        inline = true,
+        args = {
+            widthControlGrp = {
+                type = "group",
+                name = "Width Control",
+                order = 1,
+                inline = true,
+                args = {
+                    descInfo = {
+                        type = "description",
+                        name = function() return UIOptions.ColorText(UIOptions.turquoise, "Width control options are designed to adjust the width of the castbar based on the amount of text you want to be displayed. You can use this to limit the amount text displayed on the X axis before it becomes truncated.") end,
+                        width = "full",
+                        order = 0,
+                    },
+                     enable = {
+                        type = "toggle", dialogControl = "UCB_CheckBox",
+                        name = "Enable Width Control",
+                        order = 1,
+                        width = "full",
+                        get = function() return cfg.sizeControl.widthControl.enable end,
+                        set = function(_, v)
+                            cfg.sizeControl.widthControl.enable = v
+                            CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                    },
+                    type = {
+                        type = "select",
+                        name = "Width Control Type",
+                        order = 2,
+                        values = {
+                            percentage = "Percentage",
+                            custom = "Custom Value",
+                        },
+                        get = function() return cfg.sizeControl.widthControl.type end,
+                        set = function(_, v)
+                            cfg.sizeControl.widthControl.type = v
+                            CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        disabled = function() return not cfg.sizeControl.widthControl.enable end,
+                    },
+                    gap1 = {
+                        type = "description",
+                        name = "",
+                        order = 2.5,
+                        width = "full",
+                    },
+                    perValue = {
+                        type = "range", dialogControl = "UCB_Slider",
+                        name = "Percentage Value based on bar width (%)",
+                        order = 3,
+                        min = 5, max = 1000, step = 1,
+                        get = function() return cfg.sizeControl.widthControl.perValue end,
+                        set = function(_, v)
+                            cfg.sizeControl.widthControl.perValue = v
+                            CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        hidden = function() return cfg.sizeControl.widthControl.type ~= "percentage" end,
+                        disabled = function() return not cfg.sizeControl.widthControl.enable end,
+                    },
+                    customValue = {
+                        type = "range", dialogControl = "UCB_Slider",
+                        name = "Custom Value (px)",
+                        order = 4,
+                        min = 50, max = 3000, step = 1,
+                        get = function() return cfg.sizeControl.widthControl.customValue end,
+                        set = function(_, v)
+                            cfg.sizeControl.widthControl.customValue = v
+                            CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        hidden = function() return cfg.sizeControl.widthControl.type ~= "custom" end,
+                        disabled = function() return not cfg.sizeControl.widthControl.enable end,
+                    },
+                }
+            },
+            heightControlGrp = {
+                type = "group",
+                name = "Height Control",
+                order = 2,
+                inline = true,
+                args = {
+                    descInfo = {
+                        type = "description",
+                        name = function() return UIOptions.ColorText(UIOptions.turquoise, "Height control options are designed to adjust the height of the castbar based on the amount of text you want to be displayed. You can use this to limit the amount text displayed through wrapping if enabled.") end,
+                        width = "full",
+                        order = 0,
+                    },
+                     enable = {
+                        type = "toggle", dialogControl = "UCB_CheckBox",
+                        name = "Enable Height Control",
+                        order = 1,
+                        width = 1.5,
+                        get = function() return cfg.sizeControl.heightControl.enable end,
+                        set = function(_, v)
+                            cfg.sizeControl.heightControl.enable = v
+                            CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                    },
+                    wraptext = {
+                        type = "toggle", dialogControl = "UCB_CheckBox",
+                        name = "Wrap Text (text can go on multiple lines)",
+                        desc = "If enabled, the text will wrap to multiple lines if it exceeds the width of the castbar. The height control will then adjust the height of the castbar based on the number of lines needed to display the text.",
+                        order = 1.5,
+                        width = 2,
+                        get = function() return cfg.sizeControl.heightControl.wrapText end,
+                        set = function(_, v)
+                            cfg.sizeControl.heightControl.wrapText = v
+                            CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                    },
+                    gap2 = {
+                        type = "description",
+                        name = "",
+                        order = 1.75,
+                        width = "full",
+                    },
+                    type = {
+                        type = "select",
+                        name = "Height Control Type",
+                        order = 2,
+                        values = {
+                            percentage = "Percentage",
+                            custom = "Custom Value",
+                        },
+                        get = function() return cfg.sizeControl.heightControl.type end,
+                        set = function(_, v)
+                            cfg.sizeControl.heightControl.type = v
+                            CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        disabled = function() return not cfg.sizeControl.heightControl.enable end,
+                    },
+                    gap1 = {
+                        type = "description",
+                        name = "",
+                        order = 2.5,
+                        width = "full",
+                    },
+                    perValue = {
+                        type = "range", dialogControl = "UCB_Slider",
+                        name = "Percentage Value based on bar height (%)",
+                        order = 3,
+                        min = 5, max = 1000, step = 1,
+                        get = function() return cfg.sizeControl.heightControl.perValue end,
+                        set = function(_, v)
+                            cfg.sizeControl.heightControl.perValue = v
+                            CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        hidden = function() return cfg.sizeControl.heightControl.type ~= "percentage" end,
+                        disabled = function() return not cfg.sizeControl.heightControl.enable end,
+                    },
+                    customValue = {
+                        type = "range", dialogControl = "UCB_Slider",
+                        name = "Custom Value (px)",
+                        order = 4,
+                        min = 50, max = 3000, step = 1,
+                        get = function() return cfg.sizeControl.heightControl.customValue end,
+                        set = function(_, v)
+                            cfg.sizeControl.heightControl.customValue = v
+                            CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        hidden = function() return cfg.sizeControl.heightControl.type ~= "custom" end,
+                        disabled = function() return not cfg.sizeControl.heightControl.enable end,
+                    },
+                }
+            }
+        }
+    }
+
     -- ---- Anchor dropdown
     args.grpAnchors = {
         type = "group",

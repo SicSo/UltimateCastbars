@@ -179,7 +179,23 @@ local focus_db = {
 
             extraOptions = {
                 useClassColour = true,
-            }
+            },
+
+            sizeControl = {
+                widthControl = {
+                    enable = false,
+                    type = "percentage",
+                    perValue = 100,
+                    customValue = 300,
+                },
+                heightControl = {
+                    enable = false,
+                    wrapText = false,
+                    type = "percentage",
+                    perValue = 100,
+                    customValue = 300,
+                },
+            },
 
         },
         textList = {
@@ -219,7 +235,24 @@ local focus_db = {
 
                 extraOptions = {
                     useClassColour = true,
-                }
+                },
+
+                sizeControl = {
+                    widthControl = {
+                        enable = false,
+                        type = "percentage",
+                        perValue = 100,
+                        customValue = 300,
+                    },
+                    heightControl = {
+                        enable = false,
+                        wrapText = false,
+                        type = "percentage",
+                        perValue = 100,
+                        customValue = 300,
+                    },
+                },
+
             },
             tag2 = {
                 name = "Timer (decrease)",
@@ -256,7 +289,24 @@ local focus_db = {
 
                 extraOptions = {
                     useClassColour = true,
-                }
+                },
+
+                sizeControl = {
+                    widthControl = {
+                        enable = false,
+                        type = "percentage",
+                        perValue = 100,
+                        customValue = 300,
+                    },
+                    heightControl = {
+                        enable = false,
+                        wrapText = false,
+                        type = "percentage",
+                        perValue = 100,
+                        customValue = 300,
+                    },
+                },
+
             },
             tag3 = {
                 name = "Timer (increase)",
@@ -293,7 +343,23 @@ local focus_db = {
 
                 extraOptions = {
                     useClassColour = true,
-                }
+                },
+
+                sizeControl = {
+                    widthControl = {
+                        enable = false,
+                        type = "percentage",
+                        perValue = 100,
+                        customValue = 300, 
+                    },
+                    heightControl = {
+                        enable = false,
+                        wrapText = false,
+                        type = "percentage",
+                        perValue = 100,
+                        customValue = 300,
+                    },
+                },
             },
             tag4 = {
                 name = "Cancelled",
@@ -330,7 +396,24 @@ local focus_db = {
 
                 extraOptions = {
                     useClassColour = true,
-                }
+                },
+
+                sizeControl = {
+                    widthControl = {
+                        enable = false,
+                        type = "percentage",
+                        perValue = 100,
+                        customValue = 300,
+                    },
+                    heightControl = {
+                        enable = false,
+                        wrapText = false,
+                        type = "percentage",
+                        perValue = 100,
+                        customValue = 300,
+                    },
+                },
+
             },
             tag5 = {
                 name = "Interrupted By",
@@ -367,7 +450,23 @@ local focus_db = {
 
                 extraOptions = {
                     useClassColour = true,
-                }
+                },
+
+               sizeControl = {
+                    widthControl = {
+                        enable = false,
+                        type = "percentage",
+                        perValue = 100,
+                        customValue = 300,
+                    },
+                    heightControl = {
+                        enable = false,
+                        wrapText = false,
+                        type = "percentage",
+                        perValue = 100,
+                        customValue = 300,
+                    },
+                },
             },
         },
     },
