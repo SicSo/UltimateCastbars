@@ -44,5 +44,7 @@ FEATURES.md
 
 /.vscode/
 
-UltimateCastbars/Libs/Unused/*
-UltimateCastbars/gfx/AssetsOld/*
+UltimateCastbars/Libs/Unused/
+UltimateCastbars/gfx/AssetsOld/
+/UltimateCastbars/gfx/UITextures/**/Old/
+/UltimateCastbars/gfx/UITextures/**/Original/
