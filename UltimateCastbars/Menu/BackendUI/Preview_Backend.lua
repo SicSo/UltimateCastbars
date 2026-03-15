@@ -66,7 +66,7 @@ function Preview_API:RestartPreview(unit)
 end
 
 function Preview_API:ShowPreviewCastBar(unit, castType)
-    local mainCFG = UCB.GetValueConfig()
+    local mainCFG = GetCFG()
     local cfg = mainCFG[unit]
     local previewCFG = cfg.previewSettings
     local spellID = previewCFG.previewSpellID[castType]
