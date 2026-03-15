@@ -3,11 +3,13 @@ local _, UCB = ...
 UCB.Options = UCB.Options or {}
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.UIOptions = UCB.UIOptions or {}
+UCB.UIStructures = UCB.UIStructures or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
 local Opt = UCB.Options
 local GetCFG = UCB.GetValueConfig
 local UIOptions = UCB.UIOptions
+local UIStructures = UCB.UIStructures
 
 local LSM  = UCB.LSM
 
@@ -228,7 +230,9 @@ local function BuildChannelTable(args, unit, class)
         order = 4,
         disabled = function() return not cfg.showChannelTicks or not bigCFG.otherFeatures.showChannelTicks end,
         args = {
-            selectGroup = {
+            selectGroup = UIStructures:createSelectBlock(cfg, 1),
+            --[[
+            {
                 type = "group",
                 name = "Select Spell",
                 inline = true,
@@ -289,9 +293,12 @@ local function BuildChannelTable(args, unit, class)
                         get = function() return cfg._channelSelect end,
                         set = function(_, v) cfg._channelSelect = v end,
                     },
-
+                   
                 },
+                 
+               
             },
+            --]]
             addRow = {
                 type = "group",
                 name = "Add Spell by ID",

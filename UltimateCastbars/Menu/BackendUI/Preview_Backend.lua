@@ -66,8 +66,14 @@ function Preview_API:RestartPreview(unit)
 end
 
 function Preview_API:ShowPreviewCastBar(unit, castType)
-    local cfg = GetCFG(unit)
+    local mainCFG = UCB.GetValueConfig()
+    local cfg = mainCFG[unit]
     local previewCFG = cfg.previewSettings
+    local spellID = previewCFG.previewSpellID[castType]
+
+    -- Print spellID 
+    CASTBAR_API:PrintSpellID(mainCFG, spellID)
+
     local bar = UCB.castBar[unit]
     Preview_API.previewActive[unit] = true
     Preview_API.lastCastType[unit] = castType
@@ -79,7 +85,6 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
     CASTBAR_API:StopFrameTimer(UCB.castBar[unit], "cancelled")
     CASTBAR_API:StopFrameTimer(UCB.castBar[unit], "interrupted")
 
-    local spellID = previewCFG.previewSpellID[castType]
     local latency = previewCFG.previewLatency
 
     bar.current_spellID = spellID

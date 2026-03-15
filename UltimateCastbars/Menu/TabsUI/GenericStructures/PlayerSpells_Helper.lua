@@ -7,6 +7,7 @@ UCB.UIStructures = UCB.UIStructures or {}
 local CASTBAR_API = UCB.CASTBAR_API
 local UIOptions = UCB.UIOptions
 local UIStructures = UCB.UIStructures
+local GetCFG = UCB.GetValueConfig
 
 
 ---------------------------------------- CLASS SPELLS --------------------------------------------
@@ -60,11 +61,45 @@ end
 
 
 function UIStructures:createSelectBlock(cfg, order)
+    local cfgMisc = GetCFG().misc
+
+    local displaySpellID = {
+        type = "group",
+        name = "Print Spell ID for casted spells",
+        inline = true,
+        order = 1,
+        args = {
+            desc = {
+                type = "description",
+                name = "Toggle whether to print the spell ID of casts in the chat window. This is useful for finding the spell ID for casted spells.",
+                order = 0,
+                width = "full",
+            },
+            header = {
+                type = "header", dialogControl = "UCB_Heading",
+                name = function ()
+                    return "Print Spell ID on cast: " .. (cfgMisc.printSpellIDMode and UIOptions.ColorText(UIOptions.green, "Enabled") or UIOptions.ColorText(UIOptions.red, "Disabled"))
+                end,
+                order = 1,
+                width = "full",
+            },
+            displaySpellIDToggle = {
+                type = "execute", dialogControl = "UCB_Button",
+                name = "Print Spell ID on cast",
+                order = 2,
+                width = 1.5,
+                func = function()
+                    cfgMisc.printSpellIDMode = not cfgMisc.printSpellIDMode
+                end
+            },
+        },
+    }
+
     local selectGroup = {
         type = "group",
-        name = "Select Spell",
+        name = "Select Class Spell",
         inline = true,
-        order = order,
+        order = 2,
         args = {
             selectedSpell = {
                 type = "header",  dialogControl = "UCB_Heading",
@@ -116,5 +151,16 @@ function UIStructures:createSelectBlock(cfg, order)
             },
         },
     }
-    return selectGroup
+    
+    local mainGrp = {
+        type = "group",
+        name = "Spell Selection",
+        inline = true,
+        order = order,
+        args = {
+            displaySpellID = displaySpellID,
+            selectSpell = selectGroup,
+        },
+    }
+    return mainGrp
 end

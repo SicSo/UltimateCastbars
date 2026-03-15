@@ -23,7 +23,7 @@ local function BuildFramePickerArgs(args, unit)
                     order = 1,
                     width = "full",
                     type = "description",
-                    name ="This is a helepr functionality to find the desired frame within your UI. You can use it to find frame to anchor the castbar to or sync the width or height."..
+                    name ="This is a helper functionality to find the desired frame within your UI. You can use it to find frame to anchor the castbar to or sync the width or height."..
                         "To do so, click the 'Grab Mouseover Frame' button and then hover on any frame within the UI. The frame will be highlighted in green. If you are looking for another frame on another strata,".. 
                         "press the keys UP/DOWN arrows to find change the strata level. Once you found the desired, click CTRL while hovering. The name of the frame will be shown in the 'Frame clicked' field and can be copied from there. "..
                         "You can copy the value from the textbox above and paste it into the 'Custom Anchor Frame', 'Custom Width Frame' or 'Custom Height Frame' field."

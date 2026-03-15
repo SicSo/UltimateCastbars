@@ -9,6 +9,7 @@
 - Added option to cap latency display to a max value (for both overlay and tags)
 - Permanent background option
 - Width and height control for text (manual or percentage-based)
+- Print cast spell ID mode on cast (for spell ID identifying)
 
 ### User Interface
 - Updated tick style

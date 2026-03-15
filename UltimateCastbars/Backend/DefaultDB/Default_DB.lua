@@ -27,6 +27,7 @@ local Default_Values = {
                 recentColours = {},
                 squarePicker = true
             },
+            printSpellIDMode = false,
             UIScale = 1.0,
             lastUIPath = {},
             __schemaVersion = 0, -- for migrations

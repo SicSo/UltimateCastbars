@@ -6,6 +6,7 @@ UCB.tags     = UCB.tags     or {}
 UCB.Preview_API = UCB.Preview_API or {}
 UCB.GeneralCore_Helpers = UCB.GeneralCore_Helpers or {}
 UCB.Latency = UCB.Latency or {}
+UCB.UIOptions = UCB.UIOptions or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
 local tags = UCB.tags
@@ -13,7 +14,16 @@ local BarUpdate_API = UCB.BarUpdate_API
 local Preview_API = UCB.Preview_API
 local GeneralHelpers = UCB.GeneralCore_Helpers
 local Latency = UCB.Latency
+local UIOptions = UCB.UIOptions
 
+
+function CASTBAR_API:PrintSpellID(mainCFG, spellID)
+    if mainCFG.misc.printSpellIDMode then
+        local info = C_Spell.GetSpellInfo(spellID)
+        local spellName = info and info.name or "Unknown"
+        print("Casting: "..UIOptions.ColorText(UIOptions.turquoise, spellName).." (Spell ID: "..UIOptions.ColorText(UIOptions.turquoise, spellID)..")")
+    end
+end
 
 -- Tries to stop previous casts
 function CASTBAR_API:StopPrevCast(unit, bar, castGUID, spellID, castBarID)
@@ -466,7 +476,11 @@ end
 
 ----------------------------------------------------------------- CASTBAR UPDATE FUNCTIONS -----------------------------------------------------------------
 function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, latency)
-    local cfg = UCB.GetValueConfig(unit)
+    -- Print spellID 
+    local mainCFG = UCB.GetValueConfig()
+    CASTBAR_API:PrintSpellID(mainCFG, spellID)
+
+    local cfg = mainCFG[unit]
 
     -- Spell filter
     if not CASTBAR_API:SpellFilterClass(unit, spellID, cfg) then
