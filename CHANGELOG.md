@@ -1,5 +1,10 @@
 ## Unreleased
 
+---
+
+
+## Version 0.10.0 - [15-03-2026]
+
 ### Added
 - Full dynamic size for sync frames
 - \[pName], \[tName], \[fName] tags 
