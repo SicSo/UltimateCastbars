@@ -243,6 +243,8 @@ function BarUpdate_API:UpdateText(unit)
                 usedShadowColour = tagOptions.shadowColour
             end
 
+            local fs = bar.texts[key]
+
             if tagOptions.sizeControl.widthControl.enable then
                 local width
                 if tagOptions.sizeControl.widthControl.type == "percentage" then
@@ -250,9 +252,9 @@ function BarUpdate_API:UpdateText(unit)
                 else
                     width = tagOptions.sizeControl.widthControl.customValue
                 end
-                bar.texts[key]:SetWidth(width)
+                fs:SetWidth(width)
             else
-                bar.texts[key]:SetWidth(9999999)
+                fs:SetWidth(99999)
             end
 
             if tagOptions.sizeControl.heightControl.enable then
@@ -262,15 +264,14 @@ function BarUpdate_API:UpdateText(unit)
                 else
                     height = tagOptions.sizeControl.heightControl.customValue
                 end
-                bar.texts[key]:SetHeight(height)
-                bar.texts[key]:SetNonSpaceWrap(false)
+                fs:SetHeight(height)
+                fs:SetNonSpaceWrap(false)
             else
-                bar.texts[key]:SetHeight(9999999)
-                bar.texts[key]:SetNonSpaceWrap(false)
+                fs:SetHeight(99999)
+                fs:SetNonSpaceWrap(false)
             end
-            bar.texts[key]:SetWordWrap(tagOptions.sizeControl.heightControl.wrapText)
-
-            local fs = bar.texts[key]
+            fs:SetWordWrap(tagOptions.sizeControl.heightControl.wrapText)
+            
             fs:SetJustifyH(tagOptions.justify)
             fs:SetPoint(tagOptions.anchorFrom, textFrame, tagOptions.anchorTo, tagOptions.textOffsetX, tagOptions.textOffsetY)
             fs:SetFont(usedFont, usedFontSize, unpack(usedOutline))

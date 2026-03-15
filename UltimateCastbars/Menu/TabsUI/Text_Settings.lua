@@ -447,7 +447,7 @@ local function tagUI(key, unit)
                 args = {
                     descInfo = {
                         type = "description",
-                        name = function() return UIOptions.ColorText(UIOptions.turquoise, "Height control options are designed to adjust the height of the castbar based on the amount of text you want to be displayed. You can use this to limit the amount text displayed through wrapping if enabled.") end,
+                        name = function() return UIOptions.ColorText(UIOptions.turquoise, "Height control options are designed to adjust the height of the castbar based on the amount of text you want to be displayed. You can use this to limit the amount text displayed through wrapping if enabled. WHILE TESTING, SWAP SPELLS TO SEE THE CHANGES, SAME SPELL FREEZES BEHAVIOUR DUE TO CACHING.") end,
                         width = "full",
                         order = 0,
                     },
