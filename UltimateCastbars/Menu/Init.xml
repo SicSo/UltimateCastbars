@@ -59,7 +59,12 @@
 	<Script file="TabsUI/GenericStructures/StyleWindow.lua"/>
 		<!-- Main tabs -->
 	<Script file="TabsUI/BlizzCast_Settings.lua"/>
-	<Script file="TabsUI/General_Settings.lua"/>
+			<!-- General tabs -->
+	<Script file="TabsUI/General/Position.lua"/>
+	<Script file="TabsUI/General/Size.lua"/>
+	<Script file="TabsUI/General/Icon.lua"/>
+	<Script file="TabsUI/General/General_Settings.lua"/>
+	
 	<Script file="TabsUI/Preview_Settings.lua"/>
 	<Script file="TabsUI/Style_Settings.lua"/>
 	<Script file="TabsUI/Text_Settings.lua"/>

@@ -1,5 +1,8 @@
 ## Unreleased
 
+### Added
+- Option to control width/height sync to a frame in or out of combat
+
 ### User Interface
 - Update colour picker button styling
 

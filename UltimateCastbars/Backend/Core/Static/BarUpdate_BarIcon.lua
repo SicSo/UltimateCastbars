@@ -467,17 +467,25 @@ local function RefreshSizeFromSources(unit)
     local widthCache = EnsureFrameRecord(cacheWidthFrames, unit)
     local heightCache = EnsureFrameRecord(cacheHeightFrames, unit)
 
-    local syncedW, syncedH
+    local syncedW = genCfg._lastSyncedW
+    local syncedH = genCfg._lastSyncedH
+
+    local sizeSyncCFG = genCfg.size and genCfg.size.sizeSync
+    local inCombat = InCombatLockdown()
+    local allowWidthUpdate = (not inCombat) or (sizeSyncCFG.widthSync.syncInCombat)
+    local allowHeightUpdate = (not inCombat) or (sizeSyncCFG.heightSync.syncInCombat)
 
     genCfg._widthFrameError = false
     genCfg._heightFrameError = false
 
-    if not genCfg.manualWidth then
+    if not genCfg.manualWidth and allowWidthUpdate then
         if widthCache.address then
             syncedW = ReadFrameWidth(widthCache.address)
             if syncedW then
                 local minSyncW = genCfg.widthMinValue or 0
-                if syncedW < minSyncW then syncedW = minSyncW end
+                if syncedW < minSyncW then
+                    syncedW = minSyncW
+                end
             else
                 genCfg._widthFrameError = true
             end
@@ -486,12 +494,14 @@ local function RefreshSizeFromSources(unit)
         end
     end
 
-    if not genCfg.manualHeight then
+    if not genCfg.manualHeight and allowHeightUpdate then
         if heightCache.address then
             syncedH = ReadFrameHeight(heightCache.address)
             if syncedH then
                 local minSyncH = genCfg.heightMinValue or 0
-                if syncedH < minSyncH then syncedH = minSyncH end
+                if syncedH < minSyncH then
+                    syncedH = minSyncH
+                end
             else
                 genCfg._heightFrameError = true
             end

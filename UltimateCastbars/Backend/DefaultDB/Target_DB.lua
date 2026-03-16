@@ -96,6 +96,17 @@ local target_db = {
         widthMinValue = 50,
         heightMinValue = 15,
 
+        size = {
+            sizeSync = {
+                widthSync = {
+                    syncInCombat = false,
+                },
+                heightSync = {
+                    syncInCombat = false,
+                },
+            },
+        },
+
         includeBorderInWidth = true,
         includeBorderInHeight = true,
 
