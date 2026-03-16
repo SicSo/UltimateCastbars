@@ -3,6 +3,9 @@
 ### User Interface
 - Update colour picker button styling
 
+### Fixed
+- Profile management was taking control of management in other addons
+
 ---
 
 
