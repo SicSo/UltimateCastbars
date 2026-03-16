@@ -1,5 +1,8 @@
 ## Unreleased
 
+### User Interface
+- Update colour picker button styling
+
 ---
 
 

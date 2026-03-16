@@ -10,6 +10,8 @@
 	<Script file="Theme/CustomWidgets/UCBInputBox.lua"/>
 	<Include file="Theme/CustomWidgets/UCBButton.xml"/>
 	<Script file="Theme/CustomWidgets/UCBButton.lua"/>
+	<Include file="Theme/CustomWidgets/UCBColourButton.xml"/>
+	<Script file="Theme/CustomWidgets/UCBColourButton.lua"/>
 		<!-- General files -->
 	<Script file="Theme/General.lua"/>
 	<Script file="Theme/AceConfig.lua"/>
