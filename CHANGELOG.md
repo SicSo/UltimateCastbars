@@ -3,6 +3,9 @@
 ### Added
 - Option to choose between clamping or keeping the value before min for size syncs
 
+### Fixed
+- Copy profile was not working as intended and causing errors
+
 ---
 
 
