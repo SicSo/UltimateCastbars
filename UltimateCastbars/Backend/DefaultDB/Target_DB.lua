@@ -100,9 +100,11 @@ local target_db = {
             sizeSync = {
                 widthSync = {
                     syncInCombat = false,
+                    usePrevBeforeMinValue = true,
                 },
                 heightSync = {
                     syncInCombat = false,
+                    usePrevBeforeMinValue = true,
                 },
             },
         },

@@ -256,10 +256,21 @@ function GeneralSettings_API:BuildSizeArgs(cfg, unit)
                         name = " ",
                         width = 0.1
                     },
+                    widthUseValueBeforeMin = {
+                        type = "toggle", dialogControl = "UCB_CheckBox",
+                        name = "Keep value before min (disable = clamp to min)",
+                        order = 6,
+                        width = 2,
+                        get = function() return g.size.sizeSync.widthSync.usePrevBeforeMinValue end,
+                        set = function(_, val)
+                            g.size.sizeSync.widthSync.usePrevBeforeMinValue = val
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                    },
                     widthSyncCombat = {
                         type = "toggle", dialogControl = "UCB_CheckBox",
                         name = "Width Sync In Combat",
-                        order = 6,
+                        order = 7,
                         width = 1.3,
                         get = function() return g.size.sizeSync.widthSync.syncInCombat end,
                         set = function(_, val)
@@ -385,10 +396,21 @@ function GeneralSettings_API:BuildSizeArgs(cfg, unit)
                         name = " ",
                         width = 0.1
                     },
+                    heightUseValueBeforeMin = {
+                        type = "toggle", dialogControl = "UCB_CheckBox",
+                        name = "Keep value before min (disable = clamp to min)",
+                        order = 6,
+                        width = 2,
+                        get = function() return g.size.sizeSync.heightSync.usePrevBeforeMinValue end,
+                        set = function(_, val)
+                            g.size.sizeSync.heightSync.usePrevBeforeMinValue = val
+                            CASTBAR_API:UpdateCastbar(unit)
+                        end,
+                    },
                     heightSyncCombat = {
                         type = "toggle", dialogControl = "UCB_CheckBox",
                         name = "Height Sync In Combat",
-                        order = 6,
+                        order = 7,
                         width = 1.3,
                         get = function() return g.size.sizeSync.heightSync.syncInCombat end,
                         set = function(_, val)

@@ -471,20 +471,35 @@ local function RefreshSizeFromSources(unit)
     local syncedH = genCfg._lastSyncedH
 
     local sizeSyncCFG = genCfg.size and genCfg.size.sizeSync
+    local widthSyncCFG = sizeSyncCFG and sizeSyncCFG.widthSync
+    local heightSyncCFG = sizeSyncCFG and sizeSyncCFG.heightSync
+
     local inCombat = InCombatLockdown()
-    local allowWidthUpdate = (not inCombat) or (sizeSyncCFG.widthSync.syncInCombat)
-    local allowHeightUpdate = (not inCombat) or (sizeSyncCFG.heightSync.syncInCombat)
+    local allowWidthUpdate = (not inCombat) or (widthSyncCFG and widthSyncCFG.syncInCombat)
+    local allowHeightUpdate = (not inCombat) or (heightSyncCFG and heightSyncCFG.syncInCombat)
 
     genCfg._widthFrameError = false
     genCfg._heightFrameError = false
 
     if not genCfg.manualWidth and allowWidthUpdate then
         if widthCache.address then
-            syncedW = ReadFrameWidth(widthCache.address)
-            if syncedW then
+            local newSyncedW = ReadFrameWidth(widthCache.address)
+            if newSyncedW then
                 local minSyncW = genCfg.widthMinValue or 0
-                if syncedW < minSyncW then
-                    syncedW = minSyncW
+
+                if newSyncedW < minSyncW then
+                    if widthSyncCFG and widthSyncCFG.usePrevBeforeMinValue == true then
+                        -- Ignore this update and keep previous syncedW.
+                        -- If there is no previous syncedW yet, keep old behavior and use min.
+                        if syncedW == nil then
+                            syncedW = minSyncW
+                        end
+                    else
+                        -- false or nil => old behavior
+                        syncedW = minSyncW
+                    end
+                else
+                    syncedW = newSyncedW
                 end
             else
                 genCfg._widthFrameError = true
@@ -496,11 +511,20 @@ local function RefreshSizeFromSources(unit)
 
     if not genCfg.manualHeight and allowHeightUpdate then
         if heightCache.address then
-            syncedH = ReadFrameHeight(heightCache.address)
-            if syncedH then
+            local newSyncedH = ReadFrameHeight(heightCache.address)
+            if newSyncedH then
                 local minSyncH = genCfg.heightMinValue or 0
-                if syncedH < minSyncH then
-                    syncedH = minSyncH
+
+                if newSyncedH < minSyncH then
+                    if heightSyncCFG and heightSyncCFG.usePrevBeforeMinValue == true then
+                        if syncedH == nil then
+                            syncedH = minSyncH
+                        end
+                    else
+                        syncedH = minSyncH
+                    end
+                else
+                    syncedH = newSyncedH
                 end
             else
                 genCfg._heightFrameError = true
@@ -536,25 +560,6 @@ local function EnsureSizeWatcher(frame)
             RefreshSizeFromSources(unit)
         end
     end)
-
-    --[[
-    frame:HookScript("OnSizeChanged", function()
-        for unit in pairs(watcher.units) do
-            RefreshSizeFromSources(unit)
-
-            local bar = UCB.castBar[unit]
-            local bigCFG = UCB.GetValueConfig(unit)
-            if bar and bigCFG then
-                AnchorWhenReady(unit, bar.group, bigCFG.general, {
-                    interval = bigCFG.general.anchorFrameInterval,
-                    maxTries = bigCFG.general.anchorFrameTries,
-                    delay = 0,
-                })
-            end
-        end
-    end)
-    --]]
-
     return watcher
 end
 
