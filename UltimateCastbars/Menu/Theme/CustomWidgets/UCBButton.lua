@@ -137,20 +137,23 @@ function UCBButtonMixin:OnEnable()
 end
 
 function UCBButtonMixin:OnDisable()
-	self.__ucbHovered = false;
-	self.__ucbPressed = false;
-	self:UpdateVisualState();
+	self.__ucbHovered = false
+	self.__ucbPressed = false
+	self:SetHoverTextStyle(false)
+	self:UpdateVisualState()
 end
 
 function UCBButtonMixin:OnEnter()
-	self.__ucbHovered = true;
-	self:UpdateVisualState();
+	self.__ucbHovered = true
+	self:SetHoverTextStyle(true)
+	self:UpdateVisualState()
 end
 
 function UCBButtonMixin:OnLeave()
-	self.__ucbHovered = false;
-	self.__ucbPressed = false;
-	self:UpdateVisualState();
+	self.__ucbHovered = false
+	self.__ucbPressed = false
+	self:SetHoverTextStyle(false)
+	self:UpdateVisualState()
 end
 
 function UCBButtonMixin:OnMouseDown()
@@ -370,4 +373,26 @@ function UCBButtonMixin:SetStateTextureSizes(stateName, leftWidth, leftHeight, m
 	end
 
 	self:UpdateVisualState();
+end
+
+function UCBButtonMixin:SetHoverTextStyle(enabled)
+	local text = self:GetFontString()
+	if not text then
+		return
+	end
+
+	local font, size = text:GetFont()
+	if not font or not size then
+		return
+	end
+
+	if enabled then
+		text:SetFont(font, size, "THICKOUTLINE")
+		text:SetShadowOffset(2, -2)
+		text:SetShadowColor(0, 0, 0, 1)
+	else
+		text:SetFont(font, size, "")
+		text:SetShadowOffset(0, 0)
+		text:SetShadowColor(0, 0, 0, 0)
+	end
 end

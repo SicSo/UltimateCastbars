@@ -44,10 +44,32 @@ local function ColorCallback(self, r, g, b, a, isAlpha)
 	end
 end
 
+local function SetTextHoverStyle(text, enabled)
+	if not text then
+		return
+	end
+
+	local font, size = text:GetFont()
+	if not font or not size then
+		return
+	end
+
+	if enabled then
+		text:SetFont(font, size, "THICKOUTLINE")
+		text:SetShadowOffset(2, -2)
+		text:SetShadowColor(0, 0, 0, 1)
+	else
+		text:SetFont(font, size, "")
+		text:SetShadowOffset(0, 0)
+		text:SetShadowColor(0, 0, 0, 0)
+	end
+end
+
 local function Control_OnEnter(frame)
 	local self = frame.obj
 	if not self.disabled then
 		self.text:SetTextColor(C_TEXT_HOVER.r, C_TEXT_HOVER.g, C_TEXT_HOVER.b, C_TEXT_HOVER.a)
+		SetTextHoverStyle(self.text, true)
 	end
 	self:Fire("OnEnter")
 end
@@ -56,6 +78,7 @@ local function Control_OnLeave(frame)
 	local self = frame.obj
 	if not self.disabled then
 		self.text:SetTextColor(C_TEXT.r, C_TEXT.g, C_TEXT.b, C_TEXT.a)
+		SetTextHoverStyle(self.text, false)
 	end
 	self:Fire("OnLeave")
 end
@@ -212,6 +235,8 @@ local function Constructor()
 	text:SetPoint("RIGHT", frame, "RIGHT", -40, 0)
 	text:SetJustifyH("LEFT")
 	text:SetTextColor(C_TEXT.r, C_TEXT.g, C_TEXT.b, C_TEXT.a)
+
+	frame:SetFontString(text)
 
 	local widget = {
 		text  = text,
