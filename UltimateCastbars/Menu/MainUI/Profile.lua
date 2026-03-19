@@ -510,8 +510,8 @@ local function BuildProfileMgmtOptions()
                     local selected = Profiles._copyFromSelection
                     local current = GetCurrentProfile()
 
-                    if not db or not db.CopyProfile then
-                        print("UCB: CopyProfile is not available on the database object.")
+                    if not db then
+                        print("UCB: Database not available.")
                         return
                     end
 
@@ -524,12 +524,33 @@ local function BuildProfileMgmtOptions()
                         return
                     end
 
-                    if not ProfileExists(selected) then
+                    local src = db.sv and db.sv.profiles and db.sv.profiles[selected]
+                    local dst = db.profile
+                    local defaults = UCB.GetDefaultDB and UCB:GetDefaultDB()
+                    local schema = defaults and defaults.profile
+
+                    if type(src) ~= "table" then
                         print("UCB: Invalid source profile.")
                         return
                     end
 
-                    db:CopyProfile(selected, false)
+                    if type(dst) ~= "table" then
+                        print("UCB: Invalid destination profile.")
+                        return
+                    end
+
+                    if type(schema) ~= "table" then
+                        print("UCB: Default profile schema not found.")
+                        return
+                    end
+
+                    UCB.Copy:WipeTable(dst)
+                    UCB.Copy:CopyBySchema(dst, src, schema)
+
+                    local ok, err = UCB:NormalizeCurrentProfileToSchema()
+                    if not ok and err then
+                        print("UCB: Normalize failed: " .. tostring(err))
+                    end
 
                     if UCB.UpdateAllCastBars then
                         UCB:UpdateAllCastBars()
