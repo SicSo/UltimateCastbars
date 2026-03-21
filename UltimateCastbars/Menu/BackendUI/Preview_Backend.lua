@@ -150,6 +150,9 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
     bar.flags.prevType = castType
     bar.flags.castActive = true
 
+    -- Make the catbar moveable
+    Preview_API:SetPreviewMovable(unit, cfg, true)
+
     CASTBAR_API:HideCastbar(bar, unit, vars, cfg)
 end
 
@@ -171,6 +174,9 @@ function Preview_API:HidePreviewCastBar(unit)
     bar.flags.prevType = nil
     bar.current_spellID = nil
     bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars, bar._ucbSpellID = nil, nil, nil, nil, nil
+
+    -- Make the catbar not moveable
+    Preview_API:SetPreviewMovable(unit, cfg, false)
 
     -- Player main, targets, focus,
     CASTBAR_API:HideChannelTicks(bar, cfg.otherFeatures)
@@ -220,5 +226,55 @@ function Preview_API:GetOffsetsForAnchorPair(frame, relativeFrame, anchorFrom, a
     if not (fx and rx) then return 0, 0 end
 
     return fx - rx, fy - ry
+end
+
+local function SavePreviewPosition(unit, cfg, frame)
+    local relFrame = cfg.general.anchorName and _G[cfg.general.anchorName] or _G[cfg.general._defaultAnchor]
+    local anchorFrom = cfg.general.anchorFrom
+    local anchorTo   = cfg.general.anchorTo
+
+    local x, y = Preview_API:GetOffsetsForAnchorPair(frame, relFrame, anchorFrom, anchorTo)
+    cfg.general.offsetX = x
+    cfg.general.offsetY = y
+
+    UCB.GUI:RefreshGUI(true, { unit, "general", "position" })
+end
+
+function Preview_API:SetPreviewMovable(unit, cfg, enabled)
+    local bar = UCB.castBar[unit]
+    if not bar or not bar.group then return end
+
+    local frame = bar.group
+
+    if enabled and cfg.previewSettings.enableMove then
+        frame:EnableMouse(true)
+        frame:SetMovable(true)
+        frame:RegisterForDrag("LeftButton")
+
+        frame:SetScript("OnDragStart", function(self)
+            self:StartMoving()
+        end)
+
+        frame:SetScript("OnDragStop", function(self)
+            self:StopMovingOrSizing()
+            SavePreviewPosition(unit, cfg, self)
+        end)
+
+        -- extra safety: save on mouse release too
+        frame:SetScript("OnMouseUp", function(self)
+            if self:IsMouseEnabled() then
+                self:StopMovingOrSizing()
+                SavePreviewPosition(unit, cfg, self)
+            end
+        end)
+    else
+        frame:EnableMouse(false)
+        frame:SetMovable(false)
+        frame:RegisterForDrag()
+
+        frame:SetScript("OnDragStart", nil)
+        frame:SetScript("OnDragStop", nil)
+        frame:SetScript("OnMouseUp", nil)
+    end
 end
 

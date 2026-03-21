@@ -15,7 +15,7 @@ local function PreviewSpells(cfg)
         type   = "group",
         name   = "Preview Spell Settings",
         --inline = false,
-        hidden = function() return not Preview_API.showSettingsToggle end,
+        hidden = function() return not cfg.previewSettings.showOptions end,
         order  = 2,
         args   = {
             spellListNormal = {
@@ -94,7 +94,7 @@ local function PreviewSettings(cfg, unit)
         type   = "group",
         name   = "Preview Settings",
         --inline = false,
-        hidden = function() return not Preview_API.showSettingsToggle end,
+        hidden = function() return not cfg.previewSettings.showOptions end,
         order  = 3,
         args   = {
             setCustomDuration = {
@@ -217,7 +217,6 @@ end
 
 local function BuildPreviewArgs(args, unit, opts)
     local cfg = GetCFG(unit)
-    Preview_API.showSettingsToggle = false
 
     args.previewRow = {
         type   = "group",
@@ -244,25 +243,8 @@ local function BuildPreviewArgs(args, unit, opts)
                             Preview_API:HidePreviewCastBar(unit)
                         end
                         Preview_API:ShowPreviewCastBar(unit, castType)
-                        bar.group:EnableMouse(true)
-                        bar.group:SetMovable(true)
-                        bar.group:RegisterForDrag("LeftButton")
-                        bar.group:SetScript("OnDragStart", function(self) self:StartMoving() end)
-                        bar.group:SetScript("OnDragStop", function(self)
-                            self:StopMovingOrSizing()
-                            local relFrame = cfg.general.anchorName and _G[cfg.general.anchorName] or _G[cfg.general._defaultAnchor]
-                            local anchorFrom = cfg.general.anchorFrom
-                            local anchorTo   = cfg.general.anchorTo
-                            local x, y = Preview_API:GetOffsetsForAnchorPair(self, relFrame, anchorFrom, anchorTo)
-                            cfg.general.offsetX, cfg.general.offsetY = x, y
-                        end)
                     else
                         Preview_API:HidePreviewCastBar(unit)
-                        bar.group:EnableMouse(false)
-                        bar.group:SetMovable(false)
-                        bar.group:RegisterForDrag()
-                        bar.group:SetScript("OnDragStart", nil)
-                        bar.group:SetScript("OnDragStop", nil)
                     end
                 end,
             },
@@ -291,25 +273,8 @@ local function BuildPreviewArgs(args, unit, opts)
                             Preview_API:HidePreviewCastBar(unit)
                         end
                         Preview_API:ShowPreviewCastBar(unit, castType)
-                        bar.group:EnableMouse(true)
-                        bar.group:SetMovable(true)
-                        bar.group:RegisterForDrag("LeftButton")
-                        bar.group:SetScript("OnDragStart", function(self) self:StartMoving() end)
-                        bar.group:SetScript("OnDragStop", function(self)
-                            self:StopMovingOrSizing()
-                            local relFrame = cfg.general.anchorName and _G[cfg.general.anchorName] or _G[cfg.general._defaultAnchor]
-                            local anchorFrom = cfg.general.anchorFrom
-                            local anchorTo   = cfg.general.anchorTo
-                            local x, y = Preview_API:GetOffsetsForAnchorPair(self, relFrame, anchorFrom, anchorTo)
-                            cfg.general.offsetX, cfg.general.offsetY = x, y
-                        end)
                     else
                         Preview_API:HidePreviewCastBar(unit)
-                        bar.group:EnableMouse(false)
-                        bar.group:SetMovable(false)
-                        bar.group:RegisterForDrag()
-                        bar.group:SetScript("OnDragStart", nil)
-                        bar.group:SetScript("OnDragStop", nil)
                     end
                 end,
                 hidden = function()
@@ -344,25 +309,8 @@ local function BuildPreviewArgs(args, unit, opts)
                             Preview_API:HidePreviewCastBar(unit)
                         end
                         Preview_API:ShowPreviewCastBar(unit, castType)
-                        bar.group:EnableMouse(true)
-                        bar.group:SetMovable(true)
-                        bar.group:RegisterForDrag("LeftButton")
-                        bar.group:SetScript("OnDragStart", function(self) self:StartMoving() end)
-                        bar.group:SetScript("OnDragStop", function(self)
-                            self:StopMovingOrSizing()
-                            local relFrame = cfg.general.anchorName and _G[cfg.general.anchorName] or _G[cfg.general._defaultAnchor]
-                            local anchorFrom = cfg.general.anchorFrom
-                            local anchorTo   = cfg.general.anchorTo
-                            local x, y = Preview_API:GetOffsetsForAnchorPair(self, relFrame, anchorFrom, anchorTo)
-                            cfg.general.offsetX, cfg.general.offsetY = x, y
-                        end)
                     else
                         Preview_API:HidePreviewCastBar(unit)
-                        bar.group:EnableMouse(false)
-                        bar.group:SetMovable(false)
-                        bar.group:RegisterForDrag()
-                        bar.group:SetScript("OnDragStart", nil)
-                        bar.group:SetScript("OnDragStop", nil)
                     end
                 end,
                 hidden = function() 
@@ -382,7 +330,7 @@ local function BuildPreviewArgs(args, unit, opts)
                 type = "execute",
                 dialogControl = "UCB_Button",
                 name  = function() 
-                    if Preview_API.showSettingsToggle then
+                    if cfg.previewSettings.showOptions then
                         return UCB.UIOptions.ColorText(UCB.UIOptions.red, "Hide").." Preview Settings"
                     else
                         return UCB.UIOptions.ColorText(UCB.UIOptions.green, "Show").." Preview Settings"
@@ -391,10 +339,30 @@ local function BuildPreviewArgs(args, unit, opts)
                 order = 4,
                 width = 1,
                 func  = function()
-                    Preview_API.showSettingsToggle = not Preview_API.showSettingsToggle
+                    cfg.previewSettings.showOptions = not cfg.previewSettings.showOptions
                     args.previewSpells = PreviewSpells(cfg)
                     args.previewSettings = PreviewSettings(cfg, unit)
                 end,
+            }
+        },
+    }
+    args.previewEdit = {
+        type = "group",
+        name = "Preview Cast Edit",
+        inline = true,
+        order = 2,
+        hidden = function() return not cfg.previewSettings.showOptions end,
+        args = {
+            enableMove = {
+                type    = "toggle", dialogControl = "UCB_CheckBox",
+                name    = "Enable Moving Preview Castbar",
+                order   = 1,
+                width   = 1.7,
+                get     = function() return cfg.previewSettings.enableMove end,
+                set     = function(_, value)
+                    cfg.previewSettings.enableMove = value
+                    Preview_API:RestartPreview(unit)
+                end
             }
         },
     }

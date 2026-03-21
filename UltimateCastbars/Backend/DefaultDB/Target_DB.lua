@@ -664,6 +664,7 @@ local target_db = {
     },
 
     previewSettings = {
+        showOptions = false,
         previewDuration = 30,
         previewNormalDefaultDuration = false,
         previewEmpowerStages = 5,
@@ -675,6 +676,7 @@ local target_db = {
         previewNotIntrerruptible = false,
         previewShowKickCD = true,
         previewKickCD = 2,
+        enableMove = true,
     },
 
      copySettings = {

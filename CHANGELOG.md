@@ -2,9 +2,11 @@
 
 ### Added
 - Option to choose between clamping or keeping the value before min for size syncs
+- Option to disable moving the preview bar
 
 ### Fixed
 - Copy profile was not working as intended and causing errors
+- Moving the preview bar was not saving the offsets properly
 
 ---
 

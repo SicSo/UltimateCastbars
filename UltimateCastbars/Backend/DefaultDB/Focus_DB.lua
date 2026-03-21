@@ -663,6 +663,7 @@ local focus_db = {
     },
 
     previewSettings = {
+        showOptions = false,
         previewDuration = 30,
         previewNormalDefaultDuration = false,
         previewEmpowerStages = 2,
@@ -674,6 +675,7 @@ local focus_db = {
         previewNotIntrerruptible = false,
         previewShowKickCD = true,
         previewKickCD = 0.5,
+        enableMove = true,
     },
 
      copySettings = {
