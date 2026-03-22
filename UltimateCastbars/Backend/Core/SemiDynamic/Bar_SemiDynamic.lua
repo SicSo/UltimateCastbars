@@ -471,11 +471,13 @@ function CASTBAR_API:ApplyStyle(bar, unit, cfg, spellID, castType, bar_status)
             spark:SetPoint("CENTER", bar_status:GetStatusBarTexture(), "RIGHT", 0, 0)
         end
     end
+
+    bar.cfg_style = styleCFG
 end
 
 
 ----------------------------------------------------------------- CASTBAR UPDATE FUNCTIONS -----------------------------------------------------------------
-function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, latency)
+function CASTBAR_API:CastSetup(unit, castGUID, spellID, castBarID, resumeCast, castType, latency)
     -- Print spellID 
     local mainCFG = UCB.GetValueConfig()
     CASTBAR_API:PrintSpellID(mainCFG, spellID)
@@ -508,6 +510,7 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, la
 
     bar.current_spellID = spellID
     bar.current_castGUID = castGUID
+    bar.current_castBarID = castBarID
 
     -- Update internal vars with spellInfo
     local icon_texture = tags:updateVars(unit, castType, spellID, cfg, latency)
@@ -569,7 +572,7 @@ function CASTBAR_API:CastOnUpdateSetup(bar, unit, cfg, vars, castType, spellID, 
 end
 
 
-function CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType, latency)
+function CASTBAR_API:CastUpdate(unit, castGUID, spellID, castBarID, castType, latency)
     local cfg = UCB.GetValueConfig(unit)
 
     -- Spell filter
@@ -577,8 +580,11 @@ function CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType, latency)
         return false
     end
 
-
     local bar = UCB.castBar[unit]
+
+    bar.current_spellID = spellID
+    bar.current_castGUID = castGUID
+    bar.current_castBarID = castBarID
 
     local icon_texture = tags:updateVars(unit, castType, spellID, cfg, latency)
     local vars = tags.var[unit]

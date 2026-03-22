@@ -33,7 +33,23 @@ function UCB.Default_DB:createStyle()
                 colour = {r=1, g=1, b=1, a=0.8},
                 width = 20,
                 heightMult = 2.2
-            }
+            },
+            gcd = {
+                enable = false,
+                edge = {
+                    enable = true,
+                    colour = {r=1, g=1, b=1, a=1},
+                    scale = 1.4,
+                },
+                swipe = {
+                    enable = true,
+                    colour = {r=0, g=0, b=0, a=0.8},
+                },
+                bling = {
+                    enable = true,
+                    colour = {r=0.3, g=0.6, b=1, a=0.8},
+                }
+            },
         },
 
         showBorder = false,

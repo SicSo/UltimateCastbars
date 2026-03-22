@@ -97,6 +97,21 @@ local function CreateCastBar(unit)
     bar.icon = bar.iconFrame:CreateTexture(nil, "ARTWORK")
     bar.icon:SetAllPoints()
     bar.icon:SetTexCoord(0.06, 0.94, 0.06, 0.94)
+    bar.iconSwipe = CreateFrame("Cooldown", nil, bar.iconFrame, "CooldownFrameTemplate")
+    bar.iconSwipe:SetAllPoints(bar.iconFrame)
+    bar.iconSwipe:SetHideCountdownNumbers(false)
+    bar.iconSwipe:SetCooldown(0, 0)
+
+    --for _, template in ipairs(C_XMLUtil.GetTemplates()) do
+    --    if template.type == "Cooldown" then
+    --        print(template.name)
+    --    end
+    --end
+    local aux = C_XMLUtil.GetTemplateInfo("CooldownFrameTemplate")
+    print(aux.sourceLocation)
+    for key, val in pairs(aux.keyValues) do
+        print(key)
+    end
 
     -- Set initial values for bar properties
 

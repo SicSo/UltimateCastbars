@@ -67,6 +67,8 @@ UCB.Copy.categoriesOrder = {
 }
 
 --------------------------------------------------------------- General ------------------------------------------------------------
+UCB.GCDSpellID = 61304
+
 UCB.specs =  {
   WARRIOR = {
     classId = 1,
@@ -318,8 +320,8 @@ UCB.UIOptions.heightMax_icon = 200
 UCB.UIOptions.heightMin_icon = 5
 
 
-UCB.UIOptions.offsetMin_bar = -500
-UCB.UIOptions.offsetMax_bar = 500
+UCB.UIOptions.offsetMin_bar = -1500
+UCB.UIOptions.offsetMax_bar = 1500
 UCB.UIOptions.widthMax_bar = 1000
 UCB.UIOptions.widthMin_bar = 20
 UCB.UIOptions.heightMax_bar = 500

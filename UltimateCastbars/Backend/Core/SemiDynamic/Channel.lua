@@ -6,11 +6,13 @@ UCB.CLASS_API = UCB.CLASS_API or {}
 UCB.CLASS_API.Evoker = UCB.CLASS_API.Evoker or {}
 UCB.Preview_API = UCB.Preview_API or {}
 UCB.Latency = UCB.Latency or {}
+UCB.GCD = UCB.GCD or {}
 
 local tags = UCB.tags
 local CASTBAR_API = UCB.CASTBAR_API
 local Evoker_API = UCB.CLASS_API.Evoker
 local Latency = UCB.Latency
+local GCD = UCB.GCD
 
 local castType = "channel"
 
@@ -167,8 +169,9 @@ end
 
 ---------------------------------------------------- MAIN -------------------------------------------------
 function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID, castBarID, resumeCast)
+    if UCB:IsPlayer(unit, true) then GCD:SetPendingGCDSpell(spellID, false) end
     if UCB:IsPlayer(unit, true) and Latency.sendTime then Latency.latency = GetTimePreciseSec() - Latency.sendTime else Latency.latency = 0 end
-    local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, math.max(Latency.worldLatency, Latency.latency))
+    local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, castBarID, resumeCast, castType, math.max(Latency.worldLatency, Latency.latency))
     if not show then return end
     CASTBAR_API:AssignChannelTicks(unit, spellID, "START")
     -- Set colours
@@ -178,7 +181,7 @@ end
 
 function CASTBAR_API:OnUnitSpellcastChannelUpdate(unit, castGUID, spellID, castBarID)
     if UCB:IsPlayer(unit, true) and Latency.sendTime then Latency.latency = GetTimePreciseSec() - Latency.sendTime else Latency.latency = 0 end
-    local show = CASTBAR_API:CastUpdate(unit, castGUID, spellID, castType, math.max(Latency.worldLatency, Latency.latency))
+    local show = CASTBAR_API:CastUpdate(unit, castGUID, spellID, castBarID, castType, math.max(Latency.worldLatency, Latency.latency))
     if not show then return end
     CASTBAR_API:AssignChannelTicks(unit, spellID, "UPDATE")
 end
@@ -214,6 +217,8 @@ function CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID, castBar
             end
         end
         bar.current_spellID = nil
+        bar.current_castGUID = nil
+        bar.current_castBarID = nil
         CASTBAR_API:HideChannelTicks(bar, cfg.otherFeatures)
         if bar.effects.spark then bar.effects.spark:Hide() end
         return true

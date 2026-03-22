@@ -4,11 +4,13 @@ UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.tags     = UCB.tags     or {}
 UCB.GeneralCore_Helpers = UCB.GeneralCore_Helpers or {}
 UCB.Latency = UCB.Latency or {}
+UCB.GCD = UCB.GCD or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
 local tags = UCB.tags
 local GeneralHelpers = UCB.GeneralCore_Helpers
 local Latency = UCB.Latency
+local GCD = UCB.GCD
 
 
 local function DesignBar(status, frame_status, cfg, castType, cancelled)
@@ -105,11 +107,12 @@ local function CancelledCast(unit, castType, castGUID, spellID, interruptedBy, c
     -- Spell filter
     if UCB:IsPlayer(unit) then 
         if not CASTBAR_API:SpellFilter(spellID, cfgCancelled) then
-            return 
+            return
         end
     end
 
     local bar = UCB.castBar[unit]
+    if UCB:IsPlayer(unit, true) then bar.iconSwipe:SetCooldown(0, 0) end
     local frame = bar.frames.cancelled
 
     local alpha
@@ -202,6 +205,7 @@ end
 
 function CASTBAR_API:OnEmpowerInterrupt(unit, castGUID, spellID, complete, interruptedBy, castBarID)
     if not castBarID then return end
+    if UCB:IsPlayer(unit, true) then GCD:SetPendingGCDSpell(spellID) end
     local show = CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID, castBarID)
     if not show then return end
     local cfg = UCB.GetValueConfig(unit)

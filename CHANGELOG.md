@@ -3,6 +3,7 @@
 ### Added
 - Option to choose between clamping or keeping the value before min for size syncs
 - Option to disable moving the preview bar
+- GCD support for player castbar icon with customisation for: swipe, edge and bling
 
 ### Fixed
 - Copy profile was not working as intended and causing errors

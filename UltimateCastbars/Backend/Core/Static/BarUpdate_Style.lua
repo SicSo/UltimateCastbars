@@ -417,6 +417,54 @@ local function UpdateSpark(bar, cfg)
     spark:Show()
 end
 
+local function UpdateGCD(bar, cfg)
+    if not bar or not bar.iconSwipe then return end
+    local cfg_gcd = cfg.effects.gcd
+    if not cfg_gcd.enable then
+        bar.iconSwipe:Hide()
+        return
+    end
+    --https://github.com/BigWigsMods/WoWUI/blob/live/AddOns/Blizzard_FrameXMLUtil/Mainline/Cooldown.xml
+    if cfg_gcd.edge.enable then
+        bar.iconSwipe:SetDrawEdge(true)
+        bar.iconSwipe:SetEdgeColor(
+            cfg_gcd.edge.colour.r,
+            cfg_gcd.edge.colour.g,
+            cfg_gcd.edge.colour.b,
+            cfg_gcd.edge.colour.a
+        )
+        bar.iconSwipe:SetEdgeScale(cfg_gcd.edge.scale)
+    else
+        bar.iconSwipe:SetDrawEdge(false)
+    end
+
+    if cfg_gcd.swipe.enable then
+        bar.iconSwipe:SetDrawSwipe(true)
+        bar.iconSwipe:SetSwipeColor(
+            cfg_gcd.swipe.colour.r,
+            cfg_gcd.swipe.colour.g,
+            cfg_gcd.swipe.colour.b,
+            cfg_gcd.swipe.colour.a
+        )
+    else
+        bar.iconSwipe:SetDrawSwipe(false)
+    end
+
+    if cfg_gcd.bling.enable then
+        bar.iconSwipe:SetDrawBling(true)
+        bar.iconSwipe:SetBlingTexture(
+            "Interface\\Cooldown\\star4",
+            cfg_gcd.bling.colour.r,
+            cfg_gcd.bling.colour.g,
+            cfg_gcd.bling.colour.b,
+            cfg_gcd.bling.colour.a
+        )
+    else
+        bar.iconSwipe:SetDrawBling(false)
+    end
+    bar.iconSwipe:Show()
+end
+
 local function GetPermanentBackBorderInsets(permBGCfg, styleCfg)
     if not permBGCfg or not styleCfg or not styleCfg.showBorder then
         return 0, 0, 0, 0
@@ -562,6 +610,10 @@ function BarUpdate_API:UpdateStyle(unit, force, type, customStyle)
     elseif bar.effects.spark then
         bar.effects.spark:Hide()
         bar.flags.effects.spark = false
+    end
+
+    if unit == "player" then
+        UpdateGCD(bar, cfg)
     end
 
     UpdateBorderBar(unit, cfg)

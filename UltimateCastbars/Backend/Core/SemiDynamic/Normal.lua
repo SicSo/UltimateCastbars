@@ -2,9 +2,11 @@ local ADDON_NAME, UCB = ...
 
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
 UCB.Latency = UCB.Latency or {}
+UCB.GCD = UCB.GCD or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
 local Latency = UCB.Latency
+local GCD = UCB.GCD
 local castType = "normal"
 
 local function CastbarOnUpdate(bar, elapsed)
@@ -20,8 +22,9 @@ end
 
 ---------------------------------------------------- MAIN -------------------------------------------------
 function CASTBAR_API:OnUnitSpellcastStart(unit, castGUID, spellID, castBarID, resumeCast)
+    if UCB:IsPlayer(unit, true) then GCD:SetPendingGCDSpell(spellID, false) end
     if not UCB.usePetForPlayer and UCB:IsPlayer(unit, true) and Latency.sendTime then Latency.latency = GetTimePreciseSec() - Latency.sendTime else Latency.latency = 0 end
-    local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, resumeCast, castType, math.max(Latency.worldLatency, Latency.latency))
+    local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, castBarID, resumeCast, castType, math.max(Latency.worldLatency, Latency.latency))
     if not show then return end
     -- Set colours
     CASTBAR_API:SemiColourUpdate(unit, bar)
@@ -51,6 +54,8 @@ function CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID, castBarID)
         bar.flags.castActive = false
         bar.flags.prevType = nil
         bar.current_spellID = nil
+        bar.current_castGUID = nil
+        bar.current_castBarID = nil
         bar._ucbUnit, bar._ucbCfg, bar._ucbCastType, bar._ucbVars,  bar._ucbSpellID = nil, nil, nil, nil, nil
         if bar.effects.spark then bar.effects.spark:Hide() end
         return true

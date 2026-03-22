@@ -65,6 +65,11 @@ UCB.latencyEvents = {
     UNIT_SPELLCAST_SUCCEEDED = "OnSpellCastSuccess",
 }
 
+UCB.gcdEvents = {
+    UNIT_SPELLCAST_SUCCEEDED = "OnSpellCastSuccess",
+    SPELL_UPDATE_COOLDOWN = "OnSpellUpdateCooldown",
+}
+
 UCB.menuUnits = {
     player = true,
     target = true,

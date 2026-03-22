@@ -143,7 +143,33 @@ function UCB:EnsureSpellcastEventFrame()
 
     UCB.eventFrame.latency = f4
   end
-  
+
+
+  if not UCB.eventFrame.gcd then
+    local f5 = CreateFrame("Frame")
+    for eventName in pairs(UCB.gcdEvents) do
+      f5:RegisterEvent(eventName)
+    end
+
+    f5:SetScript("OnEvent", function(_, event, unit, ...)
+      if event == "UNIT_SPELLCAST_SUCCEEDED" then
+        if unit ~= "player" and unit ~="pet" then return end
+        if unit == "pet" then
+          if not UCB.trackedUnits.player or  not IsPetUsingVehicleUnit(unit) then
+            return
+          end
+          unit = "player"
+        end
+      end
+      local method = UCB.gcdEvents[event]
+      local api = UCB.GCD
+      if method and api and api[method] then
+        api[method](api, unit, ...)
+      end
+    end)
+
+    UCB.eventFrame.gcd = f5
+  end
 end
 
 
