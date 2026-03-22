@@ -269,7 +269,7 @@ local function tagUI(key, unit)
                 type = "description",
                 hidden = function() return cfg.mainType ~= "cast" end,
                 name = "Available Preset Tags:\n" ..
-                       UIOptions.ColorText(UIOptions.turquoise, "[sName:X]").." - Spell Name (X repesents the number of maximum allowed characters and can be ommited for the use [sName], default is full name)\n" ..
+                       UIOptions.ColorText(UIOptions.turquoise, "[sName]").." - Spell Name \n" ..
                        UIOptions.ColorText(UIOptions.turquoise, "[rTime:X]").." - Remaining Time (in seconds, X repesents the number of decimals and can be ommited for thse use of [rTime], default is 1 decimal; text is seen as default)\n" ..
                        UIOptions.ColorText(UIOptions.turquoise, "[rTimeInv:X]").." - Invesre Remaining Time (in seconds, X repesents the number of decimals and can be ommited for thse use of [rTime], default is 1 decimal; text is seen as default)\n" ..
                        UIOptions.ColorText(UIOptions.turquoise, "[dTime:X]").." - Duration Time (in seconds, X repesents the number of decimals and can be ommited for thse use of [dTime], default is 1 decimal; text is seen as default)\n" ..
@@ -282,9 +282,9 @@ local function tagUI(key, unit)
                        UIOptions.ColorText(UIOptions.turquoise, "[LAT:X]").." - Latency - ONLY PLAYER (in MS, X repesents the number of decimals and can be ommited for the use of [LAT], default is 1 decimal; text is seen as default.)\n".. 
                        UIOptions.ColorText(UIOptions.turquoise, "[wLat:X]").." - World Latency (in seconds, X repesents the number of decimals and can be ommited for the use of [wLat], default is 1 decimal; text is seen as default.)\n".. 
                        UIOptions.ColorText(UIOptions.turquoise, "[wLAT:X]").." - World Latency (in MS, X repesents the number of decimals and can be ommited for the use of [wLAT], default is 1 decimal; text is seen as default.)\n".. 
-                       UIOptions.ColorText(UIOptions.turquoise, "[pName:X]").." - Player Name (X repesents the number of maximum allowed characters and can be ommited for the use [pName], default is full name)\n" ..
-                       UIOptions.ColorText(UIOptions.turquoise, "[tName:X]").." - Target Name (X repesents the number of maximum allowed characters and can be ommited for the use [tName], default is full name)\n" ..
-                       UIOptions.ColorText(UIOptions.turquoise, "[fName:X]").." - Focus Name (X repesents the number of maximum allowed characters and can be ommited for the use [fName], default is full name)\n",
+                       UIOptions.ColorText(UIOptions.turquoise, "[pName]").." - Player Name \n" ..
+                       UIOptions.ColorText(UIOptions.turquoise, "[tName]").." - Target Name \n" ..
+                       UIOptions.ColorText(UIOptions.turquoise, "[fName]").." - Focus Name \n",
                 width = "full",
                 order = 2,
             },
@@ -292,8 +292,8 @@ local function tagUI(key, unit)
                 type = "description",
                 hidden = function() return cfg.mainType == "cast" end,
                 name = "Available Preset Tags:\n" ..
-                       UIOptions.ColorText(UIOptions.orange, "[kName:X]").." - Player/NPC Name who interrupted the Uni (only usable for Interrupted type) (X repesents the number of maximum allowed characters and can be ommited for the use [kName], default is full name)\n" ..
-                       UIOptions.ColorText(UIOptions.turquoise, "[sName:X]").." - Spell Name (X repesents the number of maximum allowed characters and can be ommited for the use [sName], default is full name)\n" ..
+                       UIOptions.ColorText(UIOptions.orange, "[kName:X]").." - Player/NPC Name who interrupted the Uni (only usable for Interrupted type) \n" ..
+                       UIOptions.ColorText(UIOptions.turquoise, "[sName:X]").." - Spell Name \n" ..
                        UIOptions.ColorText(UIOptions.turquoise, "[rTime:X]").." - Remaining Time (in seconds, X repesents the number of decimals and can be ommited for thse use of [rTime], default is 1 decimal; text is seen as default)\n" ..
                        UIOptions.ColorText(UIOptions.turquoise, "[rTimeInv:X]").." - Invesre Remaining Time (in seconds, X repesents the number of decimals and can be ommited for thse use of [rTime], default is 1 decimal; text is seen as default)\n" ..
                        UIOptions.ColorText(UIOptions.turquoise, "[dTime:X]").." - Duration Time (in seconds, X repesents the number of decimals and can be ommited for thse use of [dTime], default is 1 decimal; text is seen as default)\n" ..
@@ -306,9 +306,9 @@ local function tagUI(key, unit)
                        UIOptions.ColorText(UIOptions.turquoise, "[LAT:X]").." - Latency - ONLY PLAYER (in MS, X repesents the number of decimals and can be ommited for the use of [LAT], default is 1 decimal; text is seen as default.)\n".. 
                        UIOptions.ColorText(UIOptions.turquoise, "[wLat:X]").." - World Latency (in seconds, X repesents the number of decimals and can be ommited for the use of [wLat], default is 1 decimal; text is seen as default.)\n".. 
                        UIOptions.ColorText(UIOptions.turquoise, "[wLAT:X]").." - World Latency (in MS, X repesents the number of decimals and can be ommited for the use of [wLAT], default is 1 decimal; text is seen as default.)\n".. 
-                       UIOptions.ColorText(UIOptions.turquoise, "[pName:X]").." - Player Name (X repesents the number of maximum allowed characters and can be ommited for the use [pName], default is full name)\n" ..
-                       UIOptions.ColorText(UIOptions.turquoise, "[tName:X]").." - Target Name (X repesents the number of maximum allowed characters and can be ommited for the use [tName], default is full name)\n" ..
-                       UIOptions.ColorText(UIOptions.turquoise, "[fName:X]").." - Focus Name (X repesents the number of maximum allowed characters and can be ommited for the use [fName], default is full name)\n",
+                       UIOptions.ColorText(UIOptions.turquoise, "[pName]").." - Player Name \n" ..
+                       UIOptions.ColorText(UIOptions.turquoise, "[tName]").." - Target Name \n" ..
+                       UIOptions.ColorText(UIOptions.turquoise, "[fName]").." - Focus Name \n",
                 width = "full",
                 order = 2,
             },

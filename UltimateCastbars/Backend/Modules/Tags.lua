@@ -51,34 +51,34 @@ end
 
 TAG_FN["[kName]"] = function(v, limNum, _, _, _, useClassColour)
     if (v.kColour) and v.kColour.GenerateHexColor and useClassColour then
-        return UCB.UIOptions.ColorText(v.kColour:GenerateHexColor(), FirstNChars(v.kName, limNum))
+        return UCB.UIOptions.ColorText(v.kColour:GenerateHexColor(), v.kName)--FirstNChars(v.kName, limNum))
     end
-    return FirstNChars(v.kName, limNum)
+    return v.kName--FirstNChars(v.kName, limNum)
 end
 
 TAG_FN["[sName]"] = function(v, limNum)
-    return FirstNChars(v.sName, limNum)
+    return v.sName--FirstNChars(v.sName, limNum)
 end
 
 TAG_FN["[pName]"] = function(v, limNum, _, _, _, useClassColour)
     if UCB.unitColours.player and UCB.unitColours.player.GenerateHexColor and useClassColour then
-        return UCB.UIOptions.ColorText(UCB.unitColours.player:GenerateHexColor(), FirstNChars(UCB.unitNames.player, limNum))
+        return UCB.UIOptions.ColorText(UCB.unitColours.player:GenerateHexColor(), UCB.unitNames.player)--FirstNChars(UCB.unitNames.player, limNum))
     end
-    return FirstNChars(UCB.unitNames.player, limNum)
+    return UCB.unitNames.player--FirstNChars(UCB.unitNames.player, limNum)
 end
 
 TAG_FN["[tName]"] = function(v, limNum, _, _, _, useClassColour)
     if UCB.unitColours.target and UCB.unitColours.target.GenerateHexColor and useClassColour then
-        return UCB.UIOptions.ColorText(UCB.unitColours.target:GenerateHexColor(), FirstNChars(UCB.unitNames.target, limNum))
+        return UCB.UIOptions.ColorText(UCB.unitColours.target:GenerateHexColor(), UCB.unitNames.target)--FirstNChars(UCB.unitNames.target, limNum))
     end
-    return FirstNChars(UCB.unitNames.target, limNum)
+    return UCB.unitNames.target--FirstNChars(UCB.unitNames.target, limNum)
 end
 
 TAG_FN["[fName]"] = function(v, limNum, _, _, _, useClassColour)
     if UCB.unitColours.focus and UCB.unitColours.focus.GenerateHexColor and useClassColour then
-        return UCB.UIOptions.ColorText(UCB.unitColours.focus:GenerateHexColor(), FirstNChars(UCB.unitNames.focus, limNum))
+        return UCB.UIOptions.ColorText(UCB.unitColours.focus:GenerateHexColor(), UCB.unitNames.focus)--FirstNChars(UCB.unitNames.focus, limNum))
     end
-    return FirstNChars(UCB.unitNames.focus, limNum)
+    return UCB.unitNames.focus--FirstNChars(UCB.unitNames.focus, limNum)
 end
 
 TAG_FN["[dTime]"] = function(v, limNum)

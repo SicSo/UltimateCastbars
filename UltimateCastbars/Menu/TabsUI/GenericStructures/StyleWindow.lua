@@ -328,7 +328,11 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                     }
                 }
             },
-            gcdGroup = {
+        }
+    }
+
+    if unit == "player" then
+        args.effects.gcdGroup = {
                 type   = "group",
                 name   = "GCD",
                 inline = true,
@@ -521,8 +525,7 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                     }
                 },
             }
-        }
-    }
+    end
 
     args.grpBorder = {
         type   = "group",

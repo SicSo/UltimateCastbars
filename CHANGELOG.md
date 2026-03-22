@@ -1,5 +1,8 @@
 ## Unreleased
 
+### IMPORTANT
+- **BLIZZARD CHANGE:** Blizzard decided that being able to limit the number of characters in a text field is illegal, so I had to remove the ability to specify a character limit for name tags. This means that if you had a character limit set for name tags, it wil no longer limit the number of characters. As compensation, in a previous update I added the option to set the width of the text filed. You will need to manually enable this in each tag and set it either based on number of pixels or percentage of the bar width to achieve a similar effect to the character limit, although it won't be exactly the same. The default setting for new profile is **70%** for spell name and **30%** for the rest of the default tags. 
+
 ### Added
 - Option to choose between clamping or keeping the value before min for size syncs
 - Option to disable moving the preview bar
@@ -8,6 +11,9 @@
 ### Fixed
 - Copy profile was not working as intended and causing errors
 - Moving the preview bar was not saving the offsets properly
+
+### Removed
+- The ability to set max number of characters for names
 
 ---
 

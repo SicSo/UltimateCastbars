@@ -308,9 +308,9 @@ UCB.Default_DB.player = {
 
                 sizeControl = {
                     widthControl = {
-                        enable = false,
+                        enable = true,
                         type = "percentage",
-                        perValue = 100,
+                        perValue = 70,
                         customValue = 300,
                     },
                     heightControl = {
@@ -361,9 +361,9 @@ UCB.Default_DB.player = {
 
                 sizeControl = {
                     widthControl = {
-                        enable = false,
+                        enable = true,
                         type = "percentage",
-                        perValue = 100,
+                        perValue = 30,
                         customValue = 300,
                     },
                     heightControl = {
@@ -415,9 +415,9 @@ UCB.Default_DB.player = {
 
                 sizeControl = {
                     widthControl = {
-                        enable = false,
+                        enable = true,
                         type = "percentage",
-                        perValue = 100,
+                        perValue = 30,
                         customValue = 300,
                     },
                     heightControl = {
@@ -468,9 +468,9 @@ UCB.Default_DB.player = {
 
                 sizeControl = {
                     widthControl = {
-                        enable = false,
+                        enable = true,
                         type = "percentage",
-                        perValue = 100,
+                        perValue = 30,
                         customValue = 300,
                     },
                     heightControl = {
@@ -521,9 +521,9 @@ UCB.Default_DB.player = {
 
                 sizeControl = {
                     widthControl = {
-                        enable = false,
+                        enable = true,
                         type = "percentage",
-                        perValue = 100,
+                        perValue = 30,
                         customValue = 300,
                     },
                     heightControl = {
@@ -760,6 +760,14 @@ UCB.Default_DB.player = {
                 blackListSpells = {},
                 whiteListSpells = {},
             }
+        },
+
+        instantGCD = {
+            enable = false,
+            useGeneralStype = true,
+            useNormalStyle = false,
+            useCustomeStyle = false,
+            customStyle = UCB.Default_DB:createStyle(),
         },
 
         permanentBackgrodund = {

@@ -252,9 +252,9 @@ local focus_db = {
 
                 sizeControl = {
                     widthControl = {
-                        enable = false,
+                        enable = true,
                         type = "percentage",
-                        perValue = 100,
+                        perValue = 70,
                         customValue = 300,
                     },
                     heightControl = {
@@ -306,9 +306,9 @@ local focus_db = {
 
                 sizeControl = {
                     widthControl = {
-                        enable = false,
+                        enable = true,
                         type = "percentage",
-                        perValue = 100,
+                        perValue = 30,
                         customValue = 300,
                     },
                     heightControl = {
@@ -360,9 +360,9 @@ local focus_db = {
 
                 sizeControl = {
                     widthControl = {
-                        enable = false,
+                        enable = true,
                         type = "percentage",
-                        perValue = 100,
+                        perValue = 30,
                         customValue = 300, 
                     },
                     heightControl = {
@@ -413,9 +413,9 @@ local focus_db = {
 
                 sizeControl = {
                     widthControl = {
-                        enable = false,
+                        enable = true,
                         type = "percentage",
-                        perValue = 100,
+                        perValue = 30,
                         customValue = 300,
                     },
                     heightControl = {
@@ -467,9 +467,9 @@ local focus_db = {
 
                sizeControl = {
                     widthControl = {
-                        enable = false,
+                        enable = true,
                         type = "percentage",
-                        perValue = 100,
+                        perValue = 30,
                         customValue = 300,
                     },
                     heightControl = {
