@@ -2,6 +2,9 @@ local _, UCB = ...
 
 UCB.Default_DB = UCB.Default_DB or {}
 
+
+UCB.Default_DB.player_aux = {}
+
 function UCB.Default_DB:createStyle()
     local style = {
         texture = "Interface\\TargetingFrame\\UI-StatusBar",
@@ -124,6 +127,19 @@ local function merge(dst, src)
   return dst
 end
 
+UCB.Default_DB.player_aux.spellStylingDefaults = {
+    icon = 136243, -- question mark
+    name = "Unknown Spell",
+    id = 136243,
+    enable = true,
+    enableCast = true,
+    enableInstant = false,
+    useSameStyle = false,
+    sameStyleType = "cast", -- "cast" or "instant"
+    style = UCB.Default_DB:createStyle(),
+    styleInstant = UCB.Default_DB:createStyle(),
+}
+
 UCB.Default_DB.player = {
      enabled = true,
 
@@ -234,18 +250,18 @@ UCB.Default_DB.player = {
             textSize = 12,
             colour = {r=1, g=1, b=1, a=1},
 
+            showCases = {
+                cast = true,
+                gcd = true,
+                cancelled = false,
+                interrupted = false,
+            },
+
             showType = {
                 normal = true,
                 channel = true,
                 empowered = true,
             },
-
-             showOnEffect = {
-                interrupted = false,
-                cancelled = false,
-            },
-
-            mainType = "cast",
 
             extraOptions = {
                 useClassColour = true,
@@ -289,18 +305,18 @@ UCB.Default_DB.player = {
                 anchorTo = "LEFT",
                 justify = "LEFT",
 
+                showCases = {
+                    cast = true,
+                    gcd = true,
+                    cancelled = true,
+                    interrupted = true,
+                },
+
                 showType = {
                     normal = true,
                     channel = true,
                     empowered = true,
                 },
-
-                showOnEffect = {
-                    interrupted = true,
-                    cancelled = true,
-                },
-
-                mainType = "cast",
 
                 extraOptions = {
                     useClassColour = true,
@@ -342,18 +358,18 @@ UCB.Default_DB.player = {
                 textSize = 12,
                 colour = {r=1, g=1, b=1, a=1},
 
+                showCases = {
+                    cast = true,
+                    gcd = true,
+                    cancelled = false,
+                    interrupted = false,
+                },
+
                 showType = {
                     normal = true,
                     channel = false,
                     empowered = true,
                 },
-
-                showOnEffect = {
-                    interrupted = false,
-                    cancelled = false,
-                },
-
-                mainType = "cast",
 
                 extraOptions = {
                     useClassColour = true,
@@ -396,18 +412,18 @@ UCB.Default_DB.player = {
                 textSize = 12,
                 colour = {r=1, g=1, b=1, a=1},
 
+                showCases = {
+                    cast = true,
+                    gcd = false,
+                    cancelled = false,
+                    interrupted = false,
+                },
+
                 showType = {
                     normal = false,
                     channel = true,
                     empowered = false,
                 },
-                
-                showOnEffect = {
-                    interrupted = false,
-                    cancelled = false,
-                },
-
-                mainType = "cast",
 
                 extraOptions = {
                     useClassColour = true,
@@ -449,18 +465,18 @@ UCB.Default_DB.player = {
                 textSize = 12,
                 colour = {r=1, g=1, b=1, a=1},
 
+                showCases = {
+                    cast = false,
+                    gcd = false,
+                    cancelled = true,
+                    interrupted = false,
+                },
+
                 showType = {
                     normal = true,
                     channel = true,
                     empowered = true,
                 },
-
-                showOnEffect = {
-                    interrupted = false,
-                    cancelled = false,
-                },
-
-                mainType = "cancelled",
 
                 extraOptions = {
                     useClassColour = true,
@@ -502,18 +518,18 @@ UCB.Default_DB.player = {
                 textSize = 12,
                 colour = {r=1, g=1, b=1, a=1},
 
+                showCases = {
+                    cast = false,
+                    gcd = false,
+                    cancelled = false,
+                    interrupted = true,
+                },
+
                 showType = {
                     normal = true,
                     channel = true,
                     empowered = true,
                 },
-
-                showOnEffect = {
-                    interrupted = false,
-                    cancelled = false,
-                },
-
-                mainType = "interrupted",
 
                 extraOptions = {
                     useClassColour = true,
@@ -649,6 +665,7 @@ UCB.Default_DB.player = {
             normal = true,
             channel = false,
             empowered = false,
+            gcd = false,
         },
         queueMatchCVAR = true,
         queueWindow = 400, -- milliseconds
@@ -764,9 +781,8 @@ UCB.Default_DB.player = {
 
         instantGCD = {
             enable = false,
-            useGeneralStype = true,
-            useNormalStyle = false,
-            useCustomeStyle = false,
+            preConfigureStyle = "general",
+            useCustomStyle = false,
             customStyle = UCB.Default_DB:createStyle(),
         },
 

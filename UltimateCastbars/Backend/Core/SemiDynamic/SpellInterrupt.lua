@@ -205,7 +205,7 @@ end
 
 function CASTBAR_API:OnEmpowerInterrupt(unit, castGUID, spellID, complete, interruptedBy, castBarID)
     if not castBarID then return end
-    if UCB:IsPlayer(unit, true) then GCD:SetPendingGCDSpell(spellID) end
+    --if UCB:IsPlayer(unit, true) then GCD:SetPendingGCDSpell(spellID, "empowered") end
     local show = CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID, castBarID)
     if not show then return end
     local cfg = UCB.GetValueConfig(unit)

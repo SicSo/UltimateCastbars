@@ -37,6 +37,9 @@ function CASTBAR_API:StopPrevCast(unit, bar, castGUID, spellID, castBarID)
             CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID, castBarID)
         end
     end
+    if bar.flags.gcdActive then
+        CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID, castBarID)
+    end
 end
 
 function CASTBAR_API:InitCastbarVal(status, castType, resumeCast, vars, cfg)
@@ -435,10 +438,10 @@ function CASTBAR_API:ApplyStyle(bar, unit, cfg, spellID, castType, bar_status)
         local spellStyling = classCFG.spellStyling
 
         if spellStyling.useStyleSpell then
-            if spellStyling._customSpellStyles and spellStyling._customSpellStyles[spellID] then
-                styleCFG = spellStyling._customSpellStyles[spellID]
+            if spellStyling._customCastSpellStyles and spellStyling._customCastSpellStyles[spellID] then
+                styleCFG = spellStyling._customCastSpellStyles[spellID]
                 BarUpdate_API:RefreshBarStyleOnly(unit, styleCFG)
-                BarUpdate_API:UpdateStyle(unit, false, spellID, styleCFG)
+                BarUpdate_API:UpdateStyle(unit, false, "cast_" .. spellID, styleCFG)
                 applied = true
             end
         end
@@ -446,7 +449,12 @@ function CASTBAR_API:ApplyStyle(bar, unit, cfg, spellID, castType, bar_status)
 
     if not applied then
         local castTypeStyleCFG = cfg.styleCastType
-        if not castTypeStyleCFG.useGeneralStyle then
+
+        if castTypeStyleCFG.useGeneralStyle then
+            styleCFG = castTypeStyleCFG.general
+            BarUpdate_API:RefreshBarStyleOnly(unit, styleCFG)
+            BarUpdate_API:UpdateStyle(unit, false, "general", styleCFG)
+        else
             styleCFG = castTypeStyleCFG[castType]
             BarUpdate_API:RefreshBarStyleOnly(unit, styleCFG)
             BarUpdate_API:UpdateStyle(unit, false, castType, styleCFG)
@@ -528,8 +536,8 @@ function CASTBAR_API:CastSetup(unit, castGUID, spellID, castBarID, resumeCast, c
     end
 
     -- Set text, icon, queue window
-    tags:setTextSameState(bar, "semiDynamic", unit, castType, false)
-    tags:setTextSameState(bar, "dynamic", unit, castType, true)
+    tags:setTextSameState(bar, "cast", "semiDynamic", unit, castType, false)
+    tags:setTextSameState(bar, "cast", "dynamic", unit, castType, true)
     
     bar.icon:SetTexture(icon_texture)
 
@@ -567,6 +575,7 @@ function CASTBAR_API:CastOnUpdateSetup(bar, unit, cfg, vars, castType, spellID, 
     bar.group:Show()
     bar.flags.prevType = castType
     bar.flags.castActive = true
+    bar.flags.gcdActive = false
 
     CASTBAR_API:HideCastbar(bar, unit, vars, cfg)
 end
@@ -595,8 +604,8 @@ function CASTBAR_API:CastUpdate(unit, castGUID, spellID, castBarID, castType, la
     end
 
     -- Set text, icon, queue window
-    tags:setTextSameState(bar, "semiDynamic", unit, castType, false)
-    tags:setTextSameState(bar, "dynamic", unit, castType, true)
+    tags:setTextSameState(bar, "cast", "semiDynamic", unit, castType, false)
+    tags:setTextSameState(bar, "cast", "dynamic", unit, castType, true)
 
     bar.icon:SetTexture(icon_texture)
 

@@ -11,7 +11,6 @@ local GetCFG = UCB.GetValueConfig
 
 STYLE_API.spellStyleListArgs = STYLE_API.spellStyleListArgs or {}
 
-
 function STYLE_API:DeepCopy(dst, src)
     for k, v in pairs(src) do
         if type(v) == "table" then
@@ -478,10 +477,4 @@ function STYLE_API:createCopySettingsMainToSpell(unit, cfg, base_index, styleCFG
         }
     }
     return copyStyleSettingsGrp
-end
-
-function STYLE_API:RebuildMainStyleCopyArgs(unit, styleCFG, bigCFG)
-    local spellStyling = bigCFG.CLASSES[UCB.className].spellStyling
-    local mainCopyArgs = self.ClassCopyMain
-    mainCopyArgs.parent[mainCopyArgs.key] = self:createCopySettingsMainToSpell(unit, spellStyling, mainCopyArgs.index, styleCFG)
 end

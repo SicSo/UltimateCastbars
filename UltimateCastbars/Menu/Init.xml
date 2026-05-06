@@ -80,6 +80,7 @@
 	<Script file="TabsUI/OtherFeatures/Latency.lua"/>
 	<Script file="TabsUI/OtherFeatures/PermanentBackground.lua"/>
 	<Script file="TabsUI/OtherFeatures/OtherFeatures_Settings.lua"/>
+	<Script file="TabsUI/OtherFeatures/InstantGCD.lua"/>
 		<!-- Class Tabs -->
 	<Script file="TabsUI/ClassOptions/GeneralClass_Settings.lua"/>
 	<Script file="TabsUI/ClassOptions/Evoker_Settings.lua"/>

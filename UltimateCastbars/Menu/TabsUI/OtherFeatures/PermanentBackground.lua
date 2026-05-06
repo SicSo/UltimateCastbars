@@ -276,7 +276,7 @@ function OtherFeatures_API:BuildPermanentBackgroundOptions(unit, cfg, args)
         type   = "group",
         name   = "Permanent background",
         inline = false,
-        order  = 7,
+        order  = 8,
         args = {
             enable = {
                 type = "toggle", dialogControl = "UCB_CheckBox",

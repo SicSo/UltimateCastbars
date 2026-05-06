@@ -328,203 +328,206 @@ function UIStructures:BuildStyleWindow(cfg, unit)
                     }
                 }
             },
+            gcdGroup = nil
         }
     }
 
     if unit == "player" then
-        args.effects.gcdGroup = {
-                type   = "group",
-                name   = "GCD",
-                inline = true,
-                order  = 2,
-                args   = {
-                    showGCD = {
-                        type = "toggle", dialogControl = "UCB_CheckBox",
-                        name  = "Show GCD swipe on castbar icon",
-                        order = 1,
-                        width = 1.5,
-                        get   = function() return cfg.effects.gcd.enable end,
-                        set   = function(_, val)
-                            cfg.effects.gcd.enable = val
-                            CASTBAR_API:UpdateCastbar(unit)
-                        end,
-                    },
-                    edgeGrp = {
-                        type = "group",
-                        name = "Edge",
-                        inline = true,
-                        order = 2,
-                        hidden = function() return not cfg.effects.gcd.enable end,
-                        args = {
-                            enable = {
-                                type = "toggle", dialogControl = "UCB_CheckBox",
-                                name  = "Enable",
-                                order = 1,
-                                width = "full",
-                                get   = function() return cfg.effects.gcd.edge.enable end,
-                                set   = function(_, val)
-                                    cfg.effects.gcd.edge.enable = val
-                                    CASTBAR_API:UpdateCastbar(unit)
-                                end,
-                            },
-                            colour = {
-                                type = "color", dialogControl = "UCB_ColorPicker",
-                                name = "Edge colour",
-                                order = 2,
-                                hidden = function() return not cfg.effects.gcd.edge.enable end,
-                                hasAlpha = true,
-                                get = function()
-                                    local c = cfg.effects.gcd.edge.colour
-                                    return c.r, c.g, c.b, c.a
-                                end,
-                                set = function(_, r,g,b,a)
-                                    cfg.effects.gcd.edge.colour = {r=r,g=g,b=b,a=a}
-                                    CASTBAR_API:UpdateCastbar(unit)
-                                end,
-                            },
-                            gap1 = {
-                                type = "description",
-                                name = "",
-                                order = 2.1,
-                                width = 0.2,
-                            },
-                            resetColour = {
-                                type = "execute", dialogControl = "UCB_Button",
-                                name = "Reset colour",
-                                order = 2.5,
-                                width = 0.7,
-                                hidden = function() return not cfg.effects.gcd.edge.enable end,
-                                func = function()
-                                    cfg.effects.gcd.edge.colour = {r=1,g=1,b=1,a=1}
-                                    CASTBAR_API:UpdateCastbar(unit)
-                                end,
-                            },
-                            gap = {
-                                type = "description",
-                                name = "",
-                                order = 2.6,
-                                width = "full",
-                            },
-                            scale = {
-                                type = "range", dialogControl = "UCB_Slider",
-                                name = "Edge scale",
-                                min = 0.5, max = 5, step = 0.1,
-                                order = 3,
-                                hidden = function() return not cfg.effects.gcd.edge.enable end,
-                                get = function() return cfg.effects.gcd.edge.scale end,
-                                set = function(_, val)
-                                    cfg.effects.gcd.edge.scale = val
-                                    CASTBAR_API:UpdateCastbar(unit)
-                                end,
-                            }
-                        }
-                    },
-                    swipeGrp = {
-                        type = "group",
-                        name = "Swipe",
-                        inline = true,
-                        order = 3,
-                        hidden = function() return not cfg.effects.gcd.enable end,
-                        args = {
-                            enable = {
-                                type = "toggle", dialogControl = "UCB_CheckBox",
-                                name  = "Enable",
-                                order = 1,
-                                width = "full",
-                                get   = function() return cfg.effects.gcd.swipe.enable end,
-                                set   = function(_, val)
-                                    cfg.effects.gcd.swipe.enable = val
-                                    CASTBAR_API:UpdateCastbar(unit)
-                                end,
-                            },
-                            colour = {
-                                type = "color", dialogControl = "UCB_ColorPicker",
-                                name = "Swipe colour",
-                                order = 2,
-                                hidden = function() return not cfg.effects.gcd.swipe.enable end,
-                                hasAlpha = true,
-                                get = function()
-                                    local c = cfg.effects.gcd.swipe.colour
-                                    return c.r, c.g, c.b, c.a
-                                end,
-                                set = function(_, r,g,b,a)
-                                    cfg.effects.gcd.swipe.colour = {r=r,g=g,b=b,a=a}
-                                    CASTBAR_API:UpdateCastbar(unit)
-                                end,
-                            },
-                           gap1 = {
-                                type = "description",
-                                name = "",
-                                order = 2.1,
-                                width = 0.2,
-                            },
-                            resetColour = {
-                                type = "execute", dialogControl = "UCB_Button",
-                                name = "Reset colour",
-                                order = 2.5,
-                                width = 0.7,
-                                hidden = function() return not cfg.effects.gcd.swipe.enable end,
-                                func = function()
-                                    cfg.effects.gcd.swipe.colour = {r=0,g=0,b=0,a=0.8}
-                                    CASTBAR_API:UpdateCastbar(unit)
-                                end,
-                            }
+        args.effects.args.gcdGroup = {
+            type   = "group",
+            name   = "GCD",
+            inline = true,
+            order  = 2,
+            args   = {
+                showGCD = {
+                    type = "toggle", dialogControl = "UCB_CheckBox",
+                    name  = "Show GCD swipe on castbar icon",
+                    order = 1,
+                    width = 1.5,
+                    get   = function() return cfg.effects.gcd.enable end,
+                    set   = function(_, val)
+                        cfg.effects.gcd.enable = val
+                        CASTBAR_API:UpdateCastbar(unit)
+                    end,
+                },
+                edgeGrp = {
+                    type = "group",
+                    name = "Edge",
+                    inline = true,
+                    order = 2,
+                    hidden = function() return not cfg.effects.gcd.enable end,
+                    args = {
+                        enable = {
+                            type = "toggle", dialogControl = "UCB_CheckBox",
+                            name  = "Enable",
+                            order = 1,
+                            width = "full",
+                            get   = function() return cfg.effects.gcd.edge.enable end,
+                            set   = function(_, val)
+                                cfg.effects.gcd.edge.enable = val
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
                         },
-                    },
-                    blingGrp = {
-                        type = "group",
-                        name = "Bling",
-                        inline = true,
-                        order = 4,
-                        hidden = function() return not cfg.effects.gcd.enable end,
-                        args = {
-                            enable = {
-                                type = "toggle", dialogControl = "UCB_CheckBox",
-                                name  = "Enable",
-                                order = 1,
-                                width = "full",
-                                get   = function() return cfg.effects.gcd.bling.enable end,
-                                set   = function(_, val)
-                                    cfg.effects.gcd.bling.enable = val
-                                    CASTBAR_API:UpdateCastbar(unit)
-                                end,
-                            },
-                            colour = {
-                                type = "color", dialogControl = "UCB_ColorPicker",
-                                name = "Bling colour",
-                                order = 2,
-                                hidden = function() return not cfg.effects.gcd.bling.enable end,
-                                hasAlpha = true,
-                                get = function()
-                                    local c = cfg.effects.gcd.bling.colour
-                                    return c.r, c.g, c.b, c.a
-                                end,
-                                set = function(_, r,g,b,a)
-                                    cfg.effects.gcd.bling.colour = {r=r,g=g,b=b,a=a}
-                                    CASTBAR_API:UpdateCastbar(unit)
-                                end,
-                            },
-                            gap1 = {
-                                type = "description",
-                                name = "",
-                                order = 2.1,
-                                width = 0.2,
-                            },
-                            resetColour = {
-                                type = "execute", dialogControl = "UCB_Button",
-                                name = "Reset colour",
-                                order = 2.5,
-                                width = 0.7,
-                                hidden = function() return not cfg.effects.gcd.bling.enable end,
-                                func = function()
-                                    cfg.effects.gcd.bling.colour = {r=0.3,g=0.6,b=1,a=0.8}
-                                    CASTBAR_API:UpdateCastbar(unit)
-                                end,
-                            }
+                        colour = {
+                            type = "color", dialogControl = "UCB_ColorPicker",
+                            name = "Edge colour",
+                            order = 2,
+                            hidden = function() return not cfg.effects.gcd.edge.enable end,
+                            hasAlpha = true,
+                            get = function()
+                                local c = cfg.effects.gcd.edge.colour
+                                return c.r, c.g, c.b, c.a
+                            end,
+                            set = function(_, r,g,b,a)
+                                cfg.effects.gcd.edge.colour = {r=r,g=g,b=b,a=a}
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                        gap1 = {
+                            type = "description",
+                            name = "",
+                            order = 2.1,
+                            width = 0.2,
+                        },
+                        resetColour = {
+                            type = "execute", dialogControl = "UCB_Button",
+                            name = "Reset colour",
+                            order = 2.5,
+                            width = 0.7,
+                            hidden = function() return not cfg.effects.gcd.edge.enable end,
+                            func = function()
+                                cfg.effects.gcd.edge.colour = {r=1,g=1,b=1,a=1}
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                        gap = {
+                            type = "description",
+                            name = "",
+                            order = 2.6,
+                            width = "full",
+                        },
+                        scale = {
+                            type = "range", dialogControl = "UCB_Slider",
+                            name = "Edge scale",
+                            min = 0.5, max = 5, step = 0.1,
+                            order = 3,
+                            hidden = function() return not cfg.effects.gcd.edge.enable end,
+                            get = function() return cfg.effects.gcd.edge.scale end,
+                            set = function(_, val)
+                                cfg.effects.gcd.edge.scale = val
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
                         }
                     }
                 },
-            }
+                swipeGrp = {
+                    type = "group",
+                    name = "Swipe",
+                    inline = true,
+                    order = 3,
+                    hidden = function() return not cfg.effects.gcd.enable end,
+                    args = {
+                        enable = {
+                            type = "toggle", dialogControl = "UCB_CheckBox",
+                            name  = "Enable",
+                            order = 1,
+                            width = "full",
+                            get   = function() return cfg.effects.gcd.swipe.enable end,
+                            set   = function(_, val)
+                                cfg.effects.gcd.swipe.enable = val
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                        colour = {
+                            type = "color", dialogControl = "UCB_ColorPicker",
+                            name = "Swipe colour",
+                            order = 2,
+                            hidden = function() return not cfg.effects.gcd.swipe.enable end,
+                            hasAlpha = true,
+                            get = function()
+                                local c = cfg.effects.gcd.swipe.colour
+                                return c.r, c.g, c.b, c.a
+                            end,
+                            set = function(_, r,g,b,a)
+                                cfg.effects.gcd.swipe.colour = {r=r,g=g,b=b,a=a}
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                        gap1 = {
+                            type = "description",
+                            name = "",
+                            order = 2.1,
+                            width = 0.2,
+                        },
+                        resetColour = {
+                            type = "execute", dialogControl = "UCB_Button",
+                            name = "Reset colour",
+                            order = 2.5,
+                            width = 0.7,
+                            hidden = function() return not cfg.effects.gcd.swipe.enable end,
+                            func = function()
+                                cfg.effects.gcd.swipe.colour = {r=0,g=0,b=0,a=0.8}
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        }
+                    },
+                },
+                blingGrp = {
+                    type = "group",
+                    name = "Bling",
+                    inline = true,
+                    order = 4,
+                    hidden = function() return not cfg.effects.gcd.enable end,
+                    args = {
+                        enable = {
+                            type = "toggle", dialogControl = "UCB_CheckBox",
+                            name  = "Enable",
+                            order = 1,
+                            width = "full",
+                            get   = function() return cfg.effects.gcd.bling.enable end,
+                            set   = function(_, val)
+                                cfg.effects.gcd.bling.enable = val
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                        colour = {
+                            type = "color", dialogControl = "UCB_ColorPicker",
+                            name = "Bling colour",
+                            order = 2,
+                            hidden = function() return not cfg.effects.gcd.bling.enable end,
+                            hasAlpha = true,
+                            get = function()
+                                local c = cfg.effects.gcd.bling.colour
+                                return c.r, c.g, c.b, c.a
+                            end,
+                            set = function(_, r,g,b,a)
+                                cfg.effects.gcd.bling.colour = {r=r,g=g,b=b,a=a}
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                        gap1 = {
+                            type = "description",
+                            name = "",
+                            order = 2.1,
+                            width = 0.2,
+                        },
+                        resetColour = {
+                            type = "execute", dialogControl = "UCB_Button",
+                            name = "Reset colour",
+                            order = 2.5,
+                            width = 0.7,
+                            hidden = function() return not cfg.effects.gcd.bling.enable end,
+                            func = function()
+                                cfg.effects.gcd.bling.colour = {r=0.3,g=0.6,b=1,a=0.8}
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        }
+                    }
+                }
+            },
+        }
+    else
+        args.effects.args.gcdGroup = nil
     end
 
     args.grpBorder = {

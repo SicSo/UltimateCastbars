@@ -66,8 +66,9 @@ UCB.latencyEvents = {
 }
 
 UCB.gcdEvents = {
-    UNIT_SPELLCAST_SUCCEEDED = "OnSpellCastSuccess",
+    UNIT_SPELLCAST_SUCCEEDED = "OnSpellCastSucceeded",
     SPELL_UPDATE_COOLDOWN = "OnSpellUpdateCooldown",
+    UNIT_SPELLCAST_SENT = "OnSpellCastSent",
 }
 
 UCB.menuUnits = {
@@ -114,28 +115,53 @@ UCB.tags.var = {
     },
 }
 
+
 UCB.tags.tagGroups = {
     player = {
-        static = {},
-        semiDynamic = {},
-        dynamic = {},
-        unk = {},
+        cast = {
+            static = {},
+            semiDynamic = {},
+            dynamic = {},
+            unk = {},
+        },
+        gcd = {
+            static = {},
+            semiDynamic = {},
+            dynamic = {},
+            unk = {},
+        },
         cancelled = {},
         interrupted = {}
     },
     target = {
-        static = {},
-        semiDynamic = {},
-        dynamic = {},
-        unk = {},
+        cast = {
+            static = {},
+            semiDynamic = {},
+            dynamic = {},
+            unk = {},
+        },
+        gcd = {
+            static = {},
+            semiDynamic = {},
+            dynamic = {},
+            unk = {},
+        },
         cancelled = {},
         interrupted = {}
     },
     focus = {
-        static = {},
-        semiDynamic = {},
-        dynamic = {},
-        unk = {},
+        cast = {
+            static = {},
+            semiDynamic = {},
+            dynamic = {},
+            unk = {},
+        },
+        gcd = {
+            static = {},
+            semiDynamic = {},
+            dynamic = {},
+            unk = {},
+        },
         cancelled = {},
         interrupted = {}
     }

@@ -1,17 +1,20 @@
 local ADDON_NAME, UCB = ...
 
 UCB.CASTBAR_API = UCB.CASTBAR_API or {}
+UCB.GCD = UCB.GCD or {}
 
 local CASTBAR_API = UCB.CASTBAR_API
+local GCD = UCB.GCD
 
 local castType = "empowered"
+local case = "cast"
 
 local function CastbarOnUpdate(bar, elapsed)
     local unit = bar._ucbUnit
     local cfg  = bar._ucbCfg
     local castType = bar._ucbCastType
     local vars = bar._ucbVars
-    local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
+    local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, case, castType, vars)
     if UCB:IsPlayer(unit) and remainig < -0.001 then
         CASTBAR_API:OnUnitSpellcastEmpowerStop(unit)
     end
@@ -171,6 +174,7 @@ end
 function CASTBAR_API:OnUnitSpellcastEmpowerStart(unit, castGUID, spellID, castBarID, resumeCast)
     -- Prevent Font of Magic (spellID 411212) from showing empower stages ???
     if UCB:IsPlayer(unit) and spellID == 411212 then return end
+    if UCB:IsPlayer(unit, true) then GCD:OnEmpowerStart(castGUID, spellID, castBarID) end
     local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, castBarID, resumeCast, castType)
     if not show then return end
     -- Set colours and other empower stage visuals
@@ -198,6 +202,9 @@ function CASTBAR_API:OnUnitSpellcastEmpowerStop(unit, castGUID, spellID, castBar
     if bar and bar.flags.castActive then
         bar.group:Hide()
         bar:SetScript("OnUpdate", nil)
+
+        if UCB:IsPlayer(unit, true) then GCD:OnEmpowerStop(castGUID, spellID, castBarID) end
+        
         local otherFeaturesCFG = cfg.otherFeatures
         if otherFeaturesCFG.permanentBackgrodund.enable and otherFeaturesCFG.permanentBackgrodund.hideWhenCasting then
             bar.background_frame:Show()

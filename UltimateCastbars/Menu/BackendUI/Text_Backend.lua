@@ -135,32 +135,6 @@ function Text_API:deleteTag(key, cfg, bigCFG, unit)
     bigCFG.textList[key] = nil
 end
 
-function Text_API:updateStaticShow(key, cfg, unit)
-    if cfg.maintype ~= "cast" then return false end
-    local tagList = tags.tagGroups[unit]
-   
-    if tags.typeTags[cfg._type] == "static" then
-        if cfg.showType.normal == true and cfg.showType.channel == true and cfg.showType.empowered == true then
-            return false
-        end
-        tagList.semiDynamic[key] = cfg
-        cfg._type = tags.typeNames.semiDynamic
-        cfg._typeColour = tags.colours.semiDynamic
-        tagList.static[key] = nil
-        return true
-    end
-    if tags.typeTags[cfg._type] == "semiDynamic" and cfg._dynamicTag == false then
-        if cfg.showType.normal == true and cfg.showType.channel == true and cfg.showType.empowered == true then
-            tagList.static[key] = cfg
-            cfg._type = tags.typeNames.static
-            cfg._typeColour = tags.colours.static
-            tagList.semiDynamic[key] = nil
-            return true
-        end
-    end
-    return false
-end
-
 function Text_API:updateTagMainType(key, cfg, bigCFG)
     tags:updateTagText(key, cfg, bigCFG)
 end

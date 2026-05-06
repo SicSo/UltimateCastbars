@@ -95,7 +95,18 @@ function OtherFeatures_API:BuildSpellQueueOptions(unit, cfg)
                                     cfg.showQueueWindow.empowered = val
                                     CASTBAR_API:UpdateCastbar(unit)
                                 end,
-                            },    
+                            },
+                            showQueueWindowGCD = {
+                                type = "toggle", dialogControl = "UCB_CheckBox",
+                                name  = "Instant GCD Spells",
+                                order = 4,
+                                width = 1,
+                                get   = function() return cfg.showQueueWindow.gcd end,
+                                set   = function(_, val)
+                                    cfg.showQueueWindow.gcd = val
+                                    CASTBAR_API:UpdateCastbar(unit)
+                                end,
+                            },
                         }
                     },
                     queueWindowtimeGrp = {

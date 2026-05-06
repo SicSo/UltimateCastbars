@@ -52,7 +52,10 @@ end
 local function tagUI(key, unit)
     local args = {}
     local bigCFG = GetCFG(unit, "text")
+    local otherCFG = GetCFG(unit, "otherFeatures")
     local cfg = bigCFG.textList[key]
+
+    local showGCD = UCB:IsPlayer(unit) and otherCFG.instantGCD and otherCFG.instantGCD.enable or false
     
     args.deleteButton = {
         type = "execute",dialogControl = "UCB_Button",
@@ -109,98 +112,93 @@ local function tagUI(key, unit)
         name = "Tag Customisation Options",
         order = 1.5,
     }
-    args.mainTypeGrp = {
+    args.generalCasesGrp = {
         type = "group",
-        name = "Select the type of tag",
+        name = "Select general cases in which this tag is shown:",
         order = 1.60,
         inline = true,
         args = {
             descInfo = {
                 type = "description",
-                name = function() return UIOptions.ColorText(UIOptions.turquoise, "These options control whether the tag is shown when a cast is interrupted or cancelled. If enabled, the tag will be shown with the interrupted or cancelled cast and hidden after the cast ends or after a set duration depending on the effect settings.") end,
+                name = function()
+                    return UIOptions.ColorText(
+                        UIOptions.turquoise,
+                        "These options control when the tag is shown. Multiple options can be enabled."
+                    )
+                end,
                 width = "full",
                 order = 0,
             },
-            setCast  = {
-                type = "toggle", dialogControl = "UCB_CheckBox",
+
+            setCast = {
+                type = "toggle",
+                dialogControl = "UCB_CheckBox",
                 name = "Cast",
                 order = 1,
-                get = function() return cfg.mainType == "cast" end,
+                get = function()
+                    cfg.showCases = cfg.showCases or {}
+                    return cfg.showCases.cast or false
+                end,
                 set = function(_, v)
-                    cfg.mainType = "cast"
-                    --if Text_API:updateTagMainType(key, cfg, bigCFG) then
-                    --    UCB:NotifyChange()
-                    --end
+                    cfg.showCases = cfg.showCases or {}
+                    cfg.showCases.cast = v and true or false
                     CASTBAR_API:UpdateCastbar(unit)
-                    end,
+                end,
             },
+
+            setGCD = {
+                type = "toggle",
+                dialogControl = "UCB_CheckBox",
+                name = "GCD",
+                order = 2,
+                hidden = function() return not showGCD end,
+                get = function()
+                    cfg.showCases = cfg.showCases or {}
+                    return cfg.showCases.gcd or false
+                end,
+                set = function(_, v)
+                    cfg.showCases = cfg.showCases or {}
+                    cfg.showCases.gcd = v and true or false
+                    CASTBAR_API:UpdateCastbar(unit)
+                end,
+            },
+
             setInterrupted = {
-                type = "toggle", dialogControl = "UCB_CheckBox",
+                type = "toggle",
+                dialogControl = "UCB_CheckBox",
                 name = "Interrupted",
-                order = 2,
-                get = function() return cfg.mainType == "interrupted" end,
-                set = function(_, v)
-                    cfg.mainType = "interrupted"
-                    --if Text_API:updateTagMainType(key, cfg, bigCFG) then
-                    --    UCB:NotifyChange()
-                    --end
-                    CASTBAR_API:UpdateCastbar(unit)
-                    end,
-            },
-            setCancelled = {
-                type = "toggle", dialogControl = "UCB_CheckBox",
-                name = "Cancelled",
                 order = 3,
-                get = function() return cfg.mainType == "cancelled" end,
+                get = function()
+                    cfg.showCases = cfg.showCases or {}
+                    return cfg.showCases.interrupted or false
+                end,
                 set = function(_, v)
-                    cfg.mainType = "cancelled"
-                    --if Text_API:updateTagMainType(key, cfg, bigCFG) then
-                    --    UCB:NotifyChange()
-                    --end
+                    cfg.showCases = cfg.showCases or {}
+                    cfg.showCases.interrupted = v and true or false
                     CASTBAR_API:UpdateCastbar(unit)
-                    end,
-            }
-        }
-    }
-    args.ShowOnEffectGrp = {
-        type = "group",
-        name = "Show on Effect Options (works only on non-static tags)",
-        order = 1.75,
-        inline = true,
-        disabled = function() return cfg._type == "Static" end,
-        hidden = function() return cfg.mainType ~= "cast" end,
-        args = {
-            descInfo = {
-                type = "description",
-                name = function() return UIOptions.ColorText(UIOptions.turquoise, "These options control whether the tag is shown when a cast is interrupted or cancelled. If enabled, the tag will be shown with the interrupted or cancelled cast and hidden after the cast ends or after a set duration depending on the effect settings.") end,
-                width = "full",
-                order = 0,
+                end,
             },
-            showOnInterrupted = {
-                type = "toggle", dialogControl = "UCB_CheckBox",
-                name = "Show on Interrupted",
-                order = 1,
-                get = function() return cfg.showOnEffect.interrupted end,
+
+            setCancelled = {
+                type = "toggle",
+                dialogControl = "UCB_CheckBox",
+                name = "Cancelled",
+                order = 4,
+                get = function()
+                    cfg.showCases = cfg.showCases or {}
+                    return cfg.showCases.cancelled or false
+                end,
                 set = function(_, v)
-                    cfg.showOnEffect.interrupted = v and true or false
+                    cfg.showCases = cfg.showCases or {}
+                    cfg.showCases.cancelled = v and true or false
                     CASTBAR_API:UpdateCastbar(unit)
-                    end,
+                end,
             },
-            showOnCancelled = {
-                type = "toggle", dialogControl = "UCB_CheckBox",
-                name = "Show on Cancelled",
-                order = 2,
-                get = function() return cfg.showOnEffect.cancelled end,
-                set = function(_, v)
-                    cfg.showOnEffect.cancelled = v and true or false
-                    CASTBAR_API:UpdateCastbar(unit)
-                    end,
-            },
-        }
+        },
     }
     args.grpShow = {
         type = "group",
-        name = "Show On",
+        name = "Show On (After)",
         order = 2,
         inline = true,
         args = {
@@ -211,10 +209,8 @@ local function tagUI(key, unit)
                 get = function() return cfg.showType.normal end,
                 set = function(_, v)
                     cfg.showType.normal = v
-                    if Text_API:updateStaticShow(key, cfg, unit) then
-                        UCB:NotifyChange()
-                    end
                     CASTBAR_API:UpdateCastbar(unit)
+                    UCB:NotifyChange()
                     end,
             },
             showChannel = {
@@ -224,10 +220,8 @@ local function tagUI(key, unit)
                 get = function() return cfg.showType.channel end,
                 set = function(_, v) 
                     cfg.showType.channel = v
-                    if Text_API:updateStaticShow(key, cfg, unit) then
-                        UCB:NotifyChange()
-                    end
                     CASTBAR_API:UpdateCastbar(unit)
+                    UCB:NotifyChange()
                     end,
             },
             showEmpowered = {
@@ -237,10 +231,8 @@ local function tagUI(key, unit)
                 get = function() return cfg.showType.empowered end,
                 set = function(_, v) 
                     cfg.showType.empowered = v
-                    if Text_API:updateStaticShow(key, cfg, unit) then
-                        UCB:NotifyChange()
-                    end
                     CASTBAR_API:UpdateCastbar(unit)
+                    UCB:NotifyChange()
                     end,
             },
         }
@@ -265,32 +257,8 @@ local function tagUI(key, unit)
                         UCB:NotifyChange()
                     end,
             },
-            tagHint1a = {
-                type = "description",
-                hidden = function() return cfg.mainType ~= "cast" end,
-                name = "Available Preset Tags:\n" ..
-                       UIOptions.ColorText(UIOptions.turquoise, "[sName]").." - Spell Name \n" ..
-                       UIOptions.ColorText(UIOptions.turquoise, "[rTime:X]").." - Remaining Time (in seconds, X repesents the number of decimals and can be ommited for thse use of [rTime], default is 1 decimal; text is seen as default)\n" ..
-                       UIOptions.ColorText(UIOptions.turquoise, "[rTimeInv:X]").." - Invesre Remaining Time (in seconds, X repesents the number of decimals and can be ommited for thse use of [rTime], default is 1 decimal; text is seen as default)\n" ..
-                       UIOptions.ColorText(UIOptions.turquoise, "[dTime:X]").." - Duration Time (in seconds, X repesents the number of decimals and can be ommited for thse use of [dTime], default is 1 decimal; text is seen as default)\n" ..
-                       UIOptions.ColorText(UIOptions.turquoise, "[rPerTime:X]").." - Remaining Time Percentage (X repesents the number of decimals and can be ommited for thse use of [rPerTime], default is 1 decimal; text is seen as default)\n" ..
-                       UIOptions.ColorText(UIOptions.turquoise, "[rPerTimeInv:X]").." - Inverse Remaining Time Percentage (X repesents the number of decimals and can be ommited for thse use of [rPerTime], default is 1 decimal; text is seen as default)\n" ..
-                       UIOptions.ColorText(UIOptions.turquoise, "[dPerTime]").." - Duration Time Percentage (just 100)\n"..
-                       UIOptions.ColorText(UIOptions.turquoise, "[nIntr:X]").." - Unintreruptable spell (X reprsents the text displayed, by ommiting it is Unintr. IT WILL SHOW OR HIDE THE ENTIRE TAG BASED ON Unintreruptable.)\n"..
-                       UIOptions.ColorText(UIOptions.turquoise, "[nIntrInv:X]").." - Intreruptable spell (X reprsents the text displayed, by ommiting it is Intr. IT WILL SHOW OR HIDE THE ENTIRE TAG BASED ON Intreruptable.)\n"..
-                       UIOptions.ColorText(UIOptions.turquoise, "[lat:X]").." - Latency - ONLY PLAYER (in seconds, X repesents the number of decimals and can be ommited for the use of [lat], default is 1 decimal; text is seen as default.)\n".. 
-                       UIOptions.ColorText(UIOptions.turquoise, "[LAT:X]").." - Latency - ONLY PLAYER (in MS, X repesents the number of decimals and can be ommited for the use of [LAT], default is 1 decimal; text is seen as default.)\n".. 
-                       UIOptions.ColorText(UIOptions.turquoise, "[wLat:X]").." - World Latency (in seconds, X repesents the number of decimals and can be ommited for the use of [wLat], default is 1 decimal; text is seen as default.)\n".. 
-                       UIOptions.ColorText(UIOptions.turquoise, "[wLAT:X]").." - World Latency (in MS, X repesents the number of decimals and can be ommited for the use of [wLAT], default is 1 decimal; text is seen as default.)\n".. 
-                       UIOptions.ColorText(UIOptions.turquoise, "[pName]").." - Player Name \n" ..
-                       UIOptions.ColorText(UIOptions.turquoise, "[tName]").." - Target Name \n" ..
-                       UIOptions.ColorText(UIOptions.turquoise, "[fName]").." - Focus Name \n",
-                width = "full",
-                order = 2,
-            },
             tagHint1b = {
                 type = "description",
-                hidden = function() return cfg.mainType == "cast" end,
                 name = "Available Preset Tags:\n" ..
                        UIOptions.ColorText(UIOptions.orange, "[kName:X]").." - Player/NPC Name who interrupted the Uni (only usable for Interrupted type) \n" ..
                        UIOptions.ColorText(UIOptions.turquoise, "[sName:X]").." - Spell Name \n" ..
@@ -312,28 +280,40 @@ local function tagUI(key, unit)
                 width = "full",
                 order = 2,
             },
-            tagType = {
+            tagTypeCast = {
                 type = "header",  dialogControl = "UCB_Heading",
-                name = function() return "Tag Type: "..UIOptions.ColorText(UIOptions[cfg._typeColour], cfg._type) end,
-                order = 3,
+                name = function() return "Tag Type Casts: "..UIOptions.ColorText(UIOptions[cfg._stateColours.cast], cfg._stateNames.cast) end,
+                order = 3.1,
+                hidden = function() return not cfg.showCases.cast end,
             },
-            tagHint2a = {
+            tagTypeGCD = {
+                type = "header",  dialogControl = "UCB_Heading",
+                name = function() return "Tag Type GCD: "..UIOptions.ColorText(UIOptions[cfg._stateColours.gcd], cfg._stateNames.gcd) end,
+                order = 3.2,
+                hidden = function() return not cfg.showCases.gcd end,
+            },
+            tagTypeCancelled = {
+                type = "header",  dialogControl = "UCB_Heading",
+                name = function() return "Tag Type Cancelled: "..UIOptions.ColorText(UIOptions[cfg._stateColours.cancelled], cfg._stateNames.cancelled) end,
+                order = 3.3,
+                hidden = function() return not cfg.showCases.cancelled end,
+            },
+            tagTypeInterupted = {
+                type = "header",  dialogControl = "UCB_Heading",
+                name = function() return "Tag Type Interrupted: "..UIOptions.ColorText(UIOptions[cfg._stateColours.interrupted], cfg._stateNames.interrupted) end,
+                order = 3.4,
+                hidden = function() return not cfg.showCases.interrupted or not showGCD end,
+            },
+            tagHint2 = {
                 type = "description",
-                hidden = function() return cfg.mainType ~= "cast" end,
                 name = "The type of a tag is determined by the components used in its formula. Each type has a different performance penalty attached to it.\n" ..
                        UIOptions.ColorText(UIOptions.green, "Static").." tags contain only static text inputed by the user so they are loaded once or when they are chnaged through the UI.\n".. 
                        UIOptions.ColorText(UIOptions.yellow, "Semi-Dynamic").." tags contain at least one of the preset tags provided which come with a smaller penalty beacuse they are loaded once every cast.\n"..
                        UIOptions.ColorText(UIOptions.red, "Dynamic").." tags contain at least one of the preset tags provided which come with a largest penalty because they are loaded every frame.\n"..
                        "Each peset tag has its own class of penalty due to its nature. "..UIOptions.ColorText(UIOptions.red,"DYNAMIC")..": [rTime], [rPerTime], [rTimeInv], [rPerTimeInv]; "..UIOptions.ColorText(UIOptions.yellow,"SEMI-DYNAMIC")..": [sName], [dTime], [dPerTime], [cIntr], [cIntrInv], [lat], [LAT], [wLat], [wLAT], [tName], [fName]. rest are"..UIOptions.ColorText(UIOptions.green, "STATIC")..".\n"..
-                       "If the state of a "..UIOptions.ColorText(UIOptions.green, "STATIC").." tag is conditionally changed based on type of cast (normal/channel/empowered) it will be converted to a "..UIOptions.ColorText(UIOptions.yellow,"SEMI-DYNAMIC").." tag automatically.",
-                width = "full",
-                order = 4,
-            },
-            tagHint2b = {
-                type = "description",
-                hidden = function() return cfg.mainType == "cast" end,
-                name = "The tags for effects are always"..UIOptions.ColorText(UIOptions.yellow, "Semi-Dynamic").." which are loaded once every cast.\n" ..
-                       UIOptions.ColorText(UIOptions.orange, "Interrupted").." will be shown if you have enabled Intterrupted effects in the Other Features tab.\n".. 
+                       "If the state of a "..UIOptions.ColorText(UIOptions.green, "STATIC").." tag is conditionally changed based on type of cast (normal/channel/empowered) it will be converted to a "..UIOptions.ColorText(UIOptions.yellow,"SEMI-DYNAMIC").." tag automatically."..
+                       "\n\nThe tags for effects are always "..UIOptions.ColorText(UIOptions.yellow, "Semi-Dynamic").." which are loaded once every cast.\n" ..
+                       UIOptions.ColorText(UIOptions.orange, "Interrupted").." will be shown if you have enabled Intterrupted effects in the Other Features tab.\n"..
                        UIOptions.ColorText(UIOptions.purple, "Cancelled").." will be shown if you have enabled Cancelled effects in the Other Features tab.\n"..
                        "All peset tags or static text have the same class of penalty. Previously dynamic tags will be frozen in their last state.",
                 width = "full",

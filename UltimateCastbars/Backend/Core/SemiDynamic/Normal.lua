@@ -8,13 +8,14 @@ local CASTBAR_API = UCB.CASTBAR_API
 local Latency = UCB.Latency
 local GCD = UCB.GCD
 local castType = "normal"
+local case = "cast"
 
 local function CastbarOnUpdate(bar, elapsed)
     local unit = bar._ucbUnit
     local cfg  = bar._ucbCfg
     local castType = bar._ucbCastType
     local vars = bar._ucbVars
-    local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
+    local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, case, castType, vars)
     if UCB:IsPlayer(unit) and remainig < -0.001 then
         CASTBAR_API:OnUnitSpellcastStop(unit)
     end
@@ -22,7 +23,8 @@ end
 
 ---------------------------------------------------- MAIN -------------------------------------------------
 function CASTBAR_API:OnUnitSpellcastStart(unit, castGUID, spellID, castBarID, resumeCast)
-    if UCB:IsPlayer(unit, true) then GCD:SetPendingGCDSpell(spellID, false) end
+    --if UCB:IsPlayer(unit, true) then GCD:SetPendingGCDSpell(spellID, "normal") end
+    if UCB:IsPlayer(unit, true) then GCD:OnCastStart(castGUID, spellID) end
     if not UCB.usePetForPlayer and UCB:IsPlayer(unit, true) and Latency.sendTime then Latency.latency = GetTimePreciseSec() - Latency.sendTime else Latency.latency = 0 end
     local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, castBarID, resumeCast, castType, math.max(Latency.worldLatency, Latency.latency))
     if not show then return end
@@ -44,14 +46,18 @@ function CASTBAR_API:OnUnitSpellcastStop(unit, castGUID, spellID, castBarID)
     end
 
     local bar = UCB.castBar[unit]
-    if bar and bar.flags.castActive then
+    if bar and (bar.flags.castActive or bar.flags.gcdActive) then
         bar.group:Hide()
         bar:SetScript("OnUpdate", nil)
+
+        if UCB:IsPlayer(unit, true) and bar.flags.castActive then GCD:OnCastStop(castGUID, spellID) end
+
         local otherFeaturesCFG = cfg.otherFeatures
         if otherFeaturesCFG.permanentBackgrodund.enable and otherFeaturesCFG.permanentBackgrodund.hideWhenCasting then
             bar.background_frame:Show()
         end
         bar.flags.castActive = false
+        bar.flags.gcdActive = false
         bar.flags.prevType = nil
         bar.current_spellID = nil
         bar.current_castGUID = nil

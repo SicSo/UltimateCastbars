@@ -65,7 +65,8 @@ end
 
 
 local function BuildOtherArgs(args, unit)
-    local cfg = GetCFG(unit, "otherFeatures")
+    local bigCFG = GetCFG(unit)
+    local cfg = bigCFG.otherFeatures
 
     args.quickButtonsPlayer = {
         type = "group",
@@ -87,9 +88,11 @@ local function BuildOtherArgs(args, unit)
     if UCB:IsPlayer(unit) then
         args.spellQueGrp = OtherFeatures_API:BuildSpellQueueOptions(unit, cfg)
         args.latencyGrp = OtherFeatures_API:BuildLatencyOptions(unit, cfg)
+        args.gcdGrp = OtherFeatures_API:BuildInstantGCDOptions(unit, cfg, bigCFG)
     else
         args.spellQueGrp = nil
         args.latencyGrp = nil
+        args.gcdGrp = nil
     end
 
     args.channelTickGrp = OtherFeatures_API:BuildChannelTickOptions(unit, cfg)

@@ -205,7 +205,7 @@ function BarUpdate_API:UpdateText(unit)
     for k, v in pairs(bar.texts) do
         v:Hide()
     end
-
+    --[[]
     local tagGroups = {
         static = {},
         semiDynamic = {},
@@ -214,7 +214,26 @@ function BarUpdate_API:UpdateText(unit)
         cancelled = {},
         interrupted = {},
     }
+    
+    local tagGroups = {
+        cast = {
+            static = {},
+            semiDynamic = {},
+            dynamic = {},
+            unk = {},
+        },
+        gcd = {
+            static = {},
+            semiDynamic = {},
+            dynamic = {},
+            unk = {},
+        },
+        cancelled = {},
+        interrupted = {}
+    }
+
     UCB.tags.tagGroups[unit] = tagGroups
+    --]]
 
     local textFrame = bar.frames.text
     for key, tagOptions in pairs(cfg.textList) do
@@ -283,14 +302,14 @@ function BarUpdate_API:UpdateText(unit)
             end
             fs:SetTextColor(usedColour.r, usedColour.g, usedColour.b, usedColour.a)
             fs:Show()
-            tagOptions._compiled = UCB.tags:compileFormula(tagOptions._formula, tagOptions._limits, tagOptions.mainType, unit)
+            tagOptions._compiled = UCB.tags:compileFormula(tagOptions._formula, tagOptions._limits, tagOptions.showCases, unit)
         elseif bar.texts[key] then
             bar.texts[key]:Hide()
         end
     end
 
     -- static update (should use compiled ops inside setTextSameState)
-    UCB.tags:setTextSameState(bar, "static", unit)
+    UCB.tags:setTextSameState(bar, "cast", "static", unit)
 end
 
 function BarUpdate_API:UpdateVisibility(unit)
@@ -553,10 +572,36 @@ function BarUpdate_API:UpdateOthers(unit)
     -- Spell custom styles
     local spellStyling = classCFG.spellStyling
     if UCB:IsPlayer(unit) then
-        spellStyling._customSpellStyles = {}
+        spellStyling._customCastSpellStyles = {}
+        spellStyling._customInstantSpellStyles = {}
+
         for _, spellStyle in ipairs(spellStyling.styleSpells) do
             if spellStyle.enable and spellStyle.id then
-                spellStyling._customSpellStyles[spellStyle.id] = spellStyle.style
+                if spellStyle.useSameStyle then
+                    if spellStyle.sameStyleType == "instant" then
+                        if spellStyle.enableCast then
+                            spellStyling._customCastSpellStyles[spellStyle.id] = spellStyle.styleInstant
+                        end
+                        if spellStyle.enableInstant then
+                            spellStyling._customInstantSpellStyles[spellStyle.id] = spellStyle.styleInstant
+                        end
+                    else
+                        if spellStyle.enableCast then
+                            spellStyling._customCastSpellStyles[spellStyle.id] = spellStyle.style
+                        end
+                        if spellStyle.enableInstant then
+                            spellStyling._customInstantSpellStyles[spellStyle.id] = spellStyle.style
+                        end
+                    end
+                else
+                    if spellStyle.enableCast then
+                        spellStyling._customCastSpellStyles[spellStyle.id] = spellStyle.style
+                    end
+
+                    if spellStyle.enableInstant then
+                        spellStyling._customInstantSpellStyles[spellStyle.id] = spellStyle.styleInstant
+                    end
+                end
             end
         end
     end

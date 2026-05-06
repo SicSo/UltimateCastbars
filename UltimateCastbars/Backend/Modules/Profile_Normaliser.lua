@@ -282,7 +282,7 @@ function Normiliser:NormalizeUnitLSM_Legacy(unitTable, map, fallbackByType)
 
   local fb = GetFallbackName(mediaType, fallbackByType)
   local LSM = GetLSM()
-    
+
     for _, tagTbl in pairs(tagMap) do
       if type(tagTbl) == "table" then
         local fetched = LSMFetch(mediaType, tagTbl[nameKey])
@@ -567,6 +567,59 @@ function Normiliser:Overlay(dst, src)
     end
 end
 
+local function NormalizeStyleSpellList(styleSpells)
+    if type(styleSpells) ~= "table" then
+        return {}
+    end
+
+    local spellSchema = UCB.Default_DB.player_aux and UCB.Default_DB.player_aux.spellStylingDefaults
+    if type(spellSchema) ~= "table" then
+        return styleSpells
+    end
+
+    for spellKey, spellData in pairs(styleSpells) do
+        if type(spellKey) == "string" or type(spellKey) == "number" then
+            if type(spellData) ~= "table" then
+                spellData = {}
+            end
+
+            local filteredSpell = Normiliser:FilterBySchema(spellData, spellSchema)
+            local rebuiltSpell  = Normiliser:DeepCopyTable(spellSchema)
+            Normiliser:Overlay(rebuiltSpell, filteredSpell)
+
+            -- Force style/styleInstant to be rebuilt from the latest createStyle() result too
+            local styleSchema = UCB.Default_DB:createStyle()
+            if type(styleSchema) == "table" then
+                local filteredStyle = Normiliser:FilterBySchema(rebuiltSpell.style, styleSchema)
+                local rebuiltStyle  = Normiliser:DeepCopyTable(styleSchema)
+                Normiliser:Overlay(rebuiltStyle, filteredStyle)
+                rebuiltSpell.style = rebuiltStyle
+
+                local filteredStyleInstant = Normiliser:FilterBySchema(rebuiltSpell.styleInstant, styleSchema)
+                local rebuiltStyleInstant  = Normiliser:DeepCopyTable(styleSchema)
+                Normiliser:Overlay(rebuiltStyleInstant, filteredStyleInstant)
+                rebuiltSpell.styleInstant = rebuiltStyleInstant
+            end
+
+            styleSpells[spellKey] = rebuiltSpell
+        end
+    end
+
+    return styleSpells
+end
+
+local function NormalizePlayerClassStyleSpells(playerTable)
+    if type(playerTable) ~= "table" then return end
+    if type(playerTable.CLASSES) ~= "table" then return end
+
+    for _, classTable in pairs(playerTable.CLASSES) do
+        if type(classTable) == "table" then
+            classTable.spellStyling = classTable.spellStyling or {}
+            classTable.spellStyling.styleSpells =
+                NormalizeStyleSpellList(classTable.spellStyling.styleSpells)
+        end
+    end
+end
 
 function UCB:NormalizeCurrentProfileToSchema()
     UCB:RegisterMigrations()
@@ -618,8 +671,11 @@ function UCB:NormalizeCurrentProfileToSchema()
     local rebuilt = Normiliser:DeepCopyTable(schemaProfile)
     Normiliser:Overlay(rebuilt, filtered)
 
-     Normiliser:NormalizeAllUnitTextures(rebuilt)
-     Normiliser:NormalizeAllUnitFonts(rebuilt)
+    -- Only player class spell styles should be refreshed from player_aux.spellStylingDefaults
+    NormalizePlayerClassStyleSpells(rebuilt.player)
+
+    Normiliser:NormalizeAllUnitTextures(rebuilt)
+    Normiliser:NormalizeAllUnitFonts(rebuilt)
 
     wipe(UCB.db.profile)
     for k, v in pairs(rebuilt) do

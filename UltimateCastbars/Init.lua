@@ -152,7 +152,7 @@ function UCB:EnsureSpellcastEventFrame()
     end
 
     f5:SetScript("OnEvent", function(_, event, unit, ...)
-      if event == "UNIT_SPELLCAST_SUCCEEDED" then
+      if event == "UNIT_SPELLCAST_SENT" or event == "UNIT_SPELLCAST_START" then
         if unit ~= "player" and unit ~="pet" then return end
         if unit == "pet" then
           if not UCB.trackedUnits.player or  not IsPetUsingVehicleUnit(unit) then

@@ -441,37 +441,64 @@ Opt.ClassExtraBuilders.EVOKER = function(unit, args)
         -- For non-player units, empower effects are possibly innacurate but can still be shown if enabled, so we add a disclaimer
         args.evokerPanel.args.disintegrateGrp = {
             type = "group",
-            name = "Disintegrate Ticks",
+            name = "Disintegrate Options",
             inline = true,
             order = 2,
             args = {
-                disintegrateHeader = {
-                    type = "header",  dialogControl = "UCB_Heading",
+                disintegrateTicksGrp = {
+                    type = "group",
                     name = "Disintegrate Ticks",
+                    inline = true,
                     order = 1,
+                    args = {
+                        disintegrateHeader = {
+                            type = "header",  dialogControl = "UCB_Heading",
+                            name = "Disintegrate Ticks",
+                            order = 1,
+                        },
+                        disintegrateInfo = {
+                            type = "description",
+                            name = "Disintegrate ticks can be determined dynamically (based on Xepheris WA and addon logic) or statically (specified by the use in Channeling Spells). Enabling dynamic ticks is recommended for accuracy, especially with chaining. Disabling this does not by default assign ticks, for that you need use Channeling Spells.",
+                            order = 2,
+                            width = "full",
+                        },
+                        disintegrateDynamicTicks = {
+                            type = "toggle", dialogControl = "UCB_CheckBox",
+                            name = "  Dynamic Disintegrate Ticks (recommended)",
+                            desc = "When enabled, tick count is determined and placed dynamically based on Xepheris WA and addon logic.",
+                            order = 3,
+                            width = "full",
+                            image = 4622451,
+                            get = function()
+                                return cfg.disintegrateDynamicTicks
+                            end,
+                            set = function(_, val)
+                                cfg.disintegrateDynamicTicks = val
+                                CASTBAR_API:UpdateCastbar(unit)
+                            end,
+                        },
+                    },
                 },
-                disintegrateInfo = {
-                    type = "description",
-                    name = "Disintegrate ticks can be determined dynamically (based on Xepheris WA and addon logic) or statically (specified by the use in Channeling Spells). Enabling dynamic ticks is recommended for accuracy, especially with chaining. Disabling this does not by default assign ticks, for that you need use Channeling Spells.",
+                disintegrateMassDisGrp = {
+                    type = "group",
+                    name = "Mass Disintegrate Options",
+                    inline = true,
                     order = 2,
-                    width = "full",
-                },
-                disintegrateDynamicTicks = {
-                    type = "toggle", dialogControl = "UCB_CheckBox",
-                    name = "  Dynamic Disintegrate Ticks (recommended)",
-                    desc = "When enabled, tick count is determined and placed dynamically based on Xepheris WA and addon logic.",
-                    order = 3,
-                    width = "full",
-                    image = 4622451,
-                    get = function()
-                        return cfg.disintegrateDynamicTicks
-                    end,
-                    set = function(_, val)
-                        cfg.disintegrateDynamicTicks = val
-                        CASTBAR_API:UpdateCastbar(unit)
-                    end,
-                },
-            },
+                    args = {
+                        disintegrateHeader = {
+                            type = "header",  dialogControl = "UCB_Heading",
+                            name = "Mass Disintegrate",
+                            order = 1,
+                        },
+                        disintegrateInfo = {
+                            type = "description",
+                            name = "Mass Disintegrate is a more powerful version of Disintegrate that has many passive modifiers and requires special considerations compared to normal Disintegrate. It is part of Scalecommander Hero Talent and is obtained from casting empowerred spells.",
+                            order = 2,
+                            width = "full",
+                        },
+                    }
+                }
+            }
         }
     end
     return warpperGrp

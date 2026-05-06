@@ -626,14 +626,40 @@ function BarUpdate_API:BuildColourCandidates(unit)
     if not bar then return end
 
     local typeList = { "general", "normal", "channel", "empowered" }
-    local typeListPlayer = {}
+    local customCastSpellCandidates = {}
+    local customInstantSpellCandidates = {}
+
     if UCB:IsPlayer(unit) then
         local classCFG = GetCFG(unit).CLASSES[UCB.className]
         local spellStyling = classCFG and classCFG.spellStyling
+
         if spellStyling and spellStyling.styleSpells then
             for _, spellStyle in ipairs(spellStyling.styleSpells) do
                 if spellStyle.enable and spellStyle.id then
-                    typeListPlayer[spellStyle.id] = spellStyle.style
+                    if spellStyle.useSameStyle then
+                        if spellStyle.sameStyleType == "instant" then
+                            if spellStyle.enableCast then
+                                customCastSpellCandidates[spellStyle.id] = spellStyle.styleInstant
+                            end
+                            if spellStyle.enableInstant then
+                                customInstantSpellCandidates[spellStyle.id] = spellStyle.styleInstant
+                            end
+                        else
+                            if spellStyle.enableCast then
+                                customCastSpellCandidates[spellStyle.id] = spellStyle.style
+                            end
+                            if spellStyle.enableInstant then
+                                customInstantSpellCandidates[spellStyle.id] = spellStyle.style
+                            end
+                        end
+                    else
+                        if spellStyle.enableCast then
+                            customCastSpellCandidates[spellStyle.id] = spellStyle.style
+                        end
+                        if spellStyle.enableInstant then
+                            customInstantSpellCandidates[spellStyle.id] = spellStyle.styleInstant
+                        end
+                    end
                 end
             end
         end
@@ -652,8 +678,21 @@ function BarUpdate_API:BuildColourCandidates(unit)
     end
 
     if UCB:IsPlayer(unit) then
-        for spellID, style in pairs(typeListPlayer) do
-            store[spellID] = BuildCandidateFromStyle(unit, bar, style)
+        local otherFeatures = GetCFG(unit, "otherFeatures")
+        local instantGCD = otherFeatures and otherFeatures.instantGCD
+
+        if instantGCD and instantGCD.useCustomStyle and instantGCD.customStyle then
+            store.instantGCD = BuildCandidateFromStyle(unit, bar, instantGCD.customStyle)
+        else
+            store.instantGCD = BuildCandidateFromStyle(unit, bar, styleGrpCFG and styleGrpCFG.general)
+        end
+
+        for spellID, style in pairs(customCastSpellCandidates) do
+            store["cast_" .. spellID] = BuildCandidateFromStyle(unit, bar, style)
+        end
+
+        for spellID, style in pairs(customInstantSpellCandidates) do
+            store["instant_" .. spellID] = BuildCandidateFromStyle(unit, bar, style)
         end
     end
 end

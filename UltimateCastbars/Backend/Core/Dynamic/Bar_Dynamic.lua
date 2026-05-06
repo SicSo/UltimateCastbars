@@ -186,7 +186,7 @@ local function UpdateShowWhenKickAvailable(bar, unit, vars, cfg, castType)
 end
 
 -- !!!!!!!!!!!!!!!!!!!!!!! DYNAMIC UPDATE FUNCTION !!!!!!!!!!!!!!!!!!!!!!!!
-function CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
+function CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, case, castType, vars)
     local durationObject = vars.durationObject
     if not durationObject then return end
 
@@ -223,7 +223,7 @@ function CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
     end
 
     -- Set dynamic texts
-    UCB.tags:ApplyTextState(bar, "dynamic", unit, remaining, elapsedTime)
+    UCB.tags:ApplyTextState(bar, case, "dynamic", unit, remaining, elapsedTime)
 
     -- Look for mirror bar updates
     SyncMirror(bar)

@@ -93,7 +93,6 @@ local function BuildCustomisationArgs(args, unit)
                 get = function() return castTypeStyleCFG.useGeneralStyle end,
                 set = function(_, value)
                     castTypeStyleCFG.useGeneralStyle = value
-                    STYLE_API:RebuildMainStyleCopyArgs(unit, castTypeStyleCFG, bigCFG)
                     CASTBAR_API:UpdateCastbar(unit)
                 end,
             },

@@ -15,6 +15,7 @@ local Latency = UCB.Latency
 local GCD = UCB.GCD
 
 local castType = "channel"
+local case = "cast"
 
 local function CastbarOnUpdate(bar, elapsed)
     local unit = bar._ucbUnit
@@ -22,7 +23,7 @@ local function CastbarOnUpdate(bar, elapsed)
     local castType = bar._ucbCastType
     local vars = bar._ucbVars
     local spellID = bar._ucbSpellID
-    local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
+    local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, case, castType, vars)
     if UCB:IsPlayer(unit) and remainig < -0.001 then
         CASTBAR_API:OnUnitSpellcastChannelStop(unit, nil, spellID)
     end
@@ -169,7 +170,8 @@ end
 
 ---------------------------------------------------- MAIN -------------------------------------------------
 function CASTBAR_API:OnUnitSpellcastChannelStart(unit, castGUID, spellID, castBarID, resumeCast)
-    if UCB:IsPlayer(unit, true) then GCD:SetPendingGCDSpell(spellID, false) end
+    --if UCB:IsPlayer(unit, true) then GCD:SetPendingGCDSpell(spellID, "channel") end
+    if UCB:IsPlayer(unit, true) then GCD:OnChannelStart(castGUID, spellID) end
     if UCB:IsPlayer(unit, true) and Latency.sendTime then Latency.latency = GetTimePreciseSec() - Latency.sendTime else Latency.latency = 0 end
     local show, cfg, bar, vars = CASTBAR_API:CastSetup(unit, castGUID, spellID, castBarID, resumeCast, castType, math.max(Latency.worldLatency, Latency.latency))
     if not show then return end
@@ -200,6 +202,9 @@ function CASTBAR_API:OnUnitSpellcastChannelStop(unit, castGUID, spellID, castBar
     if bar and bar.flags.castActive == true then
         bar.group:Hide()
         bar:SetScript("OnUpdate", nil)
+        
+        if UCB:IsPlayer(unit, true) then GCD:OnChannelStop(castGUID, spellID) end
+
         local otherFeaturesCFG = cfg.otherFeatures
         if otherFeaturesCFG.permanentBackgrodund.enable and otherFeaturesCFG.permanentBackgrodund.hideWhenCasting then
             bar.background_frame:Show()

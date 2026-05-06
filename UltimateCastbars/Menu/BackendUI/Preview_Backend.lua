@@ -27,7 +27,7 @@ local function CastbarOnUpdate(bar, elapsed)
     local cfg  = bar._ucbCfg
     local castType = bar._ucbCastType
     local vars = bar._ucbVars
-    local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, castType, vars)
+    local remainig = UCB.CASTBAR_API:CastBar_OnUpdate(bar, elapsed, unit, cfg, "cast", castType, vars)
     if remainig <= 0 then
         Preview_API:ShowPreviewCastBar(unit, castType)
     end
@@ -106,8 +106,8 @@ function Preview_API:ShowPreviewCastBar(unit, castType)
         end
     end
 
-    tags:setTextSameState(bar, "semiDynamic", unit, castType, false)
-    tags:setTextSameState(bar, "dynamic", unit, castType, true)
+    tags:setTextSameState(bar, "cast", "semiDynamic", unit, castType, false)
+    tags:setTextSameState(bar, "cast", "dynamic", unit, castType, true)
 
     bar.icon:SetTexture(icon_texture)
 

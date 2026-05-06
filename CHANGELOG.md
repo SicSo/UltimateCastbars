@@ -11,6 +11,8 @@
 ### Fixed
 - Copy profile was not working as intended and causing errors
 - Moving the preview bar was not saving the offsets properly
+- Spell styling was not properly updating the new styling fields
+- Spell styling was not properly reinstating default styling asfter a custom spell style was used
 
 ### Removed
 - The ability to set max number of characters for names

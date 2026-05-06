@@ -171,18 +171,17 @@ local target_db = {
             textSize = 12,
             colour = {r=1, g=1, b=1, a=1},
 
+            showCases = {
+                cast = true,
+                cancelled = false,
+                interrupted = false,
+            },
+
             showType = {
                 normal = true,
                 channel = true,
                 empowered = true,
             },
-
-            showOnEffect = {
-                interrupted = false,
-                cancelled = false,
-            },
-
-            mainType = "cast",
 
             _dynamicTag = false,
             _type = "Unknown",
@@ -233,18 +232,17 @@ local target_db = {
                 anchorTo = "LEFT",
                 justify = "LEFT",
 
+                showCases = {
+                    cast = true,
+                    cancelled = true,
+                    interrupted = true,
+                },
+
                 showType = {
                     normal = true,
                     channel = true,
                     empowered = true,
                 },
-
-                showOnEffect = {
-                    interrupted = true,
-                    cancelled = true,
-                },
-
-                mainType = "cast",
 
                 extraOptions = {
                     useClassColour = true,
@@ -286,18 +284,17 @@ local target_db = {
                 textSize = 12,
                 colour = {r=1, g=1, b=1, a=1},
 
+                 showCases = {
+                    cast = true,
+                    cancelled = false,
+                    interrupted = false,
+                },
+
                 showType = {
                     normal = true,
                     channel = false,
                     empowered = true,
                 },
-
-                showOnEffect = {
-                    interrupted = false,
-                    cancelled = false,
-                },
-
-                mainType = "cast",
 
                 extraOptions = {
                     useClassColour = true,
@@ -340,18 +337,17 @@ local target_db = {
                 textSize = 12,
                 colour = {r=1, g=1, b=1, a=1},
 
+                 showCases = {
+                    cast = true,
+                    cancelled = false,
+                    interrupted = false,
+                },
+
                 showType = {
                     normal = false,
                     channel = true,
                     empowered = false,
                 },
-
-                showOnEffect = {
-                    interrupted = false,
-                    cancelled = false,
-                },
-
-                mainType = "cast",
 
                 extraOptions = {
                     useClassColour = true,
@@ -394,18 +390,17 @@ local target_db = {
                 textSize = 12,
                 colour = {r=1, g=1, b=1, a=1},
 
+                 showCases = {
+                    cast = false,
+                    cancelled = true,
+                    interrupted = false,
+                },
+
                 showType = {
                     normal = true,
                     channel = true,
                     empowered = true,
                 },
-
-                showOnEffect = {
-                    interrupted = false,
-                    cancelled = false,
-                },
-
-                mainType = "cancelled",
 
                 extraOptions = {
                     useClassColour = true,
@@ -447,18 +442,17 @@ local target_db = {
                 textSize = 12,
                 colour = {r=1, g=1, b=1, a=1},
 
+                 showCases = {
+                    cast = false,
+                    cancelled = false,
+                    interrupted = true,
+                },
+
                 showType = {
                     normal = true,
                     channel = true,
                     empowered = true,
                 },
-
-                showOnEffect = {
-                    interrupted = false,
-                    cancelled = false,
-                },
-
-                mainType = "interrupted",
                 
                 extraOptions = {
                     useClassColour = true,

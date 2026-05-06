@@ -107,11 +107,11 @@ local function CreateCastBar(unit)
     --        print(template.name)
     --    end
     --end
-    local aux = C_XMLUtil.GetTemplateInfo("CooldownFrameTemplate")
-    print(aux.sourceLocation)
-    for key, val in pairs(aux.keyValues) do
-        print(key)
-    end
+    --local aux = C_XMLUtil.GetTemplateInfo("CooldownFrameTemplate")
+    --print(aux.sourceLocation)
+    --for key, val in pairs(aux.keyValues) do
+    --    print(key)
+    --end
 
     -- Set initial values for bar properties
 
@@ -163,7 +163,8 @@ local function CreateCastBar(unit)
         cancelledOrInterrupted = false, -- Whether the current cast was cancelled or interrupted (used to prevent hiding the bar on spellcast stop event)
         effects = {
             spark = false, -- Whether the spark effect is currently active
-        }
+        },
+        gcdActive = false -- Whether the current castbar is a GCD bar (used to prevent certain updates and show the bar when it normally wouldn't be shown)
     }
 
     -- Cast info
@@ -181,7 +182,10 @@ local function CreateCastBar(unit)
     -- Effects
     bar.effects = {}
 
-    -- Set properties
+    -- Last style used for bar
+    bar.cfg_style = {}
+
+    -- Set properties and get configuration
     UpdateSequence(unit)
 
     bar.group:Hide()
@@ -210,6 +214,7 @@ function CASTBAR_API:UpdateCastbar(unit)
         -- Castbar doesn't exist yet
         if UCB.castBar[unit] == nil then
             CreateCastBar(unit)
+            UCB.castBar[unit].cfg = cfg
         -- Castbar exists, update layout
         else
             local bar = UCB.castBar[unit]
@@ -226,6 +231,7 @@ function CASTBAR_API:UpdateCastbar(unit)
                 hidden = true
             end
             UpdateSequence(unit)
+            UCB.castBar[unit].cfg = cfg
             -- Restart preview if active before
             if hidden then
                 Preview_API:ShowPreviewCastBar(unit, Preview_API.lastCastType[unit])

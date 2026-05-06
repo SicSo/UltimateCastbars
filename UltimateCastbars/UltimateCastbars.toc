@@ -6,6 +6,7 @@
 ## IconTexture: Interface/AddOns/UltimateCastbars/gfx/icon
 ## Category: Castbars
 ## SavedVariables: UCB_DB
+## X-Website: https://github.com/SicSo/UltimateCastbars
 
 ## X-Wago-ID: QNlze9Ke
 ## X-Curse-Project-ID: 1470290

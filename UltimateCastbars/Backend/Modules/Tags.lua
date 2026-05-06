@@ -120,7 +120,7 @@ TAG_FN["[nIntrInv]"] = function(v, limNum, remaining, elpased, limRaw)
     return (limNum == -1) and "Intr." or limRaw
 end
 
-function tags:compileFormula(formula, limits, mainType, unit)
+function tags:compileFormula(formula, limits, showCases, unit)
     local ops = {}
     local n = 0
     local needsNow = false
@@ -129,8 +129,20 @@ function tags:compileFormula(formula, limits, mainType, unit)
         local part = formula[i]
         local fn = TAG_FN[part]
 
-        if part == "[kName]" and mainType ~= "interrupted" then
-            fn = nil
+        -- Special case for [kName]: if showCases specifies interrupted=true and no other showCases are true, keep fn; otherwise treat as normal text
+        if part == "[kName]" then
+            local only_interrupted = showCases and showCases.interrupted
+            if only_interrupted then
+                for key, value in pairs(showCases) do
+                    if key ~= "interrupted" and value == true then
+                        only_interrupted = false
+                            fn = nil
+                        break
+                    end
+                end
+            else
+                fn = nil
+            end
         end
 
         if (part == "[lat]" or part == "[LAT]") and not UCB:IsPlayer(unit) then
@@ -415,54 +427,118 @@ function tags:updateVarsPreview(unit, cfg, type, spellID, duration, notInterrupt
 end
 
 
-function tags:PrepareTextState(tagGroups, bar, state, castType)
-    local tagList = tagGroups[state]
+function tags:PrepareTextState(tagGroups, bar, case, castType, state, ignoreCastAlso)
+    if not tagGroups then return end
+
+    -- If no state was passed, use the case as the state.
+    -- interrupted -> interrupted
+    -- cancelled   -> cancelled
+    state = state or case
+
+    local caseTagList = tagGroups[case]
+    if not caseTagList then return end
+
+    local tagList = caseTagList[state]
     if not tagList then return end
 
-    -- per-state cache on the bar
-    local activeByState = bar._activeTags
-    if not activeByState then
-        activeByState = {}
-        bar._activeTags = activeByState
+    -- Per-case/state cache on the bar
+    local activeByCaseState = bar._activeTags
+    if not activeByCaseState then
+        activeByCaseState = {}
+        bar._activeTags = activeByCaseState
     end
 
-    local active = activeByState[state]
+    local activeKey = case .. ":" .. tostring(state)
+
+    local active = activeByCaseState[activeKey]
     if not active then
         active = {}
-        activeByState[state] = active
+        activeByCaseState[activeKey] = active
     else
-        for i = #active, 1, -1 do active[i] = nil end
+        for i = #active, 1, -1 do
+            active[i] = nil
+        end
     end
 
-    -- decide show/hide ONCE, store only active entries for fast loops later
     for key, tagOptions in next, tagList do
         local fs = bar.texts[key]
-        if fs then
-            local show = tagOptions.show
-            if show and castType ~= nil  then
-                local st = tagOptions.showType
-                show = st and st[castType]
-            end
 
-            if show then
-                fs:Show()
-                active[#active + 1] = {
-                    fs = fs,
-                    formula = tagOptions._formula,
-                    limits  = tagOptions._limits,
-                    compiled = tagOptions._compiled,
-                    showOnEffect = tagOptions.showOnEffect,
-                    alpha = tagOptions.colour.a,
-                    useClassColour = tagOptions.extraOptions.useClassColour
-                }
-            else
-                fs:Hide()
+        if fs then
+            local showCases = tagOptions.showCases
+
+            -- If this is an effect pass, and the tag is also enabled for cast,
+            -- ignore the effect version so the existing cast text stays visible.
+            local skipBecauseCastAlso =
+                ignoreCastAlso
+                and showCases
+                and showCases.cast
+                and showCases[case]
+
+            if not skipBecauseCastAlso then
+                local show = tagOptions.show
+
+                if show and castType ~= nil then
+                    if castType == "any" then
+                        show = true
+                    else
+                        local st = tagOptions.showType
+                        show = st and st[castType]
+                    end
+                end
+
+                if show then
+                    fs:Show()
+
+                    active[#active + 1] = {
+                        fs = fs,
+                        formula = tagOptions._formula,
+                        limits = tagOptions._limits,
+                        compiled = tagOptions._compiled,
+                        showCases = tagOptions.showCases,
+                        alpha = tagOptions.colour.a,
+                        useClassColour = tagOptions.extraOptions.useClassColour
+                    }
+                else
+                    fs:Hide()
+                end
             end
+        end
+    end
+
+    return activeKey
+end
+
+local function updateTagState(oldStates, cfg, tagList, key, case, tagType)
+    local current_state = cfg.showCases[case] and tagType or nil
+    local old_state = oldStates[case]
+
+    if old_state ~= current_state then
+        -- Remove from old bucket
+        if old_state and tagList[case] and tagList[case][old_state] then
+            tagList[case][old_state][key] = nil
+        end
+
+        -- Add to new bucket
+        if current_state then
+            tagList[case] = tagList[case] or {}
+            tagList[case][current_state] = tagList[case][current_state] or {}
+
+            cfg._states[case] = current_state
+            cfg._stateNames[case] = tags.typeNames[current_state] or nil
+            cfg._stateColours[case] = tags.colours[current_state] or nil
+
+            tagList[case][current_state][key] = cfg
+        else
+            cfg._states[case] = nil
+            cfg._stateNames[case] = nil
+            cfg._stateColours[case] = nil
         end
     end
 end
 
 function tags:updateTagText(key, cfg, unit)
+    local tagList = tags.tagGroups[unit]
+
     local out, limits, state = tags:splitTags(cfg.tagText, UCB.tags.openDelim, UCB.tags.closeDelim)
 
     local textIsDynamic
@@ -472,31 +548,70 @@ function tags:updateTagText(key, cfg, unit)
         textIsDynamic = false
     end
 
-    if cfg.mainType == "cast" then
-        if state == "static" and (not cfg.showType.normal or not cfg.showType.channel or not cfg.showType.empowered) then
-            state = "semiDynamic"
-        end
-    else
-        state = cfg.mainType
+    if state == "static" and (not cfg.showType.normal or not cfg.showType.channel or not cfg.showType.empowered) then
+        state = "semiDynamic"
     end
-   
-    local oldTag = tags.typeTags[cfg._type]
+
     cfg._formula = out
     cfg._limits = limits
-    cfg._type = tags.typeNames[state]
-    cfg._typeColour = tags.colours[state]
 
-    local tagList = tags.tagGroups[unit]
-    tagList[state][key] = cfg
-    if oldTag and oldTag ~= state then
-        tagList[oldTag][key] = nil
+    local showGCD = cfg.showCases.gcd and UCB:IsPlayer(unit)
+
+    local oldStates = cfg._states
+    if oldStates then
+        -- Cast
+        updateTagState(oldStates, cfg, tagList, key, "cast", state)
+
+        -- GCD, only for player units
+        updateTagState(oldStates, cfg, tagList, key, "gcd", showGCD and state or nil)
+
+        -- Interrupted
+        updateTagState(oldStates, cfg, tagList, key, "interrupted", "interrupted")
+
+        -- Cancelled
+        updateTagState(oldStates, cfg, tagList, key, "cancelled", "cancelled")
+
+    else
+        -- Make state per type of case
+        cfg._states = {
+            cast = cfg.showCases.cast and state or nil,
+            gcd = showGCD and state or nil,
+            interrupted = cfg.showCases.interrupted and "interrupted" or nil,
+            cancelled = cfg.showCases.cancelled and "cancelled" or nil,
+        }
+
+        cfg._stateNames = {
+            cast = cfg._states.cast and tags.typeNames[cfg._states.cast] or nil,
+            gcd = cfg._states.gcd and tags.typeNames[cfg._states.gcd] or nil,
+            interrupted = cfg._states.interrupted and tags.typeNames[cfg._states.interrupted] or nil,
+            cancelled = cfg._states.cancelled and tags.typeNames[cfg._states.cancelled] or nil,
+        }
+
+        cfg._stateColours = {
+            cast = cfg._states.cast and tags.colours[cfg._states.cast] or nil,
+            gcd = cfg._states.gcd and tags.colours[cfg._states.gcd] or nil,
+            interrupted = cfg._states.interrupted and tags.colours[cfg._states.interrupted] or nil,
+            cancelled = cfg._states.cancelled and tags.colours[cfg._states.cancelled] or nil,
+        }
+
+        -- Insert the cfg into tagGroups
+        for caseName, stateName in pairs(cfg._states) do
+            if stateName then
+                tagList[caseName] = tagList[caseName] or {}
+                tagList[caseName][stateName] = tagList[caseName][stateName] or {}
+                tagList[caseName][stateName][key] = cfg
+            end
+        end
     end
+
     cfg._dynamicTag = textIsDynamic
 end
 
 
 function tags:hideTextFromEffect(bar, effect)
-    local active_tags = bar._activeTags[effect]
+    local activeKey = effect .. ":" .. effect
+    local active_tags = bar._activeTags and bar._activeTags[activeKey]
+
     if active_tags then
         for i = 1, #active_tags do
             active_tags[i].fs:Hide()
@@ -504,12 +619,23 @@ function tags:hideTextFromEffect(bar, effect)
     end
 end
 
+local function ActiveKeyHasState(activeKey, state)
+    return activeKey:match(":" .. state .. "$") ~= nil
+end
+
 local function hideTextOnEffect(bar, effect)
-    for state, active in pairs(bar._activeTags or {}) do
-        if state == "dynamic" or state == "semiDynamic" then
+    for activeKey, active in pairs(bar._activeTags or {}) do
+        if ActiveKeyHasState(activeKey, "dynamic") or ActiveKeyHasState(activeKey, "semiDynamic") then
             for i = 1, #active do
                 local t = active[i]
-                if not t.showOnEffect[effect] then
+                local showCases = t.showCases
+
+                local shownOnCast = showCases and showCases.cast
+                local shownOnEffect = showCases and showCases[effect]
+
+                -- If this tag is enabled for both cast and the effect,
+                -- keep the cast text visible and do not hide it.
+                if not (shownOnCast and shownOnEffect) then
                     t.fs:Hide()
                 end
             end
@@ -519,31 +645,42 @@ end
 
 function tags:ShowEffectTags(bar, effect, castType, unit)
     hideTextOnEffect(bar, effect)
-    tags:setTextSameState(bar, effect, unit, castType, false)
+
+    -- Show effect-only tags.
+    -- Tags that are both cast + effect should stay as cast tags
+    -- and should be ignored by the effect state.
+    tags:setTextSameState(bar, effect, effect, unit, castType, false, nil, nil, true)
 end
 
 -- !!!!!!!!!!!!!!!!!!!!!!! DYNAMIC UPDATE FUNCTION !!!!!!!!!!!!!!!!!!!!!!!!
-function tags:ApplyTextState(bar, state, unit, remaining, elapsed)
-    local active = bar._activeTags and bar._activeTags[state]
+function tags:ApplyTextState(bar, case, state, unit, remaining, elapsed)
+    if not bar._activeTags then return end
+
+    -- Same defaulting rule as PrepareTextState
+    state = state or case
+
+    local activeKey = case .. ":" .. tostring(state)
+    local active = bar._activeTags[activeKey]
+
     if not active then return end
 
     for i = 1, #active do
         local t = active[i]
         local text, alphaText = tags:processCompiled(t.compiled, unit, remaining, elapsed, t)
         t.fs:SetText(text)
-        if (alphaText) then
+
+        if alphaText then
             t.fs:SetAlpha(alphaText)
         end
     end
 end
 
-
-function tags:setTextSameState(bar, state, unit, castType, prepareOnly, remaining)
+function tags:setTextSameState(bar, case, state, unit, castType, prepareOnly, remaining, elapsed, ignoreCastAlso)
     -- If prepareOnly=true, only do show/hide + build active list
     -- Otherwise do both (prepare then apply)
-    self:PrepareTextState(tags.tagGroups[unit], bar, state, castType)
+    self:PrepareTextState(tags.tagGroups[unit], bar, case, castType, state, ignoreCastAlso)
 
     if not prepareOnly then
-        self:ApplyTextState(bar, state, unit, remaining)
+        self:ApplyTextState(bar, case, state, unit, remaining, elapsed)
     end
 end
